@@ -1,0 +1,579 @@
+/* Professional Wallet Form Design */
+
+.wallet-container {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header Section */
+.wallet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.balance-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.balance-label {
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.balance-amount {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+}
+
+.action-btn.add-funds {
+    background: rgba(40, 167, 69, 0.9);
+}
+
+.action-btn.add-funds:hover {
+    background: #28a745;
+    transform: translateY(-2px);
+}
+
+.action-btn.send-money {
+    background: rgba(0, 123, 255, 0.9);
+}
+
+.action-btn.send-money:hover {
+    background: #007bff;
+    transform: translateY(-2px);
+}
+
+.action-btn.withdrawal {
+    background: rgba(220, 53, 69, 0.9);
+}
+
+.action-btn.withdrawal:hover {
+    background: #dc3545;
+    transform: translateY(-2px);
+}
+
+/* Form Header */
+.form-header {
+    padding: 25px 30px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.form-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Form Body */
+.form-body {
+    padding: 30px;
+}
+
+.form-field {
+    margin-bottom: 25px;
+}
+
+.field-label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.field-input {
+    position: relative;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    color: #2c3e50;
+}
+
+.form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input[readonly] {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* QR Code Section */
+.qr-section {
+    text-align: center;
+    margin: 35px 0;
+    padding: 30px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+}
+
+.qr-container {
+    display: inline-block;
+}
+
+.qr-code {
+    display: inline-block;
+    padding: 25px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.qr-image {
+    width: 200px;
+    height: 200px;
+    display: block;
+}
+
+.wallet-address {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.address-text {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #2c3e50;
+    word-break: break-all;
+}
+
+.shield-icon {
+    color: #28a745;
+    flex-shrink: 0;
+}
+
+/* Copy Button */
+.copy-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.copy-button:hover {
+    background: #5a6fd8;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.network-label {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+/* File Upload */
+.file-upload {
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.file-upload:hover {
+    border-color: #667eea;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #f8f9fa;
+}
+
+.file-text {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.file-button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.file-button:hover {
+    background: #5a6fd8;
+    transform: scale(1.05);
+}
+
+.image-preview {
+    position: relative;
+    margin-top: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+}
+
+.remove-image {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(220, 53, 69, 0.9);
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remove-image:hover {
+    background: #dc3545;
+    transform: scale(1.1);
+}
+
+/* Form Footer */
+.form-footer {
+    padding: 30px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.submit-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 16px 35px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Error States */
+.form-input.error, .form-select.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Alert Styles */
+.alert {
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wallet-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        padding: 25px 20px;
+    }
+    
+    .action-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .balance-amount {
+        font-size: 28px;
+    }
+    
+    .form-body {
+        padding: 20px;
+    }
+    
+    .qr-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .wallet-address {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .copy-button {
+        position: static;
+        transform: none;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .form-footer {
+        padding: 25px 20px;
+    }
+    
+    .submit-button {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .wallet-header {
+        padding: 20px 16px;
+    }
+    
+    .form-body {
+        padding: 16px;
+    }
+    
+    .form-footer {
+        padding: 20px 16px;
+    }
+    
+    .qr-image {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .action-btn {
+        padding: 10px 14px;
+        font-size: 12px;
+    }
+}
+
+/* Form Layout with Labels on Left Side */
+
+.wow_add_money_hid_form {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Form Row Layout */
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.form-label {
+    min-width: 140px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+    text-align: right;
+    margin: 0;
+    padding: 0;
+}
+
+.form-input-wrapper {
+    flex: 1;
+    width: 100%;
+    min-width: 0; /* Allows flex item to shrink below content size */
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    min-height: 44px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background-color: #ffffff;
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+    opacity: 0.7;
+}
+
+/* File input styling */
+.form-control[type="file"] {
+    padding: 10px 16px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+
+.form-control[type="file"]:hover {
+    background-color: #e9ecef;
+    border-color: #667eea;
+}
+
+/* Button styling */
+.btn-main {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.btn-main:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .form-label {
+        flex: none;
+        text-align: left;
+        padding-right: 0;
+        font-size: 13px;
+    }
+    
+    .form-input-wrapper {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .wow_add_money_hid_form {
+        padding: 20px;
+    }
+    
+    .btn-main {
+        width: 100%;
+        justify-content: center;
+    }
+}
