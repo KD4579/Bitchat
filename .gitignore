@@ -1,14 +1,73 @@
-/changes
-/cache
-/upload
-/*_updated.php
-/config.php
-/upload/photos/2018
-/upload/photos/2017
-/upload/videos/
-/upload/sounds/
-/upload/photos/
-/nodejs/models/wo_langs.js
-/vendorthemes/upload/videos/
-/themes/upload/videos/
+# ============================================
+# Bitchat Platform - Git Ignore Rules
+# ============================================
+
+# User uploaded content (DO NOT commit user data)
+upload/
 themes/upload/photos/
+themes/upload/videos/
+themes/upload/sounds/
+vendorthemes/upload/videos/
+vendorthemes/upload/photos/
+vendorthemes/upload/sounds/
+
+# Configuration files (contain sensitive data)
+config.php
+.env
+*.env
+nodejs/config.json
+
+# Cache and temporary files
+cache/
+/changes
+*_updated.php
+
+# Database dumps and backups
+*.sql
+*.sql.gz
+*.bak
+backup/
+backups/
+
+# Log files
+*.log
+logs/
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+__MACOSX/
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Node.js
+nodejs/node_modules/
+node_modules/
+npm-debug.log*
+
+# Generated language file
+/nodejs/models/wo_langs.js
+
+# ZIP archives (already extracted)
+*.zip
+
+# Temporary and test files
+*.tmp
+*.temp
+test_*
+temp/
