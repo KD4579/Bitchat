@@ -8,7 +8,7 @@ if (!function_exists("mysqli_connect")) {
     exit("MySQLi is required to run the application, please contact your hosting to enable php mysqli.");
 }
 date_default_timezone_set('UTC');
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 @ini_set('gd.jpeg_ignore_warning', 1);
 require_once('assets/libraries/DB/vendor/joshcam/mysqli-database-class/MySQL-Maria.php');
 require_once('includes/cache.php');
