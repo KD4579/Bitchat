@@ -192,6 +192,7 @@
       <?php } else { ?>
       <script src="<?php echo $wo['config']['theme_url'];?>/javascript/twilio-video.min.js?version=<?php echo $wo['config']['version']; ?>"></script>
       <link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style.css<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>">
+      <link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/skeleton-loader.css<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>">
       <?php } ?>
       <link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/font-awesome-4.7.0/css/font-awesome.min.css<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>">
 
@@ -940,6 +941,8 @@
        }
        ?>
       <script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/script.js<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>"></script>
+      <script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/infinite-scroll.js<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>"></script>
+      <script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/lazy-modals.js<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>"></script>
       <?php if ($wo['loggedin'] == true) {?>
       <?php if ($wo['config']['google_map'] == 1) { ?>
       <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo $wo['config']['google_map_api'];?>&libraries=places"></script>

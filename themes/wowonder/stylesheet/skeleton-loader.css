@@ -1,0 +1,317 @@
+/**
+ * Skeleton Loader Styles for Bitchat
+ * Shows animated placeholders while content loads
+ */
+
+/* Base skeleton animation */
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+/* Dark mode skeleton */
+.night-mode .skeleton,
+.dark .skeleton {
+    background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+    background-size: 200px 100%;
+}
+
+/* Post skeleton */
+.post-skeleton {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.night-mode .post-skeleton,
+.dark .post-skeleton {
+    background: #1e1e1e;
+}
+
+/* Header with avatar and name */
+.post-skeleton-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.post-skeleton-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.post-skeleton-info {
+    flex: 1;
+}
+
+.post-skeleton-name {
+    height: 14px;
+    width: 120px;
+    margin-bottom: 8px;
+}
+
+.post-skeleton-time {
+    height: 10px;
+    width: 80px;
+}
+
+/* Post content */
+.post-skeleton-content {
+    margin-bottom: 15px;
+}
+
+.post-skeleton-text {
+    height: 12px;
+    margin-bottom: 8px;
+}
+
+.post-skeleton-text:nth-child(1) { width: 100%; }
+.post-skeleton-text:nth-child(2) { width: 85%; }
+.post-skeleton-text:nth-child(3) { width: 70%; }
+
+/* Post image placeholder */
+.post-skeleton-image {
+    height: 200px;
+    width: 100%;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+/* Post actions */
+.post-skeleton-actions {
+    display: flex;
+    gap: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.night-mode .post-skeleton-actions,
+.dark .post-skeleton-actions {
+    border-top-color: #333;
+}
+
+.post-skeleton-action {
+    height: 20px;
+    width: 60px;
+}
+
+/* User suggestion skeleton */
+.user-skeleton {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.user-skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-skeleton-name {
+    height: 12px;
+    width: 100px;
+}
+
+/* Notification skeleton */
+.notification-skeleton {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.night-mode .notification-skeleton,
+.dark .notification-skeleton {
+    border-bottom-color: #333;
+}
+
+.notification-skeleton-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.notification-skeleton-content {
+    flex: 1;
+}
+
+.notification-skeleton-text {
+    height: 12px;
+    width: 180px;
+    margin-bottom: 5px;
+}
+
+.notification-skeleton-time {
+    height: 10px;
+    width: 60px;
+}
+
+/* Infinite scroll loader */
+.infinite-scroll-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    min-height: 60px;
+}
+
+.infinite-scroll-loader.hidden {
+    display: none;
+}
+
+.infinite-scroll-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f0f0f0;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.night-mode .infinite-scroll-spinner,
+.dark .infinite-scroll-spinner {
+    border-color: #333;
+    border-top-color: #3498db;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* End of feed message */
+.end-of-feed {
+    text-align: center;
+    padding: 30px 20px;
+    color: #888;
+    font-size: 14px;
+}
+
+.end-of-feed i {
+    font-size: 40px;
+    margin-bottom: 10px;
+    display: block;
+    opacity: 0.5;
+}
+
+/* Loading overlay for modals */
+.modal-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.night-mode .modal-loading-overlay,
+.dark .modal-loading-overlay {
+    background: rgba(30,30,30,0.9);
+}
+
+/* Comment skeleton */
+.comment-skeleton {
+    display: flex;
+    padding: 10px 0;
+}
+
+.comment-skeleton-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.comment-skeleton-content {
+    flex: 1;
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+.night-mode .comment-skeleton-content,
+.dark .comment-skeleton-content {
+    background: #2d2d2d;
+}
+
+.comment-skeleton-name {
+    height: 12px;
+    width: 80px;
+    margin-bottom: 6px;
+}
+
+.comment-skeleton-text {
+    height: 10px;
+    width: 150px;
+}
+
+/* Story skeleton */
+.story-skeleton {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.story-skeleton-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+}
+
+.story-skeleton-name {
+    height: 10px;
+    width: 50px;
+    margin: 0 auto;
+}
+
+/* Chat list skeleton */
+.chat-skeleton {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+}
+
+.chat-skeleton-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.chat-skeleton-info {
+    flex: 1;
+}
+
+.chat-skeleton-name {
+    height: 13px;
+    width: 100px;
+    margin-bottom: 6px;
+}
+
+.chat-skeleton-message {
+    height: 11px;
+    width: 140px;
+}
