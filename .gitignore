@@ -71,3 +71,31 @@ npm-debug.log*
 *.temp
 test_*
 temp/
+
+# Installer files (remove after installation)
+instoll/
+install.zip
+install/
+
+# Security - never commit these
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+credentials/
+.env.local
+.env.*.local
+
+# Package lock files (optional - uncomment if needed)
+# package-lock.json
+# yarn.lock
+
+# Build and distribution
+dist/
+build/
+*.out
+
+# Error logs
+error_log
+php_errors.log

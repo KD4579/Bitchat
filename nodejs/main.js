@@ -1,15 +1,21 @@
 const moment = require("moment");
-var fs = require('fs');
-var express = require('express');
-var app = express();
+const fs = require('fs');
+const express = require('express');
+const app = express();
 const path = require('path');
+const { Server } = require('socket.io');
 
 let ctx = {};
 
-// var http = require('http').createServer(app);
-// var io = require('socket.io')(http);
 const configFile = require("./config.json")
 const { Sequelize, Op, DataTypes } = require("sequelize");
+
+// Allowed origins for CORS - UPDATE THIS with your actual domain
+const ALLOWED_ORIGINS = [
+  configFile.site_url,
+  "http://localhost",
+  "http://127.0.0.1"
+];
 
 // const notificationTemplate = Handlebars.compile(notification.toString());
 
@@ -130,23 +136,54 @@ async function main() {
   app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
   });
-  io = require('socket.io')(server, {
-    allowEIO3: true,
+
+  // Socket.io v4 initialization with secure CORS
+  io = new Server(server, {
     cors: {
-        origin: true,
-        credentials: true
+      origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+
+        // Check if origin is allowed
+        if (ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed))) {
+          callback(null, true);
+        } else {
+          console.warn('Blocked CORS request from:', origin);
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true,
+      methods: ["GET", "POST"]
     },
+    pingTimeout: 60000,
+    pingInterval: 25000
   });
+
+  // Redis adapter for socket.io v4 (if enabled)
   if (ctx.globalconfig["redis"] === "Y") {
-    const redisAdapter = require('socket.io-redis');
-    io.adapter(redisAdapter({ host: 'localhost', port: ctx.globalconfig["redis_port"] }));
+    const { createAdapter } = require('@socket.io/redis-adapter');
+    const { createClient } = require('redis');
+
+    const pubClient = createClient({
+      host: 'localhost',
+      port: ctx.globalconfig["redis_port"] || 6379
+    });
+    const subClient = pubClient.duplicate();
+
+    Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+      io.adapter(createAdapter(pubClient, subClient));
+      console.log('Redis adapter connected');
+    }).catch(err => {
+      console.error('Redis connection failed:', err);
+    });
   }
-  io.on('connection', async (socket, query) => {
+
+  io.on('connection', async (socket) => {
     await listeners.registerListeners(socket, io, ctx)
   })
 
   server.listen(serverPort, function() {
-    console.log('server up and running at %s port', serverPort);
+    console.log('Bitchat server running on port %s', serverPort);
   });
 }
 
