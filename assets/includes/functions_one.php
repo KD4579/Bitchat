@@ -5594,6 +5594,14 @@ function Wo_RegisterPost($re_data = array('recipient_id' => 0)) {
                 Wo_RegisterPoint($post_id, "createpost");
             }
         }
+
+        // Invalidate feed cache after new post creation
+        if (class_exists('BitchatCache')) {
+            BitchatCache::invalidateFeed($wo['user']['user_id']);
+            // Also invalidate global trending cache
+            BitchatCache::delete('trending');
+        }
+
         return $post_id;
     }
 }

@@ -10,12 +10,12 @@ class BitchatCache {
     private static $prefix = 'bitchat:';
 
     // Cache TTL constants (in seconds)
-    const TTL_NEWS_FEED = 60;        // 1 minute
+    const TTL_NEWS_FEED = 30;        // 30 seconds (reduced for fresh content)
     const TTL_NOTIF_COUNT = 10;      // 10 seconds
     const TTL_SUGGESTIONS = 300;     // 5 minutes
-    const TTL_TRENDING = 120;        // 2 minutes
-    const TTL_USER_DATA = 60;        // 1 minute
-    const TTL_SHORT = 30;            // 30 seconds
+    const TTL_TRENDING = 60;         // 1 minute (reduced)
+    const TTL_USER_DATA = 30;        // 30 seconds
+    const TTL_SHORT = 15;            // 15 seconds
 
     /**
      * Initialize Redis connection

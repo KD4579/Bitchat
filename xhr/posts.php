@@ -896,7 +896,9 @@ if ($f == 'posts') {
             }
         }
         $data = array(
-            'status' => 200
+            'status' => 200,
+            'message' => $wo['lang']['post_published'] ?? 'Post published successfully!',
+            'post_id' => $id
         );
         header("Content-type: application/json");
         echo json_encode($data);

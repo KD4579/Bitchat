@@ -1,7 +1,15 @@
 <?php
-// You can access the admin panel by using the following url: http://yoursite.com/admincp 
+// You can access the admin panel by using the following url: http://yoursite.com/admincp
 
 require 'assets/init.php';
+
+// Rate limit admin panel access (30 requests per minute)
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (class_exists('BitchatSecurity') && !BitchatSecurity::rateLimit('admincp_access', $clientIp, 30, 60)) {
+    BitchatSecurity::logSecurityEvent('RATE_LIMIT', 'Admin panel access rate limited');
+    http_response_code(429);
+    die('Too many requests. Please try again later.');
+}
 
 $is_admin = Wo_IsAdmin();
 $is_moderoter = Wo_IsModerator();
@@ -15,9 +23,13 @@ if ($wo['config']['maintenance_mode'] == 1) {
             header("Location: " . Wo_SeoLink('index.php?link1=welcome') . $wo['marker'] . 'm=true');
             exit();
         }
-    } 
+    }
 }
 if ($is_admin == false && $is_moderoter == false) {
+    // Log unauthorized access attempt
+    if (class_exists('BitchatSecurity')) {
+        BitchatSecurity::logSecurityEvent('UNAUTHORIZED_ADMIN', 'Unauthorized admin panel access attempt');
+    }
 	header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
     exit();
 }

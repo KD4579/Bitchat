@@ -13,6 +13,7 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once('assets/libraries/DB/vendor/joshcam/mysqli-database-class/MySQL-Maria.php');
 require_once('includes/cache.php');
 require_once('includes/redis_cache.php');
+require_once('includes/security_helpers.php');
 require_once('includes/functions_general.php');
 require_once('includes/tabels.php');
 require_once('includes/functions_one.php');
