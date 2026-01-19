@@ -880,6 +880,23 @@ $(function () {
 			var percentVal = '0%';
 			bar.width(percentVal);
 			publisher_button.attr('disabled', true);
+
+			// Optimistic UI: Show skeleton loader immediately
+			var skeletonHtml = '<div class="post optimistic-post-skeleton" id="optimistic-post-temp">' +
+				'<div class="wow_content p15 tag_post_skel">' +
+				'<div class="valign">' +
+				'<div class="skel skel_50 skel_avatar"></div>' +
+				'<div><div class="skel skel_2 skel_noti_name"></div>' +
+				'<div class="skel skel_2 skel_noti_time"></div></div>' +
+				'</div>' +
+				'<div class="skel skel_post_content" style="height:60px;margin:15px 0;"></div>' +
+				'<div class="valign tag_post_skel_foot">' +
+				'<div class="valign"><div class="skel skel_action"></div>' +
+				'<div class="skel skel_action"></div></div>' +
+				'<div><div class="skel skel_action"></div></div>' +
+				'</div></div></div>';
+			$('#posts, #posts_hashtag').find('.posts-container').remove();
+			$('#posts, #posts_hashtag').prepend(skeletonHtml);
 		},
 		uploadProgress: function (event, position, total, percentComplete) {
 			var percentVal = percentComplete + '%';
@@ -898,6 +915,9 @@ $(function () {
 			deleted_images = [];
 		},
 		success: function (data) {
+			// Remove optimistic skeleton
+			$('#optimistic-post-temp').remove();
+
 			$("#image-holder").empty();
 			imgArray = [];
 			$('#tagPostBox').modal('hide');
@@ -912,7 +932,7 @@ $(function () {
 			$("#postRecord").val('');
 			$("#postSticker").val('');
 			if(data.status == 200) {
-				if(data.html.length > 0) {
+				if(data.html && data.html.length > 0) {
 					$('#posts, #posts_hashtag').find('.posts-container').remove();
 				}
 				if (data.mention && data.mention.length > 0 && node_socket_flow == "1") {
@@ -927,8 +947,18 @@ $(function () {
 				if ($("[name='page_id']").length > 0) {
 					if (node_socket_flow == "1") { socket.emit("page_notification", { to_id: $("[name='page_id']").val(), user_id: _getCookie("user_id")}); }
 				}
-				
-				$('#posts, #posts_hashtag').prepend(data.html);
+
+				// Prepend actual post with fade-in animation
+				if (data.html && data.html.length > 0) {
+					var $newPost = $(data.html).hide();
+					$('#posts, #posts_hashtag').prepend($newPost);
+					$newPost.fadeIn(300);
+				}
+
+				// Show success message
+				$("body").snackbar({
+					message: data.message || "<?php echo $wo['lang']['post_published'] ?? 'Post published successfully!'; ?>"
+				});
 				if (data.send_notify && data.send_notify == 'yes' && data.post_id) {
 					$.post(Wo_Ajax_Requests_File() + '?f=posts&s=send_notify', {post_id: data.post_id}, function(data, textStatus, xhr) {});
 				}
@@ -998,6 +1028,8 @@ $(function () {
 					intervalUpdates = setTimeout(function(){ Wo_intervalUpdates(1, 1); }, 10000);
 				}
 			} else if (data.status == 400) {
+				// Remove optimistic skeleton on error
+				$('#optimistic-post-temp').remove();
 				if (data.invalid_file == 1) {
 					$("body").snackbar({
 						message: "<?php echo str_replace('{file_size}', Wo_SizeUnits($wo['config']['maxUpload']), $wo['lang']['file_too_big']); ?>"
@@ -1028,9 +1060,19 @@ $(function () {
 						},3000);
 					}
 				}
-			} 
+			}
 			fetch_url = 1;
 			publisher_button.attr('disabled', false);
+		},
+		error: function(xhr, status, error) {
+			// Remove optimistic skeleton on AJAX error
+			$('#optimistic-post-temp').remove();
+			$('.msg_progress').fadeOut(100);
+			$('.tag_pub_box_progress').fadeOut(100);
+			publisher_button.attr('disabled', false);
+			$("body").snackbar({
+				message: "<?php echo $wo['lang']['error_occurred'] ?? 'An error occurred. Please try again.'; ?>"
+			});
 		}
 	});
 

@@ -138,7 +138,14 @@ if (!in_array($f, $allow_array)) {
 if (!in_array($f, $non_login_array)) {
     if ($wo['loggedin'] == false && ($s != 'load_more_posts')) {
         if ($s != 'load-comments') {
-            exit("Please login or signup to continue.");
+            // Return JSON response for session expiry (better for AJAX handling)
+            header("Content-type: application/json");
+            echo json_encode(array(
+                'status' => 401,
+                'error' => 'session_expired',
+                'message' => 'Please login or signup to continue.'
+            ));
+            exit();
         }
     }
 }

@@ -490,7 +490,8 @@ if ($f == 'posts') {
         if (!empty($_POST['postText']) && !ctype_space($_POST['postText'])) {
             $post_text = $_POST['postText'];
         }
-        if(!empty($_POST['postCost'])){
+        $post_cost = 0; // Default to free post
+        if(!empty($_POST['postCost']) && is_numeric($_POST['postCost'])){
             $post_cost = $_POST['postCost'];
         }
         if (!empty($_POST['postMap'])) {
@@ -1036,7 +1037,7 @@ if ($f == 'posts') {
             }
             $postsData = array(
                 'filter_by' => Wo_Secure($_GET['filter_by_more']),
-                'limit' => 6,
+                'limit' => 10, // Changed from 6 to 10 for consistent pagination
                 'publisher_id' => $user_id,
                 'group_id' => $group_id,
                 'page_id' => $page_id,

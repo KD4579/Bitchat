@@ -6341,8 +6341,12 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
             $query_text .= " AND `active` = '1' ";
         }
     }
+    // Exclude boosted/promoted posts from normal feed (they appear separately)
+    if (empty($data['include_boosted'])) {
+        $query_text .= " AND `boosted` = '0' ";
+    }
     if (empty($data['limit']) or !is_numeric($data['limit']) or $data['limit'] < 1) {
-        $data['limit'] = 5;
+        $data['limit'] = 10; // Default to 10 posts per page for better UX
     }
     $limit   = Wo_Secure($data['limit']);
     $last_ad = 0;
