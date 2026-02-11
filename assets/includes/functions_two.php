@@ -5503,7 +5503,10 @@ function Wo_ConfirmSMSUser($user_id, $code, $email_code = "") {
     }
 }
 function Wo_CreateSession() {
-    $hash = sha1(rand(1111, 9999));
+    // Use cryptographically secure random instead of weak sha1(rand())
+    // Old: sha1(rand(1111, 9999)) = only 9,000 possible values
+    // New: bin2hex(random_bytes(20)) = 2^160 possible values
+    $hash = bin2hex(random_bytes(20)); // 40 hex characters
     if (!empty($_SESSION["hash_id"])) {
         $_SESSION["hash_id"] = $_SESSION["hash_id"];
         return $_SESSION["hash_id"];
@@ -5518,13 +5521,17 @@ function Wo_CheckSession($hash = "") {
     if (empty($hash)) {
         return false;
     }
-    if ($hash == $_SESSION["hash_id"]) {
+    // Use hash_equals() instead of == for timing-safe comparison
+    if (hash_equals($_SESSION["hash_id"], $hash)) {
         return true;
     }
     return false;
 }
 function Wo_CreateMainSession() {
-    $hash = substr(sha1(rand(1111, 9999)), 0, 20);
+    // Use cryptographically secure random instead of weak sha1(rand())
+    // Old: substr(sha1(rand(1111, 9999)), 0, 20) = only 9,000 possible values
+    // New: bin2hex(random_bytes(10)) = 2^80 possible values (20 hex chars)
+    $hash = bin2hex(random_bytes(10)); // 20 hex characters (same length as before)
     if (!empty($_SESSION["main_hash_id"])) {
         $_SESSION["main_hash_id"] = $_SESSION["main_hash_id"];
         return $_SESSION["main_hash_id"];
@@ -5539,7 +5546,8 @@ function Wo_CheckMainSession($hash = "") {
     if (empty($hash)) {
         return false;
     }
-    if ($hash == $_SESSION["main_hash_id"]) {
+    // Use hash_equals() instead of == for timing-safe comparison
+    if (hash_equals($_SESSION["main_hash_id"], $hash)) {
         return true;
     }
     return false;
