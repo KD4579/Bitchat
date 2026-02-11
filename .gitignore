@@ -72,6 +72,12 @@ npm-debug.log*
 test_*
 temp/
 
+# Localhost server PID and log files
+.php-server.pid
+.nodejs-server.pid
+php-server.log
+nodejs-server.log
+
 # Installer files (remove after installation)
 instoll/
 install.zip
