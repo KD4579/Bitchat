@@ -207,7 +207,7 @@ function scrollToTop() {
 function Wo_IsLogged() {
   $.post(Wo_Ajax_Requests_File() + '?f=session_status', function (data) {
     setTimeout(Wo_UpdateLastSeen, 30000);
-    if(data.status == 200) {
+    if(data.status == 200 && data.logged_in == false) {
       $('#logged-out-modal').modal({
         show: true
       });
