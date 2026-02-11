@@ -47,9 +47,20 @@ echo ""
 echo "📡 Starting servers..."
 echo ""
 
-# Start PHP server in background
+# Start PHP server in background with session configuration
 echo "🐘 Starting PHP server on http://localhost:8000"
-php -S localhost:8000 > php-server.log 2>&1 &
+php -S localhost:8000 \
+  -d session.save_handler=files \
+  -d session.gc_maxlifetime=14400 \
+  -d session.cookie_httponly=1 \
+  -d session.use_strict_mode=1 \
+  -d session.cookie_secure=0 \
+  -d session.cookie_samesite=Lax \
+  -d memory_limit=256M \
+  -d upload_max_filesize=1024M \
+  -d post_max_size=1024M \
+  -d max_execution_time=300 \
+  > php-server.log 2>&1 &
 PHP_PID=$!
 
 # Wait a moment for PHP to start
