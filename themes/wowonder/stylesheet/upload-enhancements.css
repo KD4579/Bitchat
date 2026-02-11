@@ -1,0 +1,322 @@
+/**
+ * Enhanced Upload UI Styles for Bitchat
+ * Progress bars, drag-drop zones, file previews, and validation feedback
+ */
+
+/* Upload Progress Bar */
+.upload-progress-container {
+    width: 100%;
+    margin: 10px 0;
+    display: none;
+}
+
+.upload-progress-bar {
+    width: 100%;
+    height: 6px;
+    background-color: #ecf0f1;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.upload-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.upload-status-text {
+    margin-top: 5px;
+    font-size: 13px;
+    color: #7f8c8d;
+    display: none;
+}
+
+/* File Preview */
+.upload-preview {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e1e8ed;
+    text-align: center;
+}
+
+.upload-preview img,
+.upload-preview video {
+    display: block;
+    margin: 0 auto 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.upload-preview .file-icon {
+    margin: 10px 0;
+}
+
+.upload-preview .file-info {
+    font-size: 13px;
+    color: #34495e;
+    margin-top: 10px;
+    word-break: break-word;
+}
+
+/* Drag and Drop Zone */
+.drag-drop-zone {
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.drag-drop-zone:hover {
+    border-color: #3498db;
+    background: #eef6fc;
+}
+
+.drag-drop-zone.drag-over {
+    border-color: #2ecc71;
+    background: #e8f8f0;
+    transform: scale(1.02);
+}
+
+.drag-drop-zone .drop-icon {
+    font-size: 48px;
+    color: #95a5a6;
+    margin-bottom: 15px;
+}
+
+.drag-drop-zone .drop-text {
+    font-size: 16px;
+    color: #34495e;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.drag-drop-zone .drop-hint {
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.drag-drop-zone.drag-over .drop-icon {
+    color: #27ae60;
+    animation: bounce 0.5s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Validation Error Messages */
+.upload-error {
+    margin: 10px 0;
+    padding: 12px 15px;
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 6px;
+    color: #c33;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-error::before {
+    content: '⚠️';
+    font-size: 18px;
+}
+
+.upload-success {
+    margin: 10px 0;
+    padding: 12px 15px;
+    background: #efe;
+    border: 1px solid #cfc;
+    border-radius: 6px;
+    color: #3c3;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-success::before {
+    content: '✓';
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* File Size Indicator */
+.file-size-indicator {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.file-size-indicator.size-ok {
+    background: #d5f4e6;
+    color: #27ae60;
+}
+
+.file-size-indicator.size-warning {
+    background: #fff3cd;
+    color: #f39c12;
+}
+
+.file-size-indicator.size-error {
+    background: #f8d7da;
+    color: #e74c3c;
+}
+
+/* Upload Queue (for multiple files) */
+.upload-queue {
+    margin: 15px 0;
+}
+
+.upload-queue-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #fff;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    gap: 12px;
+}
+
+.upload-queue-item .file-icon {
+    font-size: 32px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.upload-queue-item .file-details {
+    flex: 1;
+}
+
+.upload-queue-item .file-name {
+    font-size: 14px;
+    color: #2c3e50;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.upload-queue-item .file-meta {
+    font-size: 12px;
+    color: #95a5a6;
+}
+
+.upload-queue-item .file-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.upload-queue-item .btn-cancel {
+    padding: 4px 12px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.upload-queue-item .btn-cancel:hover {
+    background: #c0392b;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .drag-drop-zone {
+        padding: 30px 15px;
+    }
+
+    .drag-drop-zone .drop-icon {
+        font-size: 36px;
+    }
+
+    .drag-drop-zone .drop-text {
+        font-size: 14px;
+    }
+
+    .upload-preview img,
+    .upload-preview video {
+        max-height: 150px;
+    }
+}
+
+/* Integration with existing Bitchat styles */
+.publisher-box .upload-progress-container,
+.wow_content .upload-progress-container {
+    margin: 10px 15px;
+}
+
+/* Accessibility */
+.drag-drop-zone:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+.upload-progress-bar[role="progressbar"] {
+    /* Screen reader support */
+}
+
+/* Animation for successful upload */
+@keyframes upload-success {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.upload-complete {
+    animation: upload-success 0.5s ease;
+}
+
+/* Compact progress indicator for comment uploads */
+.comment-upload-progress {
+    height: 4px;
+    background: #ecf0f1;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 5px 0;
+}
+
+.comment-upload-progress .progress-fill {
+    height: 100%;
+    background: #3498db;
+    width: 0%;
+    transition: width 0.2s ease;
+}
