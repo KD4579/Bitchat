@@ -3376,7 +3376,7 @@ function Wo_GetSearchFilter($result, $limit = 30, $offset = 0) {
     }
     if (!empty($result['filterbyage']) && $result['filterbyage'] == 'yes') {
         if (!empty($result['age_from']) && $result['age_from'] > 0) {
-            $query .= " AND TIMESTAMPDIFF(YEAR, `birthday`, CURDATE()) > '" . $result['age_from'] . "' AND TIMESTAMPDIFF(YEAR, `birthday`, CURDATE()) < '" . $result['age_to'] . "' ";
+            $query .= " AND TIMESTAMPDIFF(YEAR, `birthday`, CURDATE()) >= '" . $result['age_from'] . "' AND TIMESTAMPDIFF(YEAR, `birthday`, CURDATE()) <= '" . $result['age_to'] . "' ";
         }
     }
     if (isset($result['image'])) {

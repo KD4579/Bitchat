@@ -1,7 +1,10 @@
 <?php 
 if ($f == 'load-more-users') {
-    $offset = (isset($_GET['offset']) && is_numeric($_GET['offset'])) ? $_GET['offset'] : false;
-    $query  = (isset($_GET['query'])) ? $_GET['query'] : '';
+    // Accept from both GET and POST for compatibility
+    $offset = (isset($_POST['offset']) && is_numeric($_POST['offset'])) ? $_POST['offset'] :
+              ((isset($_GET['offset']) && is_numeric($_GET['offset'])) ? $_GET['offset'] : false);
+    $query  = (isset($_POST['query'])) ? $_POST['query'] :
+              ((isset($_GET['query'])) ? $_GET['query'] : '');
     $html   = "";
     $data   = array(
         "status" => 404,
@@ -9,8 +12,10 @@ if ($f == 'load-more-users') {
     );
 
     if ($offset) {
+        // Merge POST and GET parameters for filter compatibility
+        $search_params = array_merge($_GET, $_POST);
         $groups = Wo_GetSearchFilter(
-            $_POST
+            $search_params
         , 10, $offset);
         if (count($groups) > 0) {
             foreach ($groups as $wo['result']) {
