@@ -184,12 +184,19 @@ class BitchatSecurity {
      */
     public static function requireCsrfToken($token = null, $logFailure = true) {
         // Auto-detect token from request
+        // Checks: csrf_token (new), hash_id (legacy form), hash (AJAX legacy)
         if ($token === null) {
-            $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? $_POST['hash_id'] ?? $_GET['hash_id'] ?? null;
+            $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ??
+                     $_POST['hash_id'] ?? $_GET['hash_id'] ??
+                     $_POST['hash'] ?? $_GET['hash'] ?? null;
         }
 
-        // Verify token
-        if (empty($token) || !self::verifyCsrfToken($token)) {
+        // Verify token using new or legacy method
+        $isValid = self::verifyCsrfToken($token) ||
+                   (isset($_SESSION['main_hash_id']) && hash_equals($_SESSION['main_hash_id'], $token ?? '')) ||
+                   (isset($_SESSION['hash_id']) && hash_equals($_SESSION['hash_id'], $token ?? ''));
+
+        if (empty($token) || !$isValid) {
             if ($logFailure) {
                 self::logSecurityEvent('CSRF_FAILURE',
                     'Invalid or missing CSRF token | Request: ' . ($_SERVER['REQUEST_URI'] ?? 'unknown'));
