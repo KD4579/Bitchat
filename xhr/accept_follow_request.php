@@ -1,5 +1,8 @@
-<?php 
+<?php
 if ($f == 'accept_follow_request') {
+    // CSRF Protection - Prevent unauthorized follow request acceptance
+    BitchatSecurity::requireCsrfToken();
+
     if (isset($_GET['following_id'])) {
         if (Wo_AcceptFollowRequest($_GET['following_id'], $wo['user']['user_id'])) {
             $data = array(

@@ -1,5 +1,8 @@
-<?php 
+<?php
 if ($f == "add-blog-crlikes") {
+    // CSRF Protection - Prevent unauthorized comment reply likes
+    BitchatSecurity::requireCsrfToken();
+
     $data = array(
         'status' => 304
     );

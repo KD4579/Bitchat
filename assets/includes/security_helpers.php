@@ -176,6 +176,37 @@ class BitchatSecurity {
     }
 
     /**
+     * Require valid CSRF token or terminate request
+     * Call this at the beginning of sensitive XHR handlers
+     * @param string|null $token Token to verify (auto-detects from POST/GET if null)
+     * @param bool $logFailure Whether to log CSRF failures (default: true)
+     * @return void Exits with 403 error if token invalid
+     */
+    public static function requireCsrfToken($token = null, $logFailure = true) {
+        // Auto-detect token from request
+        if ($token === null) {
+            $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? $_POST['hash_id'] ?? $_GET['hash_id'] ?? null;
+        }
+
+        // Verify token
+        if (empty($token) || !self::verifyCsrfToken($token)) {
+            if ($logFailure) {
+                self::logSecurityEvent('CSRF_FAILURE',
+                    'Invalid or missing CSRF token | Request: ' . ($_SERVER['REQUEST_URI'] ?? 'unknown'));
+            }
+
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => 403,
+                'error' => 'Invalid security token. Please refresh the page and try again.',
+                'error_id' => 'csrf_token_invalid'
+            ]);
+            exit();
+        }
+    }
+
+    /**
      * Log security event
      * @param string $event Event type
      * @param string $details Event details

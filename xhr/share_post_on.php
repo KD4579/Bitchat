@@ -1,5 +1,8 @@
-<?php 
+<?php
 if ($f == 'share_post_on') {
+    // CSRF Protection - Prevent unauthorized post sharing
+    BitchatSecurity::requireCsrfToken();
+
     $data_info = array();
     $data['status'] = 400;
     $result = false;

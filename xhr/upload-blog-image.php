@@ -1,5 +1,8 @@
-<?php 
+<?php
 if ($f == 'upload-blog-image') {
+    // CSRF Protection - Prevent unauthorized blog image uploads
+    BitchatSecurity::requireCsrfToken();
+
     reset($_FILES);
     $temp = current($_FILES);
     if (is_uploaded_file($temp['tmp_name'])) {

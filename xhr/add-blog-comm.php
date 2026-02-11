@@ -1,5 +1,8 @@
-<?php 
+<?php
 if ($f == "add-blog-comm") {
+    // CSRF Protection - Prevent unauthorized blog comments
+    BitchatSecurity::requireCsrfToken();
+
     $html = "";
     if (isset($_POST['text']) && isset($_POST['blog']) && is_numeric(($_POST['blog'])) && strlen($_POST['text']) > 2) {
         $registration_data = array(

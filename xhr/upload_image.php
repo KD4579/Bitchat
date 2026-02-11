@@ -1,5 +1,8 @@
-<?php 
+<?php
 if ($f == 'upload_image') {
+    // CSRF Protection - Prevent unauthorized file uploads
+    BitchatSecurity::requireCsrfToken();
+
     if (isset($_FILES['image']['name'])) {
         $fileInfo = array(
             'file' => $_FILES["image"]["tmp_name"],
