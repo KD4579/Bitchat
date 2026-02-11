@@ -1,13 +1,24 @@
 <?php 
 if ($f == "delete-event") {
     $data = array(
-        'status' => 500
+        'status' => 400,
+        'error' => 'Invalid event ID. Please try again.'
     );
+
     if (isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0) {
         if (Wo_DeleteEvent($_GET['id'])) {
-            $data['status'] = 200;
+            $data = array(
+                'status' => 200,
+                'message' => 'Event deleted successfully.'
+            );
+        } else {
+            $data = array(
+                'status' => 500,
+                'error' => 'Failed to delete event. You may not have permission to delete this event.'
+            );
         }
     }
+
     header("Content-type: application/json");
     echo json_encode($data);
     exit();

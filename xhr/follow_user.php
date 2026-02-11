@@ -1,5 +1,11 @@
 <?php 
 if ($f == 'follow_user' && $wo['loggedin'] === true) {
+    // Initialize data array with error state
+    $data = array(
+        'status' => 400,
+        'error' => 'Invalid request. Please try again.'
+    );
+
     if (isset($_GET['following_id']) && Wo_CheckMainSession($hash_id) === true) {
         $user_followers = Wo_CountFollowing($wo['user']['id'], true);
         $friends_limit  = $wo['config']['connectivitySystemLimit'];
@@ -10,11 +16,17 @@ if ($f == 'follow_user' && $wo['loggedin'] === true) {
                     'can_send' => 0,
                     'html' => ''
                 );
+            } else {
+                $data = array(
+                    'status' => 500,
+                    'error' => 'Failed to unfollow user. Please try again.'
+                );
             }
         } else if ($wo['config']['connectivitySystem'] == 1 && $user_followers >= $friends_limit) {
             $data = array(
                 'status' => 400,
-                'can_send' => 0
+                'can_send' => 0,
+                'error' => "You've reached your connection limit of {$friends_limit} follows. Please upgrade your plan or unfollow some users first."
             );
         } else {
             if (Wo_RegisterFollow($_GET['following_id'], $wo['user']['user_id'])) {
@@ -26,6 +38,11 @@ if ($f == 'follow_user' && $wo['loggedin'] === true) {
                 if (Wo_CanSenEmails()) {
                     $data['can_send'] = 1;
                 }
+            } else {
+                $data = array(
+                    'status' => 500,
+                    'error' => 'Failed to follow user. Please try again.'
+                );
             }
         }
     }
