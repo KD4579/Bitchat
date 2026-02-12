@@ -1,56 +1,40 @@
 <?php
 if ($f == 'session_status') {
     // Return session status for AJAX requests
+    // Uses status 304 for logged-in users and status 200 for logged-out users
+    // This ensures compatibility with cached JS that shows the modal on status == 200
 
-    // Debug logging (temporary)
-    $debug_info = array(
-        'wo_loggedin' => isset($wo['loggedin']) ? $wo['loggedin'] : 'not_set',
-        'session_user_id' => isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'not_set',
-        'cookie_exists' => isset($_COOKIE[session_name()]) ? 'yes' : 'no',
-        'session_name' => session_name(),
-        'samesite' => ini_get('session.cookie_samesite'),
-        'cookie_secure' => ini_get('session.cookie_secure')
-    );
-
-    // Check both session and Redis for logged in status
     $is_logged_in = false;
-    $check_method = 'none';
 
-    // Primary check: WoWonder's login status
+    // Primary check: WoWonder's login status (set in app_start.php via Wo_IsLogged())
+    // This checks $_SESSION['user_id'] first, then $_COOKIE['user_id'] fallback,
+    // both validated against Wo_AppSessions database table
     if ($wo['loggedin']) {
         $is_logged_in = true;
-        $check_method = 'wo_loggedin';
-    }
-    // Fallback: Check session directly
-    elseif (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-        $is_logged_in = true;
-        $check_method = 'session_check';
-    }
-    // Additional fallback: Check cookie exists (user likely still logged in)
-    elseif (isset($_COOKIE[session_name()]) && !empty($_COOKIE[session_name()])) {
-        // Session cookie exists but session data not loaded - this is the SameSite issue
-        // Return true to prevent false positive "logged out" dialogs
-        $is_logged_in = true;
-        $check_method = 'cookie_fallback';
     }
 
-    $data = array(
-        'status' => 200,
-        'logged_in' => $is_logged_in,
-        'session_valid' => isset($_SESSION['user_id']) && !empty($_SESSION['user_id']),
-        'debug' => $debug_info,
-        'check_method' => $check_method
-    );
+    if ($is_logged_in) {
+        // User IS logged in - return status 304
+        // Old cached JS checks "if(data.status == 200)" to show modal - won't match 304
+        // New JS checks "data.logged_in === false" - also won't trigger
+        $data = array(
+            'status' => 304,
+            'logged_in' => true,
+            'session_valid' => true
+        );
 
-    // If logged in, refresh session timestamp to prevent expiry
-    if ($is_logged_in && isset($_SESSION['user_id'])) {
-        $_SESSION['last_activity'] = time();
-        $data['user_id'] = $wo['user']['user_id'] ?? $_SESSION['user_id'];
-    }
-
-    // Add hash for CSRF protection renewal
-    if ($is_logged_in && !empty($_SESSION['hash_id'])) {
-        $data['hash_id'] = $_SESSION['hash_id'];
+        // Refresh session timestamp to prevent expiry
+        if (isset($_SESSION['user_id'])) {
+            $_SESSION['last_activity'] = time();
+        }
+    } else {
+        // User is NOT logged in - return status 200
+        // Both old and new JS will show the logged-out modal
+        $data = array(
+            'status' => 200,
+            'logged_in' => false,
+            'session_valid' => false
+        );
     }
 
     header("Content-type: application/json");

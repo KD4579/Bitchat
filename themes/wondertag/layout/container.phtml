@@ -931,7 +931,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<script type="text/javascript">const node_socket_flow = "0"</script>
 		<?php } ?>
 		
-		<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/script.js<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>"></script>
+		<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/script.js?v=<?php echo @filemtime(__DIR__ . '/../javascript/script.js') ?: time(); ?>"></script>
 		
 		<?php if ($wo['loggedin'] == true) {?>
 			<?php if ($wo['config']['google_map'] == 1) { ?>
