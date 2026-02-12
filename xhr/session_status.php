@@ -13,6 +13,15 @@ if ($f == 'session_status') {
         $is_logged_in = true;
     }
 
+    // Diagnostic logging (temporary - remove after debugging)
+    $log_data = date('Y-m-d H:i:s') . ' | ' .
+        'wo_loggedin=' . ($wo['loggedin'] ? 'true' : 'false') . ' | ' .
+        'session_user_id=' . (isset($_SESSION['user_id']) ? substr($_SESSION['user_id'], 0, 10) . '...' : 'EMPTY') . ' | ' .
+        'cookie_user_id=' . (isset($_COOKIE['user_id']) ? substr($_COOKIE['user_id'], 0, 10) . '...' : 'EMPTY') . ' | ' .
+        'phpsessid_cookie=' . (isset($_COOKIE[session_name()]) ? 'YES' : 'NO') . ' | ' .
+        'result=' . ($is_logged_in ? '304' : '200') . "\n";
+    @file_put_contents('/tmp/session_status_debug.log', $log_data, FILE_APPEND);
+
     if ($is_logged_in) {
         // User IS logged in - return status 304
         // Old cached JS checks "if(data.status == 200)" to show modal - won't match 304
