@@ -7,11 +7,13 @@
 set -e  # Exit on error
 
 # Configuration - EDIT THESE VALUES
-SITE_PATH="/var/www/html/bitchat"  # Your web root path
-BACKUP_PATH="/var/www/backups"
+# IMPORTANT: HestiaCP uses /home/KamalDave/web/bitchat.live/public_html/
+# Do NOT use /var/www/html/bitchat/ — that is a stale, unused copy
+SITE_PATH="/home/KamalDave/web/bitchat.live/public_html"
+BACKUP_PATH="/home/KamalDave/backups"
 GIT_REPO="git@github.com:Velentino007/Bitchat.git"
 GIT_BRANCH="main"
-WEB_USER="www-data"  # nginx/apache user
+WEB_USER="KamalDave"  # HestiaCP runs as the system user
 
 # Colors for output
 RED='\033[0;31m'

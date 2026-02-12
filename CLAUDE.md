@@ -105,7 +105,14 @@ No test suite, linter, or build pipeline exists. There is no `composer install` 
 
 ## Deployment Notes
 
+- **Live server**: 85.31.237.40 (HestiaCP managed, Nginx → Apache reverse proxy)
+- **CRITICAL: Correct document root is `/home/KamalDave/web/bitchat.live/public_html/`** — NOT `/var/www/html/bitchat/`
+  - Nginx serves static files (.js, .css, images) from this directory
+  - Apache serves PHP from this directory (DocumentRoot in vhost config)
+  - `/var/www/html/bitchat/` is a stale copy — do NOT deploy there
+- **Manual deploy**: `ssh root@85.31.237.40` then `cd /home/KamalDave/web/bitchat.live/public_html && git pull origin main`
 - `deploy.sh` creates timestamped backups, preserves config files, runs `git pull`, fixes permissions (dirs: 755, files: 644), and updates Node.js dependencies
 - Writable directories needed: `upload/`, `cache/`
 - FFmpeg binaries are included in `ffmpeg/` for video processing
 - PHP configured for 256MB uploads, 5-minute execution timeout (`php.ini`)
+- Nginx has `expires max` on static files — use cache-busting query params (e.g., `filemtime()`) for JS/CSS changes
