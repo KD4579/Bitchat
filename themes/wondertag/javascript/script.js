@@ -198,11 +198,16 @@ function scrollToTop() {
 function Wo_IsLogged() {
   $.post(Wo_Ajax_Requests_File() + '?f=session_status', function (data) {
     setTimeout(Wo_UpdateLastSeen, 30000);
-    if(data.status == 200 && data.logged_in == false) {
+    // Only show logged out modal if we have a valid response AND logged_in is explicitly false
+    // AND session_valid is also false (double check to prevent false positives)
+    if(data && data.status == 200 && data.logged_in === false && data.session_valid === false) {
       $('#logged-out-modal').modal({
         show: true
       });
     }
+  }).fail(function() {
+    // If AJAX fails, don't show the modal - user might still be logged in
+    // Network errors shouldn't trigger logout
   });
 }
 
