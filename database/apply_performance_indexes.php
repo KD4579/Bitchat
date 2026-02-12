@@ -9,29 +9,20 @@
  * Or access via browser: https://yourdomain.com/database/apply_performance_indexes.php
  */
 
-// Require admin authentication if accessed via web
-if (php_sapi_name() !== 'cli') {
-    // Load Bitchat config
-    require_once('../assets/init.php');
-
-    // Verify admin access
-    if (!$wo['loggedin'] || $wo['user']['admin'] != 1) {
-        die('Access denied. Admin privileges required.');
-    }
-}
-
 set_time_limit(0); // No time limit for this operation
 
 echo "==============================================\n";
 echo "Bitchat Database Performance Index Migration\n";
 echo "==============================================\n\n";
 
-// Connect to database
-if (php_sapi_name() === 'cli') {
-    // CLI mode - load config manually
-    require_once('../assets/init.php');
+// Load database config directly (avoid full init.php)
+if (file_exists('../config.php')) {
+    require_once('../config.php');
+} else {
+    die("Error: config.php not found. Please run this script from the database/ directory.\n");
 }
 
+// Connect to database
 $conn = mysqli_connect($sql_db_host, $sql_db_user, $sql_db_pass, $sql_db_name);
 
 if (!$conn) {
