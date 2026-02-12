@@ -1,8 +1,11 @@
 <?php
-@ini_set('session.cookie_httponly',1);
-@ini_set('session.use_only_cookies',1);
+@ini_set('session.cookie_httponly', 1);
+@ini_set('session.use_only_cookies', 1);
 @ini_set('session.gc_maxlifetime', 86400); // 24 hours session lifetime
 @ini_set('session.cookie_lifetime', 86400); // 24 hours cookie lifetime
+@ini_set('session.cookie_samesite', 'Lax'); // Allow cookies with same-site AJAX requests
+@ini_set('session.cookie_secure', 0); // Allow HTTP and HTTPS
+@ini_set('session.use_strict_mode', 1);
 if (!version_compare(PHP_VERSION, '7.1.0', '>=')) {
     exit("Required PHP_VERSION >= 7.1.0 , Your PHP_VERSION is : " . PHP_VERSION . "\n");
 }
@@ -12,11 +15,12 @@ if (!function_exists("mysqli_connect")) {
 date_default_timezone_set('UTC');
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-// Regenerate session ID periodically for security (every 30 minutes)
+// Regenerate session ID periodically for security (every 60 minutes)
+// Using false to keep old session data accessible briefly during AJAX requests
 if (!isset($_SESSION['session_regenerate_time'])) {
     $_SESSION['session_regenerate_time'] = time();
-} elseif (time() - $_SESSION['session_regenerate_time'] > 1800) {
-    session_regenerate_id(true);
+} elseif (time() - $_SESSION['session_regenerate_time'] > 3600) {
+    session_regenerate_id(false);
     $_SESSION['session_regenerate_time'] = time();
 }
 @ini_set('gd.jpeg_ignore_warning', 1);
