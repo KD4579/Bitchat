@@ -80,9 +80,9 @@ if ($f == 'login') {
             $session             = Wo_CreateLoginSession(Wo_UserIdForLogin($username));
             $_SESSION['user_id'] = $session;
             Wo_DeleteBadLogins();
-            if ($wo['config']['remember_device'] == 1 && !empty($_POST['remember_device']) && $_POST['remember_device'] == 'on') {
-                setcookie("user_id", $session, time() + (10 * 365 * 24 * 60 * 60));
-            }
+            // Always set persistent cookie so users stay logged in (like Facebook/X)
+            // Cookie expires in 10 years; session only ends when user clicks Logout
+            setcookie("user_id", $session, time() + (10 * 365 * 24 * 60 * 60), "/");
             setcookie('ad-con', htmlentities(json_encode(array(
                 'date' => date('Y-m-d'),
                 'ads' => array()

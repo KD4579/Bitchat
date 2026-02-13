@@ -1,8 +1,8 @@
 <?php
 @ini_set('session.cookie_httponly', 1);
 @ini_set('session.use_only_cookies', 1);
-@ini_set('session.gc_maxlifetime', 86400); // 24 hours session lifetime
-@ini_set('session.cookie_lifetime', 86400); // 24 hours cookie lifetime
+@ini_set('session.gc_maxlifetime', 2592000); // 30 days session lifetime
+@ini_set('session.cookie_lifetime', 2592000); // 30 days cookie lifetime
 @ini_set('session.cookie_samesite', 'Lax'); // Allow cookies with same-site AJAX requests
 @ini_set('session.cookie_secure', 0); // Allow HTTP and HTTPS
 @ini_set('session.use_strict_mode', 1);

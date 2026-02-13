@@ -650,14 +650,17 @@ function Wo_IsLogged() {
         if (is_numeric($id) && !empty($id)) {
             return true;
         }
-    } else if (!empty($_COOKIE['user_id']) && !empty($_COOKIE['user_id'])) {
+    } else if (!empty($_COOKIE['user_id'])) {
         $id = Wo_GetUserFromSessionID($_COOKIE['user_id']);
         if (is_numeric($id) && !empty($id)) {
+            // Restore session from persistent cookie (PHP session expired but cookie still valid)
+            $_SESSION['user_id'] = $_COOKIE['user_id'];
+            // Refresh cookie expiry (rolling window — active users never time out)
+            setcookie("user_id", $_COOKIE['user_id'], time() + (10 * 365 * 24 * 60 * 60), "/");
             return true;
         }
-    } else {
-        return false;
     }
+    return false;
 }
 function Wo_Redirect($url) {
     return header("Location: {$url}");

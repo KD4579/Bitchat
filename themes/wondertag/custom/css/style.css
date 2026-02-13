@@ -1,5 +1,766 @@
-/* 
+/* ==========================================================================
+   Bitchat Custom UI — Modern & Clean Redesign
+   Version: 1.0
+   Loads after dark.css for highest override priority.
+   Fully reversible: remove the <link> tag in container.phtml to revert.
+   ========================================================================== */
 
-Add here your custom css styles Example: p { text-align: center; color: red; } 
+/* ==========================================================================
+   Phase 0: Design Tokens
+   ========================================================================== */
 
-*/
+:root {
+  /* Spacing scale */
+  --bc-space-xs: 4px;
+  --bc-space-sm: 8px;
+  --bc-space-md: 16px;
+  --bc-space-lg: 24px;
+  --bc-space-xl: 32px;
+  --bc-space-2xl: 48px;
+
+  /* Border radius */
+  --bc-radius-sm: 8px;
+  --bc-radius-md: 12px;
+  --bc-radius-lg: 16px;
+  --bc-radius-xl: 20px;
+  --bc-radius-full: 9999px;
+
+  /* Shadows — subtle, Twitter/X-like */
+  --bc-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --bc-shadow-md: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --bc-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --bc-shadow-dropdown: 0 4px 24px rgba(0, 0, 0, 0.12);
+
+  /* Borders */
+  --bc-border-color: rgba(0, 0, 0, 0.08);
+  --bc-border-light: 1px solid rgba(0, 0, 0, 0.08);
+  --bc-border-default: 1px solid rgba(0, 0, 0, 0.12);
+
+  /* Typography */
+  --bc-font-sans: 'Readex Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bc-font-body: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Surface colors */
+  --bc-surface-primary: #ffffff;
+  --bc-surface-secondary: #f7f9fa;
+  --bc-surface-hover: rgba(0, 0, 0, 0.03);
+  --bc-text-primary: #0f1419;
+  --bc-text-secondary: #536471;
+  --bc-text-tertiary: #8899a6;
+
+  /* Transitions */
+  --bc-transition-fast: 150ms ease;
+  --bc-transition-normal: 200ms ease;
+  --bc-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode overrides */
+html:has(link#night-mode-css) {
+  --bc-surface-primary: #212121;
+  --bc-surface-secondary: #181818;
+  --bc-surface-hover: rgba(255, 255, 255, 0.05);
+  --bc-text-primary: #e7e9ea;
+  --bc-text-secondary: #8899a6;
+  --bc-text-tertiary: #6e7a85;
+  --bc-border-color: rgba(255, 255, 255, 0.08);
+  --bc-border-light: 1px solid rgba(255, 255, 255, 0.08);
+  --bc-border-default: 1px solid rgba(255, 255, 255, 0.12);
+  --bc-shadow-sm: none;
+  --bc-shadow-md: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --bc-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --bc-shadow-dropdown: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ==========================================================================
+   Phase 1: Welcome / Login Page
+   ========================================================================== */
+
+/* Subtle the SVG blob decoration */
+.tag_auth_effect {
+  opacity: 0.03;
+}
+
+/* Welcome page background */
+.tag_welcome {
+  background: linear-gradient(160deg, var(--bc-surface-secondary) 0%, var(--bc-surface-primary) 60%);
+}
+
+/* Welcome title — bigger, bolder */
+.tag_wel_title {
+  font-size: 34px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  font-weight: 500;
+  color: var(--bc-text-primary);
+  margin: 40px 0 28px;
+}
+
+/* Trending hashtag pills */
+.tag_wel_trend .btn {
+  border-radius: var(--bc-radius-full);
+  background: rgba(0, 0, 0, 0.04);
+  border: var(--bc-border-light);
+  padding: 0 14px;
+  line-height: 32px;
+  font-size: 13px;
+  color: var(--bc-text-secondary);
+  transition: all var(--bc-transition-fast);
+}
+.tag_wel_trend .btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--bc-text-primary);
+}
+
+/* Widget section titles */
+.tag_wel_widget > p {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--bc-text-secondary);
+  letter-spacing: 0.2px;
+}
+
+/* Login card — cleaner shadow, more spacious */
+.tag_auth_box {
+  border-radius: var(--bc-radius-lg);
+  padding: 32px;
+  box-shadow: var(--bc-shadow-lg);
+  border: var(--bc-border-light);
+  background: var(--bc-surface-primary);
+}
+
+/* Login form title */
+.tag_auth_box > form > p.title,
+.regest_frst_step > p.title,
+.regest_sec_step > p.title {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0 0 24px;
+  color: var(--bc-text-primary);
+}
+
+/* Material form fields — smoother */
+.tag_field > input,
+.tag_field > textarea,
+.tag_field > select {
+  border-radius: var(--bc-radius-sm) var(--bc-radius-sm) 0 0;
+  background-color: var(--bc-surface-secondary);
+  transition: border-color var(--bc-transition-fast), background-color var(--bc-transition-fast);
+}
+.tag_field > input:focus,
+.tag_field > textarea:focus,
+.tag_field > select:focus {
+  background-color: var(--bc-surface-primary);
+}
+
+/* Login button — pill shaped, full width */
+.tag_wel_btn {
+  border-radius: var(--bc-radius-full);
+  line-height: 48px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: all var(--bc-transition-fast);
+}
+.tag_wel_btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--bc-shadow-md);
+}
+
+/* OR divider */
+.u_divider {
+  margin: 24px 0;
+  font-size: 12px;
+  color: var(--bc-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+.u_divider:before,
+.u_divider:after {
+  background: var(--bc-border-color);
+}
+
+/* Social login buttons — circular with border */
+.social_btns .btn {
+  border-radius: var(--bc-radius-full);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--bc-border-light);
+  transition: all var(--bc-transition-fast);
+  background: var(--bc-surface-secondary);
+  padding: 0;
+}
+.social_btns .btn:hover {
+  background: var(--bc-surface-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--bc-shadow-sm);
+}
+.social_btns .btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Register link below form */
+.tag_wel_register {
+  margin: 24px 0 0 auto;
+  font-size: 15px;
+  color: var(--bc-text-secondary);
+}
+
+/* Auth animation overlay */
+.tag_auth_animation {
+  border-radius: var(--bc-radius-lg);
+}
+
+/* Remember/Forgot row */
+.remember-forgot-wrap {
+  font-size: 13px;
+  color: var(--bc-text-secondary);
+  margin-bottom: 20px;
+}
+.forgot-link {
+  color: var(--main);
+  text-decoration: none;
+  font-weight: 500;
+}
+.forgot-link:hover {
+  text-decoration: underline;
+  color: var(--main-hover);
+}
+
+/* Welcome header nav buttons */
+.tag_wel_upper .navbar-default .btn-main {
+  border-radius: var(--bc-radius-full);
+  padding: 0 24px;
+  line-height: 40px;
+  font-weight: 500;
+}
+
+/* Welcome page responsive */
+@media (max-width: 768px) {
+  .tag_wel_title {
+    font-size: 26px;
+    margin: 24px 0 20px;
+  }
+  .tag_auth_box {
+    padding: 24px;
+    margin: 24px auto 0;
+  }
+}
+
+
+/* ==========================================================================
+   Phase 2: Header & Navigation
+   ========================================================================== */
+
+/* Top navigation bar — frosted glass */
+.tag_navbar_top {
+  box-shadow: none;
+  border-bottom: var(--bc-border-light);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Search bar — rounder, clean focus ring */
+.tag_header .search-input {
+  border-radius: var(--bc-radius-full);
+  height: 42px;
+  padding: 10px 10px 10px 40px;
+  background: var(--header-search-color);
+  border: 2px solid transparent;
+  transition: all var(--bc-transition-fast);
+}
+.tag_header .search-input:focus {
+  border-color: var(--main);
+  box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.1);
+}
+
+/* Header icon buttons */
+.tag_hdr_droptoggle {
+  border-radius: var(--bc-radius-full);
+  padding: 8px;
+  transition: background var(--bc-transition-fast);
+}
+.tag_hdr_droptoggle:hover {
+  background: var(--bc-surface-hover);
+}
+.show > .tag_hdr_droptoggle {
+  background: var(--bc-surface-hover);
+}
+
+/* Notification count badge — pill */
+.new-update-alert {
+  border-radius: var(--bc-radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 5px;
+}
+
+/* User avatar in header */
+.tag_hdr_user_droptoggle img {
+  border: 2px solid transparent;
+  transition: border-color var(--bc-transition-fast);
+}
+.tag_hdr_user_droptoggle:hover img {
+  border-color: var(--bc-border-color);
+}
+
+/* Dropdown menus — cleaner, animated */
+.dropdown-menu {
+  border-radius: var(--bc-radius-md);
+  box-shadow: var(--bc-shadow-dropdown);
+  border: var(--bc-border-light);
+  padding: var(--bc-space-sm);
+  animation: bc-dropdown-enter 150ms ease;
+}
+@keyframes bc-dropdown-enter {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Dropdown items */
+.tag_hdr_user_dropdown > li > a,
+.tag_create_menu > li > a {
+  border-radius: var(--bc-radius-sm);
+  padding: 8px 12px;
+  transition: background var(--bc-transition-fast);
+}
+.tag_hdr_user_dropdown > li > a:hover,
+.tag_create_menu > li > a:hover {
+  background: var(--bc-surface-hover);
+}
+
+/* Notification panel header */
+.tag_page_title.m5 {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: var(--bc-font-sans);
+}
+
+/* Left sidebar */
+.tag_navbar_top_side {
+  border-right: var(--bc-border-light);
+}
+
+/* Sidebar nav buttons */
+.tag_navbar_top_side .sidebar_innr > .btn,
+.tag_side_btn {
+  border-radius: var(--bc-radius-sm);
+  transition: background var(--bc-transition-fast);
+}
+.tag_navbar_top_side .sidebar_innr > .btn:hover,
+.tag_side_btn:hover {
+  background: var(--bc-surface-hover);
+}
+
+/* Sidebar icon containers */
+.tag_side_btn svg {
+  border-radius: var(--bc-radius-md);
+}
+
+/* Mobile sidebar overlay */
+@media (max-width: 1150px) {
+  .tag_navbar_top_side {
+    border-radius: 0 var(--bc-radius-lg) var(--bc-radius-lg) 0;
+  }
+}
+
+
+/* ==========================================================================
+   Phase 3: Feed & Post Cards
+   ========================================================================== */
+
+/* Card wrapper — thin border instead of heavy shadow */
+.wow_content {
+  border-radius: var(--bc-radius-md);
+  box-shadow: none;
+  border: var(--bc-border-light);
+  transition: box-shadow var(--bc-transition-normal);
+}
+
+/* Post heading — tighter, cleaner */
+.post .post-heading {
+  padding: var(--bc-space-md);
+}
+.post .post-heading .meta .title a {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--bc-text-primary);
+}
+.post .post-heading .meta .time,
+.post .post-heading .meta .time a {
+  font-size: 13px;
+  color: var(--bc-text-tertiary);
+}
+
+/* Post content text */
+.post .post-description,
+.post .post-description p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--bc-text-primary);
+}
+
+/* Post footer separator */
+.post .post-footer {
+  border-top-color: var(--bc-border-color);
+}
+
+/* Post action buttons (like, comment, share) — transparent hover circles */
+.tag_post_actions .stat-item {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--bc-text-secondary);
+  transition: color var(--bc-transition-fast);
+}
+.tag_post_actions .stat-item:hover {
+  color: var(--bc-text-primary);
+}
+.tag_post_actions .stat-item .icoo {
+  border-radius: var(--bc-radius-full);
+  transition: background var(--bc-transition-fast);
+}
+.tag_post_actions .stat-item:hover .icoo {
+  background-color: var(--bc-surface-hover);
+}
+
+/* Comment bubbles — rounder */
+.comment .tag_comm_body .comment-text {
+  border-radius: var(--bc-radius-lg);
+  background-color: var(--bc-surface-secondary);
+}
+
+/* Comment input */
+.wo_comment_combo > .valign {
+  border-radius: var(--bc-radius-full);
+  background-color: var(--bc-surface-secondary);
+}
+
+/* Feed filter bar */
+.tag_home_filters {
+  padding: 12px 0;
+}
+
+/* Feed filter tabs — pill style */
+.tag_page_nav li a {
+  border-radius: var(--bc-radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 16px;
+  line-height: 34px;
+  border: var(--bc-border-light);
+  transition: all var(--bc-transition-fast);
+}
+.tag_page_nav li.active a,
+.tag_page_nav li a:hover {
+  border-color: var(--main);
+  color: var(--main);
+}
+
+/* Stories carousel */
+.tag_stories_on_home {
+  margin-bottom: 24px;
+}
+.tag_stories_on_home .tag_stories_mobi .status-list li a img {
+  border: 3px solid var(--main);
+  padding: 2px;
+  border-radius: var(--bc-radius-full);
+}
+
+/* Shared link previews */
+.post .fetched-url {
+  border-radius: var(--bc-radius-md);
+  overflow: hidden;
+  border: var(--bc-border-light);
+}
+
+/* Post image containers */
+.tag_post_full_img,
+.post_img {
+  border-radius: var(--bc-radius-sm);
+  overflow: hidden;
+}
+
+/* Load more button */
+.load-more .btn {
+  border-radius: var(--bc-radius-full);
+  border: var(--bc-border-default);
+  font-weight: 500;
+  transition: all var(--bc-transition-fast);
+}
+.load-more .btn:hover {
+  background-color: var(--bc-surface-hover);
+}
+
+/* Skeleton loaders */
+.skel {
+  border-radius: var(--bc-radius-sm);
+}
+.skel.skel_avatar,
+.skel_avatar {
+  border-radius: var(--bc-radius-full);
+}
+
+/* Greeting alert bar */
+.greetalert {
+  border-radius: var(--bc-radius-md);
+  border: var(--bc-border-light);
+}
+
+/* Announcement banner */
+.tag_announce {
+  border-radius: var(--bc-radius-md);
+}
+
+/* Post responsive */
+@media (max-width: 768px) {
+  .post .post-heading {
+    padding: 12px;
+  }
+  .wow_content {
+    border-radius: var(--bc-radius-sm);
+  }
+}
+
+
+/* ==========================================================================
+   Phase 4: Profile / Timeline
+   ========================================================================== */
+
+/* Cover photo container */
+.tag_cover_bg .card.hovercard {
+  border-radius: var(--bc-radius-lg);
+  overflow: hidden;
+}
+.wo_event_profile .cardheader,
+.wo_user_profile .cardheader {
+  border-radius: var(--bc-radius-lg);
+  overflow: hidden;
+}
+
+/* Cover photo gradient overlay */
+.tag_cover_bg_grad {
+  background: linear-gradient(rgba(0, 0, 0, 0) 40%, var(--body-bg) 100%);
+}
+
+/* Profile info card */
+.tag_page_name_hdr {
+  border-radius: 0 0 var(--bc-radius-md) var(--bc-radius-md);
+  border: var(--bc-border-light);
+  border-top: none;
+  box-shadow: none;
+}
+
+/* Profile avatar */
+.tag_page_name_hdr .user-avatar img,
+.wo_user_profile .user-avatar img {
+  padding: 4px;
+  background-color: var(--bc-surface-primary);
+  border-radius: var(--bc-radius-full);
+  box-shadow: var(--bc-shadow-md);
+}
+
+/* Profile name */
+.tag_page_name_hdr .event-info-cont-small h3 {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--bc-font-sans);
+  color: var(--bc-text-primary);
+  margin-bottom: 2px;
+}
+
+/* Profile username / subtitle */
+.tag_page_name_hdr .event-info-cont-small .event_cdown,
+.tag_page_name_hdr .event-info-cont-small p {
+  color: var(--bc-text-tertiary);
+  font-size: 15px;
+}
+
+/* Follow / Message buttons — pill shaped */
+.tag_page_name_hdr .btn-main {
+  border-radius: var(--bc-radius-full);
+  padding: 0 24px;
+  line-height: 38px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all var(--bc-transition-fast);
+}
+.tag_page_name_hdr .btn-main:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--bc-shadow-md);
+}
+.tag_page_name_hdr .btn-default,
+.tag_page_name_hdr .btn-mat:not(.btn-main) {
+  border-radius: var(--bc-radius-full);
+  border: var(--bc-border-default);
+  padding: 0 20px;
+  line-height: 36px;
+  font-weight: 500;
+  transition: all var(--bc-transition-fast);
+}
+.tag_page_name_hdr .btn-default:hover {
+  background: var(--bc-surface-hover);
+}
+
+/* Profile tabs */
+.user-bottom-nav {
+  border-top-color: var(--bc-border-color);
+}
+.user-bottom-nav li a {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--bc-text-secondary);
+  transition: color var(--bc-transition-fast), background var(--bc-transition-fast);
+}
+.user-bottom-nav li a:hover {
+  color: var(--bc-text-primary);
+  background: var(--bc-surface-hover);
+}
+.user-bottom-nav li .menuactive {
+  color: var(--main);
+  font-weight: 600;
+}
+.user-bottom-nav li .menuactive:after {
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Cover photo action buttons — frosted glass */
+.profile_cover .btn,
+.tag_cover_bg .cardheader > .btn,
+.tag_cover_bg .cardheader > span > .btn {
+  border-radius: var(--bc-radius-full);
+  padding: 0 16px;
+  line-height: 36px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border: none;
+  transition: background var(--bc-transition-fast);
+}
+.profile_cover .btn:hover,
+.tag_cover_bg .cardheader > .btn:hover,
+.tag_cover_bg .cardheader > span > .btn:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Go back button */
+.btn_goback {
+  border-radius: var(--bc-radius-full);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.3);
+  transition: background var(--bc-transition-fast);
+}
+.btn_goback:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Pro badge */
+.pro-badge {
+  border-radius: var(--bc-radius-sm);
+  font-size: 10px;
+  padding: 2px 6px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Profile media grid */
+.user_media_list_section .photo-data a,
+.user_media_list_section .video-data a {
+  border-radius: var(--bc-radius-sm);
+  overflow: hidden;
+  transition: opacity var(--bc-transition-fast);
+}
+.user_media_list_section .photo-data a:hover,
+.user_media_list_section .video-data a:hover {
+  opacity: 0.85;
+}
+
+/* Profile responsive */
+@media (max-width: 768px) {
+  .tag_page_name_hdr .event-info-cont-small h3 {
+    font-size: 18px;
+  }
+  .wo_event_profile .cardheader,
+  .wo_user_profile .cardheader {
+    border-radius: var(--bc-radius-sm);
+  }
+  .user-bottom-nav li a {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tag_page_name_hdr .btn-main {
+    padding: 0 16px;
+    line-height: 34px;
+    font-size: 13px;
+  }
+  .tag_page_name_hdr .btn-default,
+  .tag_page_name_hdr .btn-mat:not(.btn-main) {
+    padding: 0 14px;
+    line-height: 32px;
+    font-size: 13px;
+  }
+}
+
+
+/* ==========================================================================
+   Global Utility Overrides
+   ========================================================================== */
+
+/* Smoother scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* All buttons — consistent transitions */
+.btn {
+  transition: all var(--bc-transition-fast);
+}
+
+/* Primary action buttons globally — pill shape */
+.btn-main {
+  border-radius: var(--bc-radius-full);
+}
+
+/* Modal dialogs — cleaner */
+.modal-content {
+  border-radius: var(--bc-radius-lg);
+  border: var(--bc-border-light);
+  box-shadow: var(--bc-shadow-dropdown);
+  overflow: hidden;
+}
+.modal-header {
+  border-bottom-color: var(--bc-border-color);
+}
+.modal-footer {
+  border-top-color: var(--bc-border-color);
+}
+
+/* Tooltips */
+.tooltip-inner {
+  border-radius: var(--bc-radius-sm);
+}
+
+/* Badge/label consistency */
+.badge {
+  border-radius: var(--bc-radius-full);
+}
+
+/* Image containers — subtle rounding */
+.tag_post_full_img img,
+.wo_post_img img {
+  border-radius: var(--bc-radius-sm);
+}

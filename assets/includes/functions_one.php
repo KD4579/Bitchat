@@ -1959,7 +1959,7 @@ function Wo_UserSug($limit = 20) {
         return false;
     }
     $data      = array();
-    $user_id   = Wo_Secure($wo['user']['user_id']);
+    $user_id   = Wo_Secure(!empty($wo['user']['user_id']) ? $wo['user']['user_id'] : 0);
     $query_one = " SELECT `user_id` FROM " . T_USERS . " WHERE `active` = '1' AND `user_id` NOT IN (SELECT `blocked` FROM " . T_BLOCKS . " WHERE `blocker` = '{$user_id}') AND `user_id` NOT IN (SELECT `blocker` FROM " . T_BLOCKS . " WHERE `blocked` = '{$user_id}') AND `user_id` NOT IN (SELECT `following_id` FROM " . T_FOLLOWERS . " WHERE `follower_id` = {$user_id}) AND `user_id` <> {$user_id}";
     if (isset($limit)) {
         $query_one .= " ORDER BY RAND() LIMIT {$limit}";
@@ -6256,7 +6256,7 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
             $query_text .= " AND `postPrivacy` <> '3'";
         }
     } else {
-        $logged_user_id    = Wo_Secure($wo['user']['user_id']);
+        $logged_user_id    = Wo_Secure(!empty($wo['user']['user_id']) ? $wo['user']['user_id'] : 0);
         $groups_not_joined = array();
         $query_groups      = "SELECT `group_id` FROM " . T_POSTS . " WHERE (`user_id` IN (SELECT `following_id` FROM " . T_FOLLOWERS . " WHERE `follower_id` = {$logged_user_id} AND `active` = '1') AND `group_id` <> 0 AND `group_id` NOT IN (SELECT `group_id` FROM " . T_GROUP_MEMBERS . " WHERE `user_id` = '{$logged_user_id}' AND `active` = '1'))";
         $query_groups      = mysqli_query($sqlConnect, $query_groups);
