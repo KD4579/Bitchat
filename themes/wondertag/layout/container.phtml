@@ -449,35 +449,26 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 					});
 				}); 
 			<?php } ?>
-			function RunLiveAgora(channelName,DIV_ID,token) {
+			async function RunLiveAgora(channelName,DIV_ID,token) {
 				var agoraAppId = '<?php echo($wo['config']['agora_app_id']) ?>';
-				var token = token;
-	
-				var client = AgoraRTC.createClient({mode: 'live', codec: 'vp8'});
-				client.init(agoraAppId, function () {
-					client.setClientRole('audience', function() {
-					}, function(e) {
-					});
+				try {
+					var client = AgoraRTC.createClient({mode: 'live', codec: 'vp8'});
+					client.setClientRole('audience');
 					let rand = Math.floor(Math.random() * 1000000);
+					await client.join(agoraAppId, channelName, token, rand);
 
-					client.join(token, channelName, rand, function(uid) {
-					}, function(err) {
+					client.on('user-published', async function(user, mediaType) {
+						await client.subscribe(user, mediaType);
+						if (mediaType === 'video') {
+							user.videoTrack.play(DIV_ID);
+						}
+						if (mediaType === 'audio') {
+							user.audioTrack.play();
+						}
 					});
-				}, function (err) {
-				});
-
-				client.on('stream-added', function (evt) {
-					var stream = evt.stream;
-					var streamId = stream.getId();
-
-					client.subscribe(stream, function (err) {
-					});
-				});
-				client.on('stream-subscribed', function (evt) {
-					var remoteStream = evt.stream;
-					remoteStream.play(DIV_ID);
-					$('#player_'+remoteStream.getId()).addClass('embed-responsive-item');
-				});
+				} catch (err) {
+					console.log("[ERROR] RunLiveAgora failed:", err);
+				}
 			}
 		</script>
 		<?php echo (!empty($wo['config']['googleAnalytics'])) ? $wo['config']['googleAnalytics'] : ''; ?>
@@ -496,7 +487,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php endif; ?>
 		
 		<?php if ($wo['config']['agora_live_video'] == 1 || $wo['config']['agora_chat_video'] == 1) { ?>
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/agora.js"></script>
+			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/agora.js?v=4.22.0"></script>
 		<?php } ?>
 		
 		<?php if ($wo['config']['agora_live_video'] == 1 && !empty($wo['config']['agora_app_id']) && !empty($wo['config']['agora_customer_id']) && !empty($wo['config']['agora_customer_certificate'])) { ?>

@@ -18,110 +18,105 @@
 
 <?php if ($wo['config']['agora_chat_video'] == 1) { ?>
   <script type="text/javascript">
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-    if (!navigator.getUserMedia) {
-	  $('#remote-media').html('<div class="alert alert-danger">Sorry, WebRTC is not available in your browser.</div>');
-    }
+    (function() {
     var agoraAppId = "<?php echo $wo['config']['agora_chat_app_id'];?>";
     var token = "<?php echo $wo['incall']['access_token'];?>";
     var channelName = "<?php echo $wo['incall']['room'];?>";
     var uid = <?php echo $wo['user']['id'];?>;
+    var localAudioTrack = null;
+    var agoraClient = null;
 
-    // Handle errors.
-    let handleError = function(err){
-            console.log("Error: ", err);
-    };
-    // video profile settings
-    var cameraVideoProfile = '480p_4'; // 640 × 480 @ 30fps  & 750kbs
-    var screenVideoProfile = '480p_2'; // 640 × 480 @ 30fps
-    // create client instances for camera (client) and screen share (screenClient)
-    var client = AgoraRTC.createClient({mode: 'rtc', codec: 'vp8'}); 
-    function initClientAndJoinChannel(agoraAppId, token, channelName, uid) {
-      // init Agora SDK
-      client.init(agoraAppId, function () {
-        console.log("AgoraRTC client initialized");
-        joinChannel(channelName, uid, token); // join channel upon successfull init
-      }, function (err) {
-        console.log("[ERROR] : AgoraRTC client init failed", err);
-      });
-    }
-    // join a channel
-    function joinChannel(channelName, uid, token) {
-      client.join(token, channelName, uid, function(uid) {
-          console.log("User " + uid + " join channel successfully");
-          createCameraStream(uid);
-          //localStreams.camera.id = uid; // keep track of the stream uid 
-      }, function(err) {
-          console.log("[ERROR] : join channel failed", err);
-      });
+    function showStatus(msg, type) {
+      type = type || 'info';
+      $('#remote-media').html('<div class="alert alert-' + type + '">' + msg + '</div>');
     }
 
-    // video streams for channel
-    function createCameraStream(uid) {
-      var localStream = AgoraRTC.createStream({
-        streamID: uid,
-        audio: true,
-        video: false,
-        screen: false
-      });
-      localStream.setVideoProfile(cameraVideoProfile);
-      localStream.init(function() {
-        console.log("getUserMedia successfully");
-        // TODO: add check for other streams. play local stream full size if alone in channel
-        localStream.play('me'); // play the given stream within the local-video div
+    if (typeof AgoraRTC === 'undefined') {
+      showStatus('Agora SDK not loaded. Please refresh the page.', 'danger');
+      return;
+    }
 
-        // publish local stream
-        client.publish(localStream, function (err) {
-          console.log("[ERROR] : publish local stream error: " + err);
+    if (!token || token === '') {
+      showStatus('No access token available.', 'danger');
+      return;
+    }
+
+    showStatus('Connecting to audio...');
+
+    var callConnected = false;
+    var connectionTimeout = setTimeout(function() {
+      if (!callConnected) {
+        showStatus('Connection timed out. Please try again.', 'warning');
+      }
+    }, 20000);
+
+    async function startAudioCall() {
+      try {
+        agoraClient = AgoraRTC.createClient({mode: 'rtc', codec: 'vp8'});
+
+        agoraClient.on('user-published', async function(user, mediaType) {
+          await agoraClient.subscribe(user, mediaType);
+          if (mediaType === 'audio') {
+            callConnected = true;
+            clearTimeout(connectionTimeout);
+            $('#remote-media').html('<div class="alert alert-success">Audio connected</div>');
+            user.audioTrack.play();
+          }
         });
-      
-        //enableUiControls(localStream); // move after testing
-        //localStreams.camera.stream = localStream; // keep track of the camera stream for later
-      }, function (err) {
-        console.log("[ERROR] : getUserMedia failed", err);
-      });
-    }
-    client.on('stream-added', function (evt) {
-      client.subscribe(evt.stream,  function (err) {
-          console.log("[ERROR] : subscribe stream failed", err);
-        });
-    });
 
-    client.on('stream-subscribed', function (evt) {
-      var remoteStream = evt.stream;
-      var remoteId = remoteStream.getId();
-      $('#remote-media').empty();
-      remoteStream.play('remote-media');
-    });
+        agoraClient.on('user-unpublished', function(user, mediaType) {
+          if (mediaType === 'audio') {
+            showStatus('Other user muted audio.', 'warning');
+          }
+        });
+
+        agoraClient.on('user-left', function(user) {
+          leaveChannel();
+        });
+
+        showStatus('Joining channel...');
+        await agoraClient.join(agoraAppId, channelName, token, uid);
+        console.log("User " + uid + " joined channel successfully");
+        showStatus('Connected. Waiting for other user...');
+
+        localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        await agoraClient.publish([localAudioTrack]);
+        console.log("Local audio track published");
+      } catch (err) {
+        console.log("[ERROR] Agora audio call failed:", err);
+        clearTimeout(connectionTimeout);
+        var msg = err.message || err.info || JSON.stringify(err);
+        if (msg.indexOf('Permission') !== -1 || msg.indexOf('NotAllowed') !== -1) {
+          showStatus('Microphone access denied. Please allow microphone access.', 'danger');
+        } else {
+          showStatus('Call failed: ' + msg, 'danger');
+        }
+      }
+    }
+
     function leaveChannel() {
-
-      client.leave(function() {
-        // console.log("client leaves channel");
-        // localStreams.camera.stream.stop() // stop the camera stream playback
-        // client.unpublish(localStreams.camera.stream); // unpublish the camera stream
-        // localStreams.camera.stream.close(); // clean up and close the camera stream
-        $("#remote-media").empty() // clean up the remote feeds
+      clearTimeout(connectionTimeout);
+      if (localAudioTrack) {
+        localAudioTrack.close();
+        localAudioTrack = null;
+      }
+      if (agoraClient) {
+        agoraClient.leave().then(function() {
+          location.href = "<?php echo($wo['config']['site_url']) ?>";
+        }).catch(function() {
+          location.href = "<?php echo($wo['config']['site_url']) ?>";
+        });
+      } else {
         location.href = "<?php echo($wo['config']['site_url']) ?>";
-      }, function(err) {
-        console.log("client leave failed ", err); //error handling
-      });
+      }
     }
-    // remove the remote-container when a user leaves the channel
-    client.on("peer-leave", function(evt) {
 
-      location.href = "<?php echo($wo['config']['site_url']) ?>";
-    });
-
-    // use tokens for added security
-    function generateToken() {
-      return null; // TODO: add a token generation
-    }
     $(document).on('click', '.decline-call', function(e) {
-        leaveChannel(); 
-        location.href = "<?php echo($wo['config']['site_url']) ?>";
+      leaveChannel();
     });
-    
-    initClientAndJoinChannel(agoraAppId, token, channelName, uid);
+
+    startAudioCall();
+    })();
   </script>
 <?php }else{ ?>
 <script>
