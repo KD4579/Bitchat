@@ -20,7 +20,7 @@
 			<div class="my_wallet valign wow_mini_wallets">
 				<div>
 					<p class="bold"><?php echo $wo['lang']['my_balance'];?></p>
-					<h5><sup><?php echo Wo_GetCurrency($wo['config']['ads_currency']); ?></sup><?php echo number_format($wo['user']['wallet'],2);?></h5>
+					<h5 id="wallet-balance-display"><sup><?php echo Wo_GetCurrency($wo['config']['ads_currency']); ?></sup><span id="wallet-balance-amount"><?php echo number_format($wo['user']['wallet'],2);?></span></h5>
 				</div>
 				<div class="wow_mini_wallets_btns">
 					<button class="btn btn-mat" onclick="$('.wow_add_money_hid_form').slideToggle();">

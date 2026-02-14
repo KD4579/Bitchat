@@ -645,6 +645,10 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
             $('.notification-container').find('.sixteen-font-size').addClass('unread-update');
             $('.notification-container').find('.new-update-alert').text(Number(current_notifications) + 1).show();
             document.getElementById('notification-sound').play();
+            // Real-time wallet balance update when receiving TRDC transfer
+            if (data.notification_data && data.notification_data.wallet_balance && $('#wallet-balance-amount').length) {
+                $('#wallet-balance-amount').text(parseFloat(data.notification_data.wallet_balance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            }
           });
           socket.on("new_notification_removed", (data) => {
             current_notifications = $('.notification-container').find('.new-update-alert').text();

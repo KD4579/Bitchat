@@ -6437,7 +6437,8 @@ function Wo_GetFriendsStatus($data_array = array('limit' => 8, 'user_id' => 0, '
         $offset_query = " AND `id` < $offset ";
     }
     // $query     = "SELECT * FROM " . T_USER_STORY . " WHERE (user_id IN (SELECT following_id FROM " . T_FOLLOWERS . " WHERE follower_id = '$user_id') OR user_id = $user_id) AND user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') $group_by ORDER BY id DESC";
-    $query     = "SELECT DISTINCT user_id,title,description,posted,expire,thumbnail,(SELECT MAX(us.id) FROM " . T_USER_STORY . " us WHERE us.user_id = " . T_USER_STORY . ".user_id) AS id  FROM " . T_USER_STORY . " WHERE (user_id IN (SELECT following_id FROM " . T_FOLLOWERS . " WHERE follower_id = '$user_id') OR user_id = $user_id) AND user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') $offset_query $group_by ORDER BY id DESC LIMIT " . $data_array['limit'];
+    // Modified: Show stories from ALL active users (not just followed), add expiration check, exclude blocked users
+    $query     = "SELECT DISTINCT user_id,title,description,posted,expire,thumbnail,(SELECT MAX(us.id) FROM " . T_USER_STORY . " us WHERE us.user_id = " . T_USER_STORY . ".user_id) AS id  FROM " . T_USER_STORY . " WHERE user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') AND expire > UNIX_TIMESTAMP() AND user_id NOT IN (SELECT blocked FROM " . T_BLOCKS . " WHERE blocker = '$user_id') AND user_id NOT IN (SELECT blocker FROM " . T_BLOCKS . " WHERE blocked = '$user_id') $offset_query $group_by ORDER BY id DESC LIMIT " . $data_array['limit'];
     $query_run = mysqli_query($sqlConnect, $query);
     while ($fetched_data = mysqli_fetch_assoc($query_run)) {
 
@@ -6482,7 +6483,8 @@ function Wo_GetFriendsStatusAPI($data_array = array('limit' => 8, 'user_id' => 0
         $offset_query = " AND `user_id` < $offset ";
     }
     // $query     = "SELECT * FROM " . T_USER_STORY . " WHERE (user_id IN (SELECT following_id FROM " . T_FOLLOWERS . " WHERE follower_id = '$user_id') OR user_id = $user_id) AND user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') $group_by ORDER BY id DESC";
-    $query     = "SELECT DISTINCT user_id,title,description,posted,expire,thumbnail,(SELECT MAX(us.id) FROM " . T_USER_STORY . " us WHERE us.user_id = " . T_USER_STORY . ".user_id) AS id  FROM " . T_USER_STORY . " WHERE (user_id IN (SELECT following_id FROM " . T_FOLLOWERS . " WHERE follower_id = '$user_id') OR user_id = $user_id) AND user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') $offset_query $group_by ORDER BY user_id DESC LIMIT " . $data_array['limit'];
+    // Modified: Show stories from ALL active users, add expiration check, exclude blocked users
+    $query     = "SELECT DISTINCT user_id,title,description,posted,expire,thumbnail,(SELECT MAX(us.id) FROM " . T_USER_STORY . " us WHERE us.user_id = " . T_USER_STORY . ".user_id) AS id  FROM " . T_USER_STORY . " WHERE user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') AND expire > UNIX_TIMESTAMP() AND user_id NOT IN (SELECT blocked FROM " . T_BLOCKS . " WHERE blocker = '$user_id') AND user_id NOT IN (SELECT blocker FROM " . T_BLOCKS . " WHERE blocked = '$user_id') $offset_query $group_by ORDER BY user_id DESC LIMIT " . $data_array['limit'];
     $query_run = mysqli_query($sqlConnect, $query);
     while ($fetched_data = mysqli_fetch_assoc($query_run)) {
         $story_images              = Wo_GetStoryMedia($fetched_data['id'], 'image');
@@ -6889,7 +6891,8 @@ function Wo_VerfiyIP($username = '') {
 function Wo_GetAllStatus() {
     global $wo, $db;
     $user_id = $wo['user']['user_id'];
-    return $db->rawQuery("SELECT DISTINCT user_id,title,description,posted,expire,thumbnail,(SELECT MAX(us.id) FROM " . T_USER_STORY . " us WHERE us.user_id = " . T_USER_STORY . ".user_id) AS id  FROM " . T_USER_STORY . " WHERE (user_id IN (SELECT following_id FROM " . T_FOLLOWERS . " WHERE follower_id = '$user_id') OR user_id = $user_id) AND user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') GROUP BY user_id ORDER BY id DESC");
+    // Modified: Show stories from ALL active users, add expiration check, exclude blocked users
+    return $db->rawQuery("SELECT DISTINCT user_id,title,description,posted,expire,thumbnail,(SELECT MAX(us.id) FROM " . T_USER_STORY . " us WHERE us.user_id = " . T_USER_STORY . ".user_id) AS id  FROM " . T_USER_STORY . " WHERE user_id IN (SELECT user_id FROM " . T_USERS . " WHERE active = '1') AND expire > UNIX_TIMESTAMP() AND user_id NOT IN (SELECT blocked FROM " . T_BLOCKS . " WHERE blocker = '$user_id') AND user_id NOT IN (SELECT blocker FROM " . T_BLOCKS . " WHERE blocked = '$user_id') GROUP BY user_id ORDER BY id DESC");
 }
 function Wo_SharePostOn($id = false, $type_id = 0, $type = '') {
     global $sqlConnect, $wo;

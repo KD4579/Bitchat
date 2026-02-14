@@ -113,6 +113,8 @@ if ($f == 'wallet') {
             $notif_msg       = $wo['lang']['sent_you'];
             $data['status']  = 200;
             $data['message'] = "$success_msg@ $recipient_name";
+            $data['sender_balance'] = sprintf('%.2f', $wallet - $amount);
+            $data['receiver_balance'] = sprintf('%.2f', $userdata['wallet'] + $amount);
             //$note1           = $success_msg . " " . $userdata['name'];
             $note1           = $userdata['name'];
             //$note2           = $wo['lang']['successfully_received_from'] . " " . $wo['user']['name'];

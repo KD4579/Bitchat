@@ -42,11 +42,13 @@ function Wo_RegisterReactionLike(element,reaction_icon,is_html){
 
     var reaction = parseInt($(element).attr('data-reaction-id'));
     var post_id = $(element).attr('data-post-id');
-	
+
     if ($('#react_'+post_id).attr('data_react') == 1) {
       return false;
     }
-    
+    // Set guard immediately to prevent double-click race condition
+    $('#react_'+post_id).attr('data_react','1');
+
     var path = "<?php echo $wo['config']['theme_url']?>";
     var lang = $(element).attr('data-reaction-lang');
     if (!post_id || !reaction) {
@@ -156,6 +158,11 @@ function Wo_RegisterMessageReaction(element,reaction_icon,is_html) {
 function Wo_RegisterReaction(element,reaction_icon,is_html){
     var reaction = parseInt($(element).attr('data-reaction-id'));
     var post_id = $(element).attr('data-post-id');
+    // Prevent double-click race condition
+    if ($('#react_'+post_id).attr('data_react') == 1) {
+      return false;
+    }
+    $('#react_'+post_id).attr('data_react','1');
     var path = "<?php echo $wo['config']['theme_url']?>";
     var lang = $(element).attr('data-reaction-lang');
     if (!post_id || !reaction) {

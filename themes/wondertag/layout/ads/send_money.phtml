@@ -88,8 +88,12 @@
         scrollToTop();
         if (data['status'] == 200) {
 			if (node_socket_flow == "1") {
-                socket.emit("user_notification", { to_id: $("#recipient_user_id").val(), user_id: _getCookie("user_id"), type: "added" });
+                socket.emit("user_notification", { to_id: $("#recipient_user_id").val(), user_id: _getCookie("user_id"), type: "added", wallet_balance: data['receiver_balance'] });
             }
+          // Update sender's balance display in real-time
+          if (data['sender_balance'] && $('#wallet-balance-amount').length) {
+              $('#wallet-balance-amount').text(parseFloat(data['sender_balance']).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+          }
           var alert_msg = $("<div>",{
             class: "alert alert-success",
             text: data['message']
