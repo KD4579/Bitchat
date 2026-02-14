@@ -46,24 +46,39 @@ client.on('user-unpublished', function(user, mediaType) {
 // Remote user left
 client.on('user-left', function(user) {
   var remoteUid = user.uid;
-  delete remoteUsers[remoteUid];
-  if (remoteUid === mainStreamUid) {
-    var uids = Object.keys(remoteUsers);
-    if (uids.length > 0) {
-      var randomUid = uids[Math.floor(Math.random() * uids.length)];
-      var remoteContainerID = '#' + randomUid + '_container';
-      $(remoteContainerID).empty().remove();
-      if (remoteUsers[randomUid] && remoteUsers[randomUid].videoTrack) {
-        remoteUsers[randomUid].videoTrack.play('full-screen-video');
-      }
-      mainStreamUid = randomUid;
+  // Stop the remote user's tracks before cleanup
+  if (remoteUsers[remoteUid]) {
+    if (remoteUsers[remoteUid].videoTrack) {
+      remoteUsers[remoteUid].videoTrack.stop();
     }
+    if (remoteUsers[remoteUid].audioTrack) {
+      remoteUsers[remoteUid].audioTrack.stop();
+    }
+  }
+  delete remoteUsers[remoteUid];
+
+  // Check if any remote users remain
+  var remainingUids = Object.keys(remoteUsers);
+  if (remainingUids.length === 0) {
+    // No remote users left — end the call and redirect
+    leaveChannel();
+    location.href = "<?php echo($wo['config']['site_url']) ?>";
+    return;
+  }
+
+  // If the main stream user left, promote another user
+  if (remoteUid === mainStreamUid) {
+    var nextUid = remainingUids[0];
+    var remoteContainerID = '#' + nextUid + '_container';
+    $(remoteContainerID).empty().remove();
+    $('#full-screen-video').empty();
+    if (remoteUsers[nextUid] && remoteUsers[nextUid].videoTrack) {
+      remoteUsers[nextUid].videoTrack.play('full-screen-video');
+    }
+    mainStreamUid = nextUid;
   } else {
     var remoteContainerID = '#' + remoteUid + '_container';
     $(remoteContainerID).empty().remove();
-  }
-  if ($('#full-screen-video').is(':empty') && $('#remote-streams').is(':empty')) {
-    location.href = "<?php echo($wo['config']['site_url']) ?>";
   }
 });
 
@@ -77,7 +92,7 @@ try {
     encoderConfig: '480p_2'
   });
 
-  localVideoTrack.play('local-video');
+  localVideoTrack.play('local-video', {mirror: true});
   $('.end_vdo_call').removeClass('hidden');
 
   await client.publish([localAudioTrack, localVideoTrack]);
@@ -126,6 +141,7 @@ function leaveChannel() {
     if (screenAudioTrack) { screenAudioTrack.close(); }
     screenClient.leave();
   }
+  $.get(Wo_Ajax_Requests_File(), {f:'cancel_call'});
   client.leave().then(function() {
     $("#remote-streams").empty();
   }).catch(function(err) {
