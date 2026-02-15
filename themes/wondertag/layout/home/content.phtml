@@ -489,6 +489,7 @@ function loadposts(retryCount) {
 	$.ajax({
 		url: Wo_Ajax_Requests_File() + '?f=load_posts',
 		type: 'GET',
+		cache: false,
 		timeout: 15000,
 		success: function(data) {
 			if (data && typeof data === 'string' && data.trim().length > 0) {
