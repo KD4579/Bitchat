@@ -1,16 +1,12 @@
 /*
- * Bitchat — Safety: prevent stuck invisible content area.
+ * Bitchat — Safety net for content visibility and feed loading.
  *
- * WoWonder's SPA navigation adds "opacity_start" to #ajax_loading
- * (which wraps #contnet) to fade out content during page transitions.
- * If the AJAX load fails, "opacity_start" is never removed and the
- * entire content area stays invisible (opacity: 0, pointer-events: none).
- *
- * This safety net removes the class after page load and also monitors
- * for it getting stuck during SPA navigation.
+ * 1. Removes stuck "opacity_start" class that hides the content area.
+ * 2. Detects stuck skeleton loaders (feed failed to load via AJAX)
+ *    and retriggers loadposts() if available.
  */
 (function() {
-    // On initial page load, ensure content is visible
+    // --- Part 1: Prevent stuck invisible content area ---
     function ensureContentVisible() {
         var el = document.getElementById('ajax_loading');
         if (el && el.classList.contains('opacity_start')) {
@@ -18,18 +14,14 @@
         }
     }
 
-    // Run after DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', ensureContentVisible);
     } else {
         ensureContentVisible();
     }
 
-    // Safety: also run after a short delay to catch race conditions
     setTimeout(ensureContentVisible, 1500);
 
-    // Monitor: if opacity_start persists for more than 8 seconds during
-    // SPA navigation, force-remove it (AJAX probably failed)
     var observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(m) {
             if (m.type === 'attributes' && m.attributeName === 'class') {
@@ -49,4 +41,22 @@
     if (target) {
         observer.observe(target, { attributes: true });
     }
+
+    // --- Part 2: Detect stuck feed skeleton loaders ---
+    // If after 10 seconds #posts-laoded still contains only skeleton
+    // placeholders (no real post content), retry loading the feed.
+    setTimeout(function() {
+        var postsEl = document.getElementById('posts-laoded');
+        if (!postsEl) return;
+
+        var hasRealContent = postsEl.querySelector('.post-container, .wo_post_sec, .post-card, .no_posts, .empty_state, [data-post-id]');
+        var hasSkeleton = postsEl.querySelector('.tag_post_skel, .skel');
+
+        if (!hasRealContent && hasSkeleton) {
+            // Feed never loaded — retry
+            if (typeof loadposts === 'function') {
+                loadposts(0);
+            }
+        }
+    }, 10000);
 })();

@@ -484,31 +484,52 @@ $(function() {
     loadposts();
 });
 
-function loadposts() {
-	$("#posts-laoded").load(Wo_Ajax_Requests_File() + '?f=load_posts', function enter() {
-		Wo_FinishBar();
-		window.fbAsyncInit = function() {
-		  FB.init({
-			appId      : '374255706379985',
-			xfbml      : true,
-			version    : 'v3.2'
-		  });
-		};
-	  	$(".post-description p, .product-description").each(function(index, el) {
-	  		ReadMoreText(this);
-	  	});
-	  	$(".post-commet-textarea .textarea").triggeredAutocomplete({
-	       hidden: '#hidden_inputbox_comment',
-	       source: Wo_Ajax_Requests_File() + "?f=mention",
-	       trigger: "@" 
-	    });
-	  	$(".comment-reply textarea").triggeredAutocomplete({
-	       hidden: '#hidden_inputbox_comment_reply',
-	       source: Wo_Ajax_Requests_File() + "?f=mention",
-	       trigger: "@"
-	    });
-	    $('#load-more-posts').show();
-
+function loadposts(retryCount) {
+	retryCount = retryCount || 0;
+	$.ajax({
+		url: Wo_Ajax_Requests_File() + '?f=load_posts',
+		type: 'GET',
+		timeout: 15000,
+		success: function(data) {
+			if (data && typeof data === 'string' && data.trim().length > 0) {
+				$("#posts-laoded").html(data);
+				Wo_FinishBar();
+				window.fbAsyncInit = function() {
+				  FB.init({
+					appId      : '374255706379985',
+					xfbml      : true,
+					version    : 'v3.2'
+				  });
+				};
+				$(".post-description p, .product-description").each(function(index, el) {
+					ReadMoreText(this);
+				});
+				$(".post-commet-textarea .textarea").triggeredAutocomplete({
+				   hidden: '#hidden_inputbox_comment',
+				   source: Wo_Ajax_Requests_File() + "?f=mention",
+				   trigger: "@"
+				});
+				$(".comment-reply textarea").triggeredAutocomplete({
+				   hidden: '#hidden_inputbox_comment_reply',
+				   source: Wo_Ajax_Requests_File() + "?f=mention",
+				   trigger: "@"
+				});
+				$('#load-more-posts').show();
+			} else if (retryCount < 2) {
+				setTimeout(function() { loadposts(retryCount + 1); }, 2000);
+			} else {
+				$("#posts-laoded").html('<div class="text-center p-3"><p>Could not load feed.</p><button class="btn btn-sm btn-primary" onclick="loadposts(0)">Try Again</button></div>');
+				Wo_FinishBar();
+			}
+		},
+		error: function(xhr, status, error) {
+			if (retryCount < 2) {
+				setTimeout(function() { loadposts(retryCount + 1); }, 2000);
+			} else {
+				$("#posts-laoded").html('<div class="text-center p-3"><p>Could not load feed.</p><button class="btn btn-sm btn-primary" onclick="loadposts(0)">Try Again</button></div>');
+				Wo_FinishBar();
+			}
+		}
 	});
 }
   <?php if ($wo['user']['social_login'] == 1) { ?>
