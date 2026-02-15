@@ -2,8 +2,9 @@
  * Bitchat — Safety net for content visibility, feed loading, and dark mode.
  *
  * 1. Removes stuck "opacity_start" class that hides the content area.
- * 2. Detects stuck skeleton loaders (feed failed to load via AJAX)
- *    and retriggers loadposts() if available.
+ * 2. Detects stuck skeleton loaders and directly loads the feed via AJAX
+ *    (independent of the page's own loadposts function, works even if
+ *    the user's browser has cached an older version of the page).
  * 3. Syncs .bc-dark-mode class on <html> for CSS custom properties
  *    (fallback for browsers without :has() support).
  */
@@ -43,20 +44,66 @@
         opacityObserver.observe(target, { attributes: true });
     }
 
-    // --- Part 2: Detect stuck feed skeleton loaders ---
-    setTimeout(function() {
+    // --- Part 2: Detect stuck feed and load directly ---
+    // Self-sufficient: makes its own AJAX call, does NOT depend on
+    // the page's loadposts() function (which may be cached/old/broken).
+    function rescueFeed() {
         var postsEl = document.getElementById('posts-laoded');
         if (!postsEl) return;
 
-        var hasRealContent = postsEl.querySelector('.post-container, .wo_post_sec, .post-card, .no_posts, .empty_state, [data-post-id]');
-        var hasSkeleton = postsEl.querySelector('.tag_post_skel, .skel');
+        // Check if real content exists (posts, empty state, etc.)
+        var hasRealContent = postsEl.querySelector(
+            '.post-container, .wo_post_sec, .post-card, .no_posts, .empty_state, [data-post-id], #posts'
+        );
 
-        if (!hasRealContent && hasSkeleton) {
-            if (typeof loadposts === 'function') {
-                loadposts(0);
-            }
+        if (hasRealContent) return; // Feed loaded fine, nothing to do
+
+        // Feed is stuck — determine the AJAX URL
+        var ajaxUrl = '';
+        if (typeof Wo_Ajax_Requests_File === 'function') {
+            ajaxUrl = Wo_Ajax_Requests_File();
+        } else {
+            // Fallback: construct URL from current page location
+            var loc = window.location;
+            ajaxUrl = loc.protocol + '//' + loc.host + '/requests.php';
         }
-    }, 10000);
+
+        // Direct AJAX call to load feed
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', ajaxUrl + '?f=load_posts&_=' + Date.now(), true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.timeout = 20000;
+        xhr.onload = function() {
+            if (xhr.status === 200 && xhr.responseText && xhr.responseText.trim().length > 50) {
+                postsEl.innerHTML = xhr.responseText;
+                // Execute any inline scripts in the response
+                var scripts = postsEl.querySelectorAll('script');
+                for (var i = 0; i < scripts.length; i++) {
+                    try {
+                        var s = document.createElement('script');
+                        s.textContent = scripts[i].textContent;
+                        scripts[i].parentNode.replaceChild(s, scripts[i]);
+                    } catch(e) {}
+                }
+            } else {
+                postsEl.innerHTML = '<div style="text-align:center;padding:20px;">' +
+                    '<p>Could not load feed.</p>' +
+                    '<button onclick="location.reload()" style="padding:8px 20px;border-radius:20px;border:1px solid #ccc;background:#fff;cursor:pointer;">Refresh Page</button>' +
+                    '</div>';
+            }
+        };
+        xhr.onerror = function() {
+            postsEl.innerHTML = '<div style="text-align:center;padding:20px;">' +
+                '<p>Connection error. Please check your network.</p>' +
+                '<button onclick="location.reload()" style="padding:8px 20px;border-radius:20px;border:1px solid #ccc;background:#fff;cursor:pointer;">Refresh Page</button>' +
+                '</div>';
+        };
+        xhr.send();
+    }
+
+    // Check at 6s and 12s for stuck feed
+    setTimeout(rescueFeed, 6000);
+    setTimeout(rescueFeed, 12000);
 
     // --- Part 3: Dark mode class sync (fallback for browsers without :has()) ---
     function syncDarkMode() {
