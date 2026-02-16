@@ -366,8 +366,18 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
 
                         json_data = JSON.parse($(data).filter('#json-data').val());
 
-                        // Simply replace content - jQuery handles scripts
+                        // Replace content
                         $('.content').html(data);
+
+                        // Manually execute inline scripts (jQuery 3.x doesn't auto-execute)
+                        $('.content').find('script').each(function() {
+                            if (!this.src) {
+                                // Inline script - execute in global scope
+                                var script = document.createElement('script');
+                                script.textContent = this.textContent;
+                                document.head.appendChild(script).parentNode.removeChild(script);
+                            }
+                        });
 
                         setTimeout(function () {
                           $(".content").getNiceScroll().resize()
