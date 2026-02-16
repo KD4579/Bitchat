@@ -7,16 +7,43 @@ if ($f == 'creator') {
         exit();
     }
 
-    // Check if creator mode is enabled system-wide
+    $data = array('status' => 200);
+    $action = isset($_POST['action']) ? Wo_Secure($_POST['action']) : '';
+
+    // Admin actions — always accessible regardless of creator_mode_enabled
+    if ($action == 'save_settings' && Wo_IsAdmin()) {
+        if (isset($_POST['creator_mode_enabled'])) {
+            Wo_SaveConfig('creator_mode_enabled', ($_POST['creator_mode_enabled'] == '1') ? '1' : '0');
+        }
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
+    if ($action == 'admin_toggle' && Wo_IsAdmin()) {
+        $userId = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        $enable = isset($_POST['enable']) ? ($_POST['enable'] == '1') : false;
+        if ($userId > 0) {
+            if ($enable && function_exists('Wo_EnableCreatorMode')) {
+                Wo_EnableCreatorMode($userId);
+            } elseif (!$enable && function_exists('Wo_DisableCreatorMode')) {
+                Wo_DisableCreatorMode($userId);
+            }
+        } else {
+            $data = array('status' => 400, 'message' => 'Invalid user ID');
+        }
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
+    // User actions — require creator mode to be enabled system-wide
     if (empty($wo['config']['creator_mode_enabled']) || $wo['config']['creator_mode_enabled'] != '1') {
         $data = array('status' => 400, 'message' => 'Creator mode is not available');
         header("Content-type: application/json");
         echo json_encode($data);
         exit();
     }
-
-    $data = array('status' => 200);
-    $action = isset($_POST['action']) ? Wo_Secure($_POST['action']) : '';
 
     if ($action == 'enable') {
         if (function_exists('Wo_EnableCreatorMode')) {
@@ -35,19 +62,6 @@ if ($f == 'creator') {
             }
         } else {
             $data = array('status' => 400, 'message' => 'Creator mode not available');
-        }
-    } elseif ($action == 'admin_toggle' && Wo_IsAdmin()) {
-        // Admin can toggle any user's creator mode
-        $userId = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
-        $enable = isset($_POST['enable']) ? ($_POST['enable'] == '1') : false;
-        if ($userId > 0) {
-            if ($enable && function_exists('Wo_EnableCreatorMode')) {
-                Wo_EnableCreatorMode($userId);
-            } elseif (!$enable && function_exists('Wo_DisableCreatorMode')) {
-                Wo_DisableCreatorMode($userId);
-            }
-        } else {
-            $data = array('status' => 400, 'message' => 'Invalid user ID');
         }
     } else {
         $data = array('status' => 400, 'message' => 'Unknown action');

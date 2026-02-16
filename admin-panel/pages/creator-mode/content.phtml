@@ -1,0 +1,133 @@
+<?php if (!Wo_IsAdmin()) { header("Location: " . Wo_LoadAdminLinkSettings('dashboard')); exit(); } ?>
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Creator Mode</h3>
+            <p class="text-muted">Enable/disable the creator system. Creators get a badge on posts, access to analytics, and TRDC milestone rewards.</p>
+        </div>
+        <div class="panel-body">
+            <form id="creator-mode-form" class="form-inline" style="margin-bottom:20px;">
+                <div class="form-group" style="margin-right:15px;">
+                    <label>Creator Mode</label>
+                    <select name="creator_mode_enabled" class="form-control" style="margin-left:10px;">
+                        <option value="0" <?php echo (($wo['config']['creator_mode_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
+                        <option value="1" <?php echo (($wo['config']['creator_mode_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+
+            <hr>
+            <h4>Manage Creators</h4>
+            <p class="text-muted">Add or remove creator status for users by entering their User ID.</p>
+
+            <div class="row" style="margin-bottom:20px;">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="number" id="creator-user-id" class="form-control" placeholder="User ID">
+                        <span class="input-group-btn">
+                            <button class="btn btn-success" id="add-creator-btn">Grant Creator</button>
+                            <button class="btn btn-danger" id="remove-creator-btn">Remove Creator</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <h4>Current Creators</h4>
+            <?php
+            $creators = array();
+            $cQuery = mysqli_query($sqlConnect, "SELECT user_id FROM Wo_Users WHERE is_creator = 1 ORDER BY user_id ASC LIMIT 100");
+            if ($cQuery) {
+                while ($row = mysqli_fetch_assoc($cQuery)) {
+                    $creators[] = $row['user_id'];
+                }
+            }
+            ?>
+
+            <?php if (empty($creators)): ?>
+                <p class="text-muted">No creators yet.</p>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($creators as $cid): ?>
+                            <?php $cUser = Wo_UserData($cid); ?>
+                            <tr id="creator-row-<?php echo $cid; ?>">
+                                <td><?php echo $cid; ?></td>
+                                <td>
+                                    <?php if (!empty($cUser['name'])): ?>
+                                        <a href="<?php echo $cUser['url']; ?>" target="_blank"><?php echo htmlspecialchars($cUser['name']); ?></a>
+                                    <?php else: ?>
+                                        User #<?php echo $cid; ?>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <button class="btn btn-xs btn-danger remove-creator" data-id="<?php echo $cid; ?>">Remove</button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#creator-mode-form').on('submit', function(e) {
+    e.preventDefault();
+    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
+        action: 'save_settings',
+        creator_mode_enabled: $(this).find('[name=creator_mode_enabled]').val()
+    }, function(data) {
+        if (data.status == 200) {
+            Wo_ShowNotifications('success', 'Settings saved successfully');
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed to save');
+        }
+    }, 'json');
+});
+
+$('#add-creator-btn').on('click', function() {
+    var uid = $('#creator-user-id').val();
+    if (!uid) return;
+    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
+        action: 'admin_toggle',
+        user_id: uid,
+        enable: '1'
+    }, function(data) {
+        if (data.status == 200) {
+            Wo_ShowNotifications('success', 'Creator status granted');
+            setTimeout(function() { window.location.reload(); }, 1000);
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed');
+        }
+    }, 'json');
+});
+
+$('#remove-creator-btn, .remove-creator').on('click', function() {
+    var uid = $(this).data('id') || $('#creator-user-id').val();
+    if (!uid) return;
+    if (!confirm('Remove creator status from user #' + uid + '?')) return;
+    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
+        action: 'admin_toggle',
+        user_id: uid,
+        enable: '0'
+    }, function(data) {
+        if (data.status == 200) {
+            $('#creator-row-' + uid).fadeOut();
+            Wo_ShowNotifications('success', 'Creator status removed');
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed');
+        }
+    }, 'json');
+});
+</script>
