@@ -220,10 +220,10 @@ function Wo_GetCreatorWeeklyEngagement($userId) {
         $dayEnd   = $dayStart + 86400;
         $dayLabel = date('D', $dayStart);
 
-        // Reactions on this user's posts for this day
+        // Reactions on this user's posts published this day (Wo_Reactions has no time column)
         $rSql = "SELECT COUNT(*) AS cnt FROM {$reactionsTable} r
                  JOIN {$postsTable} p ON r.post_id = p.id
-                 WHERE p.user_id = {$userId} AND r.time >= {$dayStart} AND r.time < {$dayEnd}";
+                 WHERE p.user_id = {$userId} AND p.time >= {$dayStart} AND p.time < {$dayEnd}";
         $rResult = mysqli_query($sqlConnect, $rSql);
         $reactions = 0;
         if ($rResult) { $r = mysqli_fetch_assoc($rResult); $reactions = intval($r['cnt']); }
