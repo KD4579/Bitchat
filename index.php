@@ -578,6 +578,12 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'welcome':
                         include('sources/welcome.php');
                         break;
+                    case 'discover':
+                        include('sources/discover.php');
+                        break;
+                    case 'welcome-setup':
+                        include('sources/welcome_setup.php');
+                        break;
                     case 'register':
                         include('sources/register.php');
                         break;
@@ -1131,6 +1137,12 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                 break;
             case 'explore':
                 include('sources/explore.php');
+                break;
+            case 'discover':
+                include('sources/discover.php');
+                break;
+            case 'welcome-setup':
+                include('sources/welcome_setup.php');
                 break;
             case 'creator-dashboard':
                 include('sources/creator_dashboard.php');
