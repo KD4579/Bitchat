@@ -4550,7 +4550,7 @@ function Wo_GetPostAds($last_id = 0) {
     $user_country = $wo['user']['country_id'];
     $query_one    = '';
     $con_list     = false;
-    if (!empty($wo['ad-con']) && !empty($wo['ad-con']['ads'])) {
+    if (!empty($wo['ad-con']) && !empty($wo['ad-con']['ads']) && is_array($wo['ad-con']['ads'])) {
         $con_list = implode(',', $wo['ad-con']['ads']);
     }
     if ($last_id && $last_id > 0) {
@@ -4611,7 +4611,7 @@ function Wo_GetAdsByType($type = 'post', $last_id = 0) {
     $user_country = $wo['user']['country_id'];
     $query_one    = '';
     $con_list     = false;
-    if (!empty($wo['ad-con']) && !empty($wo['ad-con']['ads'])) {
+    if (!empty($wo['ad-con']) && !empty($wo['ad-con']['ads']) && is_array($wo['ad-con']['ads'])) {
         $con_list = implode(',', $wo['ad-con']['ads']);
     }
     if ($last_id && $last_id > 0) {

@@ -5119,7 +5119,7 @@ function Wo_DisplaySharedFile($media, $placement = '', $cache = false, $is_video
             } else {
                 $t_users    = T_USERS;
                 $lats_ad_id = (!empty($_GET['ad_id']) && is_numeric($_GET['ad_id'])) ? $_GET['ad_id'] : false;
-                $con_list   = implode(',', $wo['ad-con']['ads']);
+                $con_list   = !empty($wo['ad-con']['ads']) && is_array($wo['ad-con']['ads']) ? implode(',', $wo['ad-con']['ads']) : '';
                 if ($con_list) {
                     $db->where(" `id` NOT IN ({$con_list}) ");
                 }
