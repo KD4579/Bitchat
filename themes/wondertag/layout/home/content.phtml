@@ -97,7 +97,7 @@
 			if (!empty($wo['config']['can_use_story']) && !empty($wo['loggedin'])) {
 				$hasActiveStory = false;
 				$storyCheckSql = "SELECT COUNT(*) AS cnt FROM " . T_USER_STORY . " WHERE user_id = " . intval($wo['user']['user_id']) . " AND expire > " . time();
-				$storyCheckResult = mysqli_query($sqlConnect, $storyCheckSql);
+				$storyCheckResult = mysqli_query($wo['sqlConnect'], $storyCheckSql);
 				if ($storyCheckResult) {
 					$storyRow = mysqli_fetch_assoc($storyCheckResult);
 					$hasActiveStory = (intval($storyRow['cnt']) > 0);
