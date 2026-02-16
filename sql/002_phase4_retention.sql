@@ -1,31 +1,18 @@
--- Bitchat Phase 4: Retention & Discovery
--- Run this ONCE on the database.
+-- Phase 4: Retention & Discovery SQL Schema Changes
+-- Post View Tracking & Welcome Flow
 
--- =============================================
--- 1. New User Onboarding
--- =============================================
+-- Add post_views column to track impressions
+ALTER TABLE Wo_Posts
+ADD COLUMN post_views INT UNSIGNED NOT NULL DEFAULT 0
+AFTER postShare;
 
-SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Wo_Users' AND COLUMN_NAME = 'onboarding_completed');
-SET @sql = IF(@col_exists = 0,
-  'ALTER TABLE `Wo_Users` ADD COLUMN `onboarding_completed` TINYINT(1) NOT NULL DEFAULT 0',
-  'SELECT 1');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+-- Add index for better performance when querying top viewed posts
+CREATE INDEX idx_post_views ON Wo_Posts(post_views DESC);
 
--- Mark all existing users as onboarded (only new signups get the wizard)
-UPDATE `Wo_Users` SET `onboarding_completed` = 1 WHERE `onboarding_completed` = 0 AND `user_id` > 0;
+-- Add onboarding_completed column for new user welcome flow
+ALTER TABLE Wo_Users
+ADD COLUMN onboarding_completed TINYINT(1) NOT NULL DEFAULT 0
+AFTER verified;
 
--- =============================================
--- 2. Post View Tracking
--- =============================================
-
-SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Wo_Posts' AND COLUMN_NAME = 'post_views');
-SET @sql = IF(@col_exists = 0,
-  'ALTER TABLE `Wo_Posts` ADD COLUMN `post_views` INT UNSIGNED NOT NULL DEFAULT 0',
-  'SELECT 1');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+-- Add index for faster onboarding query
+CREATE INDEX idx_onboarding_completed ON Wo_Users(onboarding_completed);
