@@ -1,109 +1,229 @@
 <?php if (!Wo_IsAdmin()) { header("Location: " . Wo_LoadAdminLinkSettings('dashboard')); exit(); } ?>
-<div class="col-md-12">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Creator Mode</h3>
-            <p class="text-muted">Enable/disable the creator system. Creators get a badge on posts, access to analytics, and TRDC milestone rewards.</p>
+<?php
+$creatorEnabled = ($wo['config']['creator_mode_enabled'] ?? '0') == '1';
+$creators = array();
+$cQuery = mysqli_query($sqlConnect, "SELECT u.user_id, u.username, u.first_name, u.last_name, u.avatar, u.verified,
+    (SELECT COUNT(*) FROM " . T_POSTS . " WHERE user_id = u.user_id) as post_count,
+    (SELECT COUNT(*) FROM " . T_FOLLOWERS . " WHERE following_id = u.user_id AND active = 1) as follower_count
+    FROM " . T_USERS . " u WHERE u.is_creator = 1 ORDER BY u.user_id ASC LIMIT 100");
+if ($cQuery) {
+    while ($row = mysqli_fetch_assoc($cQuery)) {
+        $creators[] = $row;
+    }
+}
+$creatorCount = count($creators);
+?>
+
+<style>
+.bcam-wrap { padding: 0 }
+.bcam-header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; color: #fff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.bcam-header-left h2 { margin: 0 0 6px; font-size: 22px; font-weight: 700; }
+.bcam-header-left p { margin: 0; font-size: 13px; opacity: 0.75; }
+.bcam-toggle-wrap { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 20px; }
+.bcam-toggle-label { font-size: 13px; font-weight: 500; }
+.bcam-switch { position: relative; width: 48px; height: 26px; cursor: pointer; }
+.bcam-switch input { display: none; }
+.bcam-switch .bcam-slider { position: absolute; inset: 0; background: rgba(255,255,255,0.25); border-radius: 26px; transition: 0.3s; }
+.bcam-switch .bcam-slider:before { content: ''; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: 0.3s; }
+.bcam-switch input:checked + .bcam-slider { background: #22c55e; }
+.bcam-switch input:checked + .bcam-slider:before { transform: translateX(22px); }
+.bcam-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+.bcam-status-on { background: rgba(34,197,94,0.2); color: #22c55e; }
+.bcam-status-off { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+.bcam-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.bcam-stat-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); text-align: center; }
+.bcam-stat-card h3 { margin: 0 0 4px; font-size: 28px; font-weight: 700; }
+.bcam-stat-card p { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.bcam-stat-card.bcam-sc-blue h3 { color: #3b82f6; }
+.bcam-stat-card.bcam-sc-amber h3 { color: #f59e0b; }
+.bcam-stat-card.bcam-sc-green h3 { color: #22c55e; }
+
+.bcam-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 24px; overflow: hidden; }
+.bcam-card-head { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+.bcam-card-head h4 { margin: 0; font-size: 16px; font-weight: 600; }
+.bcam-card-body { padding: 24px; }
+
+.bcam-add-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bcam-add-row input { flex: 1; min-width: 140px; max-width: 280px; padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.bcam-add-row input:focus { border-color: #3b82f6; }
+.bcam-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.bcam-btn svg { width: 16px; height: 16px; }
+.bcam-btn-primary { background: #3b82f6; color: #fff; }
+.bcam-btn-primary:hover { background: #2563eb; }
+.bcam-btn-danger { background: #fef2f2; color: #ef4444; }
+.bcam-btn-danger:hover { background: #fee2e2; }
+.bcam-btn-sm { padding: 6px 14px; font-size: 12px; }
+
+.bcam-table { width: 100%; border-spacing: 0; }
+.bcam-table th { text-align: left; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; }
+.bcam-table td { padding: 12px 16px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+.bcam-table tr:last-child td { border-bottom: none; }
+.bcam-table tr:hover td { background: #f8fafc; }
+.bcam-user-cell { display: flex; align-items: center; gap: 12px; }
+.bcam-user-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #f1f5f9; }
+.bcam-user-info { line-height: 1.3; }
+.bcam-user-name { font-size: 14px; font-weight: 600; color: #1e293b; text-decoration: none; }
+.bcam-user-name:hover { color: #3b82f6; }
+.bcam-user-meta { font-size: 11px; color: #94a3b8; }
+.bcam-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; background: #fef3c7; color: #b45309; }
+
+.bcam-empty { text-align: center; padding: 40px 20px; color: #94a3b8; }
+.bcam-empty svg { margin-bottom: 12px; opacity: 0.4; }
+.bcam-empty p { margin: 0; font-size: 14px; }
+
+.bcam-toast { position: fixed; top: 20px; right: 20px; padding: 14px 24px; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-10px); transition: all 0.3s; pointer-events: none; }
+.bcam-toast.show { opacity: 1; transform: translateY(0); }
+.bcam-toast-success { background: #22c55e; }
+.bcam-toast-error { background: #ef4444; }
+</style>
+
+<div class="col-md-12 bcam-wrap">
+    <!-- Header with Toggle -->
+    <div class="bcam-header">
+        <div class="bcam-header-left">
+            <h2><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#f59e0b" style="vertical-align:-3px;margin-right:6px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>Creator Mode</h2>
+            <p>Manage the creator system — badges, analytics, and TRDC milestone rewards</p>
         </div>
-        <div class="panel-body">
-            <form onsubmit="return bcSaveCreatorSettings(this);" class="form-inline" style="margin-bottom:20px;">
-                <div class="form-group" style="margin-right:15px;">
-                    <label>Creator Mode</label>
-                    <select name="creator_mode_enabled" id="bc-creator-mode-select" class="form-control" style="margin-left:10px;">
-                        <option value="0" <?php echo (($wo['config']['creator_mode_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
-                        <option value="1" <?php echo (($wo['config']['creator_mode_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </form>
+        <div class="bcam-toggle-wrap">
+            <span class="bcam-toggle-label">System Status</span>
+            <label class="bcam-switch">
+                <input type="checkbox" id="bcam-toggle" <?php echo $creatorEnabled ? 'checked' : ''; ?> onchange="bcamToggleSystem(this);">
+                <span class="bcam-slider"></span>
+            </label>
+            <span class="bcam-status <?php echo $creatorEnabled ? 'bcam-status-on' : 'bcam-status-off'; ?>" id="bcam-status-badge"><?php echo $creatorEnabled ? 'Active' : 'Inactive'; ?></span>
+        </div>
+    </div>
 
-            <hr>
-            <h4>Manage Creators</h4>
-            <p class="text-muted">Add or remove creator status for users by entering their User ID.</p>
+    <!-- Quick Stats -->
+    <div class="bcam-stats">
+        <div class="bcam-stat-card bcam-sc-blue">
+            <h3><?php echo $creatorCount; ?></h3>
+            <p>Total Creators</p>
+        </div>
+        <div class="bcam-stat-card bcam-sc-amber">
+            <h3><?php echo $creatorEnabled ? 'On' : 'Off'; ?></h3>
+            <p>System Status</p>
+        </div>
+        <div class="bcam-stat-card bcam-sc-green">
+            <h3><?php
+                $totalCreatorPosts = 0;
+                foreach ($creators as $c) $totalCreatorPosts += intval($c['post_count']);
+                echo number_format($totalCreatorPosts);
+            ?></h3>
+            <p>Creator Posts</p>
+        </div>
+    </div>
 
-            <div class="row" style="margin-bottom:20px;">
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <input type="text" id="creator-user-id" class="form-control" placeholder="User ID" autocomplete="off">
-                        <span class="input-group-btn">
-                            <button class="btn btn-success" type="button" onclick="bcGrantCreator();">Grant Creator</button>
-                            <button class="btn btn-danger" type="button" onclick="bcRemoveCreatorById();">Remove Creator</button>
-                        </span>
-                    </div>
-                </div>
+    <!-- Add Creator Card -->
+    <div class="bcam-card">
+        <div class="bcam-card-head">
+            <h4><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>Add Creator</h4>
+        </div>
+        <div class="bcam-card-body">
+            <div class="bcam-add-row">
+                <input type="text" id="bcam-user-id" placeholder="Enter User ID" autocomplete="off" onkeydown="if(event.key==='Enter'){bcamGrant();return false;}">
+                <button class="bcam-btn bcam-btn-primary" type="button" onclick="bcamGrant();">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Grant Creator
+                </button>
             </div>
-
-            <h4>Current Creators</h4>
-            <?php
-            $creators = array();
-            $cQuery = mysqli_query($sqlConnect, "SELECT user_id FROM Wo_Users WHERE is_creator = 1 ORDER BY user_id ASC LIMIT 100");
-            if ($cQuery) {
-                while ($row = mysqli_fetch_assoc($cQuery)) {
-                    $creators[] = $row['user_id'];
-                }
-            }
-            ?>
-
-            <?php if (empty($creators)): ?>
-                <p class="text-muted">No creators yet.</p>
-            <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php foreach ($creators as $cid): ?>
-                            <?php $cUser = Wo_UserData($cid); ?>
-                            <tr id="creator-row-<?php echo $cid; ?>">
-                                <td><?php echo $cid; ?></td>
-                                <td>
-                                    <?php if (!empty($cUser['name'])): ?>
-                                        <a href="<?php echo $cUser['url']; ?>" target="_blank"><?php echo htmlspecialchars($cUser['name']); ?></a>
-                                    <?php else: ?>
-                                        User #<?php echo $cid; ?>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <button class="btn btn-xs btn-danger" type="button" onclick="bcRemoveCreator(<?php echo $cid; ?>);">Remove</button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
         </div>
+    </div>
+
+    <!-- Creators Table -->
+    <div class="bcam-card">
+        <div class="bcam-card-head">
+            <h4><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#f59e0b" style="vertical-align:-3px;margin-right:6px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Active Creators <span style="font-weight:400;color:#94a3b8;font-size:13px;margin-left:6px;">(<?php echo $creatorCount; ?>)</span></h4>
+        </div>
+        <?php if (empty($creators)): ?>
+            <div class="bcam-empty">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <p>No creators yet. Use the form above to grant creator status.</p>
+            </div>
+        <?php else: ?>
+            <div style="overflow-x:auto;">
+                <table class="bcam-table">
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">ID</th>
+                            <th>User</th>
+                            <th>Posts</th>
+                            <th>Followers</th>
+                            <th style="width:100px;text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($creators as $c):
+                        $name = trim(($c['first_name'] ?? '') . ' ' . ($c['last_name'] ?? ''));
+                        if (empty($name)) $name = $c['username'];
+                        $avatarUrl = $c['avatar'];
+                        if (strpos($avatarUrl, 'http') !== 0) $avatarUrl = $wo['config']['site_url'] . '/' . $avatarUrl;
+                    ?>
+                        <tr id="bcam-row-<?php echo $c['user_id']; ?>">
+                            <td style="color:#94a3b8;font-size:13px;">#<?php echo $c['user_id']; ?></td>
+                            <td>
+                                <div class="bcam-user-cell">
+                                    <img class="bcam-user-avatar" src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="" onerror="this.src='<?php echo $wo['config']['theme_url']; ?>/img/d-avatar.jpg'">
+                                    <div class="bcam-user-info">
+                                        <a class="bcam-user-name" href="<?php echo $wo['config']['site_url']; ?>/@<?php echo htmlspecialchars($c['username']); ?>" target="_blank"><?php echo htmlspecialchars($name); ?></a>
+                                        <div class="bcam-user-meta">@<?php echo htmlspecialchars($c['username']); ?></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong><?php echo number_format(intval($c['post_count'])); ?></strong></td>
+                            <td><strong><?php echo number_format(intval($c['follower_count'])); ?></strong></td>
+                            <td style="text-align:right;">
+                                <button class="bcam-btn bcam-btn-danger bcam-btn-sm" type="button" onclick="bcamRemove(<?php echo $c['user_id']; ?>, '<?php echo htmlspecialchars(addslashes($name)); ?>');">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
+<div class="bcam-toast" id="bcam-toast"></div>
+
 <script>
-function bcSaveCreatorSettings(form) {
-    var val = document.getElementById('bc-creator-mode-select').value;
+function bcamToast(msg, type) {
+    var t = document.getElementById('bcam-toast');
+    t.textContent = msg;
+    t.className = 'bcam-toast bcam-toast-' + (type || 'success') + ' show';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function() { t.className = 'bcam-toast'; }, 3000);
+}
+
+function bcamToggleSystem(cb) {
+    var val = cb.checked ? '1' : '0';
     $.ajax({
         url: Wo_Ajax_Requests_File() + '?f=creator',
         type: 'POST',
         data: { action: 'save_settings', creator_mode_enabled: val },
         dataType: 'json',
         success: function(data) {
+            var badge = document.getElementById('bcam-status-badge');
             if (data.status == 200) {
-                alert('Settings saved successfully');
+                badge.className = 'bcam-status ' + (cb.checked ? 'bcam-status-on' : 'bcam-status-off');
+                badge.textContent = cb.checked ? 'Active' : 'Inactive';
+                bcamToast('Creator mode ' + (cb.checked ? 'enabled' : 'disabled'));
             } else {
-                alert(data.message || 'Failed to save');
+                cb.checked = !cb.checked;
+                bcamToast(data.message || 'Failed to save', 'error');
             }
         },
-        error: function() { alert('Request failed'); }
+        error: function() { cb.checked = !cb.checked; bcamToast('Request failed', 'error'); }
     });
-    return false;
 }
 
-function bcGrantCreator() {
-    var uid = document.getElementById('creator-user-id').value;
-    if (!uid || uid == '0') { alert('Please enter a User ID'); return; }
+function bcamGrant() {
+    var uid = document.getElementById('bcam-user-id').value.trim();
+    if (!uid || uid == '0') { bcamToast('Please enter a User ID', 'error'); return; }
     $.ajax({
         url: Wo_Ajax_Requests_File() + '?f=creator',
         type: 'POST',
@@ -111,24 +231,19 @@ function bcGrantCreator() {
         dataType: 'json',
         success: function(data) {
             if (data.status == 200) {
-                alert('Creator status granted to user #' + uid);
-                window.location.reload();
+                bcamToast('Creator status granted to user #' + uid);
+                document.getElementById('bcam-user-id').value = '';
+                setTimeout(function() { window.location.reload(); }, 800);
             } else {
-                alert(data.message || 'Failed to grant creator status');
+                bcamToast(data.message || 'Failed to grant creator status', 'error');
             }
         },
-        error: function() { alert('Request failed'); }
+        error: function() { bcamToast('Request failed', 'error'); }
     });
 }
 
-function bcRemoveCreatorById() {
-    var uid = document.getElementById('creator-user-id').value;
-    if (!uid || uid == '0') { alert('Please enter a User ID'); return; }
-    bcRemoveCreator(uid);
-}
-
-function bcRemoveCreator(uid) {
-    if (!confirm('Remove creator status from user #' + uid + '?')) return;
+function bcamRemove(uid, name) {
+    if (!confirm('Remove creator status from ' + (name || 'user #' + uid) + '?')) return;
     $.ajax({
         url: Wo_Ajax_Requests_File() + '?f=creator',
         type: 'POST',
@@ -136,14 +251,18 @@ function bcRemoveCreator(uid) {
         dataType: 'json',
         success: function(data) {
             if (data.status == 200) {
-                var row = document.getElementById('creator-row-' + uid);
-                if (row) row.style.display = 'none';
-                alert('Creator status removed from user #' + uid);
+                var row = document.getElementById('bcam-row-' + uid);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s';
+                    row.style.opacity = '0';
+                    setTimeout(function() { row.remove(); }, 300);
+                }
+                bcamToast('Creator status removed from ' + (name || 'user #' + uid));
             } else {
-                alert(data.message || 'Failed to remove creator status');
+                bcamToast(data.message || 'Failed to remove', 'error');
             }
         },
-        error: function() { alert('Request failed'); }
+        error: function() { bcamToast('Request failed', 'error'); }
     });
 }
 </script>
