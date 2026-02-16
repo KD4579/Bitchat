@@ -167,24 +167,43 @@
 </div>
 
 <script>
-$('#trdc-rewards-form').on('submit', function(e) {
-    e.preventDefault();
-    var form = $(this);
-    var milestones = JSON.stringify({
-        post_likes_100: parseFloat(form.find('[name=m_post_likes_100]').val()) || 0,
-        post_likes_500: parseFloat(form.find('[name=m_post_likes_500]').val()) || 0,
-        post_likes_1000: parseFloat(form.find('[name=m_post_likes_1000]').val()) || 0,
-        first_video_post: parseFloat(form.find('[name=m_first_video_post]').val()) || 0
+$(document).ready(function() {
+    console.log('TRDC Rewards form handler initializing...');
+
+    $('#trdc-rewards-form').on('submit', function(e) {
+        e.preventDefault();
+        console.log('TRDC Rewards form submitted!');
+
+        var form = $(this);
+        var milestones = JSON.stringify({
+            post_likes_100: parseFloat(form.find('[name=m_post_likes_100]').val()) || 0,
+            post_likes_500: parseFloat(form.find('[name=m_post_likes_500]').val()) || 0,
+            post_likes_1000: parseFloat(form.find('[name=m_post_likes_1000]').val()) || 0,
+            first_video_post: parseFloat(form.find('[name=m_first_video_post]').val()) || 0
+        });
+
+        console.log('Sending data:', {
+            trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val(),
+            trdc_reward_milestones: milestones
+        });
+
+        $.post(Wo_Ajax_Requests_File() + '?f=trdc_rewards', {
+            trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val(),
+            trdc_reward_milestones: milestones
+        }, function(data) {
+            console.log('TRDC Rewards response:', data);
+            if (data.status == 200) {
+                Wo_ShowNotifications('success', 'TRDC Rewards settings saved successfully!');
+            } else {
+                Wo_ShowNotifications('error', data.message || 'Failed to save TRDC settings');
+            }
+        }, 'json').fail(function(xhr, status, error) {
+            console.error('TRDC Rewards AJAX error:', status, error);
+            console.error('Response:', xhr.responseText);
+            Wo_ShowNotifications('error', 'Request failed: ' + error);
+        });
     });
-    $.post(Wo_Ajax_Requests_File() + '?f=trdc_rewards', {
-        trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val(),
-        trdc_reward_milestones: milestones
-    }, function(data) {
-        if (data.status == 200) {
-            Wo_ShowNotifications('success', 'Settings saved successfully');
-        } else {
-            Wo_ShowNotifications('error', data.message || 'Failed to save');
-        }
-    }, 'json');
+
+    console.log('TRDC Rewards form handler ready. Form found:', $('#trdc-rewards-form').length > 0);
 });
 </script>
