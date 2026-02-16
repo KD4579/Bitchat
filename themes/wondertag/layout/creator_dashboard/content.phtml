@@ -14,7 +14,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                             <h4 style="margin-top:15px;">Become a Creator</h4>
                             <p class="text-muted">Creator mode gives you access to analytics, a creator badge, and TRDC token rewards for engagement milestones.</p>
-                            <button class="btn btn-primary btn-lg" id="enable-creator-btn">Enable Creator Mode</button>
+                            <button class="btn btn-primary btn-lg" onclick="bcEnableCreatorMode(this);">Enable Creator Mode</button>
                         </div>
                     <?php else: ?>
                         <!-- Stats Row -->
@@ -163,7 +163,7 @@
                         <?php endif; ?>
 
                         <div class="text-center" style="margin-top:20px;">
-                            <button class="btn btn-danger" id="disable-creator-btn">Disable Creator Mode</button>
+                            <button class="btn btn-danger" onclick="bcDisableCreatorMode(this);">Disable Creator Mode</button>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -173,34 +173,54 @@
 </div>
 
 <script>
-$('#enable-creator-btn').on('click', function() {
-    var btn = $(this);
-    btn.prop('disabled', true).text('Enabling...');
-    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
-        action: 'enable'
-    }, function(data) {
-        if (data.status == 200) {
-            window.location.reload();
-        } else {
-            Wo_ShowNotifications('error', data.message || 'Failed to enable creator mode');
-            btn.prop('disabled', false).text('Enable Creator Mode');
+function bcEnableCreatorMode(btn) {
+    btn.disabled = true;
+    btn.textContent = 'Enabling...';
+    $.ajax({
+        url: Wo_Ajax_Requests_File() + '?f=creator',
+        type: 'POST',
+        data: { action: 'enable' },
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to enable creator mode');
+                btn.disabled = false;
+                btn.textContent = 'Enable Creator Mode';
+            }
+        },
+        error: function() {
+            alert('Request failed');
+            btn.disabled = false;
+            btn.textContent = 'Enable Creator Mode';
         }
-    }, 'json');
-});
+    });
+}
 
-$('#disable-creator-btn').on('click', function() {
+function bcDisableCreatorMode(btn) {
     if (!confirm('Are you sure you want to disable creator mode? You will lose the creator badge.')) return;
-    var btn = $(this);
-    btn.prop('disabled', true).text('Disabling...');
-    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
-        action: 'disable'
-    }, function(data) {
-        if (data.status == 200) {
-            window.location.reload();
-        } else {
-            Wo_ShowNotifications('error', data.message || 'Failed to disable creator mode');
-            btn.prop('disabled', false).text('Disable Creator Mode');
+    btn.disabled = true;
+    btn.textContent = 'Disabling...';
+    $.ajax({
+        url: Wo_Ajax_Requests_File() + '?f=creator',
+        type: 'POST',
+        data: { action: 'disable' },
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to disable creator mode');
+                btn.disabled = false;
+                btn.textContent = 'Disable Creator Mode';
+            }
+        },
+        error: function() {
+            alert('Request failed');
+            btn.disabled = false;
+            btn.textContent = 'Disable Creator Mode';
         }
-    }, 'json');
-});
+    });
+}
 </script>
