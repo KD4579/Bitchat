@@ -2354,4 +2354,20 @@ if ($f == 'posts') {
         echo json_encode($data);
         exit();
     }
+
+    // Anti-flood cooldown check
+    if ($s == 'cooldown_check') {
+        $data = array('show_notice' => false);
+        if (function_exists('Wo_GetPostingCooldownInfo') && !empty($wo['user']['user_id'])) {
+            $cooldown = Wo_GetPostingCooldownInfo($wo['user']['user_id']);
+            if ($cooldown) {
+                $data['show_notice'] = true;
+                $data['count'] = $cooldown['count'];
+                $data['message'] = "You've posted " . $cooldown['count'] . " times this hour. Posts spread out over time reach more people.";
+            }
+        }
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
 }

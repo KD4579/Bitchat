@@ -91,8 +91,91 @@
 				</div>
 			</div>
 			<hr class="style-two">
+
+			<?php
+			// --- Story creation prompt ---
+			if (!empty($wo['config']['can_use_story']) && !empty($wo['loggedin'])) {
+				$hasActiveStory = false;
+				$storyCheckSql = "SELECT COUNT(*) AS cnt FROM " . T_USER_STORY . " WHERE user_id = " . intval($wo['user']['user_id']) . " AND expire > " . time();
+				$storyCheckResult = mysqli_query($sqlConnect, $storyCheckSql);
+				if ($storyCheckResult) {
+					$storyRow = mysqli_fetch_assoc($storyCheckResult);
+					$hasActiveStory = (intval($storyRow['cnt']) > 0);
+				}
+				if (!$hasActiveStory && empty($_COOKIE['story_prompt_dismissed'])) { ?>
+					<div class="bc-story-prompt" id="bc-story-prompt">
+						<div class="bc-story-prompt-inner">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+							<span>Share your moment &mdash; stories appear at the top for all users</span>
+							<a href="<?php echo Wo_SeoLink('index.php?link1=create-status'); ?>" class="bc-story-prompt-btn">Create Story</a>
+							<button type="button" class="bc-story-prompt-close" onclick="this.parentElement.parentElement.style.display='none'; document.cookie='story_prompt_dismissed=1;path=/;max-age=86400';">&times;</button>
+						</div>
+					</div>
+			<?php }
+			} ?>
+
 		<?php } } ?>
-		
+
+		<?php
+		// --- "Today on Bitchat" Trending Section ---
+		if (function_exists('Wo_GetTrendingPosts')) {
+			$trendingPosts = Wo_GetTrendingPosts(5);
+			if (count($trendingPosts) >= 2) { ?>
+				<div class="bc-trending-section">
+					<div class="bc-trending-header">
+						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.43-1.03-2.07-1.66C13.33 7.26 13 5.86 13.95 4c-2.94 1.35-4.58 3.92-4.87 6.63-.01.19-.02.39-.02.58 0 .47.04.94.14 1.39.15.68.45 1.32.86 1.87.4.55.91 1.01 1.5 1.33-.45-.56-.72-1.23-.72-1.93 0-.68.26-1.3.6-1.85.34-.55.76-1.02 1.21-1.45.49-.46 1.03-.85 1.52-1.32.45-.44.87-.92 1.21-1.45.35.54.55 1.16.55 1.82 0 1.05-.57 2.04-1.43 2.63-.22.15-.38.36-.38.62 0 .16.05.31.14.44.19.26.52.38.84.29.38-.1.72-.31 1.01-.59 1.31-1.28 1.72-3.29 1.03-4.98l-.07-.15z"/></svg>
+						<h4>Today on Bitchat</h4>
+					</div>
+					<div class="bc-trending-strip">
+						<?php foreach ($trendingPosts as $tp) {
+							$tpAuthor = !empty($tp['publisher']) ? $tp['publisher'] : array();
+							$tpAvatar = !empty($tpAuthor['avatar']) ? $tpAuthor['avatar'] : '';
+							$tpName   = !empty($tpAuthor['name']) ? $tpAuthor['name'] : '';
+							$tpText   = !empty($tp['postText']) ? mb_substr(strip_tags($tp['postText']), 0, 80) : '';
+							$tpUrl    = !empty($tp['url']) ? $tp['url'] : '#';
+							$tpThumb  = '';
+							if (!empty($tp['postFile']) && !empty($tp['postFileThumb'])) {
+								$tpThumb = $tp['postFileThumb'];
+							} elseif (!empty($tp['postFile'])) {
+								$tpThumb = $tp['postFile'];
+							} elseif (!empty($tp['postYoutube'])) {
+								$tpThumb = 'https://img.youtube.com/vi/' . $tp['postYoutube'] . '/mqdefault.jpg';
+							}
+							$tpReactions = 0;
+							if (!empty($tp['reaction'])) {
+								if (is_array($tp['reaction'])) {
+									foreach ($tp['reaction'] as $rType => $rData) {
+										if (is_array($rData) && isset($rData['count'])) {
+											$tpReactions += intval($rData['count']);
+										} elseif (is_numeric($rData)) {
+											$tpReactions += intval($rData);
+										}
+									}
+								}
+							}
+						?>
+						<a href="<?php echo $tpUrl; ?>" class="bc-trending-card">
+							<?php if ($tpThumb) { ?>
+								<div class="bc-trending-thumb" style="background-image:url('<?php echo htmlspecialchars($tpThumb); ?>')"></div>
+							<?php } else { ?>
+								<div class="bc-trending-thumb bc-trending-thumb-text">
+									<span><?php echo htmlspecialchars(mb_substr($tpText, 0, 40)); ?></span>
+								</div>
+							<?php } ?>
+							<div class="bc-trending-info">
+								<img src="<?php echo htmlspecialchars($tpAvatar); ?>" alt="" class="bc-trending-avatar">
+								<span class="bc-trending-name"><?php echo htmlspecialchars($tpName); ?></span>
+								<?php if ($tpReactions > 0) { ?>
+									<span class="bc-trending-reactions"><?php echo $tpReactions; ?> <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
+								<?php } ?>
+							</div>
+						</a>
+						<?php } ?>
+					</div>
+				</div>
+		<?php }
+		} ?>
+
 		<?php if ($wo['page'] == 'home' && in_array($wo['config']['website_mode'], array('facebook','linkedin'))) { ?>
 			<div id="scroll_filter_click"></div>
 			<div class="valign tag_home_filters home">

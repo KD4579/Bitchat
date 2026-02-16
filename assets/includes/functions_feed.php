@@ -268,6 +268,45 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
     // Append overflow posts at the end (they still show, just lower)
     $rankedIds = array_merge($rankedIds, $overflow);
 
+    // --- Quality gate: ensure first 5 slots prioritize media/engagement posts ---
+    if (count($rankedIds) >= 5 && count($allPosts) >= 5) {
+        $postMeta = array();
+        foreach ($allPosts as $row) {
+            $postMeta[intval($row['id'])] = $row;
+        }
+
+        $quality = array();
+        $other   = array();
+        foreach ($rankedIds as $pid) {
+            $meta = isset($postMeta[$pid]) ? $postMeta[$pid] : null;
+            $isQuality = false;
+            if ($meta) {
+                $hasMedia = (floatval($meta['media_bonus']) > 0);
+                $hasEngagement = (floatval($meta['engagement_score']) >= 5);
+                $isQuality = ($hasMedia || $hasEngagement);
+            }
+            if ($isQuality) {
+                $quality[] = $pid;
+            } else {
+                $other[] = $pid;
+            }
+        }
+
+        // Fill first 5: take quality posts first, then others
+        $first5 = array();
+        $qIdx = 0; $oIdx = 0;
+        for ($i = 0; $i < 5; $i++) {
+            if ($qIdx < count($quality)) {
+                $first5[] = $quality[$qIdx++];
+            } elseif ($oIdx < count($other)) {
+                $first5[] = $other[$oIdx++];
+            }
+        }
+        // Remaining quality + remaining other
+        $rest = array_merge(array_slice($quality, $qIdx), array_slice($other, $oIdx));
+        $rankedIds = array_merge($first5, $rest);
+    }
+
     return $rankedIds;
 }
 
@@ -410,4 +449,141 @@ function Wo_GetFeedWeights() {
     }
 
     return $defaults;
+}
+
+/**
+ * Get trending posts from the last 24 hours.
+ * Ranked by engagement (reactions + comments*2 + shares*1.5).
+ * Max 1 per user, requires media or 50+ char text, cached for 5 minutes.
+ *
+ * @param int $limit Number of trending posts to return (default 5)
+ * @return array Array of post data arrays via Wo_PostData()
+ */
+function Wo_GetTrendingPosts($limit = 5) {
+    global $wo, $sqlConnect;
+
+    $limit = max(1, min(10, intval($limit)));
+    $cacheKey = 'trending_posts:' . $limit;
+
+    // Check Redis cache (5-minute TTL)
+    if (class_exists('BitchatCache')) {
+        $cached = BitchatCache::get($cacheKey);
+        if ($cached !== false && is_array($cached)) {
+            return $cached;
+        }
+    }
+
+    $postsTable     = T_POSTS;
+    $reactionsTable = T_REACTIONS;
+    $commentsTable  = T_COMMENTS;
+    $usersTable     = T_USERS;
+    $blocksTable    = T_BLOCKS;
+
+    $now = time();
+    $dayAgo = $now - (24 * 3600);
+    $currentUserId = !empty($wo['user']['user_id']) ? intval($wo['user']['user_id']) : 0;
+
+    // Build blocked-users exclusion
+    $blockWhere = '';
+    if ($currentUserId > 0) {
+        $blockWhere = "AND p.user_id NOT IN (
+            SELECT block_userid FROM {$blocksTable} WHERE userid = {$currentUserId}
+            UNION
+            SELECT userid FROM {$blocksTable} WHERE block_userid = {$currentUserId}
+        )";
+    }
+
+    // Single query: top engagement posts from last 24h, max 1 per user
+    $sql = "
+        SELECT
+            p.id,
+            p.user_id,
+            p.postText,
+            p.postFile,
+            p.multi_image,
+            (
+                (SELECT COUNT(*) FROM {$reactionsTable} r WHERE r.post_id = p.id) +
+                (SELECT COUNT(*) FROM {$commentsTable} c WHERE c.post_id = p.id) * 2 +
+                (SELECT COUNT(*) FROM {$postsTable} sp WHERE sp.parent_id = p.id AND sp.postShare = 1) * 1.5
+            ) AS trend_score
+        FROM {$postsTable} p
+        JOIN {$usersTable} u ON p.user_id = u.user_id
+        WHERE p.time >= {$dayAgo}
+          AND p.active = '1'
+          AND p.boosted = '0'
+          AND u.active = '1'
+          {$blockWhere}
+          AND (
+              p.postFile LIKE '%_image%'
+              OR p.postFile LIKE '%_video%'
+              OR p.postFile LIKE '%_soundFile%'
+              OR p.multi_image = 1
+              OR p.album_name != ''
+              OR p.postYoutube != ''
+              OR p.postVimeo != ''
+              OR CHAR_LENGTH(p.postText) >= 50
+          )
+          AND p.page_id = 0
+          AND p.group_id = 0
+          AND p.event_id = 0
+        GROUP BY p.user_id
+        HAVING trend_score > 0
+        ORDER BY trend_score DESC
+        LIMIT {$limit}
+    ";
+
+    $result = mysqli_query($sqlConnect, $sql);
+    if (!$result) {
+        return array();
+    }
+
+    $posts = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $postData = Wo_PostData($row['id']);
+        if (!empty($postData)) {
+            $postData['trend_score'] = floatval($row['trend_score']);
+            $posts[] = $postData;
+        }
+    }
+
+    // Cache for 5 minutes
+    if (class_exists('BitchatCache') && !empty($posts)) {
+        BitchatCache::set($cacheKey, $posts, 300);
+    }
+
+    return $posts;
+}
+
+/**
+ * Check if a user is posting too frequently (anti-flood nudge).
+ * Returns cooldown info if 3+ posts in last hour, null otherwise.
+ *
+ * @param int $userId
+ * @return array|null  {count, next_optimal_minutes} or null
+ */
+function Wo_GetPostingCooldownInfo($userId) {
+    global $sqlConnect;
+
+    $userId = intval($userId);
+    $oneHourAgo = time() - 3600;
+
+    $sql = "SELECT COUNT(*) AS cnt FROM " . T_POSTS . "
+            WHERE user_id = {$userId} AND time >= {$oneHourAgo}";
+    $result = mysqli_query($sqlConnect, $sql);
+    if (!$result) return null;
+
+    $row = mysqli_fetch_assoc($result);
+    $count = intval($row['cnt']);
+
+    if ($count >= 3) {
+        // Suggest waiting: spread remaining posts over the hour
+        $minutesLeft = 60 - intval((time() - $oneHourAgo) / 60);
+        $optimalWait = max(5, intval($minutesLeft / 2));
+        return array(
+            'count' => $count,
+            'next_optimal_minutes' => $optimalWait
+        );
+    }
+
+    return null;
 }
