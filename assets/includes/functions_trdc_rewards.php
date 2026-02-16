@@ -201,3 +201,73 @@ function Wo_GetRewardMilestones() {
 
     return $defaults;
 }
+
+/**
+ * Get milestone progress for a creator.
+ * Shows current progress toward each milestone with percentage.
+ *
+ * @param int $userId Creator user ID
+ * @return array [{type, label, threshold, current, percent, reward, claimed}, ...]
+ */
+function Wo_GetMilestoneProgress($userId) {
+    global $sqlConnect;
+    $userId = intval($userId);
+
+    $milestones     = Wo_GetRewardMilestones();
+    $rewardsTable   = T_TRDC_REWARDS;
+    $reactionsTable = T_REACTIONS;
+    $postsTable     = T_POSTS;
+
+    // Get total reactions across all user's posts
+    $rq = mysqli_query($sqlConnect, "SELECT COUNT(*) AS cnt FROM {$reactionsTable} r JOIN {$postsTable} p ON r.post_id = p.id WHERE p.user_id = {$userId}");
+    $totalReactions = 0;
+    if ($rq) { $r = mysqli_fetch_assoc($rq); $totalReactions = intval($r['cnt']); }
+
+    // Check if user has a video post
+    $vq = mysqli_query($sqlConnect, "SELECT COUNT(*) AS cnt FROM {$postsTable} WHERE user_id = {$userId} AND (postFile LIKE '%_video%' OR postYoutube != '' OR postVimeo != '' OR postPlaytube != '') LIMIT 1");
+    $hasVideo = false;
+    if ($vq) { $v = mysqli_fetch_assoc($vq); $hasVideo = (intval($v['cnt']) > 0); }
+
+    // Get claimed milestones
+    $cq = mysqli_query($sqlConnect, "SELECT milestone_type, COUNT(*) AS cnt FROM {$rewardsTable} WHERE user_id = {$userId} GROUP BY milestone_type");
+    $claimed = array();
+    if ($cq) {
+        while ($row = mysqli_fetch_assoc($cq)) {
+            $claimed[$row['milestone_type']] = intval($row['cnt']);
+        }
+    }
+
+    $progress = array();
+    foreach ($milestones as $type => $reward) {
+        $label     = '';
+        $threshold = 0;
+        $current   = 0;
+
+        if (strpos($type, 'post_likes_') === 0) {
+            $threshold = intval(str_replace('post_likes_', '', $type));
+            $label = number_format($threshold) . ' Reactions';
+            $current = min($totalReactions, $threshold);
+        } elseif ($type == 'first_video_post') {
+            $threshold = 1;
+            $label = 'First Video Post';
+            $current = $hasVideo ? 1 : 0;
+        } else {
+            continue;
+        }
+
+        $percent = ($threshold > 0) ? min(100, round(($current / $threshold) * 100)) : 0;
+        $isClaimed = !empty($claimed[$type]);
+
+        $progress[] = array(
+            'type'      => $type,
+            'label'     => $label,
+            'threshold' => $threshold,
+            'current'   => $current,
+            'percent'   => $percent,
+            'reward'    => floatval($reward),
+            'claimed'   => $isClaimed,
+        );
+    }
+
+    return $progress;
+}

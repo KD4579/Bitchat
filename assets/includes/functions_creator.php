@@ -128,15 +128,54 @@ function Wo_UserHasActiveStory($userId) {
 
 /**
  * Get featured creators for sidebar widget.
+ * Excludes current user and already-followed creators.
+ * Orders by engagement (total reactions) for relevance.
  *
- * @param int $limit Max creators to return
+ * @param int $limit         Max creators to return
+ * @param int $excludeUserId User ID to exclude (current user)
  * @return array Array of user data arrays
  */
-function Wo_GetFeaturedCreators($limit = 5) {
+function Wo_GetFeaturedCreators($limit = 5, $excludeUserId = 0) {
     global $sqlConnect;
     $limit = max(1, min(20, intval($limit)));
+    $excludeUserId = intval($excludeUserId);
 
-    $q = mysqli_query($sqlConnect, "SELECT user_id FROM " . T_USERS . " WHERE is_creator = 1 AND active = '1' ORDER BY RAND() LIMIT {$limit}");
+    $cacheKey = 'suggested_creators:' . $excludeUserId . ':' . $limit;
+    if (class_exists('BitchatCache')) {
+        $cached = BitchatCache::get($cacheKey);
+        if ($cached !== false && is_array($cached)) {
+            return $cached;
+        }
+    }
+
+    $usersTable     = T_USERS;
+    $followersTable = T_FOLLOWERS;
+    $reactionsTable = T_REACTIONS;
+    $postsTable     = T_POSTS;
+
+    // Exclude current user and users they already follow
+    $excludeWhere = '';
+    if ($excludeUserId > 0) {
+        $excludeWhere = "AND u.user_id != {$excludeUserId}
+            AND u.user_id NOT IN (
+                SELECT following_id FROM {$followersTable}
+                WHERE follower_id = {$excludeUserId} AND active = '1'
+            )";
+    }
+
+    // Order by total reactions on their posts (engagement-based)
+    $sql = "SELECT u.user_id,
+                (SELECT COUNT(*) FROM {$reactionsTable} r
+                 JOIN {$postsTable} p ON r.post_id = p.id
+                 WHERE p.user_id = u.user_id) AS total_engagement
+            FROM {$usersTable} u
+            WHERE u.is_creator = 1
+              AND u.active = '1'
+              {$excludeWhere}
+            ORDER BY total_engagement DESC, u.user_id DESC
+            LIMIT {$limit}";
+
+    $q = mysqli_query($sqlConnect, $sql);
 
     $creators = array();
     if ($q) {
@@ -147,5 +186,58 @@ function Wo_GetFeaturedCreators($limit = 5) {
             }
         }
     }
+
+    if (class_exists('BitchatCache') && !empty($creators)) {
+        BitchatCache::set($cacheKey, $creators, 300);
+    }
+
     return $creators;
+}
+
+/**
+ * Get creator's daily engagement for the last 7 days.
+ * Returns array of 7 items with day label, reaction count, and comment count.
+ *
+ * @param int $userId Creator user ID
+ * @return array [{day: 'Mon', reactions: N, comments: N}, ...]
+ */
+function Wo_GetCreatorWeeklyEngagement($userId) {
+    global $sqlConnect;
+    $userId = intval($userId);
+
+    $reactionsTable = T_REACTIONS;
+    $commentsTable  = T_COMMENTS;
+    $postsTable     = T_POSTS;
+
+    $days = array();
+    for ($i = 6; $i >= 0; $i--) {
+        $dayStart = strtotime("-{$i} days midnight");
+        $dayEnd   = $dayStart + 86400;
+        $dayLabel = date('D', $dayStart);
+
+        // Reactions on this user's posts for this day
+        $rSql = "SELECT COUNT(*) AS cnt FROM {$reactionsTable} r
+                 JOIN {$postsTable} p ON r.post_id = p.id
+                 WHERE p.user_id = {$userId} AND r.time >= {$dayStart} AND r.time < {$dayEnd}";
+        $rResult = mysqli_query($sqlConnect, $rSql);
+        $reactions = 0;
+        if ($rResult) { $r = mysqli_fetch_assoc($rResult); $reactions = intval($r['cnt']); }
+
+        // Comments on this user's posts for this day
+        $cSql = "SELECT COUNT(*) AS cnt FROM {$commentsTable} c
+                 JOIN {$postsTable} p ON c.post_id = p.id
+                 WHERE p.user_id = {$userId} AND c.time >= {$dayStart} AND c.time < {$dayEnd}";
+        $cResult = mysqli_query($sqlConnect, $cSql);
+        $comments = 0;
+        if ($cResult) { $c = mysqli_fetch_assoc($cResult); $comments = intval($c['cnt']); }
+
+        $days[] = array(
+            'day'       => $dayLabel,
+            'reactions' => $reactions,
+            'comments'  => $comments,
+            'total'     => $reactions + $comments,
+        );
+    }
+
+    return $days;
 }

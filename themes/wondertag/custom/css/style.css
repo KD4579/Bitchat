@@ -979,3 +979,216 @@ body.night_mode #posting-cooldown-notice {
   border-color: #713f12;
   color: #fde68a;
 }
+
+/* ==========================================================================
+   Creator Dashboard — Stats, Wallet, Chart, Milestones
+   ========================================================================== */
+
+.bc-dash-stat {
+  background: #fff;
+  border-radius: var(--bc-radius-md);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--bc-shadow-sm);
+  margin-bottom: 15px;
+}
+.bc-dash-stat h2, .bc-dash-stat h3 {
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+.bc-dash-stat p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+.bc-dash-stat-primary { border-top: 3px solid #3b82f6; }
+.bc-dash-stat-success { border-top: 3px solid #22c55e; }
+.bc-dash-stat-info { border-top: 3px solid #06b6d4; }
+.bc-dash-stat-warning { border-top: 3px solid #f59e0b; }
+
+/* Wallet Card */
+.bc-dash-wallet {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  color: #fff;
+  border-radius: var(--bc-radius-md);
+  padding: 20px;
+  margin-bottom: 15px;
+}
+.bc-dash-wallet-icon {
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+.bc-dash-wallet-balance h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+.bc-dash-wallet-balance h3 small {
+  font-size: 14px;
+  opacity: 0.7;
+}
+.bc-dash-wallet-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+.bc-dash-wallet-earned {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+.bc-dash-wallet-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #93c5fd !important;
+  text-decoration: none !important;
+}
+.bc-dash-wallet-link:hover {
+  color: #fff !important;
+}
+
+/* Section Titles */
+.bc-dash-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Weekly Engagement Chart */
+.bc-dash-weekly {
+  background: #fff;
+  border-radius: var(--bc-radius-md);
+  padding: 20px;
+  box-shadow: var(--bc-shadow-sm);
+}
+.bc-dash-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 120px;
+  gap: 8px;
+}
+.bc-dash-chart-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bc-dash-chart-bar {
+  width: 100%;
+  max-width: 40px;
+  background: linear-gradient(180deg, #3b82f6, #60a5fa);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  min-height: 4px;
+  transition: height 0.3s ease;
+}
+.bc-dash-chart-val {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+.bc-dash-chart-label {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Milestone Progress */
+.bc-dash-milestones {
+  background: #fff;
+  border-radius: var(--bc-radius-md);
+  padding: 20px;
+  box-shadow: var(--bc-shadow-sm);
+}
+.bc-dash-milestone {
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.bc-dash-milestone:last-child {
+  border-bottom: none;
+}
+.bc-dash-milestone-claimed {
+  opacity: 0.7;
+}
+.bc-dash-milestone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bc-dash-milestone-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+.bc-dash-milestone-reward {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f59e0b;
+}
+.bc-dash-milestone-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* Reward History */
+.bc-dash-history {
+  background: #fff;
+  border-radius: var(--bc-radius-md);
+  padding: 20px;
+  box-shadow: var(--bc-shadow-sm);
+}
+
+/* Creators Sidebar Widget */
+.bc-creators-widget .tag_sidebar_widget_title b svg {
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+/* Dark mode overrides */
+body.night_mode .bc-dash-stat {
+  background: #1e1e2e;
+}
+body.night_mode .bc-dash-stat p {
+  color: #9ca3af;
+}
+body.night_mode .bc-dash-weekly {
+  background: #1e1e2e;
+}
+body.night_mode .bc-dash-chart-val {
+  color: #e0e0e0;
+}
+body.night_mode .bc-dash-chart-label {
+  color: #9ca3af;
+}
+body.night_mode .bc-dash-milestones {
+  background: #1e1e2e;
+}
+body.night_mode .bc-dash-milestone {
+  border-bottom-color: #2d2d3d;
+}
+body.night_mode .bc-dash-section-title {
+  border-bottom-color: #2d2d3d;
+  color: #e0e0e0;
+}
+body.night_mode .bc-dash-history {
+  background: #1e1e2e;
+}
+body.night_mode .bc-dash-wallet {
+  background: linear-gradient(135deg, #1e1e2e 0%, #1d4ed8 100%);
+}

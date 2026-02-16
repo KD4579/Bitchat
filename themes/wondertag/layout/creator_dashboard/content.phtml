@@ -17,73 +17,120 @@
                             <button class="btn btn-primary btn-lg" id="enable-creator-btn">Enable Creator Mode</button>
                         </div>
                     <?php else: ?>
+                        <!-- Stats Row -->
                         <div class="row">
                             <div class="col-md-3 col-sm-6">
-                                <div class="panel panel-primary">
-                                    <div class="panel-body text-center">
-                                        <h2><?php echo number_format($wo['creator_stats']['total_posts']); ?></h2>
-                                        <p>Total Posts</p>
-                                    </div>
+                                <div class="bc-dash-stat bc-dash-stat-primary">
+                                    <h2><?php echo number_format($wo['creator_stats']['total_posts']); ?></h2>
+                                    <p>Total Posts</p>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-6">
-                                <div class="panel panel-success">
-                                    <div class="panel-body text-center">
-                                        <h2><?php echo number_format($wo['creator_stats']['total_reactions']); ?></h2>
-                                        <p>Total Reactions</p>
-                                    </div>
+                                <div class="bc-dash-stat bc-dash-stat-success">
+                                    <h2><?php echo number_format($wo['creator_stats']['total_reactions']); ?></h2>
+                                    <p>Total Reactions</p>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-6">
-                                <div class="panel panel-info">
-                                    <div class="panel-body text-center">
-                                        <h2><?php echo number_format($wo['creator_stats']['total_comments']); ?></h2>
-                                        <p>Total Comments</p>
-                                    </div>
+                                <div class="bc-dash-stat bc-dash-stat-info">
+                                    <h2><?php echo number_format($wo['creator_stats']['total_comments']); ?></h2>
+                                    <p>Total Comments</p>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-6">
-                                <div class="panel panel-warning">
-                                    <div class="panel-body text-center">
-                                        <h2><?php echo number_format($wo['creator_stats']['total_followers']); ?></h2>
-                                        <p>Followers</p>
-                                    </div>
+                                <div class="bc-dash-stat bc-dash-stat-warning">
+                                    <h2><?php echo number_format($wo['creator_stats']['total_followers']); ?></h2>
+                                    <p>Followers</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row">
+                        <!-- TRDC Wallet + Weekly Stats Row -->
+                        <div class="row" style="margin-top:15px;">
                             <div class="col-md-4 col-sm-6">
-                                <div class="panel panel-default">
-                                    <div class="panel-body text-center">
-                                        <h3><?php echo number_format($wo['creator_stats']['total_shares']); ?></h3>
-                                        <p>Total Shares</p>
+                                <div class="bc-dash-wallet">
+                                    <div class="bc-dash-wallet-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                                     </div>
+                                    <div class="bc-dash-wallet-balance">
+                                        <span class="bc-dash-wallet-label">TRDC Wallet</span>
+                                        <h3><?php echo number_format($wo['user']['wallet'], 2); ?> <small>TRDC</small></h3>
+                                    </div>
+                                    <div class="bc-dash-wallet-earned">
+                                        <span>Earned from rewards</span>
+                                        <strong><?php echo number_format($wo['total_trdc_earned'], 4); ?> TRDC</strong>
+                                    </div>
+                                    <a href="<?php echo Wo_SeoLink('index.php?link1=wallet'); ?>" class="bc-dash-wallet-link">View Wallet</a>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-6">
-                                <div class="panel panel-default">
-                                    <div class="panel-body text-center">
-                                        <h3><?php echo number_format($wo['creator_stats']['posts_this_week']); ?></h3>
-                                        <p>Posts This Week</p>
-                                    </div>
+                                <div class="bc-dash-stat">
+                                    <h3><?php echo number_format($wo['creator_stats']['total_shares']); ?></h3>
+                                    <p>Total Shares</p>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-6">
-                                <div class="panel panel-default">
-                                    <div class="panel-body text-center">
-                                        <h3><?php echo number_format($wo['creator_stats']['reactions_this_week']); ?></h3>
-                                        <p>Reactions This Week</p>
-                                    </div>
+                            <div class="col-md-4 col-sm-12">
+                                <div class="bc-dash-stat">
+                                    <h3><?php echo number_format($wo['creator_stats']['posts_this_week']); ?> / <?php echo number_format($wo['creator_stats']['reactions_this_week']); ?></h3>
+                                    <p>Posts / Reactions This Week</p>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Weekly Engagement Chart -->
+                        <?php if (!empty($wo['weekly_engagement'])): ?>
+                        <?php
+                            $maxEngagement = 1;
+                            foreach ($wo['weekly_engagement'] as $wd) {
+                                if ($wd['total'] > $maxEngagement) $maxEngagement = $wd['total'];
+                            }
+                        ?>
+                        <div class="bc-dash-weekly" style="margin-top:15px;">
+                            <h4 class="bc-dash-section-title">7-Day Engagement</h4>
+                            <div class="bc-dash-chart">
+                                <?php foreach ($wo['weekly_engagement'] as $wd): ?>
+                                <div class="bc-dash-chart-bar-wrap">
+                                    <div class="bc-dash-chart-bar" style="height: <?php echo max(4, round(($wd['total'] / $maxEngagement) * 100)); ?>%;" title="<?php echo $wd['reactions']; ?> reactions, <?php echo $wd['comments']; ?> comments">
+                                        <span class="bc-dash-chart-val"><?php echo $wd['total']; ?></span>
+                                    </div>
+                                    <span class="bc-dash-chart-label"><?php echo $wd['day']; ?></span>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <!-- Milestone Progress -->
+                        <?php if (!empty($wo['milestone_progress'])): ?>
+                        <div class="bc-dash-milestones" style="margin-top:15px;">
+                            <h4 class="bc-dash-section-title">TRDC Reward Milestones</h4>
+                            <?php foreach ($wo['milestone_progress'] as $ms): ?>
+                            <div class="bc-dash-milestone <?php echo $ms['claimed'] ? 'bc-dash-milestone-claimed' : ''; ?>">
+                                <div class="bc-dash-milestone-header">
+                                    <span class="bc-dash-milestone-label">
+                                        <?php if ($ms['claimed']): ?>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#22c55e" style="vertical-align:-2px;margin-right:4px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                        <?php endif; ?>
+                                        <?php echo htmlspecialchars($ms['label']); ?>
+                                    </span>
+                                    <span class="bc-dash-milestone-reward"><?php echo number_format($ms['reward'], 2); ?> TRDC</span>
+                                </div>
+                                <div class="progress" style="height:8px;margin:6px 0 2px;">
+                                    <div class="progress-bar <?php echo $ms['claimed'] ? 'progress-bar-success' : 'progress-bar-info'; ?>" style="width: <?php echo $ms['percent']; ?>%;"></div>
+                                </div>
+                                <div class="bc-dash-milestone-footer">
+                                    <span><?php echo number_format($ms['current']); ?> / <?php echo number_format($ms['threshold']); ?></span>
+                                    <span><?php echo $ms['percent']; ?>%<?php echo $ms['claimed'] ? ' — Claimed' : ''; ?></span>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+
+                        <!-- Reward History -->
                         <?php if (!empty($wo['reward_history'])): ?>
-                        <div class="panel panel-default" style="margin-top:15px;">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">TRDC Reward History</h4>
-                            </div>
+                        <div class="bc-dash-history" style="margin-top:15px;">
+                            <h4 class="bc-dash-section-title">Reward History</h4>
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <thead>

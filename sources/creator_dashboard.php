@@ -19,6 +19,9 @@ $wo['title']       = 'Creator Dashboard';
 $wo['is_creator'] = false;
 $wo['creator_stats'] = array();
 $wo['reward_history'] = array();
+$wo['milestone_progress'] = array();
+$wo['weekly_engagement'] = array();
+$wo['total_trdc_earned'] = 0;
 
 if (function_exists('Wo_IsCreator') && Wo_IsCreator($wo['user'])) {
     $wo['is_creator'] = true;
@@ -27,6 +30,19 @@ if (function_exists('Wo_IsCreator') && Wo_IsCreator($wo['user'])) {
     }
     if (function_exists('Wo_GetRewardHistory')) {
         $wo['reward_history'] = Wo_GetRewardHistory($wo['user']['user_id'], 20);
+    }
+    if (function_exists('Wo_GetMilestoneProgress')) {
+        $wo['milestone_progress'] = Wo_GetMilestoneProgress($wo['user']['user_id']);
+    }
+    if (function_exists('Wo_GetCreatorWeeklyEngagement')) {
+        $wo['weekly_engagement'] = Wo_GetCreatorWeeklyEngagement($wo['user']['user_id']);
+    }
+    // Total TRDC earned from rewards
+    $trdcSql = "SELECT COALESCE(SUM(amount), 0) AS total FROM " . T_TRDC_REWARDS . " WHERE user_id = " . intval($wo['user']['user_id']);
+    $trdcResult = mysqli_query($sqlConnect, $trdcSql);
+    if ($trdcResult) {
+        $trdcRow = mysqli_fetch_assoc($trdcResult);
+        $wo['total_trdc_earned'] = floatval($trdcRow['total']);
     }
 }
 

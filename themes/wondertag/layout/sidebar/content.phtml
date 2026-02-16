@@ -58,7 +58,21 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			</div>
 		</div>
 	<?php } ?>
-	
+
+	<?php if (!empty($wo['config']['creator_mode_enabled']) && $wo['config']['creator_mode_enabled'] == '1' && function_exists('Wo_GetFeaturedCreators')) {
+		$suggestedCreators = Wo_GetFeaturedCreators(4, $wo['user']['user_id']);
+		if (!empty($suggestedCreators)) { ?>
+		<div class="wow_content mb-15 tag_sidebar_widget bc-creators-widget">
+			<div class="valign tag_sidebar_widget_title">
+				<b><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" style="vertical-align:-2px;margin-right:4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>Creators</b>
+			</div>
+			<?php foreach ($suggestedCreators as $wo['UsersList']) {
+				$wo['UsersList']['user_name'] = mb_substr($wo['UsersList']['name'], 0, 10, "utf-8");
+				echo Wo_LoadPage('sidebar/sidebar-user-list');
+			} ?>
+		</div>
+	<?php } } ?>
+
 	<div class="wow_content mb-15 tag_sidebar_widget sidehashtag<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_show_side_trend'] == 1) { ?> d-block<?php } ?>">
 		<div class="valign tag_sidebar_widget_title">
 			<b><?php echo $wo['lang']['trending'] ?></b>
