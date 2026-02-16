@@ -326,7 +326,18 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                         $('#redirect_link').attr('data-sent', "0");
                     }
                     json_data = JSON.parse($(data).filter('#json-data').val());
+                    // Clear content and remove old event handlers
+                    $('.content').empty().off();
+                    // Load new content
                     $('.content').html(data);
+                    // Re-execute scripts in the new content
+                    $('.content').find('script').each(function() {
+                        if (this.src) {
+                            $.getScript(this.src);
+                        } else {
+                            eval($(this).text());
+                        }
+                    });
                     setTimeout(function () {
                       $(".content").getNiceScroll().resize()
                     }, 500);
