@@ -85,10 +85,12 @@
             <?php
             $rewardsTable = defined('T_TRDC_REWARDS') ? T_TRDC_REWARDS : 'Wo_TRDC_Rewards';
             $recentRewards = array();
-            $rQuery = mysqli_query($sqlConnect, "SELECT * FROM {$rewardsTable} ORDER BY created_at DESC LIMIT 25");
-            if ($rQuery) {
-                while ($row = mysqli_fetch_assoc($rQuery)) {
-                    $recentRewards[] = $row;
+            if (isset($sqlConnect) && $sqlConnect) {
+                $rQuery = @mysqli_query($sqlConnect, "SELECT * FROM {$rewardsTable} ORDER BY created_at DESC LIMIT 25");
+                if ($rQuery) {
+                    while ($row = mysqli_fetch_assoc($rQuery)) {
+                        $recentRewards[] = $row;
+                    }
                 }
             }
             ?>

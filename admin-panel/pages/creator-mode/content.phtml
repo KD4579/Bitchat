@@ -1,13 +1,15 @@
 <?php
 $creatorEnabled = ($wo['config']['creator_mode_enabled'] ?? '0') == '1';
 $creators = array();
-$cQuery = mysqli_query($sqlConnect, "SELECT u.user_id, u.username, u.first_name, u.last_name, u.avatar, u.verified,
-    (SELECT COUNT(*) FROM " . T_POSTS . " WHERE user_id = u.user_id) as post_count,
-    (SELECT COUNT(*) FROM " . T_FOLLOWERS . " WHERE following_id = u.user_id AND active = 1) as follower_count
-    FROM " . T_USERS . " u WHERE u.is_creator = 1 ORDER BY u.user_id ASC LIMIT 100");
-if ($cQuery) {
-    while ($row = mysqli_fetch_assoc($cQuery)) {
-        $creators[] = $row;
+if (isset($sqlConnect) && $sqlConnect) {
+    $cQuery = @mysqli_query($sqlConnect, "SELECT u.user_id, u.username, u.first_name, u.last_name, u.avatar, u.verified,
+        (SELECT COUNT(*) FROM " . T_POSTS . " WHERE user_id = u.user_id) as post_count,
+        (SELECT COUNT(*) FROM " . T_FOLLOWERS . " WHERE following_id = u.user_id AND active = 1) as follower_count
+        FROM " . T_USERS . " u WHERE u.is_creator = 1 ORDER BY u.user_id ASC LIMIT 100");
+    if ($cQuery) {
+        while ($row = mysqli_fetch_assoc($cQuery)) {
+            $creators[] = $row;
+        }
     }
 }
 $creatorCount = count($creators);
