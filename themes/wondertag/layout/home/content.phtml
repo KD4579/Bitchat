@@ -253,8 +253,7 @@
                 
 				<div class="posts_load">
 					<div id="posts-laoded">
-						<div class="wow_content p15 tag_post_skel"><div class="valign"><div class="skel skel_50 skel_avatar"></div><div><div class="skel skel_2 skel_noti_name"></div><div class="skel skel_2 skel_noti_time"></div></div></div><div class="valign tag_post_skel_foot"><div class="valign"><div class="skel skel_action"></div><div class="skel skel_action"></div></div><div><div class="skel skel_action"></div></div></div></div>
-						<div class="wow_content p15 tag_post_skel"><div class="valign"><div class="skel skel_50 skel_avatar"></div><div><div class="skel skel_2 skel_noti_name"></div><div class="skel skel_2 skel_noti_time"></div></div></div><div class="valign tag_post_skel_foot"><div class="valign"><div class="skel skel_action"></div><div class="skel skel_action"></div></div><div><div class="skel skel_action"></div></div></div></div>
+						<?php echo Wo_LoadPage('home/load-posts'); ?>
 					</div>
 				</div>
 			</div>
@@ -481,7 +480,29 @@ $(document).on("scroll", function() {
 });
 
 $(function() {
-    loadposts();
+    // Posts are rendered server-side, just initialize JS plugins
+    Wo_FinishBar();
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '374255706379985',
+        xfbml      : true,
+        version    : 'v3.2'
+      });
+    };
+    $(".post-description p, .product-description").each(function(index, el) {
+        ReadMoreText(this);
+    });
+    $(".post-commet-textarea .textarea").triggeredAutocomplete({
+       hidden: '#hidden_inputbox_comment',
+       source: Wo_Ajax_Requests_File() + "?f=mention",
+       trigger: "@"
+    });
+    $(".comment-reply textarea").triggeredAutocomplete({
+       hidden: '#hidden_inputbox_comment_reply',
+       source: Wo_Ajax_Requests_File() + "?f=mention",
+       trigger: "@"
+    });
+    $('#load-more-posts').show();
 });
 
 function loadposts() {
@@ -490,13 +511,6 @@ function loadposts() {
 			$("#posts-laoded").html('<div class="text-center p-3"><p>Could not load feed.</p><button class="btn btn-sm btn-primary" onclick="loadposts()">Try Again</button></div>');
 		}
 		Wo_FinishBar();
-		window.fbAsyncInit = function() {
-		  FB.init({
-			appId      : '374255706379985',
-			xfbml      : true,
-			version    : 'v3.2'
-		  });
-		};
 	  	$(".post-description p, .product-description").each(function(index, el) {
 	  		ReadMoreText(this);
 	  	});
