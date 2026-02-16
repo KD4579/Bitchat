@@ -173,8 +173,7 @@ $('#trdc-rewards-form').on('submit', function(e) {
         post_likes_1000: parseFloat(form.find('[name=m_post_likes_1000]').val()) || 0,
         first_video_post: parseFloat(form.find('[name=m_first_video_post]').val()) || 0
     });
-    $.post(Wo_Ajax_Requests_File(), {
-        f: 'trdc_rewards',
+    $.post(Wo_Ajax_Requests_File() + '?f=trdc_rewards', {
         trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val(),
         trdc_reward_milestones: milestones
     }, function(data) {

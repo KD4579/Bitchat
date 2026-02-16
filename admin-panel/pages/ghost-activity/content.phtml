@@ -145,8 +145,7 @@
 $('#ghost-activity-form').on('submit', function(e) {
     e.preventDefault();
     var form = $(this);
-    $.post(Wo_Ajax_Requests_File(), {
-        f: 'ghost_activity',
+    $.post(Wo_Ajax_Requests_File() + '?f=ghost_activity', {
         ghost_activity_enabled: form.find('[name=ghost_activity_enabled]').val(),
         ghost_activity_accounts: form.find('[name=ghost_activity_accounts]').val(),
         ghost_activity_min_delay: form.find('[name=ghost_activity_min_delay]').val(),

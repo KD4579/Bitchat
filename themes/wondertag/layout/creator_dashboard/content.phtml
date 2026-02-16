@@ -121,8 +121,7 @@
 $('#enable-creator-btn').on('click', function() {
     var btn = $(this);
     btn.prop('disabled', true).text('Enabling...');
-    $.post(Wo_Ajax_Requests_File(), {
-        f: 'creator',
+    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
         action: 'enable'
     }, function(data) {
         if (data.status == 200) {
@@ -138,8 +137,7 @@ $('#disable-creator-btn').on('click', function() {
     if (!confirm('Are you sure you want to disable creator mode? You will lose the creator badge.')) return;
     var btn = $(this);
     btn.prop('disabled', true).text('Disabling...');
-    $.post(Wo_Ajax_Requests_File(), {
-        f: 'creator',
+    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
         action: 'disable'
     }, function(data) {
         if (data.status == 200) {

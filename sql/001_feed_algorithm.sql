@@ -18,11 +18,14 @@ CREATE TABLE IF NOT EXISTS `Wo_Spam_Tracking` (
   KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Performance indexes for scoring queries
-ALTER TABLE `Wo_Reactions` ADD INDEX IF NOT EXISTS `idx_post_id_score` (`post_id`);
-ALTER TABLE `Wo_Comments` ADD INDEX IF NOT EXISTS `idx_post_id_score` (`post_id`);
-ALTER TABLE `Wo_Posts` ADD INDEX IF NOT EXISTS `idx_time_boosted` (`time`, `boosted`);
-ALTER TABLE `Wo_Posts` ADD INDEX IF NOT EXISTS `idx_user_time` (`user_id`, `time`);
+-- Performance indexes for scoring queries (safe for MySQL 8.0)
+SET @x = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Wo_Posts' AND INDEX_NAME = 'idx_time_boosted');
+SET @sql = IF(@x = 0, 'ALTER TABLE `Wo_Posts` ADD INDEX `idx_time_boosted` (`time`, `boosted`)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @x = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Wo_Posts' AND INDEX_NAME = 'idx_user_time');
+SET @sql = IF(@x = 0, 'ALTER TABLE `Wo_Posts` ADD INDEX `idx_user_time` (`user_id`, `time`)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- Feed algorithm config rows (all disabled by default)
 INSERT IGNORE INTO `Wo_Config` (`name`, `value`) VALUES

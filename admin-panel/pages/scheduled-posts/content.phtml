@@ -105,8 +105,7 @@
 <script>
 $('#scheduled-posts-settings-form').on('submit', function(e) {
     e.preventDefault();
-    $.post(Wo_Ajax_Requests_File(), {
-        f: 'scheduled_posts',
+    $.post(Wo_Ajax_Requests_File() + '?f=scheduled_posts', {
         action: 'save_settings',
         scheduled_posts_enabled: $(this).find('[name=scheduled_posts_enabled]').val()
     }, function(data) {
@@ -121,8 +120,7 @@ $('#scheduled-posts-settings-form').on('submit', function(e) {
 $('.cancel-scheduled').on('click', function() {
     var id = $(this).data('id');
     if (!confirm('Cancel this scheduled post?')) return;
-    $.post(Wo_Ajax_Requests_File(), {
-        f: 'scheduled_posts',
+    $.post(Wo_Ajax_Requests_File() + '?f=scheduled_posts', {
         action: 'cancel',
         id: id
     }, function(data) {

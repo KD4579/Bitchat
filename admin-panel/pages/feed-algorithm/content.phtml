@@ -153,8 +153,7 @@ $('#feed-algorithm-form').on('submit', function(e) {
         link_penalty: parseFloat(form.find('[name=w_link_penalty]').val()) || 2.0,
         frequency_penalty: parseFloat(form.find('[name=w_frequency_penalty]').val()) || 3.0
     });
-    $.post(Wo_Ajax_Requests_File(), {
-        f: 'feed_algorithm',
+    $.post(Wo_Ajax_Requests_File() + '?f=feed_algorithm', {
         feed_algorithm_enabled: form.find('[name=feed_algorithm_enabled]').val(),
         feed_weights: weights,
         feed_candidate_pool: form.find('[name=feed_candidate_pool]').val(),
