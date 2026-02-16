@@ -288,3 +288,84 @@
 - Strategic goal achieved through all other topics combined
 - All features toggleable via admin panel config flags
 - Instant rollback: set any `*_enabled` config to `0`
+
+---
+---
+
+# BITCHAT — PHASE 2: FEED & ENGAGEMENT FEATURES
+
+> **Goal:** Make the platform feel more active, curated, and engaging with 4 high-impact features.
+
+---
+
+## Feature 1: "Today on Bitchat" Trending Section
+**Status:** [x] Completed
+**Priority:** High
+**Impact:** First impression, perceived activity
+
+- Horizontal card strip above feed showing top 3-5 engagement posts from last 24h
+- Ranked by reactions + comments*2 + shares*1.5
+- Max 1 post per user, requires media or 50+ char text
+- Redis cached for 5 minutes
+- Clicking a card opens the post
+- Dark mode support
+
+**Implementation:**
+- `Wo_GetTrendingPosts()` — single scoring SQL, blocked user exclusion, Redis cache (5min TTL)
+- Template: horizontal scrollable strip with thumbnail + avatar + reaction count
+- Only shows when 2+ qualifying trending posts exist
+- **Files:** `assets/includes/functions_feed.php`, `themes/wondertag/layout/home/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Feature 2: First 5 Posts Quality Gate
+**Status:** [x] Completed
+**Priority:** High
+**Impact:** First impression, content quality perception
+
+- Ensures first 5 feed slots prioritize media-rich or high-engagement posts
+- Prevents "all affiliate links" first impression
+- Separates posts into quality (media or engagement >= 5) and other
+- Fills first 5 slots with quality posts first, rest stays in score order
+- Only affects page 1, disabled when feed algorithm is off
+
+**Implementation:**
+- ~35 lines added to `Wo_BuildRankedFeedIds()` after diversity filtering
+- No new config — uses existing `feed_algorithm_enabled` toggle
+- **Files:** `assets/includes/functions_feed.php`
+
+---
+
+## Feature 3: Story Creation Prompt
+**Status:** [x] Completed
+**Priority:** Medium
+**Impact:** Story adoption, daily engagement
+
+- Dismissible banner below story carousel for users without an active story
+- "Share your moment — stories appear at the top for all users" + Create Story button
+- Cookie-based 24h dismiss (won't show again after dismissal)
+- Only shows when `can_use_story` is enabled and user is logged in
+- Dark mode support
+
+**Implementation:**
+- Inline PHP check for active story via `Wo_UserStory` table
+- Cookie `story_prompt_dismissed` with 86400s max-age
+- **Files:** `themes/wondertag/layout/home/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Feature 4: Anti-Flood Posting UX
+**Status:** [x] Completed
+**Priority:** Medium
+**Impact:** Post quality, behavioral nudge
+
+- After 3+ posts in last hour, shows friendly guidance message
+- "You've posted X times this hour. Posts spread out over time reach more people."
+- Auto-hides after 10 seconds — behavioral nudge, not a hard block
+- Checks via AJAX after each successful post submission
+
+**Implementation:**
+- `Wo_GetPostingCooldownInfo()` — counts posts in last 60 minutes, returns cooldown info if >= 3
+- `cooldown_check` endpoint added to `xhr/posts.php`
+- Hidden notice div in publisher box, shown via JS after post success callback
+- **Files:** `assets/includes/functions_feed.php`, `xhr/posts.php`, `themes/wondertag/layout/story/publisher-box.phtml`, `themes/wondertag/custom/css/style.css`
