@@ -369,3 +369,142 @@
 - `cooldown_check` endpoint added to `xhr/posts.php`
 - Hidden notice div in publisher box, shown via JS after post success callback
 - **Files:** `assets/includes/functions_feed.php`, `xhr/posts.php`, `themes/wondertag/layout/story/publisher-box.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+---
+
+# BITCHAT — PHASE 3: CREATOR DISCOVERY & TRDC VISIBILITY
+
+> **Goal:** Drive creator discovery, TRDC engagement, and dashboard quality.
+
+---
+
+## Feature 1: Suggested Creators Sidebar Widget
+**Status:** [x] Completed
+**Priority:** High
+**Impact:** Creator discovery, follows
+
+- Sidebar widget showing 3-4 creators the user doesn't follow
+- Ordered by engagement instead of random
+- Includes creator badge (orange star) and follow buttons
+- Redis cached (5min TTL) per user
+
+**Implementation:**
+- Modified `Wo_GetFeaturedCreators()` to exclude followed creators, order by engagement
+- Added widget to sidebar after PRO members section
+- **Files:** `assets/includes/functions_creator.php`, `themes/wondertag/layout/sidebar/content.phtml`
+
+---
+
+## Feature 2: TRDC Milestone Progress
+**Status:** [x] Completed
+**Priority:** Medium
+**Impact:** Creator motivation, TRDC engagement
+
+- Progress bars showing creator's progress toward next reward milestones
+- Shows current count vs threshold, reward amount, claimed checkmarks
+- Pure read-only display using existing milestone data
+
+**Implementation:**
+- `Wo_GetMilestoneProgress()` — calculates progress for each milestone type
+- Progress section added between stats row and reward history
+- **Files:** `assets/includes/functions_trdc_rewards.php`, `sources/creator_dashboard.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`
+
+---
+
+## Feature 3: Enhanced Creator Dashboard
+**Status:** [x] Completed
+**Priority:** Medium
+**Impact:** Creator retention, dashboard utility
+
+- TRDC Wallet card showing balance + total earned from rewards
+- Weekly engagement summary with 7-day CSS bar chart
+- Posts/reactions this week stat
+
+**Implementation:**
+- `Wo_GetCreatorWeeklyEngagement()` — daily reaction/comment counts for 7 days
+- Wallet card, weekly chart, and additional stats added to dashboard
+- **Files:** `assets/includes/functions_creator.php`, `sources/creator_dashboard.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Bug Fix: PHP 8.2 Fatal Errors on Home Page
+**Status:** [x] Completed
+**Priority:** Critical (page completely broken)
+
+Three PHP 8.2 strict typing issues causing fatal errors that abort page rendering:
+1. `home/content.phtml:100` — `mysqli_query($sqlConnect, ...)` where `$sqlConnect` undefined in `Wo_LoadPage()` scope → Fatal TypeError
+2. `functions_feed.php:489` — `Wo_GetTrendingPosts()` block query used non-existent columns `block_userid`/`userid` instead of `blocker`/`blocked` → Uncaught mysqli_sql_exception
+3. `functions_one.php:5122` — `implode(',', $wo['ad-con']['ads'])` where value isn't always an array → TypeError (also 2 instances in functions_three.php)
+
+**Files:** `themes/wondertag/layout/home/content.phtml`, `assets/includes/functions_feed.php`, `assets/includes/functions_one.php`, `assets/includes/functions_three.php`
+
+---
+---
+
+# BITCHAT — PHASE 4: RETENTION & DISCOVERY
+
+> **Goal:** Reduce churn, improve content discovery, and increase engagement with 3 features.
+
+---
+
+## Feature 1: Discover Page
+**Status:** [x] Completed
+**Priority:** High
+**Impact:** Content discovery, engagement, time-on-site
+
+- Dedicated `/discover` page with trending posts, popular creators, hashtags, people suggestions
+- 4 sections: Trending Now (card grid), Popular Creators (horizontal scroll), Trending Hashtags (pill cloud), People You May Know (grid)
+- Follow buttons on creators/people, dark mode + mobile responsive
+- Nav link in sidebar "Me" section
+
+**Implementation:**
+- New `sources/discover.php` — loads data via `Wo_GetTrendingPosts()`, `Wo_GetFeaturedCreators()`, `Wa_GetTrendingHashs()`, `Wo_UserSug()`
+- New `themes/wondertag/layout/discover/content.phtml` — full template with 4 sections
+- Route added in `index.php`, URL rewrite in `.htaccess` + `nginx.conf`
+- **Files:** `sources/discover.php`, `themes/wondertag/layout/discover/content.phtml`, `index.php`, `.htaccess`, `nginx.conf`, `themes/wondertag/layout/sidebar/left-sidebar.phtml`, `assets/includes/data.php`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Feature 2: New User Welcome Flow
+**Status:** [x] Completed
+**Priority:** High
+**Impact:** New user retention, profile completion
+
+- 3-step onboarding wizard on first login: upload avatar → follow people → start exploring
+- Only triggers for new users with default avatar + `onboarding_completed=0`
+- Existing users automatically marked as onboarded via SQL migration
+- Step 1: Avatar upload (reuses existing `update_general_settings` XHR)
+- Step 2: Follow suggestions with "Follow All" button (creators + general)
+- Step 3: Welcome complete → marks onboarding done → redirects to home
+- All steps skippable
+
+**Implementation:**
+- `onboarding_completed` column on `Wo_Users` (migration marks all existing users as completed)
+- Redirect in `index.php` — checks `onboarding_completed == 0` + default avatar + not on setup page
+- New `sources/welcome_setup.php` — loads creator + people suggestions
+- New `themes/wondertag/layout/welcome_setup/content.phtml` — 3-step wizard (pure HTML/CSS/JS)
+- New `xhr/onboarding.php` — `complete` action sets `onboarding_completed = 1`
+- **Files:** `sources/welcome_setup.php`, `themes/wondertag/layout/welcome_setup/content.phtml`, `index.php`, `.htaccess`, `nginx.conf`, `xhr/onboarding.php`, `assets/includes/data.php`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Feature 3: Post View Tracking & Creator Reach
+**Status:** [x] Completed
+**Priority:** Medium
+**Impact:** Creator analytics, engagement visibility
+
+- Impression counter on posts (atomic `post_views + 1` SQL increment)
+- Eye icon + view count in post footer (shown when > 0)
+- Batch increment on feed scroll (load_more_posts in xhr/posts.php)
+- Single increment on post detail page (sources/story.php)
+- "Total Reach" stat card on creator dashboard
+
+**Implementation:**
+- `post_views` INT UNSIGNED column on `Wo_Posts` (via SQL migration)
+- `sources/story.php` — increments on single post view
+- `xhr/posts.php` — batch increment via `UPDATE ... WHERE id IN (...)` on feed loads
+- `themes/wondertag/layout/story/includes/footer.phtml` — eye icon + count after comments
+- `Wo_GetCreatorStats()` — new `total_views` field via `SUM(post_views)`
+- Creator dashboard — "Total Reach" stat card with purple accent
+- **Files:** `sources/story.php`, `xhr/posts.php`, `themes/wondertag/layout/story/includes/footer.phtml`, `assets/includes/functions_creator.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `sql/002_phase4_retention.sql`

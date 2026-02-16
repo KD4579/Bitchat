@@ -107,6 +107,8 @@ RewriteRule ^open_to_work_posts(/?|)$ index.php?link1=open_to_work_posts [NC,QSA
 RewriteRule ^banned(/?|)$ index.php?link1=banned [NC,QSA]
 RewriteRule ^withdrawal(/?|)$ index.php?link1=withdrawal [NC,QSA]
 RewriteRule ^explore(/?|)$ index.php?link1=explore [NC,QSA]
+RewriteRule ^discover(/?|)$ index.php?link1=discover [NC,QSA]
+RewriteRule ^welcome-setup(/?|)$ index.php?link1=welcome-setup [NC,QSA]
 
 # **** FORUM ****
 

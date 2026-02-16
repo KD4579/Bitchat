@@ -1,0 +1,138 @@
+<div class="bc-welcome-overlay">
+	<div class="bc-welcome-card">
+		<!-- Step indicators -->
+		<div class="bc-welcome-steps">
+			<span class="bc-welcome-step active" data-step="1">1</span>
+			<span class="bc-welcome-step-line"></span>
+			<span class="bc-welcome-step" data-step="2">2</span>
+			<span class="bc-welcome-step-line"></span>
+			<span class="bc-welcome-step" data-step="3">3</span>
+		</div>
+
+		<!-- Step 1: Profile Photo -->
+		<div class="bc-welcome-panel" id="bc-welcome-step-1">
+			<h2>Welcome to <?php echo htmlspecialchars($wo['config']['siteName']); ?>!</h2>
+			<p>Let's set up your profile. Start by adding a photo so people can recognize you.</p>
+			<div class="bc-welcome-avatar-area">
+				<div class="bc-welcome-avatar-preview" id="bc-avatar-preview">
+					<img src="<?php echo $wo['user']['avatar']; ?>" alt="Avatar" id="bc-avatar-img">
+					<div class="bc-welcome-avatar-overlay">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+					</div>
+				</div>
+				<input type="file" id="bc-avatar-input" accept="image/jpeg,image/png,image/gif" style="display:none;">
+				<button class="btn btn-main bc-welcome-upload-btn" onclick="document.getElementById('bc-avatar-input').click();">Upload Photo</button>
+			</div>
+			<div class="bc-welcome-actions">
+				<button class="btn btn-light bc-welcome-skip" onclick="bcWelcomeGoStep(2);">Skip</button>
+				<button class="btn btn-main bc-welcome-next" id="bc-step1-next" onclick="bcWelcomeGoStep(2);">Next</button>
+			</div>
+		</div>
+
+		<!-- Step 2: Follow People -->
+		<div class="bc-welcome-panel" id="bc-welcome-step-2" style="display:none;">
+			<h2>Find People to Follow</h2>
+			<p>Follow some people to fill your feed with great content.</p>
+			<?php if (!empty($wo['onboard_suggestions'])): ?>
+			<div class="bc-welcome-people-grid">
+				<?php foreach ($wo['onboard_suggestions'] as $person): ?>
+				<div class="bc-welcome-person" id="bc-person-<?php echo $person['user_id']; ?>">
+					<img src="<?php echo $person['avatar']; ?>" alt="<?php echo htmlspecialchars($person['name']); ?>" class="bc-welcome-person-avatar">
+					<div class="bc-welcome-person-name"><?php echo htmlspecialchars(mb_substr($person['name'], 0, 14)); ?></div>
+					<button class="btn btn-main btn-sm bc-welcome-follow-btn" onclick="bcWelcomeFollow(<?php echo $person['user_id']; ?>, this);">Follow</button>
+				</div>
+				<?php endforeach; ?>
+			</div>
+			<button class="btn btn-outline-primary bc-welcome-follow-all" onclick="bcWelcomeFollowAll();">Follow All</button>
+			<?php else: ?>
+			<p class="text-muted">No suggestions available right now.</p>
+			<?php endif; ?>
+			<div class="bc-welcome-actions">
+				<button class="btn btn-light bc-welcome-skip" onclick="bcWelcomeGoStep(3);">Skip</button>
+				<button class="btn btn-main bc-welcome-next" onclick="bcWelcomeGoStep(3);">Next</button>
+			</div>
+		</div>
+
+		<!-- Step 3: Done -->
+		<div class="bc-welcome-panel" id="bc-welcome-step-3" style="display:none;">
+			<div class="bc-welcome-done-icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#22c55e"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+			</div>
+			<h2>You're All Set!</h2>
+			<p>Your profile is ready. Start exploring and connecting with the community.</p>
+			<div class="bc-welcome-actions">
+				<button class="btn btn-main btn-lg bc-welcome-start" onclick="bcWelcomeComplete();">Start Exploring</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+function bcWelcomeGoStep(step) {
+	document.getElementById('bc-welcome-step-1').style.display = 'none';
+	document.getElementById('bc-welcome-step-2').style.display = 'none';
+	document.getElementById('bc-welcome-step-3').style.display = 'none';
+	document.getElementById('bc-welcome-step-' + step).style.display = 'block';
+	var steps = document.querySelectorAll('.bc-welcome-step');
+	steps.forEach(function(s) {
+		var sNum = parseInt(s.getAttribute('data-step'));
+		s.classList.toggle('active', sNum <= step);
+		s.classList.toggle('done', sNum < step);
+	});
+}
+
+// Avatar upload
+document.getElementById('bc-avatar-input').addEventListener('change', function(e) {
+	var file = e.target.files[0];
+	if (!file) return;
+	// Preview
+	var reader = new FileReader();
+	reader.onload = function(ev) {
+		document.getElementById('bc-avatar-img').src = ev.target.result;
+	};
+	reader.readAsDataURL(file);
+	// Upload
+	var fd = new FormData();
+	fd.append('avatar', file);
+	fd.append('hash_id', $('input[name=hash_id]').val() || '<?php echo Wo_Secure($wo['user']['hash_id']); ?>');
+	$.ajax({
+		url: '<?php echo $wo['config']['site_url']; ?>/requests.php?f=update_general_settings',
+		type: 'POST',
+		data: fd,
+		processData: false,
+		contentType: false,
+		dataType: 'json',
+		success: function(data) {
+			if (data.status == 200) {
+				document.getElementById('bc-step1-next').textContent = 'Next';
+			}
+		}
+	});
+});
+
+function bcWelcomeFollow(userId, btn) {
+	btn.textContent = 'Following';
+	btn.disabled = true;
+	btn.classList.add('bc-followed');
+	if (typeof Wo_FollowUser === 'function') {
+		Wo_FollowUser(userId);
+	}
+}
+
+function bcWelcomeFollowAll() {
+	document.querySelectorAll('.bc-welcome-follow-btn:not(.bc-followed)').forEach(function(btn) {
+		btn.click();
+	});
+}
+
+function bcWelcomeComplete() {
+	$.post('<?php echo $wo['config']['site_url']; ?>/requests.php?f=onboarding', {
+		action: 'complete',
+		hash_id: $('input[name=hash_id]').val() || '<?php echo Wo_Secure($wo['user']['hash_id']); ?>'
+	}, function(data) {
+		window.location.href = '<?php echo $wo['config']['site_url']; ?>';
+	}, 'json').fail(function() {
+		window.location.href = '<?php echo $wo['config']['site_url']; ?>';
+	});
+}
+</script>

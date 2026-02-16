@@ -1192,3 +1192,415 @@ body.night_mode .bc-dash-history {
 body.night_mode .bc-dash-wallet {
   background: linear-gradient(135deg, #1e1e2e 0%, #1d4ed8 100%);
 }
+
+/* ==========================================================================
+   Phase 4: Discover Page
+   ========================================================================== */
+.bc-discover-header {
+  padding: 20px 0 10px;
+}
+.bc-discover-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bc-discover-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.bc-discover-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.bc-discover-section-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.bc-discover-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.bc-discover-card {
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #eee;
+  transition: transform .15s, box-shadow .15s;
+}
+.bc-discover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  text-decoration: none;
+  color: inherit;
+}
+.bc-discover-card-thumb {
+  width: 100%;
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-color: #f0f2f5;
+}
+.bc-discover-card-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  font-size: .85rem;
+  color: #555;
+  text-align: center;
+}
+.bc-discover-card-info {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .8rem;
+}
+.bc-discover-card-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.bc-discover-card-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bc-discover-card-reactions {
+  color: #e91e63;
+  font-size: .75rem;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.bc-discover-creators {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.bc-discover-creator-card {
+  flex: 0 0 auto;
+  width: 120px;
+  text-align: center;
+}
+.bc-discover-creator-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f59e0b;
+}
+.bc-discover-creator-name {
+  margin: 6px 0 4px;
+  font-size: .82rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bc-discover-follow-btn {
+  font-size: .75rem;
+  padding: 3px 14px;
+  border-radius: 20px;
+}
+.bc-discover-follow-btn.bc-followed {
+  background: #e8e8e8;
+  color: #888;
+  border-color: #e8e8e8;
+}
+.bc-discover-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bc-discover-hashtag-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #f0f4ff;
+  color: #1d4ed8;
+  border-radius: 20px;
+  font-size: .85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background .15s;
+}
+.bc-discover-hashtag-pill:hover {
+  background: #dbeafe;
+  text-decoration: none;
+  color: #1d4ed8;
+}
+.bc-discover-people-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.bc-discover-person-card {
+  text-align: center;
+  padding: 12px 8px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+.bc-discover-person-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.bc-discover-person-name {
+  margin: 6px 0;
+  font-size: .82rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bc-discover-empty {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+/* Discover page responsive */
+@media (max-width: 768px) {
+  .bc-discover-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bc-discover-people-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .bc-discover-grid {
+    grid-template-columns: 1fr;
+  }
+  .bc-discover-people-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Discover dark mode */
+body.night_mode .bc-discover-section {
+  background: #1e1e2e;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  border-color: #2d2d3d;
+}
+body.night_mode .bc-discover-card {
+  border-color: #2d2d3d;
+}
+body.night_mode .bc-discover-card-text {
+  color: #aaa;
+}
+body.night_mode .bc-discover-hashtag-pill {
+  background: #2d2d3d;
+  color: #60a5fa;
+}
+body.night_mode .bc-discover-hashtag-pill:hover {
+  background: #3d3d4d;
+  color: #60a5fa;
+}
+body.night_mode .bc-discover-person-card {
+  border-color: #2d2d3d;
+}
+body.night_mode .bc-discover-follow-btn.bc-followed {
+  background: #2d2d3d;
+  color: #888;
+  border-color: #2d2d3d;
+}
+
+/* ==========================================================================
+   Phase 4: Welcome / Onboarding Flow
+   ========================================================================== */
+.bc-welcome-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+.bc-welcome-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  text-align: center;
+}
+.bc-welcome-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 30px;
+}
+.bc-welcome-step {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  color: #999;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+  font-weight: 600;
+  transition: background .2s, color .2s;
+}
+.bc-welcome-step.active {
+  background: var(--bc-accent, #2196F3);
+  color: #fff;
+}
+.bc-welcome-step.done {
+  background: #22c55e;
+  color: #fff;
+}
+.bc-welcome-step-line {
+  width: 40px;
+  height: 2px;
+  background: #e8e8e8;
+}
+.bc-welcome-panel h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.bc-welcome-panel p {
+  color: #666;
+  margin-bottom: 20px;
+}
+.bc-welcome-avatar-area {
+  margin: 20px 0;
+}
+.bc-welcome-avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 12px;
+  position: relative;
+  cursor: pointer;
+  border: 3px solid #eee;
+}
+.bc-welcome-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bc-welcome-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .2s;
+  color: #fff;
+}
+.bc-welcome-avatar-preview:hover .bc-welcome-avatar-overlay {
+  opacity: 1;
+}
+.bc-welcome-upload-btn {
+  border-radius: 20px;
+  padding: 6px 20px;
+}
+.bc-welcome-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+.bc-welcome-skip {
+  border-radius: 20px;
+  padding: 6px 20px;
+}
+.bc-welcome-next {
+  border-radius: 20px;
+  padding: 6px 24px;
+}
+.bc-welcome-people-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.bc-welcome-person {
+  text-align: center;
+  padding: 10px 6px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+.bc-welcome-person-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.bc-welcome-person-name {
+  margin: 4px 0;
+  font-size: .8rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bc-welcome-follow-all {
+  border-radius: 20px;
+  font-size: .85rem;
+}
+.bc-welcome-done-icon {
+  margin-bottom: 16px;
+}
+.bc-welcome-start {
+  border-radius: 24px;
+  padding: 10px 36px;
+  font-size: 1rem;
+}
+
+/* Welcome dark mode */
+body.night_mode .bc-welcome-card {
+  background: #1e1e2e;
+  box-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+body.night_mode .bc-welcome-panel p {
+  color: #aaa;
+}
+body.night_mode .bc-welcome-step {
+  background: #2d2d3d;
+  color: #888;
+}
+body.night_mode .bc-welcome-avatar-preview {
+  border-color: #2d2d3d;
+}
+body.night_mode .bc-welcome-person {
+  border-color: #2d2d3d;
+}
+body.night_mode .bc-welcome-step-line {
+  background: #2d2d3d;
+}
+
+/* Welcome responsive */
+@media (max-width: 480px) {
+  .bc-welcome-card {
+    padding: 24px 16px;
+  }
+  .bc-welcome-people-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

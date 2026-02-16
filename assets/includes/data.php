@@ -83,7 +83,10 @@ $wo["site_pages"]         = array(
     "app_api",
     "api_request",
     "authorize",
-    "advertise"
+    "advertise",
+    "discover",
+    "welcome-setup",
+    "creator-dashboard"
 );
 $wo["feelingIcons"]       = array(
     "happy" => "smile",

@@ -73,6 +73,7 @@ function Wo_GetCreatorStats($userId) {
         'total_comments'   => 0,
         'total_shares'     => 0,
         'total_followers'  => 0,
+        'total_views'      => 0,
         'posts_this_week'  => 0,
         'reactions_this_week' => 0,
     );
@@ -96,6 +97,10 @@ function Wo_GetCreatorStats($userId) {
     // Followers
     $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_FOLLOWERS . " WHERE following_id = {$userId} AND active = '1'");
     if ($q) { $r = mysqli_fetch_assoc($q); $stats['total_followers'] = intval($r['cnt']); }
+
+    // Total views (reach)
+    $q = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(post_views), 0) as total FROM " . T_POSTS . " WHERE user_id = {$userId}");
+    if ($q) { $r = mysqli_fetch_assoc($q); $stats['total_views'] = intval($r['total']); }
 
     // This week
     $weekAgo = time() - (7 * 86400);

@@ -42,6 +42,18 @@ if (!empty($auto_redirect)) {
 }
 if ($wo['loggedin'] == true) {
     $update_last_seen = Wo_LastSeen($wo['user']['user_id']);
+
+    // Onboarding redirect for new users
+    $currentLink = !empty($_GET['link1']) ? $_GET['link1'] : '';
+    if (empty($wo['user']['onboarding_completed'])
+        && strpos($wo['user']['avatar'], 'd-avatar') !== false
+        && $currentLink !== 'welcome-setup'
+        && empty($_POST)
+        && !isset($_GET['f'])
+    ) {
+        header("Location: " . Wo_SeoLink('index.php?link1=welcome-setup'));
+        exit();
+    }
 } else if (!empty($_SERVER['HTTP_HOST'])) {
 }
 if (!empty($_GET)) {
@@ -538,6 +550,12 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                         break;
                     case 'explore':
                         include('sources/explore.php');
+                        break;
+                    case 'discover':
+                        include('sources/discover.php');
+                        break;
+                    case 'welcome-setup':
+                        include('sources/welcome_setup.php');
                         break;
                     case 'creator-dashboard':
                         include('sources/creator_dashboard.php');

@@ -1071,6 +1071,17 @@ if ($f == 'posts') {
                     echo Wo_GetAd('post_third', false);
                 }
             }
+            // Batch increment post views for feed impressions
+            if ($wo['loggedin'] && !empty($get_posts)) {
+                $viewIds = array();
+                foreach ($get_posts as $fp) {
+                    if (!empty($fp['id'])) $viewIds[] = intval($fp['id']);
+                }
+                if (!empty($viewIds)) {
+                    mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET post_views = post_views + 1 WHERE id IN (" . implode(',', $viewIds) . ")");
+                }
+            }
+
             foreach ($get_posts as $wo['story']) {
                 if ($is_api == true) {
                     echo Wo_LoadPage('story/api-posts');

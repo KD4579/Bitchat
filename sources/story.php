@@ -32,6 +32,14 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
         header("Location: " . $wo['config']['site_url']);
         exit();
     }
+    // Increment post view count
+    if ($wo['loggedin'] == true) {
+        mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET post_views = post_views + 1 WHERE id = " . intval($id));
+        if (isset($wo['story']['post_views'])) {
+            $wo['story']['post_views'] = intval($wo['story']['post_views']) + 1;
+        }
+    }
+
     $wo['story']['page'] = 1;
     $wo['content']       = Wo_LoadPage('story-content/content');
     $wo['description']   = Wo_Secure(mb_substr($wo['story']['Orginaltext'], 0, 156, "utf-8"));
