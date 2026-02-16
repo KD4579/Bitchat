@@ -320,47 +320,49 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     $(this).attr('data-sent', "1");
                 }
                 var url = $(this).attr('data-ajax');
-                var fullUrl = Wo_Ajax_Requests_File_load() + url;
-                // Add timestamp to prevent caching
                 var timestamp = new Date().getTime();
+                var fullUrl = Wo_Ajax_Requests_File_load() + url + '&_t=' + timestamp;
 
                 // Debug logging
-                console.log('Loading admin page:', url);
+                console.log('=== Admin Page Load ===');
+                console.log('URL param:', url);
                 console.log('Full URL:', fullUrl);
+                console.log('Timestamp:', timestamp);
 
                 $.ajax({
                     url: fullUrl,
-                    type: 'POST',
-                    data: {url: url, _t: timestamp},
+                    type: 'GET',
                     cache: false,
                     success: function(data) {
-                        console.log('Page loaded successfully, content length:', data.length);
+                        var loadedPage = $(data).filter('#loaded-page-debug').val();
+                        console.log('SUCCESS - Loaded page:', loadedPage);
+                        console.log('Content length:', data.length, 'bytes');
+                        console.log('=======================');
+
                         $(".barloading").css("display","none");
+
                         // Reset data-sent for all navigation links
-                        $('.navigation-menu-body').find('a[data-ajax]').attr('data-sent', "0");
-                        if ($('#redirect_link')[0] && $('#redirect_link')[0].hasAttribute("data-sent")) {
-                            $('#redirect_link').attr('data-sent', "0");
+                        $('.navigation-menu-body').find('a[data-ajax]').removeAttr('data-sent');
+                        if ($('#redirect_link')[0]) {
+                            $('#redirect_link').removeAttr('data-sent');
                         }
+
                         json_data = JSON.parse($(data).filter('#json-data').val());
-                        // Clear content and remove old event handlers
-                        $('.content').empty().off();
-                        // Load new content
+
+                        // Simply replace content - jQuery handles scripts
                         $('.content').html(data);
-                        // Re-execute scripts in the new content
-                        $('.content').find('script').each(function() {
-                            if (this.src) {
-                                $.getScript(this.src);
-                            } else {
-                                eval($(this).text());
-                            }
-                        });
+
                         setTimeout(function () {
                           $(".content").getNiceScroll().resize()
                         }, 500);
                         $(".content").animate({ scrollTop: 0 }, "slow");
                     },
                     error: function(xhr, status, error) {
-                        console.error('AJAX error:', status, error);
+                        console.error('ERROR loading page');
+                        console.error('Status:', status);
+                        console.error('Error:', error);
+                        console.error('Response:', xhr.responseText);
+                        console.error('=======================');
                         $(".barloading").css("display","none");
                     }
                 });
