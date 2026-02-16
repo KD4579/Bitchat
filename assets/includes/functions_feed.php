@@ -487,9 +487,9 @@ function Wo_GetTrendingPosts($limit = 5) {
     $blockWhere = '';
     if ($currentUserId > 0) {
         $blockWhere = "AND p.user_id NOT IN (
-            SELECT block_userid FROM {$blocksTable} WHERE userid = {$currentUserId}
+            SELECT blocked FROM {$blocksTable} WHERE blocker = {$currentUserId}
             UNION
-            SELECT userid FROM {$blocksTable} WHERE block_userid = {$currentUserId}
+            SELECT blocker FROM {$blocksTable} WHERE blocked = {$currentUserId}
         )";
     }
 
