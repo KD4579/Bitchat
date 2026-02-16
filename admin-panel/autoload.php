@@ -320,14 +320,21 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     $(this).attr('data-sent', "1");
                 }
                 var url = $(this).attr('data-ajax');
+                var fullUrl = Wo_Ajax_Requests_File_load() + url;
                 // Add timestamp to prevent caching
                 var timestamp = new Date().getTime();
+
+                // Debug logging
+                console.log('Loading admin page:', url);
+                console.log('Full URL:', fullUrl);
+
                 $.ajax({
-                    url: Wo_Ajax_Requests_File_load() + url,
+                    url: fullUrl,
                     type: 'POST',
                     data: {url: url, _t: timestamp},
                     cache: false,
                     success: function(data) {
+                        console.log('Page loaded successfully, content length:', data.length);
                         $(".barloading").css("display","none");
                         // Reset data-sent for all navigation links
                         $('.navigation-menu-body').find('a[data-ajax]').attr('data-sent', "0");
@@ -351,6 +358,10 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                           $(".content").getNiceScroll().resize()
                         }, 500);
                         $(".content").animate({ scrollTop: 0 }, "slow");
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', status, error);
+                        $(".barloading").css("display","none");
                     }
                 });
             }
