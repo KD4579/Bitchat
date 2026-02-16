@@ -1,0 +1,171 @@
+<?php if (!Wo_IsAdmin()) { header("Location: " . Wo_LoadAdminLinkSettings('dashboard')); exit(); } ?>
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Bitchat Feed Algorithm</h3>
+            <p class="text-muted">Configure the feed ranking algorithm. When disabled, feed uses pure chronological order.</p>
+        </div>
+        <div class="panel-body">
+            <form id="feed-algorithm-form">
+                <div class="form-group">
+                    <label>Feed Algorithm</label>
+                    <select name="feed_algorithm_enabled" class="form-control">
+                        <option value="0" <?php echo ($wo['config']['feed_algorithm_enabled'] == '0') ? 'selected' : ''; ?>>Disabled (Chronological)</option>
+                        <option value="1" <?php echo ($wo['config']['feed_algorithm_enabled'] == '1') ? 'selected' : ''; ?>>Enabled (Score-Based Ranking)</option>
+                    </select>
+                    <small class="text-muted">When enabled, home feed ranks posts by engagement, media quality, and freshness instead of pure chronological order.</small>
+                </div>
+
+                <hr>
+                <h4>Scoring Weights</h4>
+                <p class="text-muted">Higher weight = more influence on ranking. Set to 0 to disable a factor.</p>
+
+                <?php
+                $weights = json_decode($wo['config']['feed_weights'] ?? '{}', true);
+                $defaults = array(
+                    'engagement' => 1.0, 'comments' => 2.0, 'shares' => 1.5,
+                    'media_bonus' => 2.0, 'freshness_decay' => 0.95, 'pro_boost' => 3.0,
+                    'spam_penalty' => 5.0, 'link_penalty' => 2.0, 'frequency_penalty' => 3.0
+                );
+                $weights = array_merge($defaults, is_array($weights) ? $weights : array());
+                ?>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Reaction Weight</label>
+                            <input type="number" step="0.1" name="w_engagement" class="form-control" value="<?php echo $weights['engagement']; ?>">
+                            <small>Points per reaction (like/love/etc)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Comment Weight</label>
+                            <input type="number" step="0.1" name="w_comments" class="form-control" value="<?php echo $weights['comments']; ?>">
+                            <small>Points per comment</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Share Weight</label>
+                            <input type="number" step="0.1" name="w_shares" class="form-control" value="<?php echo $weights['shares']; ?>">
+                            <small>Points per share</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Media Bonus</label>
+                            <input type="number" step="0.1" name="w_media_bonus" class="form-control" value="<?php echo $weights['media_bonus']; ?>">
+                            <small>Bonus for image/video/audio posts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Freshness Decay</label>
+                            <input type="number" step="0.01" name="w_freshness_decay" class="form-control" value="<?php echo $weights['freshness_decay']; ?>">
+                            <small>Points lost per hour (0.95 = ~1pt/hr)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>PRO Boost</label>
+                            <input type="number" step="0.1" name="w_pro_boost" class="form-control" value="<?php echo $weights['pro_boost']; ?>">
+                            <small>Flat bonus for PRO user posts</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4>Anti-Spam Penalties</h4>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Spam Penalty</label>
+                            <input type="number" step="0.1" name="w_spam_penalty" class="form-control" value="<?php echo $weights['spam_penalty']; ?>">
+                            <small>Penalty per duplicate text in 24h</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Link Penalty</label>
+                            <input type="number" step="0.1" name="w_link_penalty" class="form-control" value="<?php echo $weights['link_penalty']; ?>">
+                            <small>Penalty for link-only posts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Frequency Penalty</label>
+                            <input type="number" step="0.1" name="w_frequency_penalty" class="form-control" value="<?php echo $weights['frequency_penalty']; ?>">
+                            <small>Penalty per post beyond 2/hour</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4>Feed Settings</h4>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Candidate Pool Size</label>
+                            <input type="number" name="feed_candidate_pool" class="form-control" value="<?php echo $wo['config']['feed_candidate_pool'] ?? 50; ?>">
+                            <small>Posts to score per feed load (20-200)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Max Same-User Posts</label>
+                            <input type="number" name="feed_max_same_user" class="form-control" value="<?php echo $wo['config']['feed_max_same_user'] ?? 2; ?>">
+                            <small>Max posts from one user in top 10</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Spam Window (hours)</label>
+                            <input type="number" name="feed_spam_window_hours" class="form-control" value="<?php echo $wo['config']['feed_spam_window_hours'] ?? 24; ?>">
+                            <small>Hours to check for duplicate posts</small>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#feed-algorithm-form').on('submit', function(e) {
+    e.preventDefault();
+    var form = $(this);
+    var weights = JSON.stringify({
+        engagement: parseFloat(form.find('[name=w_engagement]').val()) || 1.0,
+        comments: parseFloat(form.find('[name=w_comments]').val()) || 2.0,
+        shares: parseFloat(form.find('[name=w_shares]').val()) || 1.5,
+        media_bonus: parseFloat(form.find('[name=w_media_bonus]').val()) || 2.0,
+        freshness_decay: parseFloat(form.find('[name=w_freshness_decay]').val()) || 0.95,
+        pro_boost: parseFloat(form.find('[name=w_pro_boost]').val()) || 3.0,
+        spam_penalty: parseFloat(form.find('[name=w_spam_penalty]').val()) || 5.0,
+        link_penalty: parseFloat(form.find('[name=w_link_penalty]').val()) || 2.0,
+        frequency_penalty: parseFloat(form.find('[name=w_frequency_penalty]').val()) || 3.0
+    });
+    $.post(Wo_Ajax_Requests_File(), {
+        f: 'feed_algorithm',
+        feed_algorithm_enabled: form.find('[name=feed_algorithm_enabled]').val(),
+        feed_weights: weights,
+        feed_candidate_pool: form.find('[name=feed_candidate_pool]').val(),
+        feed_max_same_user: form.find('[name=feed_max_same_user]').val(),
+        feed_spam_window_hours: form.find('[name=feed_spam_window_hours]').val()
+    }, function(data) {
+        if (data.status == 200) {
+            Wo_ShowNotifications('success', 'Settings saved successfully');
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed to save settings');
+        }
+    }, 'json');
+});
+</script>

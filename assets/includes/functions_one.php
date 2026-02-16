@@ -5598,8 +5598,20 @@ function Wo_RegisterPost($re_data = array('recipient_id' => 0)) {
         // Invalidate feed cache after new post creation
         if (class_exists('BitchatCache')) {
             BitchatCache::invalidateFeed($wo['user']['user_id']);
+            // Also invalidate ranked feed cache
+            BitchatCache::deletePattern("ranked_feed:{$wo['user']['user_id']}:*");
             // Also invalidate global trending cache
             BitchatCache::delete('trending');
+        }
+
+        // Track spam metrics for feed algorithm (non-breaking)
+        if (function_exists('Wo_TrackPostSpam')) {
+            Wo_TrackPostSpam($wo['user']['user_id'], $re_data['postText'] ?? '', $re_data['postLink'] ?? '');
+        }
+
+        // Queue ghost engagement for new posts (non-breaking)
+        if (function_exists('Wo_QueueGhostReaction') && !empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_activity_enabled'] == '1') {
+            Wo_QueueGhostReaction($post_id);
         }
 
         return $post_id;

@@ -149,4 +149,10 @@ define('T_PENDING_PAYMENTS', 'Wo_PendingPayments');
 define('T_UPLOADED_MEDIA', 'Wo_UploadedMedia');
 define('T_BACKUP_CODES', 'Wo_Backup_Codes');
 
+// Bitchat Growth Features
+define('T_SPAM_TRACKING', 'Wo_Spam_Tracking');
+define('T_SCHEDULED_POSTS', 'Wo_Scheduled_Posts');
+define('T_GHOST_QUEUE', 'Wo_Ghost_Queue');
+define('T_TRDC_REWARDS', 'Wo_TRDC_Rewards');
+
 ?>

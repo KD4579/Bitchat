@@ -1,4 +1,11 @@
-<?php $stories = Wo_GetPosts(array('limit' => 10, 'publisher_id' => 0,'placement' => 'multi_image_post','anonymous' => true)); ?>
+<?php
+// Bitchat Algorithm v1: use ranked feed when enabled, else chronological
+if (!empty($wo['config']['feed_algorithm_enabled']) && $wo['config']['feed_algorithm_enabled'] == '1' && $wo['loggedin'] && function_exists('Wo_GetRankedPosts')) {
+    $stories = Wo_GetRankedPosts(array('limit' => 10, 'page' => 1));
+} else {
+    $stories = Wo_GetPosts(array('limit' => 10, 'publisher_id' => 0, 'placement' => 'multi_image_post', 'anonymous' => true));
+}
+?>
 <script>
 $("<?php if (count($stories) <= 0) { ?>.home_no_post_people<?php } else { ?>.home_post_people .post-container:nth-child(2)<?php } ?>").append('<?php $users = Wo_UserSug(8);if (count($users) != 0) { ?><div class="wow_content tag_sidebar_widget tag_post_people_know"><div class="valign tag_sidebar_widget_title"><b><?php echo $wo['lang']['people_you_may_know'] ?></b><a onclick="Wo_ReloadSideBarUsers();" class="refresh"><?php echo $wo['lang']['home_refresh'] ?></a></div><div class="tag_scroll sidebar-users-may-know-container"><?php foreach ($users as $wo['UsersList']) { $wo['UsersList']['user_name'] = mb_substr($wo['UsersList']['name'],0,10, "utf-8");echo Wo_LoadPage('sidebar/sidebar-user-list'); } ?></div><div class="clear"></div></div><?php } ?>');
 </script>

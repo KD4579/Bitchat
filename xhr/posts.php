@@ -1047,7 +1047,17 @@ if ($f == 'posts') {
                 'story_id' => $story_id,
                 'placement' => 'multi_image_post'
             );
-            $get_posts = Wo_GetPosts($postsData);
+            // Bitchat Algorithm: use ranked feed for main home feed only
+            if (!empty($wo['config']['feed_algorithm_enabled']) && $wo['config']['feed_algorithm_enabled'] == '1'
+                && $wo['loggedin'] && empty($user_id) && empty($page_id) && empty($group_id) && empty($event_id)
+                && isset($_GET['filter_by_more']) && $_GET['filter_by_more'] == 'all'
+                && function_exists('Wo_GetRankedPosts')
+                && !empty($_GET['ranked_page'])) {
+                $ranked_page = max(2, intval($_GET['ranked_page']));
+                $get_posts = Wo_GetRankedPosts(array('limit' => 10, 'page' => $ranked_page));
+            } else {
+                $get_posts = Wo_GetPosts($postsData);
+            }
             $is_api    = false;
             if (!empty($_GET['is_api'])) {
                 $is_api = true;

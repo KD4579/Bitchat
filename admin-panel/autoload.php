@@ -80,6 +80,10 @@ $pages = array(
     'manage-apps',
     'auto-friend',
     'fake-users',
+    'feed-algorithm',
+    'scheduled-posts',
+    'ghost-activity',
+    'trdc-rewards',
     'manage-genders',
     'pages-categories',
     'groups-categories',
@@ -1439,6 +1443,30 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             <span>System Status</span>
                         </a>
                     </li>
+                    <?php if ($is_admin) { ?>
+                    <li <?php echo in_array($page, ['feed-algorithm','scheduled-posts','ghost-activity','trdc-rewards']) ? 'class="open"' : ''; ?>>
+                        <a href="#">
+                            <span class="nav-link-icon">
+                                <i class="material-icons">trending_up</i>
+                            </span>
+                            <span>Bitchat Growth</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a <?php echo ($page == 'feed-algorithm') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('feed-algorithm'); ?>" data-ajax="?path=feed-algorithm">Feed Algorithm</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'scheduled-posts') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('scheduled-posts'); ?>" data-ajax="?path=scheduled-posts">Scheduled Posts</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'ghost-activity') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('ghost-activity'); ?>" data-ajax="?path=ghost-activity">Ghost Activity</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'trdc-rewards') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('trdc-rewards'); ?>" data-ajax="?path=trdc-rewards">TRDC Rewards</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <?php } ?>
                     <?php if ($is_admin || ($is_moderoter && ($wo['user']['permission']['changelog'] == 1))) { ?>
                     <li>
                         <a <?php echo ($page == 'changelog') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('changelog'); ?>" data-ajax="?path=changelog">

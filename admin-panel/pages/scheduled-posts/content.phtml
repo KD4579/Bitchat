@@ -1,0 +1,138 @@
+<?php if (!Wo_IsAdmin()) { header("Location: " . Wo_LoadAdminLinkSettings('dashboard')); exit(); } ?>
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Scheduled Posts</h3>
+            <p class="text-muted">View and manage scheduled posts. Enable/disable the system-wide scheduling feature.</p>
+        </div>
+        <div class="panel-body">
+            <form id="scheduled-posts-settings-form" class="form-inline" style="margin-bottom:20px;">
+                <div class="form-group" style="margin-right:15px;">
+                    <label>Scheduled Posting</label>
+                    <select name="scheduled_posts_enabled" class="form-control" style="margin-left:10px;">
+                        <option value="0" <?php echo ($wo['config']['scheduled_posts_enabled'] == '0') ? 'selected' : ''; ?>>Disabled</option>
+                        <option value="1" <?php echo ($wo['config']['scheduled_posts_enabled'] == '1') ? 'selected' : ''; ?>>Enabled</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+
+            <hr>
+            <h4>Scheduled Post Queue</h4>
+
+            <?php
+            $scheduled = array();
+            if (function_exists('Wo_GetScheduledPosts')) {
+                $scheduled = Wo_GetScheduledPosts(0, '', 100);
+            }
+            ?>
+
+            <?php if (empty($scheduled)): ?>
+                <p class="text-muted">No scheduled posts found.</p>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Author</th>
+                                <th>Post Preview</th>
+                                <th>Scheduled For</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($scheduled as $sp): ?>
+                            <tr id="scheduled-row-<?php echo $sp['id']; ?>">
+                                <td><?php echo $sp['id']; ?></td>
+                                <td>
+                                    <?php if (!empty($sp['user_data'])): ?>
+                                        <a href="<?php echo $sp['user_data']['url']; ?>" target="_blank">
+                                            <?php echo htmlspecialchars($sp['user_data']['name']); ?>
+                                        </a>
+                                    <?php else: ?>
+                                        User #<?php echo $sp['user_id']; ?>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $preview = '';
+                                    if (!empty($sp['post_data_decoded']['postText'])) {
+                                        $preview = htmlspecialchars(mb_substr($sp['post_data_decoded']['postText'], 0, 100));
+                                        if (mb_strlen($sp['post_data_decoded']['postText']) > 100) $preview .= '...';
+                                    } elseif (!empty($sp['post_data_decoded']['postLink'])) {
+                                        $preview = '<em>Link post</em>';
+                                    } else {
+                                        $preview = '<em>Media post</em>';
+                                    }
+                                    echo $preview;
+                                    ?>
+                                </td>
+                                <td><?php echo date('Y-m-d H:i:s', $sp['publish_at']); ?></td>
+                                <td>
+                                    <?php
+                                    $statusClass = 'default';
+                                    if ($sp['status'] == 'published') $statusClass = 'success';
+                                    elseif ($sp['status'] == 'failed') $statusClass = 'danger';
+                                    elseif ($sp['status'] == 'cancelled') $statusClass = 'warning';
+                                    elseif ($sp['status'] == 'pending') $statusClass = 'info';
+                                    ?>
+                                    <span class="label label-<?php echo $statusClass; ?>"><?php echo ucfirst($sp['status']); ?></span>
+                                    <?php if ($sp['status'] == 'failed' && !empty($sp['error_message'])): ?>
+                                        <br><small class="text-danger"><?php echo htmlspecialchars($sp['error_message']); ?></small>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($sp['status'] == 'pending'): ?>
+                                        <button class="btn btn-xs btn-danger cancel-scheduled" data-id="<?php echo $sp['id']; ?>">Cancel</button>
+                                    <?php elseif ($sp['status'] == 'published' && !empty($sp['published_post_id'])): ?>
+                                        <a href="index.php?link1=post&id=<?php echo $sp['published_post_id']; ?>" target="_blank" class="btn btn-xs btn-default">View Post</a>
+                                    <?php else: ?>
+                                        —
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#scheduled-posts-settings-form').on('submit', function(e) {
+    e.preventDefault();
+    $.post(Wo_Ajax_Requests_File(), {
+        f: 'scheduled_posts',
+        action: 'save_settings',
+        scheduled_posts_enabled: $(this).find('[name=scheduled_posts_enabled]').val()
+    }, function(data) {
+        if (data.status == 200) {
+            Wo_ShowNotifications('success', 'Settings saved successfully');
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed to save');
+        }
+    }, 'json');
+});
+
+$('.cancel-scheduled').on('click', function() {
+    var id = $(this).data('id');
+    if (!confirm('Cancel this scheduled post?')) return;
+    $.post(Wo_Ajax_Requests_File(), {
+        f: 'scheduled_posts',
+        action: 'cancel',
+        id: id
+    }, function(data) {
+        if (data.status == 200) {
+            $('#scheduled-row-' + id).find('.label').removeClass('label-info').addClass('label-warning').text('Cancelled');
+            $('#scheduled-row-' + id).find('.cancel-scheduled').remove();
+            Wo_ShowNotifications('success', 'Post cancelled');
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed to cancel');
+        }
+    }, 'json');
+});
+</script>

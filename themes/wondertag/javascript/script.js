@@ -700,6 +700,10 @@ function Wo_GetMorePosts() {
   if ($('#page_post_offer_filter').length > 0) {
     filter_by_more = 'offer';
   }
+  // Bitchat Algorithm: track ranked page number for paginated ranked feed
+  var ranked_page = parseInt($('#posts').attr('data-ranked-page') || '1') + 1;
+  $('#posts').attr('data-ranked-page', ranked_page);
+
   $.get(Wo_Ajax_Requests_File(), {
     f: 'posts',
     s: 'load_more_posts',
@@ -712,7 +716,8 @@ function Wo_GetMorePosts() {
     posts_count: posts_count,
     is_api: is_api,
     ad_id: ad_id,
-    story_id:story_id
+    story_id: story_id,
+    ranked_page: ranked_page
   }, function (data) {
     if (data.length == 0) {
       $('body').attr('no-more-posts', "true");

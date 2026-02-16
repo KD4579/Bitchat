@@ -182,6 +182,37 @@ if (!empty($posts)) {
     }
 }
 // ********** Live **********
+
+// ********** Spam Tracking Cleanup **********
+if (function_exists('Wo_CleanupSpamTracking')) {
+    Wo_CleanupSpamTracking();
+}
+// ********** Spam Tracking Cleanup **********
+
+// ********** Scheduled Posts **********
+if (!empty($wo['config']['scheduled_posts_enabled']) && $wo['config']['scheduled_posts_enabled'] == '1') {
+    if (function_exists('Wo_PublishScheduledPosts')) {
+        Wo_PublishScheduledPosts();
+    }
+}
+// ********** Scheduled Posts **********
+
+// ********** Ghost Activity **********
+if (!empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_activity_enabled'] == '1') {
+    if (function_exists('Wo_ProcessGhostQueue')) {
+        Wo_ProcessGhostQueue();
+    }
+}
+// ********** Ghost Activity **********
+
+// ********** TRDC Creator Rewards **********
+if (!empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
+    if (function_exists('Wo_ProcessMilestoneRewards')) {
+        Wo_ProcessMilestoneRewards();
+    }
+}
+// ********** TRDC Creator Rewards **********
+
 header("Content-type: application/json");
 echo json_encode(["status" => 200, "message" => "success"]);
 exit();
