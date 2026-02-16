@@ -584,6 +584,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'welcome-setup':
                         include('sources/welcome_setup.php');
                         break;
+                    case 'creator-dashboard':
+                        include('sources/creator_dashboard.php');
+                        break;
                     case 'register':
                         include('sources/register.php');
                         break;
