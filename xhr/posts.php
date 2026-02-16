@@ -695,7 +695,38 @@ if ($f == 'posts') {
                     'post_data' => $post_data
                 ));
             } else {
-                $id = Wo_RegisterPost($post_data);
+                // Check if post should be scheduled
+                if (!empty($_POST['scheduled_time']) && $wo['config']['scheduled_posts_enabled'] == '1' && function_exists('Wo_CreateScheduledPost')) {
+                    $scheduled_time = intval($_POST['scheduled_time']);
+                    $min_time = time() + 3600; // Must be at least 1 hour in the future
+
+                    if ($scheduled_time >= $min_time) {
+                        // Create scheduled post
+                        $id = Wo_CreateScheduledPost($wo['user']['user_id'], $post_data, $scheduled_time);
+
+                        if ($id) {
+                            // Return success with scheduled flag
+                            header("Content-type: application/json");
+                            echo json_encode(array(
+                                'status' => 200,
+                                'scheduled' => true,
+                                'scheduled_id' => $id,
+                                'message' => 'Post scheduled successfully',
+                                'html' => ''
+                            ));
+                            exit();
+                        } else {
+                            // Scheduling failed, fall back to immediate post
+                            $id = Wo_RegisterPost($post_data);
+                        }
+                    } else {
+                        // Time validation failed, create immediate post
+                        $id = Wo_RegisterPost($post_data);
+                    }
+                } else {
+                    // Normal immediate post
+                    $id = Wo_RegisterPost($post_data);
+                }
             }
         } else {
             header("Content-type: application/json");
