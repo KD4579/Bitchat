@@ -135,11 +135,13 @@
             // Summary stats
             $totalDistributed = 0;
             $totalRecipients = 0;
-            $statsQ = mysqli_query($sqlConnect, "SELECT SUM(amount) as total_amount, COUNT(DISTINCT user_id) as total_users FROM {$rewardsTable}");
-            if ($statsQ) {
-                $statsRow = mysqli_fetch_assoc($statsQ);
-                $totalDistributed = floatval($statsRow['total_amount']);
-                $totalRecipients = intval($statsRow['total_users']);
+            if (isset($sqlConnect) && $sqlConnect) {
+                $statsQ = @mysqli_query($sqlConnect, "SELECT SUM(amount) as total_amount, COUNT(DISTINCT user_id) as total_users FROM {$rewardsTable}");
+                if ($statsQ) {
+                    $statsRow = mysqli_fetch_assoc($statsQ);
+                    $totalDistributed = floatval($statsRow['total_amount'] ?? 0);
+                    $totalRecipients = intval($statsRow['total_users'] ?? 0);
+                }
             }
             ?>
             <div class="row" style="margin-top:15px;">
