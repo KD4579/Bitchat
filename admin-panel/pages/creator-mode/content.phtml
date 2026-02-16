@@ -6,10 +6,10 @@
             <p class="text-muted">Enable/disable the creator system. Creators get a badge on posts, access to analytics, and TRDC milestone rewards.</p>
         </div>
         <div class="panel-body">
-            <form id="creator-mode-form" class="form-inline" style="margin-bottom:20px;">
+            <form onsubmit="return bcSaveCreatorSettings(this);" class="form-inline" style="margin-bottom:20px;">
                 <div class="form-group" style="margin-right:15px;">
                     <label>Creator Mode</label>
-                    <select name="creator_mode_enabled" class="form-control" style="margin-left:10px;">
+                    <select name="creator_mode_enabled" id="bc-creator-mode-select" class="form-control" style="margin-left:10px;">
                         <option value="0" <?php echo (($wo['config']['creator_mode_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
                         <option value="1" <?php echo (($wo['config']['creator_mode_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
                     </select>
@@ -24,10 +24,10 @@
             <div class="row" style="margin-bottom:20px;">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <input type="number" id="creator-user-id" class="form-control" placeholder="User ID">
+                        <input type="text" id="creator-user-id" class="form-control" placeholder="User ID" autocomplete="off">
                         <span class="input-group-btn">
-                            <button class="btn btn-success" id="add-creator-btn">Grant Creator</button>
-                            <button class="btn btn-danger" id="remove-creator-btn">Remove Creator</button>
+                            <button class="btn btn-success" type="button" onclick="bcGrantCreator();">Grant Creator</button>
+                            <button class="btn btn-danger" type="button" onclick="bcRemoveCreatorById();">Remove Creator</button>
                         </span>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <button class="btn btn-xs btn-danger remove-creator" data-id="<?php echo $cid; ?>">Remove</button>
+                                    <button class="btn btn-xs btn-danger" type="button" onclick="bcRemoveCreator(<?php echo $cid; ?>);">Remove</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -82,52 +82,68 @@
 </div>
 
 <script>
-$('#creator-mode-form').on('submit', function(e) {
-    e.preventDefault();
-    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
-        action: 'save_settings',
-        creator_mode_enabled: $(this).find('[name=creator_mode_enabled]').val()
-    }, function(data) {
-        if (data.status == 200) {
-            Wo_ShowNotifications('success', 'Settings saved successfully');
-        } else {
-            Wo_ShowNotifications('error', data.message || 'Failed to save');
-        }
-    }, 'json');
-});
+function bcSaveCreatorSettings(form) {
+    var val = document.getElementById('bc-creator-mode-select').value;
+    $.ajax({
+        url: Wo_Ajax_Requests_File() + '?f=creator',
+        type: 'POST',
+        data: { action: 'save_settings', creator_mode_enabled: val },
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                alert('Settings saved successfully');
+            } else {
+                alert(data.message || 'Failed to save');
+            }
+        },
+        error: function() { alert('Request failed'); }
+    });
+    return false;
+}
 
-$('#add-creator-btn').on('click', function() {
-    var uid = $('#creator-user-id').val();
-    if (!uid) return;
-    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
-        action: 'admin_toggle',
-        user_id: uid,
-        enable: '1'
-    }, function(data) {
-        if (data.status == 200) {
-            Wo_ShowNotifications('success', 'Creator status granted');
-            setTimeout(function() { window.location.reload(); }, 1000);
-        } else {
-            Wo_ShowNotifications('error', data.message || 'Failed');
-        }
-    }, 'json');
-});
+function bcGrantCreator() {
+    var uid = document.getElementById('creator-user-id').value;
+    if (!uid || uid == '0') { alert('Please enter a User ID'); return; }
+    $.ajax({
+        url: Wo_Ajax_Requests_File() + '?f=creator',
+        type: 'POST',
+        data: { action: 'admin_toggle', user_id: uid, enable: '1' },
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                alert('Creator status granted to user #' + uid);
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to grant creator status');
+            }
+        },
+        error: function() { alert('Request failed'); }
+    });
+}
 
-$('#remove-creator-btn, .remove-creator').on('click', function() {
-    var uid = $(this).data('id') || $('#creator-user-id').val();
-    if (!uid) return;
+function bcRemoveCreatorById() {
+    var uid = document.getElementById('creator-user-id').value;
+    if (!uid || uid == '0') { alert('Please enter a User ID'); return; }
+    bcRemoveCreator(uid);
+}
+
+function bcRemoveCreator(uid) {
     if (!confirm('Remove creator status from user #' + uid + '?')) return;
-    $.post(Wo_Ajax_Requests_File() + '?f=creator', {
-        action: 'admin_toggle',
-        user_id: uid,
-        enable: '0'
-    }, function(data) {
-        if (data.status == 200) {
-            $('#creator-row-' + uid).fadeOut();
-            Wo_ShowNotifications('success', 'Creator status removed');
-        } else {
-            Wo_ShowNotifications('error', data.message || 'Failed');
-        }
-    }, 'json');
-});
+    $.ajax({
+        url: Wo_Ajax_Requests_File() + '?f=creator',
+        type: 'POST',
+        data: { action: 'admin_toggle', user_id: uid, enable: '0' },
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                var row = document.getElementById('creator-row-' + uid);
+                if (row) row.style.display = 'none';
+                alert('Creator status removed from user #' + uid);
+            } else {
+                alert(data.message || 'Failed to remove creator status');
+            }
+        },
+        error: function() { alert('Request failed'); }
+    });
+}
 </script>
