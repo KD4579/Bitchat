@@ -320,28 +320,38 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     $(this).attr('data-sent', "1");
                 }
                 var url = $(this).attr('data-ajax');
-                $.post(Wo_Ajax_Requests_File_load() + url, {url:url}, function (data) {
-                    $(".barloading").css("display","none");
-                    if ($('#redirect_link')[0].hasAttribute("data-sent")) {
-                        $('#redirect_link').attr('data-sent', "0");
-                    }
-                    json_data = JSON.parse($(data).filter('#json-data').val());
-                    // Clear content and remove old event handlers
-                    $('.content').empty().off();
-                    // Load new content
-                    $('.content').html(data);
-                    // Re-execute scripts in the new content
-                    $('.content').find('script').each(function() {
-                        if (this.src) {
-                            $.getScript(this.src);
-                        } else {
-                            eval($(this).text());
+                // Add timestamp to prevent caching
+                var timestamp = new Date().getTime();
+                $.ajax({
+                    url: Wo_Ajax_Requests_File_load() + url,
+                    type: 'POST',
+                    data: {url: url, _t: timestamp},
+                    cache: false,
+                    success: function(data) {
+                        $(".barloading").css("display","none");
+                        // Reset data-sent for all navigation links
+                        $('.navigation-menu-body').find('a[data-ajax]').attr('data-sent', "0");
+                        if ($('#redirect_link')[0] && $('#redirect_link')[0].hasAttribute("data-sent")) {
+                            $('#redirect_link').attr('data-sent', "0");
                         }
-                    });
-                    setTimeout(function () {
-                      $(".content").getNiceScroll().resize()
-                    }, 500);
-                    $(".content").animate({ scrollTop: 0 }, "slow");
+                        json_data = JSON.parse($(data).filter('#json-data').val());
+                        // Clear content and remove old event handlers
+                        $('.content').empty().off();
+                        // Load new content
+                        $('.content').html(data);
+                        // Re-execute scripts in the new content
+                        $('.content').find('script').each(function() {
+                            if (this.src) {
+                                $.getScript(this.src);
+                            } else {
+                                eval($(this).text());
+                            }
+                        });
+                        setTimeout(function () {
+                          $(".content").getNiceScroll().resize()
+                        }, 500);
+                        $(".content").animate({ scrollTop: 0 }, "slow");
+                    }
                 });
             }
         });
