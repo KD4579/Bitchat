@@ -46,10 +46,17 @@
             <?php
             $queueStats = array('pending' => 0, 'executed' => 0, 'cancelled' => 0);
             $ghostTable = defined('T_GHOST_QUEUE') ? T_GHOST_QUEUE : 'Wo_Ghost_Queue';
-            $statsQuery = mysqli_query($sqlConnect, "SELECT status, COUNT(*) as cnt FROM {$ghostTable} GROUP BY status");
-            if ($statsQuery) {
-                while ($row = mysqli_fetch_assoc($statsQuery)) {
-                    $queueStats[$row['status']] = intval($row['cnt']);
+
+            // Check if table exists before querying
+            $tableExists = false;
+            $checkTable = @mysqli_query($sqlConnect, "SHOW TABLES LIKE '{$ghostTable}'");
+            if ($checkTable && mysqli_num_rows($checkTable) > 0) {
+                $tableExists = true;
+                $statsQuery = @mysqli_query($sqlConnect, "SELECT status, COUNT(*) as cnt FROM {$ghostTable} GROUP BY status");
+                if ($statsQuery) {
+                    while ($row = mysqli_fetch_assoc($statsQuery)) {
+                        $queueStats[$row['status']] = intval($row['cnt']);
+                    }
                 }
             }
             ?>
@@ -82,14 +89,16 @@
 
             <?php
             $recentItems = array();
-            $recentQuery = mysqli_query($sqlConnect, "SELECT * FROM {$ghostTable} ORDER BY id DESC LIMIT 20");
-            if ($recentQuery) {
-                while ($row = mysqli_fetch_assoc($recentQuery)) {
-                    $recentItems[] = $row;
+            if ($tableExists) {
+                $recentQuery = @mysqli_query($sqlConnect, "SELECT * FROM {$ghostTable} ORDER BY id DESC LIMIT 20");
+                if ($recentQuery) {
+                    while ($row = mysqli_fetch_assoc($recentQuery)) {
+                        $recentItems[] = $row;
+                    }
                 }
             }
             ?>
-            <?php if (!empty($recentItems)): ?>
+            <?php if ($tableExists && !empty($recentItems)): ?>
             <h4>Recent Queue Items</h4>
             <div class="table-responsive">
                 <table class="table table-striped table-bordered">
