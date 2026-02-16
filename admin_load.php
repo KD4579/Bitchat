@@ -1,4 +1,10 @@
 <?php
+// Prevent caching of AJAX-loaded admin pages
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+
 require_once('assets/init.php');
 $is_admin     = Wo_IsAdmin();
 $is_moderoter = Wo_IsModerator();
@@ -50,7 +56,12 @@ if (!empty($path['page']) && in_array($path['page'], $files) && file_exists('adm
     $page = $path['page'];
     error_log("Admin Load Debug - Loading page: " . $page);
 } else {
-    error_log("Admin Load Debug - Page not found, defaulting to dashboard. Path was: " . print_r($path, true));
+    error_log("Admin Load Debug - Page not found. Path: " . print_r($path, true) . ", GET: " . print_r($_GET, true));
+    // Don't default to dashboard for AJAX requests - return error instead
+    http_response_code(404);
+    echo '<!-- ERROR: Page not found -->';
+    echo '<div class="alert alert-danger">Page not found: ' . htmlspecialchars($_GET['path'] ?? 'unknown') . '</div>';
+    exit();
 }
 $wo['user']['permission'] = !empty($wo['user']['permission']) ? json_decode($wo['user']['permission'], true) : [];
 if (!empty($wo['user']['permission'][$page])) {

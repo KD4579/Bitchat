@@ -153,9 +153,10 @@ if ($is_moderoter && !empty($wo['user']['permission'])) {
         $wo['user']['permission'][$page] = 0;
         $permission = json_encode($wo['user']['permission']);
         $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,array('permission' => $permission));
-        
+
             cache($wo['user']['id'], 'users', 'delete');
-        header("Location: " . Wo_LoadAdminLinkSettings($page));
+        // Redirect to dashboard to prevent infinite loop
+        header("Location: " . Wo_LoadAdminLinkSettings('dashboard'));
         exit();
     }
     else{
@@ -304,32 +305,48 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
 <script type="text/javascript">
 
     $(function() {
+        // Request deduplication - cancel pending requests
+        var currentAjaxRequest = null;
 
         $(document).on('click', 'a[data-ajax]', function(e) {
             $(document).off('click', '.ranges ul li');
             $(document).off('click', '.applyBtn');
             e.preventDefault();
+
+            // Cancel any pending AJAX request
+            if (currentAjaxRequest) {
+                console.log('Cancelling previous request');
+                currentAjaxRequest.abort();
+                currentAjaxRequest = null;
+            }
+
             if (($(this)[0].hasAttribute("data-sent") && $(this).attr('data-sent') == '0') || !$(this)[0].hasAttribute("data-sent")) {
                 if (!$(this)[0].hasAttribute("data-sent") && !$(this).hasClass('waves-effect')) {
                     $('.navigation-menu-body').find('a').removeClass('active');
                     $(this).addClass('active');
                 }
-                window.history.pushState({state:'new'},'', $(this).attr('href'));
+
+                // Store page name in history state for proper back/forward navigation
+                var url = $(this).attr('data-ajax');
+                var pageName = url.replace('?path=', '');
+                window.history.pushState({page: pageName, ajax: true}, '', $(this).attr('href'));
+
                 $(".barloading").css("display","block");
                 if ($(this)[0].hasAttribute("data-sent")) {
                     $(this).attr('data-sent', "1");
                 }
-                var url = $(this).attr('data-ajax');
+
                 var timestamp = new Date().getTime();
                 var fullUrl = Wo_Ajax_Requests_File_load() + url + '&_t=' + timestamp;
 
                 // Debug logging
                 console.log('=== Admin Page Load ===');
+                console.log('Page:', pageName);
                 console.log('URL param:', url);
                 console.log('Full URL:', fullUrl);
                 console.log('Timestamp:', timestamp);
 
-                $.ajax({
+                currentAjaxRequest = $.ajax({
                     url: fullUrl,
                     type: 'GET',
                     cache: false,
@@ -358,18 +375,41 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                         $(".content").animate({ scrollTop: 0 }, "slow");
                     },
                     error: function(xhr, status, error) {
+                        // Don't log errors for aborted requests
+                        if (status === 'abort') {
+                            console.log('Request aborted');
+                            return;
+                        }
                         console.error('ERROR loading page');
                         console.error('Status:', status);
                         console.error('Error:', error);
                         console.error('Response:', xhr.responseText);
                         console.error('=======================');
                         $(".barloading").css("display","none");
+                    },
+                    complete: function() {
+                        currentAjaxRequest = null;
                     }
                 });
             }
         });
+
+        // Better popstate handler - use AJAX for back/forward if state was from AJAX navigation
         $(window).on("popstate", function (e) {
-            location.reload();
+            if (e.originalEvent.state && e.originalEvent.state.ajax && e.originalEvent.state.page) {
+                console.log('Popstate: Loading page via AJAX:', e.originalEvent.state.page);
+                // Find and trigger the link for this page
+                var link = $('a[data-ajax="?path=' + e.originalEvent.state.page + '"]');
+                if (link.length) {
+                    link.trigger('click');
+                } else {
+                    console.log('Popstate: Link not found, reloading');
+                    location.reload();
+                }
+            } else {
+                console.log('Popstate: Full reload');
+                location.reload();
+            }
         });
     });
 </script>
