@@ -56,12 +56,9 @@ if (!empty($path['page']) && in_array($path['page'], $files) && file_exists('adm
     $page = $path['page'];
     error_log("Admin Load Debug - Loading page: " . $page);
 } else {
-    error_log("Admin Load Debug - Page not found. Path: " . print_r($path, true) . ", GET: " . print_r($_GET, true));
-    // Don't default to dashboard for AJAX requests - return error instead
-    http_response_code(404);
-    echo '<!-- ERROR: Page not found -->';
-    echo '<div class="alert alert-danger">Page not found: ' . htmlspecialchars($_GET['path'] ?? 'unknown') . '</div>';
-    exit();
+    error_log("Admin Load Debug - Page not found, using dashboard. Path: " . print_r($path, true) . ", GET: " . print_r($_GET, true));
+    // Default to dashboard if page not found
+    $page = 'dashboard';
 }
 $wo['user']['permission'] = !empty($wo['user']['permission']) ? json_decode($wo['user']['permission'], true) : [];
 if (!empty($wo['user']['permission'][$page])) {
