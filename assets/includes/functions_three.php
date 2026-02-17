@@ -8817,10 +8817,9 @@ function AddNewRef($ref_id, $user_id, $amount) {
         foreach ($parents as $key => $value) {
             $u_amount = ($amount / ($key + 1));
             $db->where('user_id', $value)->update(T_USERS, array(
-                'balance' => $db->inc($u_amount)
+                'wallet' => $db->inc($u_amount)
             ));
             cache($value, 'users', 'delete');
-            //unset($parents[$key]);
         }
     }
 }

@@ -26,9 +26,29 @@
 		</div>
 		<img src="<?php echo $wo['config']['theme_url'];?>/img/affs.svg" alt="<?php echo $wo['lang']['my_affiliates']?>">
 	</div>
-	<?php $link = $wo['config']['site_url'] . '/register?ref=' . $wo['setting']['username'];?>
+	<?php
+		$link = $wo['config']['site_url'] . '/register?ref=' . $wo['setting']['username'];
+		$ref_count = Wo_CountRefs($wo['setting']['user_id']);
+	?>
+	<div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">
+		<div style="flex:1;min-width:140px;background:var(--bc-card-bg,#f8f9fa);border-radius:12px;padding:18px;text-align:center;">
+			<div style="font-size:28px;font-weight:700;color:var(--bc-primary,#5F98FD);"><?php echo $ref_count; ?></div>
+			<div style="font-size:13px;color:var(--bc-text-secondary,#666);margin-top:4px;">Invited Users</div>
+		</div>
+		<div style="flex:1;min-width:140px;background:var(--bc-card-bg,#f8f9fa);border-radius:12px;padding:18px;text-align:center;">
+			<div style="font-size:28px;font-weight:700;color:#04aa24;"><?php echo $wo['config']['amount_ref']; ?></div>
+			<div style="font-size:13px;color:var(--bc-text-secondary,#666);margin-top:4px;">TRDC Per Invite</div>
+		</div>
+		<div style="flex:1;min-width:140px;background:var(--bc-card-bg,#f8f9fa);border-radius:12px;padding:18px;text-align:center;">
+			<div style="font-size:28px;font-weight:700;color:#f5a623;"><?php echo number_format($ref_count * floatval($wo['config']['amount_ref']), 2); ?></div>
+			<div style="font-size:13px;color:var(--bc-text-secondary,#666);margin-top:4px;">Total TRDC Earned</div>
+		</div>
+	</div>
 	<p class="bold"><?php echo $wo['lang']['your_ref_link'];?></p>
-	<input type="text" readonly value="<?php echo $link;?>" onclick="this.select();" class="tag_aff_usr_link">
+	<div style="display:flex;gap:8px;align-items:center;">
+		<input type="text" readonly value="<?php echo $link;?>" onclick="this.select();" class="tag_aff_usr_link" id="ref-link-input" style="flex:1;">
+		<button type="button" onclick="document.getElementById('ref-link-input').select();document.execCommand('copy');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000);" style="padding:8px 16px;border-radius:8px;border:none;background:var(--bc-primary,#5F98FD);color:#fff;cursor:pointer;font-weight:600;white-space:nowrap;">Copy</button>
+	</div>
 	<p class="bold"><?php echo $wo['lang']['share_to'];?></p>
 	<div class="valign share_modal_social_icos tag_aff_usr_share">
 		<div>

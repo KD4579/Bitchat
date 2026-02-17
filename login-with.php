@@ -270,7 +270,13 @@ if (isset($provider) && in_array($provider, $types)) {
                             $re_data['referrer'] = Wo_Secure($ref_user_id);
                             $re_data['src']      = Wo_Secure('Referrer');
                             if ($wo['config']['affiliate_level'] < 2) {
-                                $update_balance      = Wo_UpdateBalance($ref_user_id, $wo['config']['amount_ref']);
+                                // Credit TRDC wallet instead of affiliate balance
+                                $ref_amount = floatval($wo['config']['amount_ref']);
+                                mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$ref_amount} WHERE user_id = {$ref_user_id}");
+                                cache($ref_user_id, 'users', 'delete');
+                                if (function_exists('Wo_RegisterNotification')) {
+                                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned {$ref_amount} TRDC for inviting a friend!", 'url' => 'index.php?link1=wallet'));
+                                }
                             }
                         }
                         unset($_SESSION['ref']);

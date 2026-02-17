@@ -7195,7 +7195,12 @@ function affiliateRef($price)
             ));
             $ref_amount  = ($wo['config']['amount_percent_ref'] * $price) / 100;
             if ($wo['config']['affiliate_level'] < 2) {
-                $update_balance = Wo_UpdateBalance($ref_user_id, $ref_amount);
+                // Credit TRDC wallet instead of affiliate balance
+                mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$ref_amount} WHERE user_id = {$ref_user_id}");
+                cache($ref_user_id, 'users', 'delete');
+                if (function_exists('Wo_RegisterNotification')) {
+                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned {$ref_amount} TRDC from a referral purchase!", 'url' => 'index.php?link1=wallet'));
+                }
             }
             if (is_numeric($wo['config']['affiliate_level']) && $wo['config']['affiliate_level'] > 1) {
                 AddNewRef($ref_user_id, $wo['user']['user_id'], $ref_amount);
@@ -7209,7 +7214,13 @@ function affiliateRef($price)
                 'src' => 'Referrer'
             ));
             if ($wo['config']['affiliate_level'] < 2) {
-                $update_balance = Wo_UpdateBalance($ref_user_id, $wo['config']['amount_ref']);
+                // Credit TRDC wallet instead of affiliate balance
+                $ref_fixed = floatval($wo['config']['amount_ref']);
+                mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$ref_fixed} WHERE user_id = {$ref_user_id}");
+                cache($ref_user_id, 'users', 'delete');
+                if (function_exists('Wo_RegisterNotification')) {
+                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned {$ref_fixed} TRDC from a referral purchase!", 'url' => 'index.php?link1=wallet'));
+                }
             }
             if (is_numeric($wo['config']['affiliate_level']) && $wo['config']['affiliate_level'] > 1) {
                 AddNewRef($ref_user_id, $wo['user']['user_id'], $wo['config']['amount_ref']);
