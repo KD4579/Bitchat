@@ -76,6 +76,9 @@ function Wo_GetCreatorStats($userId) {
         'total_views'      => 0,
         'posts_this_week'  => 0,
         'reactions_this_week' => 0,
+        'reach_score'      => 0,
+        'invited_users'    => 0,
+        'total_engagement' => 0,
     );
 
     // Total posts
@@ -109,6 +112,21 @@ function Wo_GetCreatorStats($userId) {
 
     $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_REACTIONS . " r JOIN " . T_POSTS . " p ON r.post_id = p.id WHERE p.user_id = {$userId} AND p.time > {$weekAgo}");
     if ($q) { $r = mysqli_fetch_assoc($q); $stats['reactions_this_week'] = intval($r['cnt']); }
+
+    // Total engagement (reactions + comments + shares)
+    $stats['total_engagement'] = $stats['total_reactions'] + $stats['total_comments'] + $stats['total_shares'];
+
+    // Invited users (referral count)
+    $refCount = Wo_CountRefs($userId);
+    $stats['invited_users'] = ($refCount !== false) ? intval($refCount) : 0;
+
+    // Reach score: composite growth metric
+    // Formula: followers*3 + engagement*2 + views/100 + invited*5 + posts
+    $stats['reach_score'] = ($stats['total_followers'] * 3)
+                          + ($stats['total_engagement'] * 2)
+                          + intval($stats['total_views'] / 100)
+                          + ($stats['invited_users'] * 5)
+                          + $stats['total_posts'];
 
     return $stats;
 }
@@ -245,4 +263,30 @@ function Wo_GetCreatorWeeklyEngagement($userId) {
     }
 
     return $days;
+}
+
+/**
+ * Get creator rank badge based on engagement, activity, and referrals.
+ *
+ * @param array $stats Creator stats from Wo_GetCreatorStats()
+ * @return array ['rank' => string, 'color' => string, 'icon' => string]
+ */
+function Wo_GetCreatorRank($stats) {
+    $engagement = intval($stats['total_engagement'] ?? 0);
+    $posts      = intval($stats['total_posts'] ?? 0);
+    $invited    = intval($stats['invited_users'] ?? 0);
+    $followers  = intval($stats['total_followers'] ?? 0);
+
+    // Composite score for ranking
+    $score = $engagement + ($posts * 2) + ($invited * 10) + ($followers * 3);
+
+    if ($score >= 2000) {
+        return array('rank' => 'Champion', 'color' => '#f59e0b', 'bg' => '#fef3c7');
+    } elseif ($score >= 800) {
+        return array('rank' => 'Influencer', 'color' => '#8b5cf6', 'bg' => '#ede9fe');
+    } elseif ($score >= 200) {
+        return array('rank' => 'Contributor', 'color' => '#3b82f6', 'bg' => '#dbeafe');
+    } else {
+        return array('rank' => 'Rising Star', 'color' => '#10b981', 'bg' => '#d1fae5');
+    }
 }

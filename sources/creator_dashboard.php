@@ -22,11 +22,15 @@ $wo['reward_history'] = array();
 $wo['milestone_progress'] = array();
 $wo['weekly_engagement'] = array();
 $wo['total_trdc_earned'] = 0;
+$wo['creator_rank'] = array('rank' => 'Rising Star', 'color' => '#10b981', 'bg' => '#d1fae5');
 
 if (function_exists('Wo_IsCreator') && Wo_IsCreator($wo['user'])) {
     $wo['is_creator'] = true;
     if (function_exists('Wo_GetCreatorStats')) {
         $wo['creator_stats'] = Wo_GetCreatorStats($wo['user']['user_id']);
+    }
+    if (function_exists('Wo_GetCreatorRank') && !empty($wo['creator_stats'])) {
+        $wo['creator_rank'] = Wo_GetCreatorRank($wo['creator_stats']);
     }
     if (function_exists('Wo_GetRewardHistory')) {
         $wo['reward_history'] = Wo_GetRewardHistory($wo['user']['user_id'], 20);

@@ -568,6 +568,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'creator-dashboard':
                         include('sources/creator_dashboard.php');
                         break;
+                    case 'leaderboard':
+                        include('sources/leaderboard.php');
+                        break;
                 }
             } else {
                 switch ($page) {
@@ -594,6 +597,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                         break;
                     case 'creator-dashboard':
                         include('sources/creator_dashboard.php');
+                        break;
+                    case 'leaderboard':
+                        include('sources/leaderboard.php');
                         break;
                     case 'register':
                         include('sources/register.php');
@@ -1157,6 +1163,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                 break;
             case 'creator-dashboard':
                 include('sources/creator_dashboard.php');
+                break;
+            case 'leaderboard':
+                include('sources/leaderboard.php');
                 break;
         }
     }

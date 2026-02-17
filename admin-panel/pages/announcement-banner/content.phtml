@@ -1,0 +1,82 @@
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Announcement Banner</h3>
+            <p class="text-muted">Display a site-wide announcement banner at the top of every page.</p>
+        </div>
+        <div class="panel-body">
+            <form id="announcement-banner-form">
+                <div class="form-group">
+                    <label>Banner Status</label>
+                    <select name="announcement_banner_enabled" class="form-control">
+                        <option value="0" <?php echo (($wo['config']['announcement_banner_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
+                        <option value="1" <?php echo (($wo['config']['announcement_banner_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Banner Text</label>
+                    <input type="text" name="announcement_banner_text" class="form-control" value="<?php echo htmlspecialchars($wo['config']['announcement_banner_text'] ?? ''); ?>" placeholder="e.g. Welcome to Bitchat! Invite friends and earn TRDC tokens.">
+                </div>
+
+                <div class="form-group">
+                    <label>Banner Link URL (optional)</label>
+                    <input type="url" name="announcement_banner_url" class="form-control" value="<?php echo htmlspecialchars($wo['config']['announcement_banner_url'] ?? ''); ?>" placeholder="e.g. https://bitchat.live/leaderboard">
+                    <small class="text-muted">If set, the banner becomes clickable.</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Background Color</label>
+                            <input type="color" name="announcement_banner_bg" class="form-control" value="<?php echo htmlspecialchars($wo['config']['announcement_banner_bg'] ?? '#1d9bf0'); ?>" style="height:40px;">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Text Color</label>
+                            <input type="color" name="announcement_banner_color" class="form-control" value="<?php echo htmlspecialchars($wo['config']['announcement_banner_color'] ?? '#ffffff'); ?>" style="height:40px;">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+
+            <hr>
+            <h4>Preview</h4>
+            <div id="banner-preview" style="padding:10px 20px;text-align:center;font-size:14px;font-weight:600;border-radius:4px;background:<?php echo htmlspecialchars($wo['config']['announcement_banner_bg'] ?? '#1d9bf0'); ?>;color:<?php echo htmlspecialchars($wo['config']['announcement_banner_color'] ?? '#ffffff'); ?>;">
+                <?php echo htmlspecialchars($wo['config']['announcement_banner_text'] ?? 'Your announcement text here'); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#announcement-banner-form').on('submit', function(e) {
+    e.preventDefault();
+    var form = $(this);
+    $.post(Wo_Ajax_Requests_File() + '?f=announcement_banner', {
+        announcement_banner_enabled: form.find('[name=announcement_banner_enabled]').val(),
+        announcement_banner_text: form.find('[name=announcement_banner_text]').val(),
+        announcement_banner_url: form.find('[name=announcement_banner_url]').val(),
+        announcement_banner_bg: form.find('[name=announcement_banner_bg]').val(),
+        announcement_banner_color: form.find('[name=announcement_banner_color]').val()
+    }, function(data) {
+        if (data.status == 200) {
+            Wo_ShowNotifications('success', 'Banner settings saved');
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed to save');
+        }
+    }, 'json');
+});
+
+// Live preview
+$('#announcement-banner-form input, #announcement-banner-form select').on('input change', function() {
+    var form = $('#announcement-banner-form');
+    var text = form.find('[name=announcement_banner_text]').val() || 'Your announcement text here';
+    var bg = form.find('[name=announcement_banner_bg]').val();
+    var color = form.find('[name=announcement_banner_color]').val();
+    $('#banner-preview').css({background: bg, color: color}).text(text);
+});
+</script>

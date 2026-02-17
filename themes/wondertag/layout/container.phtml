@@ -820,7 +820,25 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<header>
 				<?php echo Wo_LoadPage('header/content'); ?>
 			</header>
-			
+
+			<?php if (!empty($wo['config']['announcement_banner_enabled']) && $wo['config']['announcement_banner_enabled'] == '1' && !empty($wo['config']['announcement_banner_text'])): ?>
+			<?php
+				$_bc_banner_bg = !empty($wo['config']['announcement_banner_bg']) ? htmlspecialchars($wo['config']['announcement_banner_bg']) : '#1d9bf0';
+				$_bc_banner_color = !empty($wo['config']['announcement_banner_color']) ? htmlspecialchars($wo['config']['announcement_banner_color']) : '#ffffff';
+				$_bc_banner_text = htmlspecialchars($wo['config']['announcement_banner_text']);
+				$_bc_banner_url = !empty($wo['config']['announcement_banner_url']) ? htmlspecialchars($wo['config']['announcement_banner_url']) : '';
+			?>
+			<div class="bc-announce-banner" id="bc-announce-banner" style="background:<?php echo $_bc_banner_bg; ?>;color:<?php echo $_bc_banner_color; ?>;">
+				<?php if (!empty($_bc_banner_url)): ?>
+					<a href="<?php echo $_bc_banner_url; ?>" class="bc-announce-link" style="color:<?php echo $_bc_banner_color; ?>;"><?php echo $_bc_banner_text; ?></a>
+				<?php else: ?>
+					<span><?php echo $_bc_banner_text; ?></span>
+				<?php endif; ?>
+				<button class="bc-announce-close" onclick="document.getElementById('bc-announce-banner').style.display='none';sessionStorage.setItem('bc_banner_closed','1');" style="color:<?php echo $_bc_banner_color; ?>;">&times;</button>
+			</div>
+			<script>if(sessionStorage.getItem('bc_banner_closed')==='1'){document.getElementById('bc-announce-banner').style.display='none';}</script>
+			<?php endif; ?>
+
 			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { ?>
 				<?php echo Wo_LoadPage('sidebar/left-sidebar-top'); ?>
 			<?php } else { ?>

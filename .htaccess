@@ -110,6 +110,7 @@ RewriteRule ^explore(/?|)$ index.php?link1=explore [NC,QSA]
 RewriteRule ^discover(/?|)$ index.php?link1=discover [NC,QSA]
 RewriteRule ^welcome-setup(/?|)$ index.php?link1=welcome-setup [NC,QSA]
 RewriteRule ^creator-dashboard(/?|)$ index.php?link1=creator-dashboard [NC,QSA]
+RewriteRule ^leaderboard(/?|)$ index.php?link1=leaderboard [NC,QSA]
 
 # **** FORUM ****
 

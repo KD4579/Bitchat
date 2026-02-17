@@ -73,6 +73,19 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		</div>
 	<?php } } ?>
 
+	<?php if (!empty($wo['config']['affiliate_type']) && $wo['config']['affiliate_type'] != 0) { ?>
+	<div class="wow_content mb-15 tag_sidebar_widget bc-invite-widget">
+		<div class="bc-invite-widget-inner">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+			<div>
+				<strong>Invite &amp; Earn</strong>
+				<p>Share your link, earn TRDC tokens</p>
+			</div>
+			<a href="<?php echo Wo_SeoLink('index.php?link1=setting&' . $wo['user_setting'] . 'page=affiliates');?>" class="bc-invite-widget-btn">Invite</a>
+		</div>
+	</div>
+	<?php } ?>
+
 	<div class="wow_content mb-15 tag_sidebar_widget sidehashtag<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_show_side_trend'] == 1) { ?> d-block<?php } ?>">
 		<div class="valign tag_sidebar_widget_title">
 			<b><?php echo $wo['lang']['trending'] ?></b>

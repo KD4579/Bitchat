@@ -83,6 +83,7 @@ $pages = array(
     'feed-algorithm',
     'scheduled-posts',
     'ghost-activity',
+    'announcement-banner',
     'trdc-rewards',
     'creator-mode',
     'manage-genders',
@@ -1529,7 +1530,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                         </a>
                     </li>
                     <?php if ($is_admin) { ?>
-                    <li <?php echo in_array($page, ['feed-algorithm','scheduled-posts','ghost-activity','trdc-rewards','creator-mode']) ? 'class="open"' : ''; ?>>
+                    <li <?php echo in_array($page, ['feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','creator-mode']) ? 'class="open"' : ''; ?>>
                         <a href="#">
                             <span class="nav-link-icon">
                                 <i class="material-icons">trending_up</i>
@@ -1545,6 +1546,9 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             </li>
                             <li>
                                 <a <?php echo ($page == 'ghost-activity') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('ghost-activity'); ?>" data-ajax="?path=ghost-activity">Ghost Activity</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'announcement-banner') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('announcement-banner'); ?>" data-ajax="?path=announcement-banner">Announcement Banner</a>
                             </li>
                             <li>
                                 <a <?php echo ($page == 'trdc-rewards') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('trdc-rewards'); ?>" data-ajax="?path=trdc-rewards">TRDC Rewards</a>
