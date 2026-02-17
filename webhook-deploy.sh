@@ -1,67 +1,55 @@
 #!/bin/bash
 # ============================================
-# GitHub Webhook Deployment Script
-# Triggered automatically by webhook-deploy.php
+# GitHub Webhook Deployment Script for Bitchat
+# Runs as KamalDave user via sudo
 # ============================================
-
-set -e  # Exit on error
 
 # Configuration
 SITE_PATH="/home/KamalDave/web/bitchat.live/public_html"
-BACKUP_PATH="/home/KamalDave/backups"
-LOG_FILE="$SITE_PATH/webhook-deploy.log"
-
-# Function to log messages
-log_message() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
-
-log_message "Starting webhook deployment..."
+BACKUP_PATH="/home/KamalDave/backups/webhook-backups"
 
 # Navigate to site directory
 cd "$SITE_PATH" || exit 1
 
-# Create backup of critical files
-log_message "Creating config backup..."
-mkdir -p "$BACKUP_PATH/webhook-backups"
+# Ensure git trusts this directory
+git config --global --add safe.directory "$SITE_PATH" 2>/dev/null
+
+# Create backup of config files
+mkdir -p "$BACKUP_PATH"
 BACKUP_NAME="config_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
-tar -czf "$BACKUP_PATH/webhook-backups/$BACKUP_NAME" \
+tar -czf "$BACKUP_PATH/$BACKUP_NAME" \
     config.php \
     nodejs/config.json \
     .user.ini \
-    .htaccess 2>/dev/null || log_message "Warning: Some config files not found"
+    .htaccess 2>/dev/null || true
+
+echo "Backup created: $BACKUP_NAME"
 
 # Stash any local changes
-log_message "Stashing local changes..."
-git stash --include-untracked || true
+git stash --include-untracked 2>/dev/null || true
 
-# Pull latest code
-log_message "Pulling latest code from GitHub..."
+# Pull latest code from GitHub
 git fetch origin main
 git reset --hard origin/main
 
-# Set correct permissions
-log_message "Setting permissions..."
-find "$SITE_PATH" -type d -exec chmod 755 {} \;
-find "$SITE_PATH" -type f -exec chmod 644 {} \;
+echo "Code updated to latest version"
+
+# Restore execute permission on webhook files
+chmod +x "$SITE_PATH/webhook-deploy.sh"
+
+# Set upload and cache directories writable
 chmod -R 775 "$SITE_PATH/upload" 2>/dev/null || true
 chmod -R 775 "$SITE_PATH/cache" 2>/dev/null || true
 
-# Update Node.js dependencies if package.json changed
+echo "Permissions set"
+
+# Update Node.js dependencies if needed
 if [ -f "$SITE_PATH/nodejs/package.json" ]; then
-    log_message "Checking Node.js dependencies..."
     cd "$SITE_PATH/nodejs"
-    npm install --production 2>/dev/null || log_message "npm install skipped"
+    npm install --production 2>/dev/null || true
     cd "$SITE_PATH"
+    echo "Node.js dependencies updated"
 fi
 
-# Clear any application cache
-if [ -d "$SITE_PATH/cache" ]; then
-    log_message "Clearing application cache..."
-    find "$SITE_PATH/cache" -type f -name "*.cache" -delete 2>/dev/null || true
-fi
-
-log_message "Deployment completed successfully!"
-log_message "Backup saved: $BACKUP_PATH/webhook-backups/$BACKUP_NAME"
-
+echo "Deployment completed successfully!"
 exit 0
