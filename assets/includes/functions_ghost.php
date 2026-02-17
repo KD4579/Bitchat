@@ -143,6 +143,59 @@ function Wo_ProcessGhostQueue() {
 }
 
 /**
+ * Zero engagement protection: find posts with 0 reactions after 30 minutes
+ * and queue ghost reactions for them. Called by cron-job.php.
+ */
+function Wo_ProtectZeroEngagement() {
+    global $wo, $sqlConnect;
+
+    $ghostAccounts = Wo_GetGhostAccounts();
+    if (empty($ghostAccounts)) return;
+
+    $ghostTable     = T_GHOST_QUEUE;
+    $postsTable     = T_POSTS;
+    $reactionsTable = T_REACTIONS;
+    $now = time();
+    $thirtyMinAgo = $now - 1800;  // Posts older than 30 minutes
+    $twoHoursAgo  = $now - 7200;  // But not older than 2 hours (avoid rescuing ancient posts)
+
+    // Find posts with 0 reactions, 30min-2hr old, not already in ghost queue
+    $sql = "SELECT p.id, p.user_id FROM {$postsTable} p
+            WHERE p.time BETWEEN {$twoHoursAgo} AND {$thirtyMinAgo}
+              AND p.active = '1'
+              AND p.postType NOT IN ('profile_picture_deleted','profile_picture','profile_cover_picture')
+              AND (SELECT COUNT(*) FROM {$reactionsTable} r WHERE r.post_id = p.id) = 0
+              AND p.id NOT IN (SELECT post_id FROM {$ghostTable} WHERE post_id = p.id)
+              AND p.user_id NOT IN (SELECT user_id FROM " . T_USERS . " WHERE admin = '1')
+            ORDER BY p.time DESC
+            LIMIT 5";
+
+    $result = mysqli_query($sqlConnect, $sql);
+    if (!$result || mysqli_num_rows($result) == 0) return;
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $postId = intval($row['id']);
+        $postUserId = intval($row['user_id']);
+
+        // Pick a ghost account (not the post author)
+        $candidates = array_diff($ghostAccounts, array($postUserId));
+        if (empty($candidates)) $candidates = $ghostAccounts;
+        $actorId = intval($candidates[array_rand($candidates)]);
+
+        // Short delay (5-15 minutes) since post is already waiting
+        $delay = rand(300, 900);
+        $executeAt = $now + $delay;
+
+        $reactionTypes = array('1', '2', '4'); // like, love, wow
+        $reactionData = $reactionTypes[array_rand($reactionTypes)];
+
+        $sql = "INSERT INTO {$ghostTable} (post_id, actor_user_id, action_type, action_data, execute_at, status)
+                VALUES ({$postId}, {$actorId}, 'reaction', '{$reactionData}', {$executeAt}, 'pending')";
+        @mysqli_query($sqlConnect, $sql);
+    }
+}
+
+/**
  * Get configured ghost activity account IDs.
  *
  * @return array Array of user IDs

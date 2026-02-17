@@ -138,6 +138,9 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
     $now = time();
     $oneHourAgo = $now - 3600;
     $spamWindowTime = $now - ($spamWindow * 3600);
+    $sevenDaysAgo = $now - (7 * 86400);
+    $wNewCreator = 5.0; // Boost for accounts < 7 days old
+    $wFirstPosts = 3.0; // Extra boost for user's first 3 posts
 
     // --- Single scoring SQL query ---
     $sql = "
@@ -165,6 +168,15 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
 
             -- PRO boost
             (CASE WHEN u.is_pro = 1 THEN {$wPro} ELSE 0 END) AS pro_boost,
+
+            -- New creator boost (account < 7 days old)
+            (CASE WHEN u.joined > {$sevenDaysAgo} THEN {$wNewCreator} ELSE 0 END) AS new_creator_boost,
+
+            -- First posts boost (user's first 3 posts get extra visibility)
+            (CASE WHEN (SELECT COUNT(*) FROM {$postsTable} fp2 WHERE fp2.user_id = p.user_id AND fp2.id < p.id) < 3 THEN {$wFirstPosts} ELSE 0 END) AS first_posts_boost,
+
+            -- TRDC boost (paid boost, +10 score while active)
+            (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END) AS trdc_boost,
 
             -- Link penalty
             (CASE
@@ -218,6 +230,12 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             + GREATEST(0, 10.0 - (({$now} - p.time) / 3600.0) * {$wFresh})
             -- PRO boost
             + (CASE WHEN u.is_pro = 1 THEN {$wPro} ELSE 0 END)
+            -- New creator boost (account < 7 days)
+            + (CASE WHEN u.joined > {$sevenDaysAgo} THEN {$wNewCreator} ELSE 0 END)
+            -- First posts boost (first 3 posts)
+            + (CASE WHEN (SELECT COUNT(*) FROM {$postsTable} fp2 WHERE fp2.user_id = p.user_id AND fp2.id < p.id) < 3 THEN {$wFirstPosts} ELSE 0 END)
+            -- TRDC boost
+            + (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END)
             -- Penalties (subtracted)
             - (CASE
                 WHEN p.postLink != '' AND p.postText = '' AND p.postFile = ''

@@ -202,8 +202,16 @@ if (!empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_acti
     if (function_exists('Wo_ProcessGhostQueue')) {
         Wo_ProcessGhostQueue();
     }
+    // Zero engagement protection — rescue posts with 0 reactions after 30 min
+    if (function_exists('Wo_ProtectZeroEngagement')) {
+        Wo_ProtectZeroEngagement();
+    }
 }
 // ********** Ghost Activity **********
+
+// ********** TRDC Boost Expiry Cleanup **********
+@mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET trdc_boosted = 0 WHERE trdc_boosted = 1 AND trdc_boost_expires <= " . time());
+// ********** TRDC Boost Expiry Cleanup **********
 
 // ********** TRDC Creator Rewards **********
 if (!empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
