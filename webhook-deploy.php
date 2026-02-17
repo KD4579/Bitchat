@@ -41,10 +41,10 @@ if (isset($data['ref']) && $data['ref'] === 'refs/heads/main') {
     $logEntry .= date('Y-m-d H:i:s') . " - Deploying...\n";
     writeLog($logEntry);
 
-    // Execute deployment script as KamalDave user (has git SSH access)
+    // Execute deployment script (PHP runs as KamalDave via HestiaCP)
     $output = [];
     $returnCode = 0;
-    exec('sudo -u KamalDave bash ' . DEPLOY_SCRIPT . ' 2>&1', $output, $returnCode);
+    exec('bash ' . DEPLOY_SCRIPT . ' 2>&1', $output, $returnCode);
 
     $result = implode("\n", $output);
     writeLog(date('Y-m-d H:i:s') . " - Deploy output:\n$result\n");
