@@ -1,8 +1,8 @@
 {
     "sql_db_host": "localhost",
-    "sql_db_user": "root",
-    "sql_db_pass": "",
-    "sql_db_name": "Bitchat",
-    "site_url": "http://localhost:8000",
+    "sql_db_user": "KamalDave_bitchat",
+    "sql_db_pass": "1020Jerry@!",
+    "sql_db_name": "KamalDave_bitchat",
+    "site_url": "https://bitchat.live",
     "purchase_code": ""
 }

@@ -70,7 +70,7 @@ $(function () {
   
 	intervalUpdates = setTimeout(Wo_intervalUpdates, 6000);
 	if (node_socket_flow == "0") {
-      //setTimeout(Wo_UpdateLastSeen, 40000);
+      setTimeout(Wo_UpdateLastSeen, 5000);
       setTimeout(Wo_IsLogged, 30000);
     }
 
@@ -99,7 +99,9 @@ function Wo_UpdateLastSeen() {
   $.get(Wo_Ajax_Requests_File(), {
     f: 'update_lastseen'
   }, function () {
-    setTimeout(Wo_UpdateLastSeen, 40000);
+    setTimeout(Wo_UpdateLastSeen, 20000);
+  }).fail(function() {
+    setTimeout(Wo_UpdateLastSeen, 20000);
   });
 }
 // js function
