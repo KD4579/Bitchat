@@ -87,6 +87,14 @@ if (!empty($_GET['ref']) && $wo['loggedin'] == false) {
     $user_date   = Wo_UserData($ref_user_id);
     if (!empty($user_date)) {
         $_SESSION['ref'] = $user_date['username'];
+        @setcookie('ref', $user_date['username'], time() + 2592000, '/'); // 30-day referral cookie
+    }
+} elseif (!empty($_COOKIE['ref']) && empty($_SESSION['ref']) && $wo['loggedin'] == false) {
+    // Restore referral from cookie if session was lost
+    $cookie_ref = Wo_Secure($_COOKIE['ref']);
+    $ref_user_id = Wo_UserIdFromUsername($cookie_ref);
+    if (!empty($ref_user_id)) {
+        $_SESSION['ref'] = $cookie_ref;
     }
 }
 if (!isset($_COOKIE['src'])) {

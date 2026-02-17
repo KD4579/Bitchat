@@ -256,15 +256,37 @@ if (isset($provider) && in_array($provider, $types)) {
                 if ($provider == 'OkRu') {
                     $re_data['okru']   = Wo_Secure($user_profile->uid);
                 }
+                // Restore referral from cookie if session lost
+                if (empty($_SESSION['ref']) && !empty($_COOKIE['ref'])) {
+                    $_SESSION['ref'] = Wo_Secure($_COOKIE['ref']);
+                }
                 if (!empty($_SESSION['ref']) && $wo['config']['affiliate_type'] == 0) {
                     $ref_user_id = Wo_UserIdFromUsername($_SESSION['ref']);
                     if (!empty($ref_user_id) && is_numeric($ref_user_id)) {
-                        $re_data['referrer'] = Wo_Secure($ref_user_id);
-                        $re_data['src']      = Wo_Secure('Referrer');
-                        if ($wo['config']['affiliate_level'] < 2) {
-                            $update_balance      = Wo_UpdateBalance($ref_user_id, $wo['config']['amount_ref']);
+                        $ref_user = Wo_UserData($ref_user_id);
+                        $is_admin = (!empty($ref_user['admin']) && $ref_user['admin'] == '1');
+                        $same_ip = (!empty($ref_user['ip_address']) && $ref_user['ip_address'] === Wo_Secure($_SERVER['REMOTE_ADDR'] ?? ''));
+                        if (!$is_admin && !$same_ip) {
+                            $re_data['referrer'] = Wo_Secure($ref_user_id);
+                            $re_data['src']      = Wo_Secure('Referrer');
+                            if ($wo['config']['affiliate_level'] < 2) {
+                                $update_balance      = Wo_UpdateBalance($ref_user_id, $wo['config']['amount_ref']);
+                            }
                         }
                         unset($_SESSION['ref']);
+                        @setcookie('ref', '', time() - 3600, '/');
+                    }
+                } elseif (!empty($_SESSION['ref']) && $wo['config']['affiliate_type'] == 1) {
+                    $ref_user_id = Wo_UserIdFromUsername($_SESSION['ref']);
+                    if (!empty($ref_user_id) && is_numeric($ref_user_id)) {
+                        $ref_user = Wo_UserData($ref_user_id);
+                        $is_admin = (!empty($ref_user['admin']) && $ref_user['admin'] == '1');
+                        $same_ip = (!empty($ref_user['ip_address']) && $ref_user['ip_address'] === Wo_Secure($_SERVER['REMOTE_ADDR'] ?? ''));
+                        if (!$is_admin && !$same_ip) {
+                            $re_data['ref_user_id'] = Wo_Secure($ref_user_id);
+                        }
+                        unset($_SESSION['ref']);
+                        @setcookie('ref', '', time() - 3600, '/');
                     }
                 }
                 $wo['config']['user_registration'] = 1;
