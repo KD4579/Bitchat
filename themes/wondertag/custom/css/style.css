@@ -1737,7 +1737,7 @@ html.bc-dark-mode #bc-market-strip {
   display: inline-flex;
   align-items: center;
   gap: 0;
-  animation: bc-ticker-scroll 25s linear infinite;
+  animation: bc-ticker-scroll 17.5s linear infinite;
   white-space: nowrap;
   padding: 0 20px;
 }
@@ -2096,6 +2096,11 @@ html.bc-dark-mode #bc-market-strip {
   height: 56px;
   justify-content: space-around;
   align-items: center;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
 }
 .bc-mob-nav-item {
   display: flex;
@@ -2106,11 +2111,13 @@ html.bc-dark-mode #bc-market-strip {
   height: 56px;
   color: var(--bc-text-secondary);
   text-decoration: none;
-  border: none;
+  border: none !important;
   background: none;
   cursor: pointer;
   position: relative;
   transition: color 0.15s;
+  box-shadow: none !important;
+  outline: none !important;
 }
 .bc-mob-nav-item svg { width: 24px; height: 24px; }
 .bc-mob-nav-item:hover, .bc-mob-nav-item.bc-mob-active {
