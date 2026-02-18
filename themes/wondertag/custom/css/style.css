@@ -2097,11 +2097,6 @@ html.bc-dark-mode #bc-market-strip {
   height: 56px;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
-}
-html:has(link#night-mode-css) #bc-mobile-nav,
-html.bc-dark-mode #bc-mobile-nav {
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
 }
 .bc-mob-nav-item {
   display: flex;
