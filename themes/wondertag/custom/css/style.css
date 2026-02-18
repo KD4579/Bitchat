@@ -2164,12 +2164,30 @@ html.bc-dark-mode #bc-market-strip {
 }
 @media (max-width: 900px) {
   #bc-mobile-nav {
-    display: flex;
+    display: flex !important;
     border: 0 !important;
     border-top: 0 !important;
     box-shadow: 0 0 0 0 transparent !important;
   }
   body { padding-bottom: 60px !important; }
-  /* Hide existing WoWonder bottom mobile nav if any */
-  .tag_bottom_nav { display: none !important; }
+
+  /* Hide ALL possible WoWonder bottom navigation elements */
+  .tag_bottom_nav,
+  .bottom-nav,
+  .mobile-nav,
+  .mobile-bottom-nav,
+  .navbar-fixed-bottom,
+  .fixed-bottom,
+  nav[class*="bottom"],
+  div[class*="bottom-nav"],
+  div[class*="mobile-nav"],
+  .user-bottom-nav,
+  footer nav,
+  footer .navbar {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
 }
