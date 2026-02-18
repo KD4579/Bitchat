@@ -334,7 +334,31 @@
                 
                 
                 
-				<div class="posts_load">
+				<?php if ($wo['page'] == 'home') { ?>
+			<!-- Part 4: Feed Tabs -->
+			<div class="bc-feed-tabs" id="bc-feed-tabs">
+				<button class="bc-feed-tab active" data-tab="all" onclick="bcFeedTab(this,'all')">For You</button>
+				<button class="bc-feed-tab" data-tab="trading" onclick="bcFeedTab(this,'trading')">Trading</button>
+				<button class="bc-feed-tab" data-tab="creators" onclick="bcFeedTab(this,'creators')">Creators</button>
+				<button class="bc-feed-tab" data-tab="following" onclick="bcFeedTab(this,'following')">Following</button>
+			</div>
+			<script>
+			function bcFeedTab(btn, tab) {
+				document.querySelectorAll('.bc-feed-tab').forEach(function(b){ b.classList.remove('active'); });
+				btn.classList.add('active');
+				var postsEl = document.getElementById('posts-laoded');
+				if (!postsEl) return;
+				postsEl.innerHTML = '<div style="text-align:center;padding:30px;"><div class="skel skel_1" style="height:80px;border-radius:12px;margin-bottom:12px;"></div><div class="skel skel_1" style="height:80px;border-radius:12px;margin-bottom:12px;"></div><div class="skel skel_1" style="height:80px;border-radius:12px;"></div></div>';
+				var ajaxUrl = (typeof Wo_Ajax_Requests_File === 'function') ? Wo_Ajax_Requests_File() : '/requests.php';
+				var url = ajaxUrl + '?f=load_posts';
+				if (tab === 'trading') url += '&filter_by=hashtag&filter_val=trading';
+				else if (tab === 'creators') url += '&filter_by=creators';
+				else if (tab === 'following') url += '&filter_by=following';
+				$.get(url, function(r){ postsEl.innerHTML = r || '<div style="text-align:center;padding:40px;color:#8899a6;">No posts found.</div>'; }).fail(function(){ postsEl.innerHTML = '<div style="text-align:center;padding:40px;color:#8899a6;">Could not load posts.</div>'; });
+			}
+			</script>
+			<?php } ?>
+			<div class="posts_load">
 					<div id="posts-laoded">
 						<?php echo Wo_LoadPage('home/load-posts'); ?>
 					</div>
@@ -667,18 +691,24 @@ $(function () {
     var greet;
     var color;
 	var quote;
+    // Part 10: Psychological activation greeting
+    var userName = '<?php if (!empty($wo['user']['first_name'])) { echo $wo['user']['first_name']; } else { echo $wo['user']['name']; } ?>';
     if (hrs < 12) {
-        greet = "<?php echo $wo['lang']['good_morning']?>" + ', <?php if (!empty($wo['user']['first_name'])) { ?><?php echo $wo['user']['first_name']?><?php } else {?><?php echo $wo['user']['name']?><?php } ?>';
+        greet = 'Markets are opening. What\u2019s your move today, ' + userName + '?';
         color = 'morning';
-		quote = "<?php echo $wo['lang']['good_morning_quote']?>";
-    } else if (hrs >= 12 && hrs <= 18) {
-        greet = "<?php echo $wo['lang']['good_afternoon']?>" + ', <?php if (!empty($wo['user']['first_name'])) { ?><?php echo $wo['user']['first_name']?><?php } else {?><?php echo $wo['user']['name']?><?php } ?>';
+        quote = 'The early trader catches the opportunity. \u2014 Share your insight now.';
+    } else if (hrs >= 12 && hrs <= 17) {
+        greet = 'Markets are moving, ' + userName + '. Share your insight.';
         color = 'noon';
-		quote = "<?php echo $wo['lang']['good_afternoon_quote']?>";
-    } else if (hrs >= 18 && hrs <= 24) {
-        greet = "<?php echo $wo['lang']['good_evening']?>" + ', <?php if (!empty($wo['user']['first_name'])) { ?><?php echo $wo['user']['first_name']?><?php } else {?><?php echo $wo['user']['name']?><?php } ?>';
+        quote = 'Great creators post when the audience is most active.';
+    } else if (hrs > 17 && hrs <= 20) {
+        greet = 'Peak hours, ' + userName + '. Creators are earning now.';
         color = 'evening';
-		quote = "<?php echo $wo['lang']['good_evening_quote']?>";
+        quote = 'Your next post could be your biggest reach today.';
+    } else {
+        greet = 'Evening session live, ' + userName + '. Your TRDC awaits.';
+        color = 'evening';
+        quote = 'Post tonight \u2014 your TRDC rewards are waiting.';
     }
     if (is_day_enabled != 1) {
 		$('.greetalert').addClass(color);

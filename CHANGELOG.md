@@ -4,6 +4,76 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ---
 
+## 2026-02-18 — Frontend UI Master Improvement Plan (11 Parts)
+
+### Feature: Landing Hero (Part 1)
+- Added "Earn. Create. Trade." hero section on the welcome/login page left column
+- Includes badge "India's Creator & Crypto Network", headline, tagline, and stats row (10,000+ Creators | ₹50L+ Earned | Live Markets)
+- Old generic WoWonder tagline hidden via CSS
+- **Files:** `themes/wondertag/layout/welcome/content-simple.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Market Strip Ticker (Part 2)
+- Live BTC/ETH/NIFTY/SENSEX price ticker bar displayed for logged-in users at top of every page
+- Auto-refreshes every 60s via CoinGecko API (crypto) and Yahoo Finance (indices)
+- Shows price, 24h change%, color-coded green/red
+- **Files:** `themes/wondertag/layout/container.phtml`, `themes/wondertag/custom/js/footer.js`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Native App Install Popup (Part 3)
+- Replaced OneSignal's native browser push prompt with a custom branded popup
+- Triggers on 40% scroll depth OR 25s session time; cookie-gated for 7 days
+- Shows "Stay ahead of the markets" notification card with Enable/Dismiss buttons
+- OneSignal `autoRegister` set to `false` to prevent duplicate native prompt
+- **Files:** `themes/wondertag/layout/container.phtml`, `themes/wondertag/custom/js/footer.js`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Feed Tabs (Part 4)
+- Added "For You | Trading | Creators | Following" tab bar above the home feed
+- Each tab triggers filtered AJAX post load
+- **Files:** `themes/wondertag/layout/home/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Simplified Post Composer (Part 5)
+- Composer toolbar shows only Image + Video + Live (first 3 buttons) by default
+- Remaining options (GIF, Feeling, Poll, Location, Music, etc.) hidden behind a "More Options" toggle
+- **Files:** `themes/wondertag/custom/js/footer.js`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Right Sidebar Restructure (Part 6)
+- Added TRDC Earnings Card showing user's live TRDC balance with link to wallet
+- Added styled Trending Tags widget with pill buttons (replaces bare hashtag list)
+- **Files:** `themes/wondertag/layout/sidebar/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Fix: Chat Offline Banner (Part 7)
+- Hidden "You are currently offline" WoWonder chat banner via CSS
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Feature: Micro UX Animations (Part 8)
+- Post cards fade in with stagger on load (`bc-fade-in` keyframe)
+- Like button bounce animation on click (`bc-like-bounce` keyframe)
+- Card hover lift effect on `.wow_content` cards
+- Enhanced skeleton shimmer animation
+- **Files:** `themes/wondertag/custom/css/style.css`, `themes/wondertag/custom/js/footer.js`
+
+### Feature: Nav Cleanup (Part 9)
+- Hidden rarely-used sidebar nav items: Games, Movies, Offers, Memories, Common Things, Funding, Open to Work
+- Items remain accessible via the Explore/Discover page
+- Pure CSS — fully reversible
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Feature: Psychological Activation Greeting (Part 10)
+- Replaced generic "Good morning/evening, [Name]" with trading/creator-themed messages:
+  - Morning: "Markets are opening. What's your move today, [Name]?"
+  - Midday: "Markets are moving, [Name]. Share your insight."
+  - Peak hours: "Peak hours, [Name]. Creators are earning now."
+  - Evening: "Evening session live, [Name]. Your TRDC awaits."
+- **Files:** `themes/wondertag/layout/home/content.phtml`
+
+### Feature: Mobile Sticky Bottom Navigation Bar (Part 11)
+- Added X/Instagram-style 5-tab bottom nav bar on mobile (≤900px)
+- Tabs: Home | Create Post | Notifications | Messages | Profile
+- Auto-highlights active tab based on current URL
+- Create tab opens post composer modal directly
+- **Files:** `themes/wondertag/layout/container.phtml`, `themes/wondertag/custom/css/style.css`, `themes/wondertag/custom/js/footer.js`
+
+---
+
 ## 2026-02-17
 
 ### Feature: TRDC Usage Hint UI

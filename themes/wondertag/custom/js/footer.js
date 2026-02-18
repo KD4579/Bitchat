@@ -123,3 +123,224 @@
         darkObserver.observe(head, { childList: true });
     }
 })();
+
+/* ==========================================================================
+   UI MASTER PLAN — JavaScript (Parts 2, 3, 8, 11)
+   ========================================================================== */
+(function() {
+
+/* ---- Part 2: Market Strip Ticker ---- */
+function updateTicker(el, label, price, change, isUp) {
+    if (!el) return;
+    var arrow = isUp ? '▲' : '▼';
+    var cls = isUp ? 'bc-ticker-up' : 'bc-ticker-down';
+    if (change === 0) { arrow = '–'; cls = 'bc-ticker-flat'; }
+    el.innerHTML =
+        '<span class="bc-ticker-label">' + label + '</span>' +
+        '<span class="bc-ticker-price">' + price + '</span>' +
+        '<span class="bc-ticker-change ' + cls + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</span>';
+}
+
+function fetchCrypto() {
+    var strip = document.getElementById('bc-market-strip');
+    if (!strip) return;
+    var btcEl = document.getElementById('bc-tick-btc');
+    var ethEl = document.getElementById('bc-tick-eth');
+    if (!btcEl || !ethEl) return;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=inr&include_24hr_change=true', true);
+    xhr.timeout = 10000;
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var d = JSON.parse(xhr.responseText);
+                if (d.bitcoin) {
+                    var btcP = '₹' + Math.round(d.bitcoin.inr).toLocaleString('en-IN');
+                    var btcC = d.bitcoin.inr_24h_change || 0;
+                    updateTicker(btcEl, 'BTC', btcP, btcC, btcC >= 0);
+                }
+                if (d.ethereum) {
+                    var ethP = '₹' + Math.round(d.ethereum.inr).toLocaleString('en-IN');
+                    var ethC = d.ethereum.inr_24h_change || 0;
+                    updateTicker(ethEl, 'ETH', ethP, ethC, ethC >= 0);
+                }
+            } catch(e) {}
+        }
+    };
+    xhr.send();
+}
+
+function fetchIndices() {
+    var niftyEl = document.getElementById('bc-tick-nifty');
+    var sensexEl = document.getElementById('bc-tick-sensex');
+    if (!niftyEl && !sensexEl) return;
+
+    // NIFTY
+    if (niftyEl) {
+        var xn = new XMLHttpRequest();
+        xn.open('GET', 'https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d&range=2d', true);
+        xn.timeout = 8000;
+        xn.onload = function() {
+            try {
+                var d = JSON.parse(xn.responseText);
+                var meta = d.chart.result[0].meta;
+                var price = meta.regularMarketPrice;
+                var prev  = meta.chartPreviousClose;
+                var chg   = prev ? ((price - prev) / prev * 100) : 0;
+                updateTicker(niftyEl, 'NIFTY', price.toFixed(2), chg, chg >= 0);
+            } catch(e) {}
+        };
+        xn.send();
+    }
+    // SENSEX
+    if (sensexEl) {
+        var xs = new XMLHttpRequest();
+        xs.open('GET', 'https://query1.finance.yahoo.com/v8/finance/chart/%5EBSESN?interval=1d&range=2d', true);
+        xs.timeout = 8000;
+        xs.onload = function() {
+            try {
+                var d = JSON.parse(xs.responseText);
+                var meta = d.chart.result[0].meta;
+                var price = meta.regularMarketPrice;
+                var prev  = meta.chartPreviousClose;
+                var chg   = prev ? ((price - prev) / prev * 100) : 0;
+                updateTicker(sensexEl, 'SENSEX', price.toFixed(2), chg, chg >= 0);
+            } catch(e) {}
+        };
+        xs.send();
+    }
+}
+
+var marketStrip = document.getElementById('bc-market-strip');
+if (marketStrip) {
+    fetchCrypto();
+    fetchIndices();
+    setInterval(fetchCrypto, 60000);
+    setInterval(fetchIndices, 60000);
+}
+
+/* ---- Part 3: Native Notification Popup ---- */
+(function() {
+    var popup = document.getElementById('bc-notif-popup');
+    if (!popup) return;
+
+    function getCookie(name) {
+        var m = document.cookie.match('(?:^|;)\\s*' + name + '=([^;]*)');
+        return m ? m[1] : null;
+    }
+    function setCookie(name, val, days) {
+        var d = new Date();
+        d.setTime(d.getTime() + days * 86400000);
+        document.cookie = name + '=' + val + ';expires=' + d.toUTCString() + ';path=/';
+    }
+
+    if (getCookie('bc_push_shown')) return;
+
+    var shown = false;
+    function showPopup() {
+        if (shown) return;
+        shown = true;
+        popup.classList.add('bc-notif-visible');
+    }
+
+    // Trigger on 40% scroll depth
+    window.addEventListener('scroll', function onScroll() {
+        var scrolled = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+        if (scrolled > 0.4) {
+            showPopup();
+            window.removeEventListener('scroll', onScroll);
+        }
+    }, { passive: true });
+
+    // Trigger on 25s session time
+    setTimeout(showPopup, 25000);
+
+    // Allow button
+    var allowBtn = document.getElementById('bc-notif-allow');
+    if (allowBtn) {
+        allowBtn.addEventListener('click', function() {
+            setCookie('bc_push_shown', '1', 7);
+            popup.classList.remove('bc-notif-visible');
+            if (window.OneSignal) {
+                OneSignal.push(function() {
+                    OneSignal.registerForPushNotifications();
+                });
+            }
+        });
+    }
+
+    // Dismiss button
+    var dismissBtn = document.getElementById('bc-notif-dismiss');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', function() {
+            setCookie('bc_push_shown', '1', 7);
+            popup.classList.remove('bc-notif-visible');
+        });
+    }
+})();
+
+/* ---- Part 5: Composer "More Options" Button ---- */
+(function() {
+    function injectComposerMoreBtn() {
+        var footer = document.querySelector('.pub-footer-upper');
+        if (!footer || footer.querySelector('.bc-composer-more-btn')) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bc-composer-more-btn';
+        btn.innerHTML = '••• More';
+        btn.onclick = function() {
+            footer.classList.toggle('bc-composer-expanded');
+            btn.innerHTML = footer.classList.contains('bc-composer-expanded') ? '‹ Less' : '••• More';
+        };
+        footer.appendChild(btn);
+    }
+    // Inject when composer opens
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('[data-target="#tagPostBox"], .tag_pub_box_bg_camlve, .tag_pub_box_bg_text')) {
+            setTimeout(injectComposerMoreBtn, 200);
+        }
+    });
+    // Also try on modal shown
+    document.addEventListener('shown.bs.modal', function(e) {
+        if (e.target && e.target.id === 'tagPostBox') { injectComposerMoreBtn(); }
+    });
+    if (typeof $ !== 'undefined') {
+        $(document).on('shown.bs.modal', '#tagPostBox', injectComposerMoreBtn);
+    }
+})();
+
+/* ---- Part 8: Like Bounce Animation ---- */
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.post_react_btn, .wow_react_btn, [data-type="reaction"], .like_post_btn, .wo_like_btn');
+    if (btn) {
+        var icon = btn.querySelector('svg, img, span');
+        var target = icon || btn;
+        target.classList.remove('bc-liked-bounce');
+        void target.offsetWidth; // reflow to restart animation
+        target.classList.add('bc-liked-bounce');
+        setTimeout(function() { target.classList.remove('bc-liked-bounce'); }, 500);
+    }
+}, { passive: true });
+
+/* ---- Part 11: Mobile Bottom Nav Active State ---- */
+(function() {
+    var nav = document.getElementById('bc-mobile-nav');
+    if (!nav) return;
+    var items = nav.querySelectorAll('.bc-mob-nav-item');
+    var href = window.location.href;
+    items.forEach(function(item) {
+        var itemHref = item.getAttribute('href') || item.getAttribute('data-href') || '';
+        if (itemHref && itemHref !== '#' && href.indexOf(itemHref) !== -1) {
+            item.classList.add('bc-mob-active');
+        }
+    });
+    // Home special case
+    var homeItem = nav.querySelector('.bc-mob-home');
+    if (homeItem && (href.match(/\/index\.php$/) || href.match(/\/$/) || href.match(/link1=home/))) {
+        nav.querySelectorAll('.bc-mob-nav-item').forEach(function(i) { i.classList.remove('bc-mob-active'); });
+        homeItem.classList.add('bc-mob-active');
+    }
+})();
+
+})();

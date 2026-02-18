@@ -1130,3 +1130,67 @@ Only extend existing modules.
 - `container.phtml` connects properly with `ping_for_lastseen` events
 - pm2 process `bitchat-socket` running and stable
 - Online user count uses 60-second `lastseen` window — standard WoWonder behavior
+
+---
+
+## Frontend UI Master Improvement Plan — 11 Parts
+**Status:** [x] All 11 parts completed (2026-02-18)
+
+### Part 1: Landing Hero
+**Status:** [x] Completed
+- Hero section added to welcome page with "Earn. Create. Trade." headline, badge, tagline, stats row
+- Files: `themes/wondertag/layout/welcome/content-simple.phtml`, `custom/css/style.css`
+
+### Part 2: Market Strip Ticker
+**Status:** [x] Completed
+- Live BTC/ETH/NIFTY/SENSEX ticker bar auto-refreshing every 60s
+- Files: `layout/container.phtml`, `custom/js/footer.js`, `custom/css/style.css`
+
+### Part 3: Native Notification Popup
+**Status:** [x] Completed
+- Custom branded popup replaces OneSignal native prompt
+- Triggers on 40% scroll depth or 25s, cookie-gated 7 days
+- Files: `layout/container.phtml`, `custom/js/footer.js`, `custom/css/style.css`
+
+### Part 4: Feed Tabs
+**Status:** [x] Completed
+- For You / Trading / Creators / Following tab bar above home feed
+- Files: `layout/home/content.phtml`, `custom/css/style.css`
+
+### Part 5: Simplified Post Composer
+**Status:** [x] Completed
+- Shows only Image/Video by default, "More Options" toggle reveals rest
+- Files: `custom/js/footer.js`, `custom/css/style.css`
+
+### Part 6: Right Sidebar TRDC Card + Trending Tags
+**Status:** [x] Completed
+- TRDC Earnings Card showing live balance with wallet link
+- Styled trending tags widget with pill buttons
+- Files: `layout/sidebar/content.phtml`, `custom/css/style.css`
+
+### Part 7: Chat Offline Banner Fix
+**Status:** [x] Completed
+- Hidden via CSS selector targeting WoWonder offline banner classes
+- Files: `custom/css/style.css`
+
+### Part 8: Micro UX Animations
+**Status:** [x] Completed
+- Post fade-in on load, like button bounce, card hover lift, enhanced skeleton shimmer
+- Files: `custom/css/style.css`, `custom/js/footer.js`
+
+### Part 9: Nav Cleanup
+**Status:** [x] Completed
+- Hidden Games/Movies/Offers/Memories/Common Things/Funding from sidebar nav via CSS
+- Pure CSS — fully reversible, items accessible via Explore page
+- Files: `custom/css/style.css`
+
+### Part 10: Psychological Activation Greeting
+**Status:** [x] Completed
+- Market/trading themed greeting messages replacing generic time-of-day greetings
+- Files: `layout/home/content.phtml`
+
+### Part 11: Mobile Sticky Bottom Navigation Bar
+**Status:** [x] Completed
+- X/Instagram-style 5-tab bottom nav (Home|Create|Notifications|Messages|Profile)
+- Visible on mobile ≤900px, auto-highlights active tab
+- Files: `layout/container.phtml`, `custom/css/style.css`, `custom/js/footer.js`
