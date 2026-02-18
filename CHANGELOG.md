@@ -4,6 +4,63 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ---
 
+## 2026-02-17
+
+### Feature: Creator Growth Stats (Step 12)
+- Added 3 growth stat cards to creator dashboard: Reach Score, Invited Users, Total Engagement
+- Extended `Wo_GetCreatorStats()` with `reach_score`, `invited_users`, `total_engagement` fields
+- **Files:** `assets/includes/functions_creator.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Leaderboard Page (Step 13)
+- Created `/leaderboard` page with 3 tabs: Top Creators, Top Inviters, Top TRDC Earners
+- Medal icons (gold/silver/bronze) for top 3 in each category
+- Route added in `index.php`, `ajax_loading.php`, `.htaccess`, `nginx.conf`
+- Sidebar navigation link added
+- **Files:** `sources/leaderboard.php` (NEW), `themes/wondertag/layout/leaderboard/content.phtml` (NEW), `index.php`, `ajax_loading.php`, `.htaccess`, `nginx.conf`, `themes/wondertag/layout/sidebar/left-sidebar.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Creator Rank Badges (Step 14)
+- `Wo_GetCreatorRank()` — composite score: engagement + posts*2 + invites*10 + followers*3
+- 4 tiers: Rising Star (green, <200), Contributor (blue, 200+), Influencer (purple, 800+), Champion (gold, 2000+)
+- Rank badge displayed in creator dashboard header
+- **Files:** `assets/includes/functions_creator.php`, `sources/creator_dashboard.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Announcement Banner System (Step 16)
+- Admin panel page: enable/disable, text, URL, background color, text color, live preview
+- XHR handler with admin-only access, URL validation via `filter_var()`, color sanitization via regex
+- Site-wide banner after header with sessionStorage-based dismiss (per session)
+- 5 config rows added to `Wo_Config`
+- **Files:** `admin-panel/pages/announcement-banner/content.phtml` (NEW), `xhr/announcement_banner.php` (NEW), `themes/wondertag/layout/container.phtml`, `admin-panel/autoload.php`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Invite Button Exposure (Step 17)
+- Left sidebar: "Invite & Earn" navigation link
+- Creator dashboard: "Invite & Earn" button in header actions
+- Right sidebar: Compact Invite & Earn widget between creators widget and trending hashtags
+- **Files:** `themes/wondertag/layout/sidebar/left-sidebar.phtml`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/layout/sidebar/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Fix: Session GC Lifetime Alignment
+- **Problem:** `.user.ini` had `session.gc_maxlifetime = 14400` (4 hours) conflicting with `assets/init.php`'s 30-day session config. PHP garbage collector could destroy sessions prematurely.
+- **Fix:** Changed `.user.ini` `session.gc_maxlifetime` to `2592000` (30 days) to match init.php.
+- **Files:** `.user.ini`
+
+### Fix: Notification Settings Bug (functions_one.php)
+- **Problem 1:** Line 2870 had `= !1` (assignment to false) instead of `!= 1` (comparison). This silently disabled page-liked notifications for all users.
+- **Problem 2:** Empty `notification_settings` fallback was `array()` — meaning new users with no settings got zero notifications.
+- **Fix:** Corrected `= !1` → `!= 1`. Changed fallback to all-enabled defaults (`e_liked=1, e_shared=1, e_commented=1, e_followed=1, e_accepted=1, e_mentioned=1, e_joined_group=1, e_liked_page=1, e_visited=1, e_profile_wall_post=1, e_memory=1`).
+- **Files:** `assets/includes/functions_one.php`
+
+### UI: Removed TRDC Post Cost from Publisher
+- Removed "Post Cost in TRDC (min 10 TRDC)" input field and "Buy TRDC Now" dropdown from post composer
+- **Files:** `themes/wondertag/layout/story/publisher-box.phtml`
+
+### Database: Missing Tables & Config Sync
+- Created `Wo_Ghost_Queue` table (post_id, actor_user_id, action_type, action_data, execute_at, executed_at, status)
+- Created `Wo_TRDC_Rewards` table (user_id, milestone_key, amount, reason, created_at)
+- Inserted 5 `announcement_banner_*` config rows into `Wo_Config`
+- Changed `affiliate_type` from `0` to `1` (enabled invite & earn system)
+- Flushed Redis cache
+
+---
+
 ## 2026-02-16
 
 ### Feature: Bitchat Growth & Technical Improvement Index (11 Topics)

@@ -508,3 +508,395 @@ Three PHP 8.2 strict typing issues causing fatal errors that abort page renderin
 - `Wo_GetCreatorStats()` — new `total_views` field via `SUM(post_views)`
 - Creator dashboard — "Total Reach" stat card with purple accent
 - **Files:** `sources/story.php`, `xhr/posts.php`, `themes/wondertag/layout/story/includes/footer.phtml`, `assets/includes/functions_creator.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `sql/002_phase4_retention.sql`
+
+
+follow step-by-step without breaking the platform.
+
+This is **NOT priority theory**.
+This is the **SAFE BUILD SEQUENCE** so changes don’t conflict with login, referrals, or feed logic.
+
+---
+
+# ✅ BITCHAT — CODER TASK ORDER SHEET
+
+*(Follow in exact order)*
+
+---
+
+# 🔴 PHASE 1 — STABILITY FIRST (DO NOT SKIP)
+
+👉 Nothing growth-related should be touched before this.
+
+## Step 1 — Fix Session & Login System
+
+Coder tasks:
+
+* Fix session expired popup
+* Fix login button closing dialog instead of logging in
+* Verify cookie lifetime
+* Verify HTTPS secure cookies
+* Sync PHP session + NodeJS auth
+
+✅ Expected result:
+Users stay logged in reliably.
+
+---
+
+## Step 2 — Fix Online User Tracking
+
+* Update last_activity timestamp correctly
+* Check cron jobs
+* Fix websocket presence updates
+
+✅ Admin dashboard must not show **0 online users**.
+
+---
+
+## Step 3 — Notification & Cron Reliability
+
+* Verify cronjob execution frequency
+* Fix delayed notifications
+* Confirm queue processing
+
+⚠️ Referral rewards depend on cron stability.
+
+---
+
+# 🟠 PHASE 2 — REFERRAL FOUNDATION
+
+(Only after login stability)
+
+---
+
+## Step 4 — Referral Tracking Persistence
+
+* Save referrer_id permanently in DB
+* Referral survives logout/session reset
+* Cookie lifetime ≥ 30 days
+* Validate referral link parsing
+
+✅ Test:
+User signs up → logs out → logs in → referral still exists.
+
+---
+
+## Step 5 — Anti-Abuse Base Rules
+
+Before rewards go live:
+
+* block self-referrals
+* block same IP rewards
+* exclude admin/fake users
+
+⚠️ Do BEFORE enabling rewards.
+
+---
+
+## Step 6 — Rename Affiliate UI
+
+(Language edits only)
+
+Change:
+
+* Affiliates → Invite & Earn
+* Commission → Reward
+
+Safe cosmetic change.
+
+---
+
+# 🟡 PHASE 3 — TRDC CONNECTION
+
+(Now economy becomes active)
+
+---
+
+## Step 7 — Affiliate Earnings → TRDC Wallet
+
+* Remove separate affiliate balance usage
+* Auto-credit TRDC wallet
+
+Test flow:
+Referral signup → TRDC credited.
+
+---
+
+## Step 8 — Referral Stats Panel
+
+Add UI box:
+
+* invited users
+* rewards earned
+* invite link + copy button
+
+(No backend redesign.)
+
+---
+
+# 🟢 PHASE 4 — FEED & CREATOR MOMENTUM
+
+(Now growth behavior begins)
+
+---
+
+## Step 9 — New Creator Boost Logic
+
+Modify feed query:
+
+```
+IF account_age < 7 days → increase ranking weight
+```
+
+Also boost first 3 posts.
+
+---
+
+## Step 10 — Zero Engagement Protection
+
+If post has no reactions after X minutes:
+
+* trigger minimal engagement.
+
+Prevents psychological drop-off.
+
+---
+
+## Step 11 — TRDC Post Boost Button
+
+Add:
+“Boost Post with TRDC”
+
+Effect:
+Temporary feed priority multiplier.
+
+---
+
+# 🔵 PHASE 5 — VISIBILITY & COMPETITION
+
+(Platform starts self-promotion)
+
+---
+
+## Step 12 — Creator Growth Stats
+**Status:** [x] Completed
+
+Add dashboard section:
+
+* reach score
+* invited users
+* engagement count
+
+**Implementation:**
+- Added 3 growth stat cards to creator dashboard: Reach Score, Invited Users, Total Engagement
+- Extended `Wo_GetCreatorStats()` with `reach_score`, `invited_users`, `total_engagement` fields
+- **Files:** `assets/includes/functions_creator.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Step 13 — Leaderboard Page
+**Status:** [x] Completed
+
+Auto-generate:
+
+* top creators
+* top inviters
+* top TRDC earners
+
+**Implementation:**
+- Created `/leaderboard` page with 3 tabs: Top Creators (by engagement), Top Inviters (by referrals), Top Earners (by TRDC wallet)
+- Medal icons (gold/silver/bronze) for top 3 in each category
+- Route added in `index.php`, `.htaccess`, `nginx.conf`
+- Sidebar link added in left sidebar navigation
+- **Files:** `sources/leaderboard.php` (NEW), `themes/wondertag/layout/leaderboard/content.phtml` (NEW), `index.php`, `ajax_loading.php`, `.htaccess`, `nginx.conf`, `themes/wondertag/layout/sidebar/left-sidebar.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Step 14 — Creator Rank Badges
+**Status:** [x] Completed
+
+Auto-assign ranks based on:
+
+* engagement
+* activity
+* referrals
+
+**Implementation:**
+- `Wo_GetCreatorRank()` function calculates rank from composite score (engagement + posts*2 + invites*10 + followers*3)
+- 4 tiers: Rising Star (green), Contributor (blue), Influencer (purple), Champion (gold)
+- Rank badge displayed next to Creator badge in dashboard header
+- **Files:** `assets/includes/functions_creator.php`, `sources/creator_dashboard.php`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+# 🟣 PHASE 6 — MOMENTUM POLISH
+
+(Only after everything works)
+
+---
+
+## Step 15 — Ghost Activity Timing
+**Status:** [x] Completed
+
+* Randomize engagement delay
+* Avoid instant reactions
+
+**Implementation:**
+- Already implemented in Topic 7 (Ghost Activity Layer)
+- Configurable min/max delay (default 300s-360s minimum), randomized per reaction
+- New user welcome: shorter delay for first-time posters
+- Admin panel controls at Admin Panel > Ghost Activity
+- **Files:** `assets/includes/functions_ghost.php`, `xhr/ghost_activity.php`, `admin-panel/pages/ghost-activity/content.phtml`
+
+---
+
+## Step 16 — Announcement Banner System
+**Status:** [x] Completed
+
+Reusable banner controlled from admin panel.
+
+**Implementation:**
+- Admin panel page for banner management (enabled/disabled, text, URL, background color, text color)
+- Live preview in admin panel
+- Site-wide banner displayed after header with sessionStorage-based dismiss
+- XHR handler with admin-only access, URL validation, color sanitization
+- 5 config rows in `Wo_Config`: `announcement_banner_enabled`, `_text`, `_url`, `_bg`, `_color`
+- **Files:** `admin-panel/pages/announcement-banner/content.phtml` (NEW), `xhr/announcement_banner.php` (NEW), `themes/wondertag/layout/container.phtml`, `admin-panel/autoload.php`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Step 17 — Invite Button Exposure
+**Status:** [x] Completed
+
+Add shortcut:
+Sidebar + profile + creator dashboard.
+
+**Implementation:**
+- Left sidebar: Added "Invite & Earn" link in navigation
+- Creator dashboard: Added "Invite & Earn" button in header actions
+- Right sidebar: Added compact Invite & Earn widget between creators and trending hashtags
+- All buttons link to existing affiliate/invite page
+- **Files:** `themes/wondertag/layout/sidebar/left-sidebar.phtml`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/layout/sidebar/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+# ⚫ FINAL QA CHECKLIST (MANDATORY)
+
+Coder must test:
+
+* signup with referral ✔
+* logout/login ✔
+* TRDC reward credited ✔
+* boosted post appears higher ✔
+* leaderboard updates ✔
+* new user gets engagement ✔
+
+---
+
+# 📅 REALISTIC BUILD FLOW
+
+| Week   | Work                  |
+| ------ | --------------------- |
+| Week 1 | Stability fixes       |
+| Week 2 | Referral core         |
+| Week 3 | TRDC integration      |
+| Week 4 | Feed & creator boosts |
+| Week 5 | Leaderboards & ranks  |
+| Week 6 | Polish & testing      |
+
+---
+
+# 🚨 VERY IMPORTANT RULE
+
+Coder must **not**:
+
+* redesign UI globally
+* change database structure unnecessarily
+* rebuild affiliate system
+
+Only extend existing modules.
+
+---
+---
+
+# BITCHAT — ADDITIONAL TASKS (Post-Step 17)
+
+> Tasks performed after all 17 steps were completed.
+
+---
+
+## Task A1: Persistent Login — Always Stay Logged In
+**Status:** [x] Completed
+**Priority:** High
+**Requirement:** All users (current + future) stay logged in until manual logout.
+
+**Investigation:**
+- Login system already uses 10-year persistent cookies with rolling refresh across all login paths (standard, social, Google)
+- `Wo_IsLogged()` already refreshes cookie on every request
+
+**Fix Applied:**
+- `.user.ini`: Changed `session.gc_maxlifetime` from `14400` (4 hours) to `2592000` (30 days) to align with `assets/init.php` session config
+- **Files:** `.user.ini`
+
+---
+
+## Task A2: Messenger Always On
+**Status:** [x] Completed (No Code Change Needed)
+**Priority:** High
+**Requirement:** Messenger always on when users are online.
+
+**Investigation:**
+- `chatSystem=1` (enabled), `chat_request=all` (no approval needed), `user_lastseen=1` (online tracking active), `showlastseen` default=1
+- All settings already correctly configured in admin panel / database
+
+---
+
+## Task A3: Notifications Always On by Default
+**Status:** [x] Completed
+**Priority:** High
+**Requirement:** All notification types enabled by default for all users (current + future).
+
+**Fixes Applied:**
+1. **Bug fix** in `functions_one.php:2870`: `= !1` was an assignment (setting value to false) instead of comparison `!= 1` — fixed to `!= 1`
+2. **Default fallback**: Changed empty `notification_settings` fallback from `array()` (all off) to all-enabled defaults:
+   - `e_liked=1, e_shared=1, e_wondered=0, e_commented=1, e_followed=1, e_accepted=1, e_mentioned=1, e_joined_group=1, e_liked_page=1, e_visited=1, e_profile_wall_post=1, e_memory=1`
+3. DB column default already had all notifications enabled for new registrations
+- **Files:** `assets/includes/functions_one.php`
+
+---
+
+## Task A4: Remove Post Cost in TRDC from Publisher
+**Status:** [x] Completed
+**Priority:** Medium
+**Requirement:** Remove "Post Cost in TRDC (min 10 TRDC)" input and "Buy TRDC Now" dropdown from post composer UI.
+
+**Fix Applied:**
+- Removed the TRDC post cost input field and Buy TRDC Now dropdown from publisher-box.phtml
+- **Files:** `themes/wondertag/layout/story/publisher-box.phtml`
+
+---
+
+## Task A5: AI Credits System Verification
+**Status:** [x] Completed (No Code Change Needed)
+**Priority:** Medium
+**Requirement:** Verify AI credits system for post/image generation works correctly.
+
+**Investigation:**
+- Fully built-in WoWonder feature, configurable via Admin Panel > AI Settings
+- Current config: `credit_price=100`, `generated_image_price=100`, `generated_word_price=10`
+- Both credit systems enabled for all users
+- No code changes needed — all manageable from admin panel
+
+---
+
+## Task A6: Database Tables & Config Sync
+**Status:** [x] Completed
+**Priority:** Critical
+**Requirement:** Ensure all tables and config created in code exist on the live server.
+
+**Fixes Applied:**
+1. Created missing `Wo_Ghost_Queue` table (id, post_id, actor_user_id, action_type, action_data, execute_at, executed_at, status)
+2. Created missing `Wo_TRDC_Rewards` table (id, user_id, milestone_key, amount, reason, created_at)
+3. Inserted 5 `announcement_banner_*` config rows into `Wo_Config`
+4. Changed `affiliate_type` from `0` to `1` (enabled invite & earn system)
+5. Flushed Redis cache
+- **Files:** Database changes only (no code files modified)
