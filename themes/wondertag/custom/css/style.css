@@ -2146,8 +2146,29 @@ html.bc-dark-mode #bc-market-strip {
   padding: 0 3px;
   line-height: 1;
 }
+/* Remove any pseudo-elements that might create lines */
+#bc-mobile-nav::before,
+#bc-mobile-nav::after,
+.bc-mob-nav-item::before,
+.bc-mob-nav-item::after {
+  display: none !important;
+  content: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+/* Remove borders from SVG icons */
+.bc-mob-nav-item svg {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
 @media (max-width: 900px) {
-  #bc-mobile-nav { display: flex; }
+  #bc-mobile-nav {
+    display: flex;
+    border: 0 !important;
+    border-top: 0 !important;
+    box-shadow: 0 0 0 0 transparent !important;
+  }
   body { padding-bottom: 60px !important; }
   /* Hide existing WoWonder bottom mobile nav if any */
   .tag_bottom_nav { display: none !important; }
