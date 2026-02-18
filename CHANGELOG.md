@@ -4,6 +4,46 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ---
 
+## 2026-02-17
+
+### Feature: TRDC Usage Hint UI
+- Added "Use TRDC to boost posts, promote content & grow faster" text on wallet page and creator dashboard wallet card
+- **Files:** `themes/wondertag/layout/ads/wallet.phtml`, `themes/wondertag/layout/creator_dashboard/content.phtml`
+
+### Feature: Cron Job Execution Logging
+- Each cron run logged to `assets/logs/cron.log` with timestamp, duration, and sections executed
+- Auto-rotation keeps log under 500KB
+- **Files:** `cron-job.php`
+
+### Feature: Fake User Isolation
+- Fake/generated users (`src = 'Fake'`) excluded from leaderboard, growth dashboard analytics, TRDC rewards, and milestone processing
+- **Files:** `sources/leaderboard.php`, `admin-panel/pages/growth-intelligence/content.phtml`, `assets/includes/functions_trdc_rewards.php`
+
+### Feature: Invitation Code Analytics
+- Analytics summary cards on invitation codes admin page: Total/Used/Available codes, Referral Joins (7d)
+- Top Referrers table (top 10 by referral count)
+- **Files:** `admin-panel/pages/manage-invitation-keys/content.phtml`
+
+### Feature: Automated Backup Scheduler
+- Cron-based automated DB backups (mysqldump + gzip), configurable interval (12h/daily/weekly)
+- Auto-cleanup keeps last 7 backups
+- Admin UI on Backups page with enable/disable and interval settings
+- **Files:** `cron-job.php`, `admin-panel/pages/backups/content.phtml`, `xhr/auto_backup_settings.php` (NEW)
+
+### Feature: Admin Activity Log
+- New `Wo_LogAdminAction()` function logs admin actions to `assets/logs/admin_activity.log`
+- New admin page: Admin Panel > Bitchat Growth > Admin Activity Log
+- Color-coded action labels, auto-rotation (1MB max)
+- Integrated into: growth presets, banner settings, creator mode, TRDC freeze, backup settings
+- **Files:** `assets/includes/functions_admin_log.php` (NEW), `admin-panel/pages/admin-activity-log/content.phtml` (NEW), `assets/init.php`, `admin-panel/autoload.php`, plus 5 XHR handlers
+
+### Feature: TRDC Event Notifications
+- Referral joined notification: referrer notified when their invite signs up
+- Creator rank upgrade notification: creators notified on rank promotion (Rising Star → Contributor → Influencer → Champion)
+- **Files:** `xhr/register.php`, `assets/includes/functions_trdc_rewards.php`
+
+---
+
 ## 2026-02-18
 
 ### Feature: Growth Intelligence Dashboard (Admin)

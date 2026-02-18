@@ -7,11 +7,11 @@ $day_ago = $now - 86400;
 $today = date('Y-m-d');
 
 // Daily Active Users (last 24h)
-$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE `lastseen` > {$day_ago}");
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE `lastseen` > {$day_ago} AND `src` != 'Fake'");
 $dau = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
 
 // New Users Today
-$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE DATE(`registered`) = '{$today}'");
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE DATE(`registered`) = '{$today}' AND `src` != 'Fake'");
 $new_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
 
 // Posts Today
@@ -20,7 +20,7 @@ $posts_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
 
 // Referral Joins (7d)
 $week_ago = date('Y-m-d', strtotime('-7 days'));
-$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE `referrer` > 0 AND `registered` >= '{$week_ago}'");
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE `referrer` > 0 AND `registered` >= '{$week_ago}' AND `src` != 'Fake'");
 $ref_7d = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
 
 // === 7-DAY GROWTH CHART ===
@@ -28,7 +28,7 @@ $daily_users = array();
 $max_daily = 1;
 for ($i = 6; $i >= 0; $i--) {
     $d = date('Y-m-d', strtotime("-{$i} days"));
-    $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE DATE(`registered`) = '{$d}'");
+    $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE DATE(`registered`) = '{$d}' AND `src` != 'Fake'");
     $count = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
     $daily_users[] = array('date' => $d, 'label' => date('D', strtotime($d)), 'count' => $count);
     if ($count > $max_daily) $max_daily = $count;
@@ -47,7 +47,7 @@ if (mysqli_num_rows($q_check) > 0) {
 
 // Top 5 TRDC holders
 $top_earners = array();
-$q = mysqli_query($sqlConnect, "SELECT `user_id`, `username`, `wallet`, `avatar` FROM " . T_USERS . " WHERE `wallet` > 0 ORDER BY `wallet` DESC LIMIT 5");
+$q = mysqli_query($sqlConnect, "SELECT `user_id`, `username`, `wallet`, `avatar` FROM " . T_USERS . " WHERE `wallet` > 0 AND `src` != 'Fake' ORDER BY `wallet` DESC LIMIT 5");
 while ($r = mysqli_fetch_assoc($q)) { $top_earners[] = $r; }
 
 // === ENGAGEMENT HEALTH ===

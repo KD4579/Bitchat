@@ -13,7 +13,11 @@ if ($f == 'creator') {
     // Admin actions — always accessible regardless of creator_mode_enabled
     if ($action == 'save_settings' && Wo_IsAdmin()) {
         if (isset($_POST['creator_mode_enabled'])) {
-            Wo_SaveConfig('creator_mode_enabled', ($_POST['creator_mode_enabled'] == '1') ? '1' : '0');
+            $val = ($_POST['creator_mode_enabled'] == '1') ? '1' : '0';
+            Wo_SaveConfig('creator_mode_enabled', $val);
+            if (function_exists('Wo_LogAdminAction')) {
+                Wo_LogAdminAction('config_creator', "Creator mode " . ($val == '1' ? 'enabled' : 'disabled'));
+            }
         }
         header("Content-type: application/json");
         echo json_encode($data);
@@ -28,6 +32,9 @@ if ($f == 'creator') {
             Wo_UpdateUserData($userId, array('trdc_frozen' => '1'));
             // Also insert a config entry per user for the freeze
             mysqli_query($sqlConnect, "INSERT INTO " . T_CONFIG . " (`name`, `value`) VALUES ('trdc_frozen_{$userId}', '1') ON DUPLICATE KEY UPDATE `value` = '1'");
+            if (function_exists('Wo_LogAdminAction')) {
+                Wo_LogAdminAction('user_freeze_trdc', "Froze TRDC for user ID: {$userId}");
+            }
         } else {
             $data = array('status' => 400, 'message' => 'Invalid user ID');
         }

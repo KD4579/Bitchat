@@ -286,6 +286,17 @@ if ($f == 'register') {
             if (!empty($re_data['referrer']) && is_numeric($wo['config']['affiliate_level']) && $wo['config']['affiliate_level'] > 1) {
                 AddNewRef($re_data['referrer'], $r_id, $wo['config']['amount_ref']);
             }
+            // Notify referrer that their invite joined
+            if (!empty($re_data['referrer']) && function_exists('Wo_RegisterNotification')) {
+                $newUserName = !empty($_POST['first_name']) ? Wo_Secure($_POST['first_name']) : $_POST['username'];
+                Wo_RegisterNotification(array(
+                    'recipient_id' => intval($re_data['referrer']),
+                    'notifier_id'  => $r_id,
+                    'type'         => 'remaining',
+                    'text'         => htmlspecialchars($newUserName) . ' joined using your invite link!',
+                    'url'          => 'index.php?link1=timeline&u=' . $_POST['username']
+                ));
+            }
             if ($activate == 1 || ($wo['config']['sms_or_email'] == 'mail' && $activate != 1)) {
                 $wo['user'] = Wo_UserData($r_id);
                 if ($wo['config']['auto_username'] == 1) {

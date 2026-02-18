@@ -1,0 +1,57 @@
+<?php
+global $wo, $sqlConnect;
+
+if (!function_exists('Wo_GetAdminLog')) {
+    require_once __DIR__ . '/../../../assets/includes/functions_admin_log.php';
+}
+
+$entries = Wo_GetAdminLog(200);
+?>
+
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Admin Activity Log</h3>
+            <p class="text-muted">Track admin actions: config changes, preset switches, user moderation, reward edits, and more.</p>
+        </div>
+        <div class="panel-body">
+            <?php if (empty($entries)): ?>
+                <div class="alert alert-info">No admin activity recorded yet. Actions will appear here as admins make changes.</div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th style="width:150px;">Time</th>
+                                <th style="width:120px;">Admin</th>
+                                <th style="width:180px;">Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($entries as $entry): ?>
+                            <tr>
+                                <td style="white-space:nowrap;"><?php echo htmlspecialchars($entry['time']); ?></td>
+                                <td><?php echo htmlspecialchars($entry['admin']); ?></td>
+                                <td>
+                                    <?php
+                                    $badgeClass = 'default';
+                                    $a = $entry['action'];
+                                    if (strpos($a, 'config') !== false) $badgeClass = 'primary';
+                                    elseif (strpos($a, 'preset') !== false) $badgeClass = 'success';
+                                    elseif (strpos($a, 'user') !== false || strpos($a, 'creator') !== false) $badgeClass = 'warning';
+                                    elseif (strpos($a, 'backup') !== false) $badgeClass = 'info';
+                                    elseif (strpos($a, 'freeze') !== false || strpos($a, 'delete') !== false) $badgeClass = 'danger';
+                                    ?>
+                                    <span class="label label-<?php echo $badgeClass; ?>"><?php echo htmlspecialchars($entry['action']); ?></span>
+                                </td>
+                                <td><?php echo htmlspecialchars($entry['details']); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

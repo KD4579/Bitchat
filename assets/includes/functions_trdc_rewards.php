@@ -24,7 +24,7 @@ function Wo_ProcessMilestoneRewards() {
         $creatorFilter = "AND is_creator = 1";
     }
 
-    $users = mysqli_query($sqlConnect, "SELECT user_id FROM " . T_USERS . " WHERE active = '1' {$creatorFilter} LIMIT 500");
+    $users = mysqli_query($sqlConnect, "SELECT user_id FROM " . T_USERS . " WHERE active = '1' AND src != 'Fake' {$creatorFilter} LIMIT 500");
     if (!$users) return;
 
     $now = time();
@@ -40,6 +40,11 @@ function Wo_ProcessMilestoneRewards() {
             } elseif ($milestoneType == 'first_video_post') {
                 Wo_CheckFirstVideoMilestone($userId, $milestoneType, $rewardAmount);
             }
+        }
+
+        // Check for rank upgrade notification
+        if (function_exists('Wo_GetCreatorStats') && function_exists('Wo_GetCreatorRank')) {
+            Wo_CheckRankUpgrade($userId);
         }
     }
 }
@@ -119,6 +124,12 @@ function Wo_AwardTRDC($userId, $amount, $reason, $milestoneType, $postId = 0) {
     $now           = time();
 
     if ($userId <= 0 || $amount <= 0) return false;
+
+    // Skip fake/generated users
+    $srcCheck = mysqli_query($sqlConnect, "SELECT src FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1");
+    if ($srcCheck && ($srcRow = mysqli_fetch_assoc($srcCheck)) && $srcRow['src'] === 'Fake') {
+        return false;
+    }
 
     $reasonSafe    = mysqli_real_escape_string($sqlConnect, $reason);
     $milestoneSafe = mysqli_real_escape_string($sqlConnect, $milestoneType);
@@ -270,4 +281,54 @@ function Wo_GetMilestoneProgress($userId) {
     }
 
     return $progress;
+}
+
+/**
+ * Check if a creator's rank has upgraded and send a notification.
+ * Stores the last known rank in config to avoid duplicate notifications.
+ */
+function Wo_CheckRankUpgrade($userId) {
+    global $sqlConnect, $wo;
+
+    $userId = intval($userId);
+    $configKey = "creator_rank_{$userId}";
+
+    // Get stored rank
+    $storedRank = '';
+    $q = mysqli_query($sqlConnect, "SELECT `value` FROM " . T_CONFIG . " WHERE `name` = '{$configKey}' LIMIT 1");
+    if ($q && $r = mysqli_fetch_assoc($q)) {
+        $storedRank = $r['value'];
+    }
+
+    // Get current rank
+    $stats = function_exists('Wo_GetCreatorStats') ? Wo_GetCreatorStats($userId) : array();
+    if (empty($stats)) return;
+
+    $rankInfo = Wo_GetCreatorRank($stats);
+    $currentRank = $rankInfo['rank'];
+
+    if (empty($storedRank)) {
+        // First time — store rank, no notification
+        mysqli_query($sqlConnect, "INSERT INTO " . T_CONFIG . " (`name`, `value`) VALUES ('{$configKey}', '" . mysqli_real_escape_string($sqlConnect, $currentRank) . "') ON DUPLICATE KEY UPDATE `value` = '" . mysqli_real_escape_string($sqlConnect, $currentRank) . "'");
+        return;
+    }
+
+    if ($storedRank !== $currentRank) {
+        // Rank changed — determine if it's an upgrade
+        $rankOrder = array('Rising Star' => 1, 'Contributor' => 2, 'Influencer' => 3, 'Champion' => 4);
+        $oldLevel = $rankOrder[$storedRank] ?? 0;
+        $newLevel = $rankOrder[$currentRank] ?? 0;
+
+        if ($newLevel > $oldLevel && function_exists('Wo_RegisterNotification')) {
+            Wo_RegisterNotification(array(
+                'recipient_id' => $userId,
+                'type'         => 'remaining',
+                'text'         => "Congratulations! You've been promoted to {$currentRank} rank!",
+                'url'          => 'index.php?link1=creator-dashboard'
+            ));
+        }
+
+        // Update stored rank
+        mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . mysqli_real_escape_string($sqlConnect, $currentRank) . "' WHERE `name` = '{$configKey}'");
+    }
 }

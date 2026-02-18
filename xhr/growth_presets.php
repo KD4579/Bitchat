@@ -49,6 +49,9 @@ if ($f == 'growth_presets') {
         }
         // Track active preset
         Wo_SaveConfig('growth_active_preset', $preset);
+        if (function_exists('Wo_LogAdminAction')) {
+            Wo_LogAdminAction('preset_applied', "Applied growth preset: {$preset}");
+        }
     }
 
     header("Content-type: application/json");

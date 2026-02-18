@@ -2,7 +2,28 @@
 require_once('assets/init.php');
 
 mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'cronjob_last_run'");
+
+// Execution logging
+$_cron_log = [];
+$_cron_start = microtime(true);
+$_cron_log_file = __DIR__ . '/assets/logs/cron.log';
+function _cron_log_section($name) {
+    global $_cron_log, $_cron_start;
+    $_cron_log[] = $name;
+}
+function _cron_log_write() {
+    global $_cron_log, $_cron_start, $_cron_log_file;
+    $elapsed = round((microtime(true) - $_cron_start) * 1000);
+    $line = date('Y-m-d H:i:s') . " | {$elapsed}ms | sections: " . implode(', ', $_cron_log);
+    @file_put_contents($_cron_log_file, $line . "\n", FILE_APPEND | LOCK_EX);
+    // Keep log file under 500KB
+    if (@filesize($_cron_log_file) > 512000) {
+        $lines = file($_cron_log_file);
+        file_put_contents($_cron_log_file, implode('', array_slice($lines, -200)));
+    }
+}
 // ********** Pro Users **********
+_cron_log_section('pro_users');
 $users = $db->where('is_pro','1')->where('admin','0')->ArrayBuilder()->get(T_USERS);
 foreach ($users as $key => $value) {
 	$wo["user"] = Wo_UserData($value['user_id']);
@@ -112,6 +133,7 @@ foreach ($users as $key => $value) {
 // ********** Pro Users **********
 
 // ********** Stories **********
+_cron_log_section('stories');
 $expired_stories = $db->where("expire", time(), "<")->get(T_USER_STORY);
 if (!empty($expired_stories)) {
 	foreach ($expired_stories as $key => $value) {
@@ -124,6 +146,7 @@ if (!empty($expired_stories)) {
 // ********** Stories **********
 
 // ********** Notifications **********
+_cron_log_section('notifications');
 if ($wo["config"]["last_notification_delete_run"] <= time() - 60 * 60 * 24) {
     mysqli_multi_query($sqlConnect, " DELETE FROM " . T_NOTIFICATION . " WHERE `time` < " . (time() - 60 * 60 * 24 * 5) . " AND `seen` <> 0");
     mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'last_notification_delete_run'");
@@ -184,12 +207,14 @@ if (!empty($posts)) {
 // ********** Live **********
 
 // ********** Spam Tracking Cleanup **********
+_cron_log_section('spam_cleanup');
 if (function_exists('Wo_CleanupSpamTracking')) {
     Wo_CleanupSpamTracking();
 }
 // ********** Spam Tracking Cleanup **********
 
 // ********** Scheduled Posts **********
+_cron_log_section('scheduled_posts');
 if (!empty($wo['config']['scheduled_posts_enabled']) && $wo['config']['scheduled_posts_enabled'] == '1') {
     if (function_exists('Wo_PublishScheduledPosts')) {
         Wo_PublishScheduledPosts();
@@ -198,6 +223,7 @@ if (!empty($wo['config']['scheduled_posts_enabled']) && $wo['config']['scheduled
 // ********** Scheduled Posts **********
 
 // ********** Ghost Activity **********
+_cron_log_section('ghost_activity');
 if (!empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_activity_enabled'] == '1') {
     if (function_exists('Wo_ProcessGhostQueue')) {
         Wo_ProcessGhostQueue();
@@ -210,16 +236,65 @@ if (!empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_acti
 // ********** Ghost Activity **********
 
 // ********** TRDC Boost Expiry Cleanup **********
+_cron_log_section('trdc_boost_expiry');
 @mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET trdc_boosted = 0 WHERE trdc_boosted = 1 AND trdc_boost_expires <= " . time());
 // ********** TRDC Boost Expiry Cleanup **********
 
 // ********** TRDC Creator Rewards **********
+_cron_log_section('trdc_rewards');
 if (!empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
     if (function_exists('Wo_ProcessMilestoneRewards')) {
         Wo_ProcessMilestoneRewards();
     }
 }
 // ********** TRDC Creator Rewards **********
+
+// ********** Automated Backup **********
+_cron_log_section('auto_backup');
+if (!empty($wo['config']['auto_backup_enabled']) && $wo['config']['auto_backup_enabled'] == '1') {
+    $lastAutoBackup = !empty($wo['config']['auto_backup_last_run']) ? intval($wo['config']['auto_backup_last_run']) : 0;
+    $backupInterval = !empty($wo['config']['auto_backup_interval']) ? intval($wo['config']['auto_backup_interval']) : 86400; // daily default
+
+    if (time() - $lastAutoBackup >= $backupInterval) {
+        $backupDir = __DIR__ . '/script_backups/';
+        if (!is_dir($backupDir)) @mkdir($backupDir, 0755, true);
+
+        // DB-only backup
+        $dbHost = $wo['config']['db_host'] ?? 'localhost';
+        $dbName = $wo['config']['db_name'] ?? '';
+        $dbUser = $wo['config']['db_user'] ?? '';
+        $dbPass = $wo['config']['db_password'] ?? '';
+
+        // Use config constants if available
+        if (defined('DB_HOST')) $dbHost = DB_HOST;
+        if (defined('DB_NAME')) $dbName = DB_NAME;
+        if (defined('DB_USER')) $dbUser = DB_USER;
+        if (defined('DB_PASS')) $dbPass = DB_PASS;
+
+        $backupFile = $backupDir . 'auto_db_' . date('Y-m-d_His') . '.sql.gz';
+        $cmd = sprintf('mysqldump --single-transaction -h %s -u %s -p%s %s | gzip > %s 2>/dev/null',
+            escapeshellarg($dbHost),
+            escapeshellarg($dbUser),
+            escapeshellarg($dbPass),
+            escapeshellarg($dbName),
+            escapeshellarg($backupFile)
+        );
+        @exec($cmd);
+
+        // Cleanup old auto backups (keep last 7)
+        $autoBackups = glob($backupDir . 'auto_db_*.sql.gz');
+        if (count($autoBackups) > 7) {
+            usort($autoBackups, function($a, $b) { return filemtime($a) - filemtime($b); });
+            $toDelete = array_slice($autoBackups, 0, count($autoBackups) - 7);
+            foreach ($toDelete as $old) @unlink($old);
+        }
+
+        mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'auto_backup_last_run'");
+    }
+}
+// ********** Automated Backup **********
+
+_cron_log_write();
 
 header("Content-type: application/json");
 echo json_encode(["status" => 200, "message" => "success"]);

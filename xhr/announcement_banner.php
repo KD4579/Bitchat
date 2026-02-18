@@ -48,6 +48,10 @@ if ($f == 'announcement_banner') {
         Wo_SaveConfig('announcement_banner_end', $end);
     }
 
+    if (function_exists('Wo_LogAdminAction')) {
+        Wo_LogAdminAction('config_banner', 'Updated announcement banner settings');
+    }
+
     header("Content-type: application/json");
     echo json_encode($data);
     exit();

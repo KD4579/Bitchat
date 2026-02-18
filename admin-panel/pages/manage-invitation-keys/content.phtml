@@ -1,3 +1,29 @@
+<?php
+// Invitation analytics
+$_inv_total = 0; $_inv_used = 0;
+$_inv_q = @mysqli_query($sqlConnect, "SELECT COUNT(*) as total, SUM(CASE WHEN `status` = 'used' THEN 1 ELSE 0 END) as used_count FROM " . T_ADMIN_INVITATIONS);
+if ($_inv_q && $_inv_r = mysqli_fetch_assoc($_inv_q)) {
+    $_inv_total = (int)$_inv_r['total'];
+    $_inv_used = (int)$_inv_r['used_count'];
+}
+$_inv_unused = $_inv_total - $_inv_used;
+
+// Top referrers
+$_top_referrers = array();
+$_ref_q = mysqli_query($sqlConnect, "SELECT u2.referrer AS ref_id, u1.username, u1.name, COUNT(*) AS ref_count
+    FROM " . T_USERS . " u2
+    JOIN " . T_USERS . " u1 ON u2.referrer = u1.user_id
+    WHERE u2.referrer > 0 AND u1.src != 'Fake'
+    GROUP BY u2.referrer ORDER BY ref_count DESC LIMIT 10");
+if ($_ref_q) {
+    while ($_ref_r = mysqli_fetch_assoc($_ref_q)) { $_top_referrers[] = $_ref_r; }
+}
+
+// Recent referral joins (7d)
+$_recent_joins = 0;
+$_rj_q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE referrer > 0 AND registered >= '" . date('Y-m-d', strtotime('-7 days')) . "' AND src != 'Fake'");
+if ($_rj_q && $_rj_r = mysqli_fetch_assoc($_rj_q)) { $_recent_joins = (int)$_rj_r['c']; }
+?>
 <div class="container-fluid">
     <div>
         <h3>Invitation Codes</h3>
@@ -13,6 +39,60 @@
             </ol>
         </nav>
     </div>
+
+    <!-- Analytics Summary -->
+    <div class="row" style="margin-bottom:20px;">
+        <div class="col-md-3">
+            <div class="card" style="text-align:center;padding:20px;">
+                <h4 style="margin:0;color:#3b82f6;"><?php echo $_inv_total; ?></h4>
+                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Total Codes</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="text-align:center;padding:20px;">
+                <h4 style="margin:0;color:#22c55e;"><?php echo $_inv_used; ?></h4>
+                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Used Codes</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="text-align:center;padding:20px;">
+                <h4 style="margin:0;color:#f59e0b;"><?php echo $_inv_unused; ?></h4>
+                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Available Codes</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="text-align:center;padding:20px;">
+                <h4 style="margin:0;color:#8b5cf6;"><?php echo $_recent_joins; ?></h4>
+                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Referral Joins (7d)</p>
+            </div>
+        </div>
+    </div>
+
+    <?php if (!empty($_top_referrers)): ?>
+    <div class="row" style="margin-bottom:20px;">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Top Referrers</h6>
+                    <table class="table table-bordered table-striped">
+                        <thead><tr><th>#</th><th>User</th><th>Username</th><th>Referrals</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($_top_referrers as $_ri => $_ref): ?>
+                            <tr>
+                                <td><?php echo $_ri + 1; ?></td>
+                                <td><?php echo htmlspecialchars($_ref['name']); ?></td>
+                                <td>@<?php echo htmlspecialchars($_ref['username']); ?></td>
+                                <td><strong><?php echo $_ref['ref_count']; ?></strong></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div class="row">
         <div class="col-lg-12 col-md-12">
             <div class="card">

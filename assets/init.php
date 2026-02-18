@@ -39,3 +39,4 @@ require_once('includes/functions_scheduled.php');
 require_once('includes/functions_ghost.php');
 require_once('includes/functions_creator.php');
 require_once('includes/functions_trdc_rewards.php');
+require_once('includes/functions_admin_log.php');

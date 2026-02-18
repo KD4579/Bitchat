@@ -1016,3 +1016,117 @@ Only extend existing modules.
 4. `assets/logs` dir permissions fixed
 5. Inserted 5 new config rows: `ghost_activity_max_per_hour`, `ghost_activity_ratio_cap`, `announcement_banner_start`, `announcement_banner_end`, `growth_active_preset`
 6. Redis cache flushed
+
+---
+---
+
+# BITCHAT — MASTER SPRINT REMAINING TASKS (C-Series)
+
+> Completing the remaining 8 tasks from the 27-task Master Developer Sprint Plan.
+
+---
+
+## Task C1: TRDC Usage Hint UI
+**Status:** [x] Completed
+**Priority:** Low (Task 10 from Master Plan)
+
+**Implementation:**
+- Added hint text "Use TRDC to boost posts, promote content & grow faster" below wallet balance on wallet page
+- Added hint text on creator dashboard wallet card
+- **Files:** `themes/wondertag/layout/ads/wallet.phtml`, `themes/wondertag/layout/creator_dashboard/content.phtml`
+
+---
+
+## Task C2: Cron Job Execution Logging
+**Status:** [x] Completed
+**Priority:** Medium (Task 4 from Master Plan)
+
+**Implementation:**
+- Added execution logging system to `cron-job.php`
+- Logs each run with timestamp, duration (ms), and sections executed
+- Output written to `assets/logs/cron.log`
+- Auto-rotation: keeps log under 500KB (trims to last 200 lines)
+- Sections tracked: pro_users, stories, notifications, spam_cleanup, scheduled_posts, ghost_activity, trdc_boost_expiry, trdc_rewards, auto_backup
+- **Files:** `cron-job.php`
+
+---
+
+## Task C3: Fake User Isolation from Rewards/Rankings
+**Status:** [x] Completed
+**Priority:** High (Task 22 from Master Plan)
+
+**Implementation:**
+- WoWonder's fake user generator marks users with `src = 'Fake'` in the database
+- Added `AND src != 'Fake'` / `AND u.src != 'Fake'` filters to:
+  - Leaderboard queries (all 3 tabs: creators, inviters, earners)
+  - Growth Intelligence Dashboard (DAU, new users, referrals, daily chart, top earners)
+  - TRDC milestone reward processing (`Wo_ProcessMilestoneRewards`)
+  - TRDC award function (`Wo_AwardTRDC`) — skips fake users entirely
+- **Files:** `sources/leaderboard.php`, `admin-panel/pages/growth-intelligence/content.phtml`, `assets/includes/functions_trdc_rewards.php`
+
+---
+
+## Task C4: Invitation Code Analytics
+**Status:** [x] Completed
+**Priority:** Medium (Task 24 from Master Plan)
+
+**Implementation:**
+- Added analytics summary cards to invitation codes admin page: Total Codes, Used Codes, Available Codes, Referral Joins (7d)
+- Added Top Referrers table (top 10 users by referral count, excludes fake users)
+- **Files:** `admin-panel/pages/manage-invitation-keys/content.phtml`
+
+---
+
+## Task C5: Automated Backup Scheduler
+**Status:** [x] Completed
+**Priority:** High (Task 25 from Master Plan)
+
+**Implementation:**
+- Added automated backup section to cron-job.php (runs based on configurable interval)
+- DB-only backup via `mysqldump | gzip` to `script_backups/auto_db_*.sql.gz`
+- Auto-cleanup: keeps last 7 backups, deletes older ones
+- Admin panel UI added to Backups page: enable/disable toggle, interval selection (12h/daily/weekly)
+- Shows last auto backup timestamp
+- XHR handler for saving auto backup settings
+- **Files:** `cron-job.php`, `admin-panel/pages/backups/content.phtml`, `xhr/auto_backup_settings.php` (NEW)
+
+---
+
+## Task C6: Admin Activity Log
+**Status:** [x] Completed
+**Priority:** High (Task 27 from Master Plan)
+
+**Implementation:**
+- New `Wo_LogAdminAction()` function — logs admin actions to `assets/logs/admin_activity.log`
+- Log format: `timestamp | admin_username | action_type | details`
+- Auto-rotation: keeps log under 1MB (trims to last 500 lines)
+- New admin panel page at Admin Panel > Bitchat Growth > Admin Activity Log
+- Color-coded action labels (config=blue, preset=green, user=yellow, backup=cyan, freeze/delete=red)
+- Logging integrated into: growth presets, announcement banner, creator mode toggle, TRDC freeze, auto backup settings
+- **Files:** `assets/includes/functions_admin_log.php` (NEW), `admin-panel/pages/admin-activity-log/content.phtml` (NEW), `assets/init.php`, `admin-panel/autoload.php`, `xhr/growth_presets.php`, `xhr/announcement_banner.php`, `xhr/creator.php`, `xhr/auto_backup_settings.php`
+
+---
+
+## Task C7: TRDC Event Notifications
+**Status:** [x] Completed
+**Priority:** Medium (Task 12 from Master Plan)
+
+**Implementation:**
+- **Referral joined notification:** When a new user signs up via referral link, the referrer gets a notification: "[Name] joined using your invite link!"
+- **Creator rank upgrade notification:** `Wo_CheckRankUpgrade()` tracks each creator's rank in config, sends notification on promotion (e.g., "You've been promoted to Influencer rank!")
+- Rank tracking stored per-user in config (`creator_rank_{userId}`) to avoid duplicate notifications
+- Only upgrades trigger notification (not downgrades)
+- **Files:** `xhr/register.php`, `assets/includes/functions_trdc_rewards.php`
+
+---
+
+## Task C8: NodeJS WebSocket Verified Working
+**Status:** [x] Completed (No Code Change Needed)
+**Priority:** High (Task 2 from Master Plan)
+
+**Investigation:**
+- Socket.io server responds on port 449 with SSL
+- `node_socket_flow=1` in database config
+- `container.phtml` connects properly with `ping_for_lastseen` events
+- pm2 process `bitchat-socket` running and stable
+- Online user count uses 60-second `lastseen` window — standard WoWonder behavior
