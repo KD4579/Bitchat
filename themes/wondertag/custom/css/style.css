@@ -1778,13 +1778,12 @@ html.bc-dark-mode #bc-market-strip {
   font-size: 18px;
   line-height: 1;
 }
-.bc-ticker-loading { color: rgba(255,255,255,0.3); font-size: 14px; }
+.bc-ticker-loading { display: none; }
 @media (max-width: 500px) {
   #bc-market-strip { font-size: 14px; height: 36px; }
   .bc-ticker-sep { margin-right: 12px; font-size: 16px; }
   .bc-ticker-change { margin-right: 12px; font-size: 13px; }
   .bc-ticker-label { font-size: 12px; }
-  .bc-ticker-loading { font-size: 12px; }
 }
 
 /* ============================================================

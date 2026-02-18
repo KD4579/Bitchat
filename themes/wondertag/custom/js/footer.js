@@ -177,9 +177,6 @@ function fetchCrypto() {
                     var bnbC = d.binancecoin.inr_24h_change || 0;
                     updateTicker(bnbEl, 'BNB', bnbP, bnbC, bnbC >= 0);
                 }
-                // Hide "Loading markets…" once crypto data arrives
-                var loadEl = document.querySelector('#bc-market-strip .bc-ticker-loading');
-                if (loadEl) loadEl.style.display = 'none';
             } catch(e) {}
         }
     };
