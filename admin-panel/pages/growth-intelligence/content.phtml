@@ -1,0 +1,261 @@
+<?php
+global $wo, $sqlConnect;
+
+// === KEY METRICS ===
+$now = time();
+$day_ago = $now - 86400;
+$today = date('Y-m-d');
+
+// Daily Active Users (last 24h)
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE `lastseen` > {$day_ago}");
+$dau = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+
+// New Users Today
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE DATE(`registered`) = '{$today}'");
+$new_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+
+// Posts Today
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_POSTS . " WHERE `time` > {$day_ago}");
+$posts_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+
+// Referral Joins (7d)
+$week_ago = date('Y-m-d', strtotime('-7 days'));
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE `referrer` > 0 AND `registered` >= '{$week_ago}'");
+$ref_7d = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+
+// === 7-DAY GROWTH CHART ===
+$daily_users = array();
+$max_daily = 1;
+for ($i = 6; $i >= 0; $i--) {
+    $d = date('Y-m-d', strtotime("-{$i} days"));
+    $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE DATE(`registered`) = '{$d}'");
+    $count = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+    $daily_users[] = array('date' => $d, 'label' => date('D', strtotime($d)), 'count' => $count);
+    if ($count > $max_daily) $max_daily = $count;
+}
+
+// === TRDC ECONOMY ===
+$q = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(`wallet`), 0) as total FROM " . T_USERS);
+$trdc_total = ($r = mysqli_fetch_assoc($q)) ? floatval($r['total']) : 0;
+
+$trdc_issued_today = 0;
+$q_check = mysqli_query($sqlConnect, "SHOW TABLES LIKE 'Wo_TRDC_Rewards'");
+if (mysqli_num_rows($q_check) > 0) {
+    $q = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(`amount`), 0) as total FROM Wo_TRDC_Rewards WHERE DATE(`created_at`) = '{$today}'");
+    $trdc_issued_today = ($r = mysqli_fetch_assoc($q)) ? floatval($r['total']) : 0;
+}
+
+// Top 5 TRDC holders
+$top_earners = array();
+$q = mysqli_query($sqlConnect, "SELECT `user_id`, `username`, `wallet`, `avatar` FROM " . T_USERS . " WHERE `wallet` > 0 ORDER BY `wallet` DESC LIMIT 5");
+while ($r = mysqli_fetch_assoc($q)) { $top_earners[] = $r; }
+
+// === ENGAGEMENT HEALTH ===
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_Reactions WHERE `time` > {$day_ago}");
+$reactions_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_Comments WHERE `time` > {$day_ago}");
+$comments_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_UserStory WHERE `expire` > UNIX_TIMESTAMP()");
+$stories_active = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+
+// === REFERRAL CHART (7d) ===
+$daily_refs = array();
+$max_ref = 1;
+for ($i = 6; $i >= 0; $i--) {
+    $d = date('Y-m-d', strtotime("-{$i} days"));
+    $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE `referrer` > 0 AND DATE(`registered`) = '{$d}'");
+    $count = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+    $daily_refs[] = array('date' => $d, 'label' => date('D', strtotime($d)), 'count' => $count);
+    if ($count > $max_ref) $max_ref = $count;
+}
+
+// === GHOST ACTIVITY STATS ===
+$ghost_today = 0;
+$q_check = mysqli_query($sqlConnect, "SHOW TABLES LIKE 'Wo_Ghost_Queue'");
+if (mysqli_num_rows($q_check) > 0) {
+    $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_Ghost_Queue WHERE `status` = 'executed' AND DATE(`executed_at`) = '{$today}'");
+    $ghost_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+}
+?>
+
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Growth Intelligence Dashboard</h3>
+            <p class="text-muted">Real-time founder metrics for Bitchat growth tracking.</p>
+        </div>
+    </div>
+</div>
+
+<!-- KEY METRICS -->
+<div class="col-md-3">
+    <div class="card" style="border-left:4px solid #4e73df;">
+        <div class="card-body" style="padding:20px;">
+            <h6 class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;">Daily Active Users</h6>
+            <h2 style="font-weight:700;color:#4e73df;margin:5px 0;"><?php echo number_format($dau); ?></h2>
+            <small class="text-muted">Last 24 hours</small>
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <div class="card" style="border-left:4px solid #1cc88a;">
+        <div class="card-body" style="padding:20px;">
+            <h6 class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;">New Users Today</h6>
+            <h2 style="font-weight:700;color:#1cc88a;margin:5px 0;"><?php echo number_format($new_today); ?></h2>
+            <small class="text-muted"><?php echo $today; ?></small>
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <div class="card" style="border-left:4px solid #36b9cc;">
+        <div class="card-body" style="padding:20px;">
+            <h6 class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;">Posts Today</h6>
+            <h2 style="font-weight:700;color:#36b9cc;margin:5px 0;"><?php echo number_format($posts_today); ?></h2>
+            <small class="text-muted">Last 24 hours</small>
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <div class="card" style="border-left:4px solid #f6c23e;">
+        <div class="card-body" style="padding:20px;">
+            <h6 class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;">Referral Joins (7d)</h6>
+            <h2 style="font-weight:700;color:#f6c23e;margin:5px 0;"><?php echo number_format($ref_7d); ?></h2>
+            <small class="text-muted">Last 7 days</small>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>
+
+<!-- 7-DAY CHARTS -->
+<div class="col-md-6">
+    <div class="card" style="margin-top:15px;">
+        <div class="card-body" style="padding:20px;">
+            <h6 style="font-weight:600;margin-bottom:15px;">New Users (7 days)</h6>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:120px;">
+                <?php foreach ($daily_users as $day): ?>
+                <div style="flex:1;text-align:center;">
+                    <small style="font-size:10px;color:#666;"><?php echo $day['count']; ?></small>
+                    <div style="background:#4e73df;border-radius:4px 4px 0 0;min-height:4px;height:<?php echo max(4, round(($day['count'] / $max_daily) * 100)); ?>px;margin:2px auto;width:80%;"></div>
+                    <small style="font-size:10px;color:#999;"><?php echo $day['label']; ?></small>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-6">
+    <div class="card" style="margin-top:15px;">
+        <div class="card-body" style="padding:20px;">
+            <h6 style="font-weight:600;margin-bottom:15px;">Referral Joins (7 days)</h6>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:120px;">
+                <?php foreach ($daily_refs as $day): ?>
+                <div style="flex:1;text-align:center;">
+                    <small style="font-size:10px;color:#666;"><?php echo $day['count']; ?></small>
+                    <div style="background:#f6c23e;border-radius:4px 4px 0 0;min-height:4px;height:<?php echo max(4, round(($day['count'] / $max_ref) * 100)); ?>px;margin:2px auto;width:80%;"></div>
+                    <small style="font-size:10px;color:#999;"><?php echo $day['label']; ?></small>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>
+
+<!-- TRDC ECONOMY -->
+<div class="col-md-12" style="margin-top:15px;">
+    <div class="card">
+        <div class="card-body" style="padding:20px;">
+            <h6 style="font-weight:600;margin-bottom:15px;">TRDC Economy</h6>
+            <div class="row">
+                <div class="col-md-3">
+                    <div style="text-align:center;padding:15px;background:#f8f9fc;border-radius:8px;">
+                        <h3 style="font-weight:700;color:#5a5c69;margin:0;"><?php echo number_format($trdc_total, 2); ?></h3>
+                        <small class="text-muted">Total TRDC in Circulation</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div style="text-align:center;padding:15px;background:#f8f9fc;border-radius:8px;">
+                        <h3 style="font-weight:700;color:#1cc88a;margin:0;"><?php echo number_format($trdc_issued_today, 2); ?></h3>
+                        <small class="text-muted">TRDC Issued Today</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div style="text-align:center;padding:15px;background:#f8f9fc;border-radius:8px;">
+                        <h3 style="font-weight:700;color:#e74a3b;margin:0;"><?php echo number_format($ghost_today); ?></h3>
+                        <small class="text-muted">Ghost Actions Today</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div style="text-align:center;padding:15px;background:#f8f9fc;border-radius:8px;">
+                        <h3 style="font-weight:700;color:#36b9cc;margin:0;"><?php echo number_format($stories_active); ?></h3>
+                        <small class="text-muted">Active Stories</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>
+
+<!-- ENGAGEMENT HEALTH + TOP EARNERS -->
+<div class="col-md-6" style="margin-top:15px;">
+    <div class="card">
+        <div class="card-body" style="padding:20px;">
+            <h6 style="font-weight:600;margin-bottom:15px;">Engagement Health (24h)</h6>
+            <div class="row">
+                <div class="col-xs-4" style="text-align:center;">
+                    <h3 style="font-weight:700;color:#e74a3b;margin:0;"><?php echo number_format($reactions_today); ?></h3>
+                    <small class="text-muted">Reactions</small>
+                </div>
+                <div class="col-xs-4" style="text-align:center;">
+                    <h3 style="font-weight:700;color:#4e73df;margin:0;"><?php echo number_format($comments_today); ?></h3>
+                    <small class="text-muted">Comments</small>
+                </div>
+                <div class="col-xs-4" style="text-align:center;">
+                    <h3 style="font-weight:700;color:#1cc88a;margin:0;"><?php echo number_format($posts_today); ?></h3>
+                    <small class="text-muted">Posts</small>
+                </div>
+            </div>
+            <?php
+            $total_engagement = $reactions_today + $comments_today + $posts_today;
+            $engagement_per_user = ($dau > 0) ? round($total_engagement / $dau, 1) : 0;
+            ?>
+            <hr>
+            <div style="text-align:center;">
+                <strong><?php echo $engagement_per_user; ?></strong> <small class="text-muted">engagement actions per active user</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-6" style="margin-top:15px;">
+    <div class="card">
+        <div class="card-body" style="padding:20px;">
+            <h6 style="font-weight:600;margin-bottom:15px;">Top TRDC Holders</h6>
+            <?php if (empty($top_earners)): ?>
+                <p class="text-muted">No TRDC balances yet.</p>
+            <?php else: ?>
+                <table class="table table-sm" style="margin:0;">
+                    <thead><tr><th>#</th><th>User</th><th style="text-align:right;">TRDC Balance</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($top_earners as $i => $u): ?>
+                        <tr>
+                            <td><?php echo $i + 1; ?></td>
+                            <td><?php echo htmlspecialchars($u['username']); ?></td>
+                            <td style="text-align:right;font-weight:600;"><?php echo number_format(floatval($u['wallet']), 2); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>

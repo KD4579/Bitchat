@@ -38,6 +38,26 @@
                     </div>
                 </div>
 
+                <hr>
+                <h5>Safety Limits</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Max Ghost Reactions Per Hour</label>
+                            <input type="number" name="ghost_activity_max_per_hour" class="form-control" value="<?php echo $wo['config']['ghost_activity_max_per_hour'] ?? 10; ?>" min="1" max="100">
+                            <small class="text-muted">Maximum ghost reactions that can execute per hour (prevents over-inflation)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Ghost-to-Real Ratio Cap (%)</label>
+                            <input type="number" name="ghost_activity_ratio_cap" class="form-control" value="<?php echo $wo['config']['ghost_activity_ratio_cap'] ?? 30; ?>" min="5" max="100">
+                            <small class="text-muted">Ghost reactions cannot exceed this % of total real reactions (daily). Default: 30%</small>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Save Settings</button>
             </form>
 
@@ -136,7 +156,9 @@ $('#ghost-activity-form').on('submit', function(e) {
         ghost_activity_enabled: form.find('[name=ghost_activity_enabled]').val(),
         ghost_activity_accounts: form.find('[name=ghost_activity_accounts]').val(),
         ghost_activity_min_delay: form.find('[name=ghost_activity_min_delay]').val(),
-        ghost_activity_max_delay: form.find('[name=ghost_activity_max_delay]').val()
+        ghost_activity_max_delay: form.find('[name=ghost_activity_max_delay]').val(),
+        ghost_activity_max_per_hour: form.find('[name=ghost_activity_max_per_hour]').val(),
+        ghost_activity_ratio_cap: form.find('[name=ghost_activity_ratio_cap]').val()
     }, function(data) {
         if (data.status == 200) {
             Wo_ShowNotifications('success', 'Settings saved successfully');

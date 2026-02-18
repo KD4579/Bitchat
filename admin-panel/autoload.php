@@ -86,6 +86,8 @@ $pages = array(
     'announcement-banner',
     'trdc-rewards',
     'creator-mode',
+    'growth-intelligence',
+    'growth-presets',
     'manage-genders',
     'pages-categories',
     'groups-categories',
@@ -1530,7 +1532,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                         </a>
                     </li>
                     <?php if ($is_admin) { ?>
-                    <li <?php echo in_array($page, ['feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','creator-mode']) ? 'class="open"' : ''; ?>>
+                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','creator-mode']) ? 'class="open"' : ''; ?>>
                         <a href="#">
                             <span class="nav-link-icon">
                                 <i class="material-icons">trending_up</i>
@@ -1538,6 +1540,12 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             <span>Bitchat Growth</span>
                         </a>
                         <ul class="ml-menu">
+                            <li>
+                                <a <?php echo ($page == 'growth-intelligence') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('growth-intelligence'); ?>" data-ajax="?path=growth-intelligence"><strong>Growth Dashboard</strong></a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'growth-presets') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('growth-presets'); ?>" data-ajax="?path=growth-presets"><strong>Growth Presets</strong></a>
+                            </li>
                             <li>
                                 <a <?php echo ($page == 'feed-algorithm') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('feed-algorithm'); ?>" data-ajax="?path=feed-algorithm">Feed Algorithm</a>
                             </li>

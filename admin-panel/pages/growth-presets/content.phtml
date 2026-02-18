@@ -1,0 +1,106 @@
+<?php
+global $wo, $sqlConnect;
+
+// Current active preset (stored in config)
+$activePreset = $wo['config']['growth_active_preset'] ?? 'custom';
+?>
+
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Growth Mode Presets</h3>
+            <p class="text-muted">One-click presets to configure multiple growth settings at once. Each preset adjusts feed algorithm, ghost activity, TRDC rewards, and creator boosts together.</p>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel <?php echo $activePreset == 'creator_growth' ? 'panel-success' : 'panel-default'; ?>" style="cursor:pointer;" onclick="applyPreset('creator_growth')">
+                        <div class="panel-body text-center" style="padding:30px 20px;">
+                            <h3 style="color:#22c55e;margin-bottom:5px;">Creator Growth Week</h3>
+                            <p class="text-muted" style="font-size:12px;margin-bottom:15px;">Boost creator visibility and engagement rewards</p>
+                            <ul style="text-align:left;font-size:13px;list-style:none;padding:0;">
+                                <li>Feed algorithm: ON</li>
+                                <li>Creator boost weight: +5.0</li>
+                                <li>Ghost activity: ON (short delay)</li>
+                                <li>TRDC rewards: ON (2x multiplier)</li>
+                            </ul>
+                            <?php if ($activePreset == 'creator_growth'): ?>
+                                <span class="label label-success" style="font-size:12px;">ACTIVE</span>
+                            <?php else: ?>
+                                <button class="btn btn-success btn-sm" type="button">Activate</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel <?php echo $activePreset == 'referral_boost' ? 'panel-warning' : 'panel-default'; ?>" style="cursor:pointer;" onclick="applyPreset('referral_boost')">
+                        <div class="panel-body text-center" style="padding:30px 20px;">
+                            <h3 style="color:#f59e0b;margin-bottom:5px;">Referral Boost Week</h3>
+                            <p class="text-muted" style="font-size:12px;margin-bottom:15px;">Maximize invite & earn visibility</p>
+                            <ul style="text-align:left;font-size:13px;list-style:none;padding:0;">
+                                <li>Affiliate system: ON</li>
+                                <li>Announcement banner: ON (invite CTA)</li>
+                                <li>Ghost activity: ON (welcome mode)</li>
+                                <li>New user boost: +3.0 in feed</li>
+                            </ul>
+                            <?php if ($activePreset == 'referral_boost'): ?>
+                                <span class="label label-warning" style="font-size:12px;">ACTIVE</span>
+                            <?php else: ?>
+                                <button class="btn btn-warning btn-sm" type="button">Activate</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel <?php echo $activePreset == 'engagement_boost' ? 'panel-info' : 'panel-default'; ?>" style="cursor:pointer;" onclick="applyPreset('engagement_boost')">
+                        <div class="panel-body text-center" style="padding:30px 20px;">
+                            <h3 style="color:#3b82f6;margin-bottom:5px;">Engagement Boost Week</h3>
+                            <p class="text-muted" style="font-size:12px;margin-bottom:15px;">Maximize reactions, comments, and stories</p>
+                            <ul style="text-align:left;font-size:13px;list-style:none;padding:0;">
+                                <li>Feed algorithm: ON (engagement-heavy)</li>
+                                <li>Ghost activity: ON (max coverage)</li>
+                                <li>Story boost: +3.0 in feed</li>
+                                <li>Media bonus: +4.0 in feed</li>
+                            </ul>
+                            <?php if ($activePreset == 'engagement_boost'): ?>
+                                <span class="label label-info" style="font-size:12px;">ACTIVE</span>
+                            <?php else: ?>
+                                <button class="btn btn-info btn-sm" type="button">Activate</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <div class="text-center">
+                <button class="btn btn-default" type="button" onclick="applyPreset('custom')">Reset to Custom (Manual Settings)</button>
+                <p class="text-muted" style="margin-top:8px;font-size:12px;">Resetting returns all settings to their current manual values. Presets only change config flags — they do not overwrite manual settings permanently.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function applyPreset(preset) {
+    if (!confirm('Apply the "' + preset.replace('_', ' ') + '" preset? This will update multiple growth settings at once.')) return;
+
+    $.ajax({
+        url: Wo_Ajax_Requests_File() + '?f=growth_presets',
+        type: 'POST',
+        data: { preset: preset },
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                Wo_ShowNotifications('success', 'Preset "' + preset.replace('_', ' ') + '" applied successfully');
+                setTimeout(function() { window.location.reload(); }, 1000);
+            } else {
+                Wo_ShowNotifications('error', data.message || 'Failed to apply preset');
+            }
+        },
+        error: function() {
+            Wo_ShowNotifications('error', 'Request failed');
+        }
+    });
+}
+</script>

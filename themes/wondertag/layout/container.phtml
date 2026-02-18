@@ -821,7 +821,18 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				<?php echo Wo_LoadPage('header/content'); ?>
 			</header>
 
-			<?php if (!empty($wo['config']['announcement_banner_enabled']) && $wo['config']['announcement_banner_enabled'] == '1' && !empty($wo['config']['announcement_banner_text'])): ?>
+			<?php
+			$_bc_banner_show = (!empty($wo['config']['announcement_banner_enabled']) && $wo['config']['announcement_banner_enabled'] == '1' && !empty($wo['config']['announcement_banner_text']));
+			// Check schedule
+			if ($_bc_banner_show) {
+				$_bc_now = date('Y-m-d\TH:i');
+				$_bc_start = $wo['config']['announcement_banner_start'] ?? '';
+				$_bc_end = $wo['config']['announcement_banner_end'] ?? '';
+				if (!empty($_bc_start) && $_bc_now < $_bc_start) $_bc_banner_show = false;
+				if (!empty($_bc_end) && $_bc_now > $_bc_end) $_bc_banner_show = false;
+			}
+			?>
+			<?php if ($_bc_banner_show): ?>
 			<?php
 				$_bc_banner_bg = !empty($wo['config']['announcement_banner_bg']) ? htmlspecialchars($wo['config']['announcement_banner_bg']) : '#1d9bf0';
 				$_bc_banner_color = !empty($wo['config']['announcement_banner_color']) ? htmlspecialchars($wo['config']['announcement_banner_color']) : '#ffffff';

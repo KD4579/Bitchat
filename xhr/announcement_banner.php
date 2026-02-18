@@ -33,6 +33,20 @@ if ($f == 'announcement_banner') {
         $color = preg_replace('/[^#a-fA-F0-9]/', '', $_POST['announcement_banner_color']);
         Wo_SaveConfig('announcement_banner_color', $color);
     }
+    if (isset($_POST['announcement_banner_start'])) {
+        $start = trim($_POST['announcement_banner_start']);
+        if (!empty($start) && !preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/', $start)) {
+            $start = '';
+        }
+        Wo_SaveConfig('announcement_banner_start', $start);
+    }
+    if (isset($_POST['announcement_banner_end'])) {
+        $end = trim($_POST['announcement_banner_end']);
+        if (!empty($end) && !preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/', $end)) {
+            $end = '';
+        }
+        Wo_SaveConfig('announcement_banner_end', $end);
+    }
 
     header("Content-type: application/json");
     echo json_encode($data);

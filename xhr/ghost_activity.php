@@ -26,6 +26,14 @@ if ($f == 'ghost_activity') {
         $max = max(360, intval($_POST['ghost_activity_max_delay']));
         Wo_SaveConfig('ghost_activity_max_delay', strval($max));
     }
+    if (isset($_POST['ghost_activity_max_per_hour'])) {
+        $mph = max(1, min(100, intval($_POST['ghost_activity_max_per_hour'])));
+        Wo_SaveConfig('ghost_activity_max_per_hour', strval($mph));
+    }
+    if (isset($_POST['ghost_activity_ratio_cap'])) {
+        $cap = max(5, min(100, intval($_POST['ghost_activity_ratio_cap'])));
+        Wo_SaveConfig('ghost_activity_ratio_cap', strval($cap));
+    }
 
     header("Content-type: application/json");
     echo json_encode($data);

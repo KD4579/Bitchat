@@ -20,6 +20,22 @@ if ($f == 'creator') {
         exit();
     }
 
+    if ($action == 'freeze_trdc' && Wo_IsAdmin()) {
+        $userId = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        if ($userId > 0) {
+            global $sqlConnect;
+            // Set a freeze flag — TRDC reward processing checks this
+            Wo_UpdateUserData($userId, array('trdc_frozen' => '1'));
+            // Also insert a config entry per user for the freeze
+            mysqli_query($sqlConnect, "INSERT INTO " . T_CONFIG . " (`name`, `value`) VALUES ('trdc_frozen_{$userId}', '1') ON DUPLICATE KEY UPDATE `value` = '1'");
+        } else {
+            $data = array('status' => 400, 'message' => 'Invalid user ID');
+        }
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
     if ($action == 'admin_toggle' && Wo_IsAdmin()) {
         $userId = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
         $enable = isset($_POST['enable']) ? ($_POST['enable'] == '1') : false;

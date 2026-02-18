@@ -151,7 +151,8 @@ $creatorCount = count($creators);
                             <th>User</th>
                             <th>Posts</th>
                             <th>Followers</th>
-                            <th style="width:100px;text-align:right;">Actions</th>
+                            <th>TRDC</th>
+                            <th style="width:200px;text-align:right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -174,7 +175,18 @@ $creatorCount = count($creators);
                             </td>
                             <td><strong><?php echo number_format(intval($c['post_count'])); ?></strong></td>
                             <td><strong><?php echo number_format(intval($c['follower_count'])); ?></strong></td>
+                            <td>
+                                <?php
+                                $wallet_val = 0;
+                                $wq = @mysqli_query($sqlConnect, "SELECT wallet FROM " . T_USERS . " WHERE user_id = " . intval($c['user_id']));
+                                if ($wq && $wr = mysqli_fetch_assoc($wq)) $wallet_val = floatval($wr['wallet']);
+                                ?>
+                                <strong><?php echo number_format($wallet_val, 2); ?></strong>
+                            </td>
                             <td style="text-align:right;">
+                                <button class="bcam-btn bcam-btn-sm" type="button" style="background:#fef3c7;color:#b45309;margin-right:4px;" onclick="bcamFreezeTRDC(<?php echo $c['user_id']; ?>, '<?php echo htmlspecialchars(addslashes($name)); ?>');" title="Freeze TRDC earning">
+                                    Freeze
+                                </button>
                                 <button class="bcam-btn bcam-btn-danger bcam-btn-sm" type="button" onclick="bcamRemove(<?php echo $c['user_id']; ?>, '<?php echo htmlspecialchars(addslashes($name)); ?>');">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                     Remove
@@ -237,6 +249,24 @@ function bcamGrant() {
                 setTimeout(function() { window.location.reload(); }, 800);
             } else {
                 bcamToast(data.message || 'Failed to grant creator status', 'error');
+            }
+        },
+        error: function() { bcamToast('Request failed', 'error'); }
+    });
+}
+
+function bcamFreezeTRDC(uid, name) {
+    if (!confirm('Freeze TRDC earning for ' + (name || 'user #' + uid) + '? They will not earn TRDC from milestones until unfrozen.')) return;
+    $.ajax({
+        url: Wo_Ajax_Requests_File() + '?f=creator',
+        type: 'POST',
+        data: { action: 'freeze_trdc', user_id: uid },
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                bcamToast('TRDC earning frozen for ' + (name || 'user #' + uid));
+            } else {
+                bcamToast(data.message || 'Failed to freeze', 'error');
             }
         },
         error: function() { bcamToast('Request failed', 'error'); }
