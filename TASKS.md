@@ -900,3 +900,119 @@ Only extend existing modules.
 4. Changed `affiliate_type` from `0` to `1` (enabled invite & earn system)
 5. Flushed Redis cache
 - **Files:** Database changes only (no code files modified)
+
+---
+---
+
+# BITCHAT — ADMIN CONTROL IMPROVEMENTS (Post-Audit)
+
+> Admin panel improvements based on founder-level audit. Focus: visibility, control, and safety at scale.
+
+---
+
+## Task B1: Fix System Status Warning
+**Status:** [x] Completed
+**Priority:** Critical
+
+**Root Cause:** `/xml` folder was not writable (777 permission required by WoWonder's `getStatus()` check).
+
+**Fixes Applied:**
+1. Created `/xml` directory with proper ownership and 777 permissions
+2. Installed `ffmpeg` and `ffprobe` (were missing — needed for video processing)
+3. Created `upload/stickers` directory (was missing)
+4. Fixed `assets/logs` directory permissions
+- **Result:** `getStatus()` now returns empty — "Important! errors" warning is gone
+
+---
+
+## Task B2: Online Users Display Verified
+**Status:** [x] Completed (No Code Change Needed)
+**Priority:** High
+
+**Investigation:**
+- `Wo_CountOnlineData()` uses 60-second window (`lastseen > time() - 60`) — shows truly active users
+- `lastseen` column IS being updated correctly — users are tracked
+- "0 online" simply means no user had a page request in the last 60 seconds (low-traffic moment)
+- When admin is browsing, their own requests update `lastseen`, showing at least 1
+- This is standard WoWonder behavior — working correctly
+
+---
+
+## Task B3: Growth Intelligence Dashboard
+**Status:** [x] Completed
+**Priority:** High
+
+**Implementation:**
+- New admin panel page at Admin Panel > Bitchat Growth > Growth Dashboard
+- **Key Metrics (4 cards):** Daily Active Users, New Users Today, Posts Today, Referral Joins (7d)
+- **7-Day Charts:** New users and referral joins bar charts (CSS, no JS library)
+- **TRDC Economy:** Total in circulation, issued today, ghost actions today, active stories
+- **Engagement Health:** Reactions, comments, posts (24h) + engagement per active user ratio
+- **Top TRDC Holders:** Top 5 users by wallet balance
+- **Files:** `admin-panel/pages/growth-intelligence/content.phtml` (NEW), `admin-panel/autoload.php`
+
+---
+
+## Task B4: Growth Mode Presets
+**Status:** [x] Completed
+**Priority:** Medium
+
+**Implementation:**
+- New admin panel page at Admin Panel > Bitchat Growth > Growth Presets
+- 3 one-click presets: Creator Growth Week, Referral Boost Week, Engagement Boost Week
+- Each preset configures multiple settings (feed algorithm, ghost activity, TRDC rewards, boosts)
+- Active preset indicator shown on each card
+- Reset to Custom button returns to manual settings
+- **Files:** `admin-panel/pages/growth-presets/content.phtml` (NEW), `xhr/growth_presets.php` (NEW), `admin-panel/autoload.php`
+
+---
+
+## Task B5: Ghost Activity Safety Limits
+**Status:** [x] Completed
+**Priority:** High
+
+**Implementation:**
+- Added 2 new controls to Ghost Activity admin page:
+  - **Max Ghost Reactions Per Hour** (default: 10, range 1-100) — prevents over-inflation
+  - **Ghost-to-Real Ratio Cap %** (default: 30%, range 5-100%) — ghost reactions cannot exceed this % of real reactions daily
+- Config stored in `ghost_activity_max_per_hour` and `ghost_activity_ratio_cap`
+- **Files:** `admin-panel/pages/ghost-activity/content.phtml`, `xhr/ghost_activity.php`
+
+---
+
+## Task B6: Creator Moderation Quick Actions
+**Status:** [x] Completed
+**Priority:** Medium
+
+**Implementation:**
+- Added TRDC wallet balance column to creator table in admin panel
+- Added "Freeze" button per creator — freezes TRDC earning (sets `trdc_frozen_{user_id}` config flag)
+- Existing "Remove" button already handles creator status removal
+- **Files:** `admin-panel/pages/creator-mode/content.phtml`, `xhr/creator.php`
+
+---
+
+## Task B7: Announcement Banner Scheduling
+**Status:** [x] Completed
+**Priority:** Medium
+
+**Implementation:**
+- Added Start Date and End Date (datetime-local) fields to announcement banner admin page
+- Banner auto-shows only within the scheduled window (server-side check in container.phtml)
+- Empty dates = immediate/no expiration (backwards compatible)
+- Config stored in `announcement_banner_start` and `announcement_banner_end`
+- **Files:** `admin-panel/pages/announcement-banner/content.phtml`, `xhr/announcement_banner.php`, `themes/wondertag/layout/container.phtml`
+
+---
+
+## Task B8: Server Infrastructure Fixes
+**Status:** [x] Completed
+**Priority:** Critical
+
+**Fixes Applied (server-side only):**
+1. `/xml` dir created with 777 permissions
+2. `ffmpeg` and `ffprobe` installed via apt
+3. `upload/stickers` dir created with proper ownership
+4. `assets/logs` dir permissions fixed
+5. Inserted 5 new config rows: `ghost_activity_max_per_hour`, `ghost_activity_ratio_cap`, `announcement_banner_start`, `announcement_banner_end`, `growth_active_preset`
+6. Redis cache flushed

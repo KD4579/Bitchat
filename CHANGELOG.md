@@ -4,6 +4,52 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ---
 
+## 2026-02-18
+
+### Feature: Growth Intelligence Dashboard (Admin)
+- New admin panel page: Admin Panel > Bitchat Growth > Growth Dashboard
+- Key metrics: Daily Active Users, New Users Today, Posts Today, Referral Joins (7d)
+- 7-day bar charts for new users and referral joins (CSS-only, no JS library)
+- TRDC Economy section: total in circulation, issued today, ghost actions today, active stories
+- Engagement Health: reactions/comments/posts (24h) + engagement per active user ratio
+- Top 5 TRDC holders table
+- **Files:** `admin-panel/pages/growth-intelligence/content.phtml` (NEW), `admin-panel/autoload.php`
+
+### Feature: Growth Mode Presets (Admin)
+- New admin panel page: Admin Panel > Bitchat Growth > Growth Presets
+- 3 one-click presets: Creator Growth Week, Referral Boost Week, Engagement Boost Week
+- Each preset configures feed algorithm + ghost activity + TRDC rewards + boost weights
+- Active preset indicator, Reset to Custom button
+- **Files:** `admin-panel/pages/growth-presets/content.phtml` (NEW), `xhr/growth_presets.php` (NEW), `admin-panel/autoload.php`
+
+### Feature: Ghost Activity Safety Limits
+- Max Ghost Reactions Per Hour (default: 10) — prevents artificial over-inflation
+- Ghost-to-Real Ratio Cap % (default: 30%) — ghost reactions cannot exceed % of real reactions
+- **Files:** `admin-panel/pages/ghost-activity/content.phtml`, `xhr/ghost_activity.php`
+
+### Feature: Creator Moderation Quick Actions
+- TRDC wallet balance column in creator admin table
+- "Freeze" button per creator — freezes TRDC earning via config flag
+- **Files:** `admin-panel/pages/creator-mode/content.phtml`, `xhr/creator.php`
+
+### Feature: Announcement Banner Scheduling
+- Start Date and End Date (datetime-local) fields added to banner admin page
+- Banner auto-shows/hides based on schedule (server-side check in container.phtml)
+- Empty dates = immediate/no expiration (backwards compatible)
+- **Files:** `admin-panel/pages/announcement-banner/content.phtml`, `xhr/announcement_banner.php`, `themes/wondertag/layout/container.phtml`
+
+### Fix: System Status Warning Resolved
+- **Root cause:** `/xml` folder not writable (required by WoWonder's `getStatus()`)
+- Created `/xml` dir with 777 permissions, installed `ffmpeg`/`ffprobe`, created `upload/stickers`, fixed `assets/logs` permissions
+- `getStatus()` now returns empty — dashboard warning gone
+
+### Server: New Config Rows
+- `ghost_activity_max_per_hour=10`, `ghost_activity_ratio_cap=30`
+- `announcement_banner_start=''`, `announcement_banner_end=''`
+- `growth_active_preset=custom`
+
+---
+
 ## 2026-02-17
 
 ### Feature: Creator Growth Stats (Step 12)
