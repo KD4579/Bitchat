@@ -2838,7 +2838,13 @@ function Wo_RegisterNotification($data = array()) {
         //     // ));
         // }
     } else {
-        $recipient['notification_settings'] = array();
+        // Default: all notifications enabled if settings are empty
+        $recipient['notification_settings'] = array(
+            'e_liked' => 1, 'e_shared' => 1, 'e_wondered' => 0,
+            'e_commented' => 1, 'e_followed' => 1, 'e_accepted' => 1,
+            'e_mentioned' => 1, 'e_joined_group' => 1, 'e_liked_page' => 1,
+            'e_visited' => 1, 'e_profile_wall_post' => 1, 'e_memory' => 1,
+        );
     }
     if (($data['type'] == 'liked_post' || $data['type'] == 'reaction') && $recipient['notification_settings']['e_liked'] != 1) {
         $send_notification = false;
@@ -2867,7 +2873,7 @@ function Wo_RegisterNotification($data = array()) {
     if ($data['type'] == 'joined_group' && $recipient['notification_settings']['e_joined_group'] != 1) {
         $send_notification = false;
     }
-    if ($data['type'] == 'liked_page' && $recipient['notification_settings']['e_liked_page'] = !1) {
+    if ($data['type'] == 'liked_page' && $recipient['notification_settings']['e_liked_page'] != 1) {
         $send_notification = false;
     }
     if ($data['type'] == 'profile_wall_post' && $recipient['notification_settings']['e_profile_wall_post'] != 1) {
