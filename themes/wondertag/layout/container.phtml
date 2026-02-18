@@ -812,30 +812,35 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php if ($wo['loggedin'] == true && $wo['page'] != 'welcome' && $wo['page'] != 'maintenance'): ?>
 		<!-- Part 2: Market Strip Ticker -->
 		<div id="bc-market-strip">
-			<span class="bc-ticker-loading">Loading markets…</span>
-			<span id="bc-tick-btc"></span>
-			<span class="bc-ticker-sep">|</span>
-			<span id="bc-tick-eth"></span>
-			<span class="bc-ticker-sep">|</span>
-			<span id="bc-tick-nifty"></span>
-			<span class="bc-ticker-sep">|</span>
-			<span id="bc-tick-sensex"></span>
+			<div class="bc-ticker-wrapper">
+				<span class="bc-ticker-loading">Loading markets…</span>
+				<span id="bc-tick-btc"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-eth"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-bnb"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-trdc"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-nifty"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-sensex"></span>
+			</div>
+			<div class="bc-ticker-wrapper" aria-hidden="true">
+				<span class="bc-ticker-loading">Loading markets…</span>
+				<span id="bc-tick-btc-clone"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-eth-clone"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-bnb-clone"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-trdc-clone"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-nifty-clone"></span>
+				<span class="bc-ticker-sep">|</span>
+				<span id="bc-tick-sensex-clone"></span>
+			</div>
 		</div>
-		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			var btcEl = document.getElementById('bc-tick-btc');
-			var ethEl = document.getElementById('bc-tick-eth');
-			var loadEl = document.querySelector('#bc-market-strip .bc-ticker-loading');
-			if ((btcEl && btcEl.innerHTML) || (ethEl && ethEl.innerHTML)) {
-				if (loadEl) loadEl.style.display = 'none';
-			}
-			// Hide loader once any ticker is populated
-			var stripObserver = new MutationObserver(function() {
-				if (btcEl && btcEl.innerHTML) { if (loadEl) loadEl.style.display = 'none'; }
-			});
-			if (btcEl) stripObserver.observe(btcEl, { childList: true, characterData: true, subtree: true });
-		});
-		</script>
 		<?php endif; ?>
 		<input type="hidden" id="get_no_posts_name" value="<?php echo($wo['lang']['no_more_posts']); ?>">
 		<?php $loadPage = Wo_LoadPage('thirdparty/theme-changer'); echo (!empty($loadPage)) ? $loadPage : '';?>

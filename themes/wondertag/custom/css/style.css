@@ -1717,24 +1717,46 @@ body.night_mode .bc-welcome-step-line {
   align-items: center;
   gap: 0;
   overflow: hidden;
-  height: 30px;
+  height: 39px;
   background: #0f1419;
   border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 0 16px;
-  font-size: 12px;
+  padding: 0;
+  font-size: 16px;
   font-family: var(--bc-font-body);
   white-space: nowrap;
-  z-index: 1050;
+  z-index: 10;
+  position: relative;
 }
 html:has(link#night-mode-css) #bc-market-strip,
 html.bc-dark-mode #bc-market-strip {
   background: #000;
 }
+
+/* Marquee animation wrapper */
+.bc-ticker-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  animation: bc-ticker-scroll 25s linear infinite;
+  white-space: nowrap;
+  padding: 0 20px;
+}
+.bc-ticker-wrapper[aria-hidden="true"] {
+  padding-left: 0;
+}
+#bc-market-strip:hover .bc-ticker-wrapper {
+  animation-play-state: paused;
+}
+@keyframes bc-ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 .bc-ticker-label {
   font-weight: 700;
   color: rgba(255,255,255,0.5);
   margin-right: 4px;
-  font-size: 11px;
+  font-size: 14px;
   text-transform: uppercase;
 }
 .bc-ticker-price {
@@ -1745,7 +1767,7 @@ html.bc-dark-mode #bc-market-strip {
 .bc-ticker-change {
   font-weight: 600;
   margin-right: 20px;
-  font-size: 11px;
+  font-size: 14px;
 }
 .bc-ticker-up { color: #00c853; }
 .bc-ticker-down { color: #ff5252; }
@@ -1753,14 +1775,16 @@ html.bc-dark-mode #bc-market-strip {
 .bc-ticker-sep {
   color: rgba(255,255,255,0.15);
   margin-right: 20px;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1;
 }
-.bc-ticker-loading { color: rgba(255,255,255,0.3); font-size: 11px; }
+.bc-ticker-loading { color: rgba(255,255,255,0.3); font-size: 14px; }
 @media (max-width: 500px) {
-  #bc-market-strip { font-size: 11px; gap: 0; padding: 0 8px; }
-  .bc-ticker-sep { margin-right: 10px; }
-  .bc-ticker-change { margin-right: 10px; }
+  #bc-market-strip { font-size: 14px; height: 36px; }
+  .bc-ticker-sep { margin-right: 12px; font-size: 16px; }
+  .bc-ticker-change { margin-right: 12px; font-size: 13px; }
+  .bc-ticker-label { font-size: 12px; }
+  .bc-ticker-loading { font-size: 12px; }
 }
 
 /* ============================================================
@@ -2070,7 +2094,6 @@ html.bc-dark-mode #bc-market-strip {
   right: 0;
   z-index: 1040;
   background: var(--bc-surface-primary);
-  border-top: var(--bc-border-default);
   height: 56px;
   justify-content: space-around;
   align-items: center;

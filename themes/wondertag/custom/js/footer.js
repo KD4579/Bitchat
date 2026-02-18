@@ -135,10 +135,16 @@ function updateTicker(el, label, price, change, isUp) {
     var arrow = isUp ? '▲' : '▼';
     var cls = isUp ? 'bc-ticker-up' : 'bc-ticker-down';
     if (change === 0) { arrow = '–'; cls = 'bc-ticker-flat'; }
-    el.innerHTML =
+    var html =
         '<span class="bc-ticker-label">' + label + '</span>' +
         '<span class="bc-ticker-price">' + price + '</span>' +
         '<span class="bc-ticker-change ' + cls + '">' + arrow + ' ' + Math.abs(change).toFixed(2) + '%</span>';
+    el.innerHTML = html;
+
+    // Sync to cloned element if exists
+    var cloneId = el.id + '-clone';
+    var cloneEl = document.getElementById(cloneId);
+    if (cloneEl) cloneEl.innerHTML = html;
 }
 
 function fetchCrypto() {
@@ -146,10 +152,11 @@ function fetchCrypto() {
     if (!strip) return;
     var btcEl = document.getElementById('bc-tick-btc');
     var ethEl = document.getElementById('bc-tick-eth');
+    var bnbEl = document.getElementById('bc-tick-bnb');
     if (!btcEl || !ethEl) return;
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=inr&include_24hr_change=true', true);
+    xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin&vs_currencies=inr&include_24hr_change=true', true);
     xhr.timeout = 10000;
     xhr.onload = function() {
         if (xhr.status === 200) {
@@ -165,11 +172,61 @@ function fetchCrypto() {
                     var ethC = d.ethereum.inr_24h_change || 0;
                     updateTicker(ethEl, 'ETH', ethP, ethC, ethC >= 0);
                 }
+                if (d.binancecoin && bnbEl) {
+                    var bnbP = '₹' + Math.round(d.binancecoin.inr).toLocaleString('en-IN');
+                    var bnbC = d.binancecoin.inr_24h_change || 0;
+                    updateTicker(bnbEl, 'BNB', bnbP, bnbC, bnbC >= 0);
+                }
                 // Hide "Loading markets…" once crypto data arrives
                 var loadEl = document.querySelector('#bc-market-strip .bc-ticker-loading');
                 if (loadEl) loadEl.style.display = 'none';
             } catch(e) {}
         }
+    };
+    xhr.send();
+}
+
+function fetchTRDC() {
+    var trdcEl = document.getElementById('bc-tick-trdc');
+    if (!trdcEl) return;
+
+    var poolAddress = '0x7b57fa13cca5093f5d724823d58503dfd02ff07c';
+    var apiUrl = 'https://api.geckoterminal.com/api/v2/networks/bsc/pools/' + poolAddress;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', apiUrl, true);
+    xhr.timeout = 10000;
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var d = JSON.parse(xhr.responseText);
+                var pool = d.data.attributes;
+                var priceUSD = parseFloat(pool.base_token_price_usd);
+                var priceINR = priceUSD * 85; // USD to INR conversion
+                var change24h = parseFloat(pool.price_change_percentage.h24) || 0;
+
+                var priceStr;
+                if (priceINR >= 1) {
+                    priceStr = '₹' + priceINR.toFixed(2);
+                } else if (priceINR >= 0.01) {
+                    priceStr = '₹' + priceINR.toFixed(4);
+                } else {
+                    priceStr = '₹' + priceINR.toFixed(6);
+                }
+
+                updateTicker(trdcEl, 'TRDC', priceStr, change24h, change24h >= 0);
+            } catch(e) {
+                // Hide TRDC on error
+                if (trdcEl) trdcEl.style.display = 'none';
+                var prev = trdcEl.previousElementSibling;
+                if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
+            }
+        }
+    };
+    xhr.onerror = function() {
+        if (trdcEl) trdcEl.style.display = 'none';
+        var prev = trdcEl.previousElementSibling;
+        if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
     };
     xhr.send();
 }
@@ -185,6 +242,13 @@ function fetchIndices() {
             // also hide the preceding separator
             var prev = el.previousElementSibling;
             if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
+            // hide cloned element
+            var cloneEl = document.getElementById(el.id + '-clone');
+            if (cloneEl) {
+                cloneEl.style.display = 'none';
+                var prevClone = cloneEl.previousElementSibling;
+                if (prevClone && prevClone.classList.contains('bc-ticker-sep')) prevClone.style.display = 'none';
+            }
         }
     }
 
@@ -231,8 +295,10 @@ function fetchIndices() {
 var marketStrip = document.getElementById('bc-market-strip');
 if (marketStrip) {
     fetchCrypto();
+    fetchTRDC();
     fetchIndices();
     setInterval(fetchCrypto, 60000);
+    setInterval(fetchTRDC, 60000);
     setInterval(fetchIndices, 60000);
 }
 
