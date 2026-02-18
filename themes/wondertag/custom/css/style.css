@@ -2186,8 +2186,25 @@ html.bc-dark-mode #bc-market-strip {
     display: flex !important;
     border: 0 !important;
     border-top: 0 !important;
+    border-bottom: 0 !important;
     box-shadow: 0 0 0 0 transparent !important;
+    margin: 0 !important;
   }
+
+  /* Remove any border/shadow from body and main containers */
+  body,
+  body::before,
+  body::after,
+  #wrapper,
+  #wrapper::before,
+  #wrapper::after,
+  main,
+  main::before,
+  main::after {
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+  }
+
   body { padding-bottom: 60px !important; }
 
   /* Hide ALL possible WoWonder bottom navigation elements */
@@ -2200,13 +2217,24 @@ html.bc-dark-mode #bc-market-strip {
   nav[class*="bottom"],
   div[class*="bottom-nav"],
   div[class*="mobile-nav"],
+  div[class*="mobile-bottom"],
   .user-bottom-nav,
   footer nav,
-  footer .navbar {
+  footer .navbar,
+  [style*="position: fixed"][style*="bottom"],
+  div[style*="bottom: 0"] {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
     height: 0 !important;
     overflow: hidden !important;
+    position: absolute !important;
+    z-index: -9999 !important;
+  }
+
+  /* Ensure ONLY bc-mobile-nav shows */
+  #bc-mobile-nav {
+    position: fixed !important;
+    z-index: 1040 !important;
   }
 }
