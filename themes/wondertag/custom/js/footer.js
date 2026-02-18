@@ -165,6 +165,9 @@ function fetchCrypto() {
                     var ethC = d.ethereum.inr_24h_change || 0;
                     updateTicker(ethEl, 'ETH', ethP, ethC, ethC >= 0);
                 }
+                // Hide "Loading markets…" once crypto data arrives
+                var loadEl = document.querySelector('#bc-market-strip .bc-ticker-loading');
+                if (loadEl) loadEl.style.display = 'none';
             } catch(e) {}
         }
     };
@@ -176,7 +179,16 @@ function fetchIndices() {
     var sensexEl = document.getElementById('bc-tick-sensex');
     if (!niftyEl && !sensexEl) return;
 
-    // NIFTY
+    function hideIndexEl(el) {
+        if (el) {
+            el.style.display = 'none';
+            // also hide the preceding separator
+            var prev = el.previousElementSibling;
+            if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
+        }
+    }
+
+    // NIFTY — Yahoo Finance (hide on rate-limit/error)
     if (niftyEl) {
         var xn = new XMLHttpRequest();
         xn.open('GET', 'https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d&range=2d', true);
@@ -189,11 +201,13 @@ function fetchIndices() {
                 var prev  = meta.chartPreviousClose;
                 var chg   = prev ? ((price - prev) / prev * 100) : 0;
                 updateTicker(niftyEl, 'NIFTY', price.toFixed(2), chg, chg >= 0);
-            } catch(e) {}
+            } catch(e) { hideIndexEl(niftyEl); }
         };
+        xn.onerror = function() { hideIndexEl(niftyEl); };
+        xn.ontimeout = function() { hideIndexEl(niftyEl); };
         xn.send();
     }
-    // SENSEX
+    // SENSEX — Yahoo Finance (hide on rate-limit/error)
     if (sensexEl) {
         var xs = new XMLHttpRequest();
         xs.open('GET', 'https://query1.finance.yahoo.com/v8/finance/chart/%5EBSESN?interval=1d&range=2d', true);
@@ -206,8 +220,10 @@ function fetchIndices() {
                 var prev  = meta.chartPreviousClose;
                 var chg   = prev ? ((price - prev) / prev * 100) : 0;
                 updateTicker(sensexEl, 'SENSEX', price.toFixed(2), chg, chg >= 0);
-            } catch(e) {}
+            } catch(e) { hideIndexEl(sensexEl); }
         };
+        xs.onerror = function() { hideIndexEl(sensexEl); };
+        xs.ontimeout = function() { hideIndexEl(sensexEl); };
         xs.send();
     }
 }
@@ -221,7 +237,8 @@ if (marketStrip) {
 }
 
 /* ---- Part 3: Native Notification Popup ---- */
-(function() {
+/* Wrapped in DOMContentLoaded: popup HTML is after this script tag in the DOM */
+document.addEventListener('DOMContentLoaded', function() {
     var popup = document.getElementById('bc-notif-popup');
     if (!popup) return;
 
@@ -278,7 +295,7 @@ if (marketStrip) {
             popup.classList.remove('bc-notif-visible');
         });
     }
-})();
+});
 
 /* ---- Part 5: Composer "More Options" Button ---- */
 (function() {
@@ -324,7 +341,8 @@ document.addEventListener('click', function(e) {
 }, { passive: true });
 
 /* ---- Part 11: Mobile Bottom Nav Active State ---- */
-(function() {
+/* Wrapped in DOMContentLoaded: nav HTML is after this script tag in the DOM */
+document.addEventListener('DOMContentLoaded', function() {
     var nav = document.getElementById('bc-mobile-nav');
     if (!nav) return;
     var items = nav.querySelectorAll('.bc-mob-nav-item');
@@ -341,6 +359,6 @@ document.addEventListener('click', function(e) {
         nav.querySelectorAll('.bc-mob-nav-item').forEach(function(i) { i.classList.remove('bc-mob-active'); });
         homeItem.classList.add('bc-mob-active');
     }
-})();
+});
 
 })();
