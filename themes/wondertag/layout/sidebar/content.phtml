@@ -89,10 +89,16 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	<!-- Part 6: TRDC Earnings Card -->
 	<?php
 	$_trdc_balance = 0;
+	$_trdc_table_exists = false;
 	if (!empty($wo['user']['user_id'])) {
-		$_trdc_row = $db->where('user_id', intval($wo['user']['user_id']))->getOne('Wo_TrdcWallet', ['balance']);
-		if (!empty($_trdc_row) && isset($_trdc_row->balance)) {
-			$_trdc_balance = intval($_trdc_row->balance);
+		// Check table exists before querying to avoid fatal DB error
+		$_trdc_check = @mysqli_query($wo['sqlConnect'], "DESCRIBE `Wo_TrdcWallet`");
+		if ($_trdc_check) {
+			$_trdc_table_exists = true;
+			$_trdc_row = $db->where('user_id', intval($wo['user']['user_id']))->getOne('Wo_TrdcWallet', ['balance']);
+			if (!empty($_trdc_row) && isset($_trdc_row->balance)) {
+				$_trdc_balance = intval($_trdc_row->balance);
+			}
 		}
 	}
 	?>
