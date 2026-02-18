@@ -509,10 +509,29 @@ html.bc-dark-mode {
   border-radius: var(--bc-radius-full);
 }
 
-/* Greeting alert bar */
+/* Greeting alert bar - 60% smaller */
 .greetalert {
   border-radius: var(--bc-radius-md);
   border: var(--bc-border-light);
+  padding: 8px 12px !important;
+  margin-bottom: 16px !important;
+}
+.greetalert .small-texts {
+  font-size: 10px !important;
+  letter-spacing: -0.2px !important;
+  line-height: 1.2 !important;
+  margin: 0 0 2px !important;
+}
+.greetalert p {
+  font-size: 6px !important;
+  letter-spacing: 0.1px !important;
+  margin: 0 !important;
+}
+/* Larger screens - also 60% smaller */
+@media (min-width: 768px) {
+  .greetalert .small-texts {
+    font-size: 11px !important;
+  }
 }
 
 /* Announcement banner */
