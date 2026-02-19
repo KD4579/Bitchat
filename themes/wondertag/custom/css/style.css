@@ -2843,3 +2843,377 @@ html.bc-dark-mode #bc-market-strip {
     font-size: 40px;
   }
 }
+
+/* ============================================================
+   UI-4: Feed Card Redesign — Instagram/X level polish
+   ============================================================ */
+
+/* Main post container - venture-backed quality */
+.post-container,
+.wo_post_sec,
+.post-card,
+.panel.panel-default,
+div[id^="post-"],
+div[class*="post_"] {
+    border: none !important;
+    border-radius: var(--bc-radius-lg) !important;
+    padding: 26px !important;
+    background: var(--bc-card) !important;
+    box-shadow: var(--bc-shadow-soft) !important;
+    margin-bottom: 24px !important;
+    transition: all var(--bc-transition-base) !important;
+}
+
+/* Hover elevation - feels premium */
+.post-container:hover,
+.wo_post_sec:hover,
+.post-card:hover,
+.panel.panel-default:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: var(--bc-shadow-hover) !important;
+}
+
+/* Post header spacing */
+.post-avatar,
+.publisher-box-avatar,
+div[class*="avatar"] {
+    margin-right: var(--bc-space-sm) !important;
+}
+
+.post-description,
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: var(--bc-space-sm);
+}
+
+/* User names and time - modern typography */
+.post-user-name,
+.publisher-box h3,
+.user-popover-content h6 {
+    font-weight: var(--bc-font-weight-medium) !important;
+    color: var(--bc-text-primary) !important;
+    font-size: var(--bc-font-size-base) !important;
+}
+
+.post-time,
+.publisher-box-time,
+span[class*="time"] {
+    font-size: var(--bc-font-size-sm) !important;
+    color: var(--bc-text-tertiary) !important;
+    font-weight: var(--bc-font-weight-normal) !important;
+}
+
+/* Post content text */
+.post-description-text,
+.post-text,
+div[class*="description"] p {
+    font-size: var(--bc-font-size-base) !important;
+    line-height: var(--bc-line-height-relaxed) !important;
+    color: var(--bc-text-primary) !important;
+    margin-top: var(--bc-space-md) !important;
+    margin-bottom: var(--bc-space-md) !important;
+}
+
+/* Post images - modern rounded corners */
+.post-image img,
+.post-photo img,
+img[class*="post"] {
+    border-radius: var(--bc-radius-md) !important;
+    margin-top: var(--bc-space-sm);
+    margin-bottom: var(--bc-space-sm);
+}
+
+/* Reaction bar modernization - UI-6 */
+.post-actions,
+.post-footer,
+div[class*="reactions"],
+div[class*="post-options"] {
+    display: flex;
+    align-items: center;
+    gap: var(--bc-space-md);
+    padding-top: var(--bc-space-md);
+    margin-top: var(--bc-space-md);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Reaction buttons - bigger, more visible */
+.post-actions button,
+.post-actions a,
+.reactions button,
+.reactions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--bc-radius-sm);
+    font-size: var(--bc-font-size-sm);
+    font-weight: var(--bc-font-weight-medium);
+    color: var(--bc-text-secondary);
+    transition: all var(--bc-transition-fast);
+    border: none;
+    background: transparent;
+}
+
+.post-actions button:hover,
+.post-actions a:hover,
+.reactions button:hover,
+.reactions a:hover {
+    background: var(--bc-bg);
+    color: var(--bc-primary);
+    transform: scale(1.05);
+}
+
+/* Reaction icons - bigger and better */
+.reactions img,
+.post-actions img,
+svg[class*="react"] {
+    width: 22px !important;
+    height: 22px !important;
+    opacity: 0.85;
+    transition: all var(--bc-transition-fast);
+}
+
+.reactions img:hover,
+.post-actions img:hover {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+/* Comment section spacing */
+.post-comments,
+div[class*="comment"] {
+    margin-top: var(--bc-space-md);
+    padding-top: var(--bc-space-md);
+}
+
+/* Individual comment styling */
+.comment-item,
+div[class*="comment-"] {
+    padding: var(--bc-space-sm);
+    border-radius: var(--bc-radius-sm);
+    margin-bottom: var(--bc-space-sm);
+    background: var(--bc-bg);
+}
+
+/* Remove old borders everywhere */
+.panel-default,
+.wow_content,
+.post-container,
+.wo_post_sec {
+    border-color: transparent !important;
+}
+
+/* Share/More dropdown - modern */
+.dropdown-menu,
+div[class*="dropdown"] ul {
+    border: none !important;
+    border-radius: var(--bc-radius-md) !important;
+    box-shadow: var(--bc-shadow-hover) !important;
+    padding: 8px !important;
+}
+
+.dropdown-menu li a,
+.dropdown-menu li button {
+    border-radius: var(--bc-radius-sm) !important;
+    padding: 10px 16px !important;
+    transition: all var(--bc-transition-fast) !important;
+}
+
+.dropdown-menu li a:hover,
+.dropdown-menu li button:hover {
+    background: var(--bc-bg) !important;
+    color: var(--bc-primary) !important;
+}
+
+/* Verified badge styling */
+.verified,
+span[class*="verified"],
+.badge-verified {
+    color: var(--bc-primary) !important;
+    margin-left: 4px;
+}
+
+/* Creator/Trading post labels */
+.post-label,
+span[class*="label"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--bc-radius-full);
+    font-size: var(--bc-font-size-xs);
+    font-weight: var(--bc-font-weight-medium);
+    background: var(--bc-bg-alt);
+    color: var(--bc-text-secondary);
+    margin-left: var(--bc-space-xs);
+}
+
+/* Trading post accent */
+.post-trading,
+div[data-type*="trading"],
+div[class*="trading"] {
+    border-left: 3px solid var(--bc-accent) !important;
+}
+
+/* Creator post accent */
+.post-creator,
+div[data-creator="true"],
+div[class*="creator-post"] {
+    border-left: 3px solid var(--bc-primary) !important;
+}
+
+/* Empty state - better spacing */
+.no-posts,
+.empty-state,
+div[class*="empty"] {
+    padding: var(--bc-space-2xl);
+    text-align: center;
+    color: var(--bc-text-tertiary);
+}
+
+/* Post loading skeleton - modern shimmer */
+.post-skeleton,
+.loading-post,
+div[class*="skeleton"] {
+    background: var(--bc-card);
+    border-radius: var(--bc-radius-lg);
+    padding: var(--bc-space-lg);
+    margin-bottom: var(--bc-space-md);
+    box-shadow: var(--bc-shadow-soft);
+}
+
+/* Ensure feed container has proper spacing */
+#posts-loaded,
+#posts,
+div[class*="feed"],
+div[class*="timeline"] {
+    max-width: var(--bc-container-md);
+    margin: 0 auto;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .post-container,
+    .wo_post_sec,
+    .post-card {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+        border-radius: var(--bc-radius-md) !important;
+    }
+
+    .post-actions,
+    .reactions {
+        gap: var(--bc-space-sm);
+    }
+
+    .reactions img,
+    .post-actions img {
+        width: 20px !important;
+        height: 20px !important;
+    }
+}
+
+/* ============================================================
+   UI-9: Sidebar Navigation Cleanup — Only 6 Core Items
+   Keep: Feed | Discover | Market | Creators | Wallet | Invite & Earn
+   ============================================================ */
+
+/* Hide non-essential items from "Me" section */
+.tag_sidebar a[href*="link1=albums"],
+.tag_sidebar a[href*="link1=saved-posts"],
+.tag_sidebar a[href*="link1=leaderboard"] {
+    display: none !important;
+}
+
+/* Hide entire "Community" section except Products (Market) */
+.tag_sidebar a[href*="link1=events"],
+.tag_sidebar a[href*="link1=blogs"],
+.tag_sidebar a[href*="link1=forum"],
+.tag_sidebar a[href*="link1=my-blogs"],
+.tag_sidebar a[href*="link1=my-products"],
+.tag_sidebar a[href*="link1=groups"],
+.tag_sidebar a[href*="link1=my-groups"],
+.tag_sidebar a[href*="link1=pages"],
+.tag_sidebar a[href*="link1=my-pages"] {
+    display: none !important;
+}
+
+/* Keep Products (Market) visible in Community */
+/* .tag_sidebar a[href*="link1=products"] - stays visible */
+
+/* Hide ALL Explore section items except main Explore/Discover */
+.tag_sidebar a[href*="link1=most_liked"],
+.tag_sidebar a[href*="link1=open_to_work_posts"],
+.tag_sidebar a[href*="link1=new-game"],
+.tag_sidebar a[href*="link1=movies"],
+.tag_sidebar a[href*="link1=jobs"],
+.tag_sidebar a[href*="link1=offers"],
+.tag_sidebar a[href*="link1=memories"],
+.tag_sidebar a[href*="link1=friends-nearby"],
+.tag_sidebar a[href*="link1=common_things"],
+.tag_sidebar a[href*="link1=funding"] {
+    display: none !important;
+}
+
+/* Rename Products to "Market" for clarity */
+.tag_sidebar a[href*="link1=products"] svg + text,
+.tag_sidebar a[href*="link1=products"]::after {
+    /* Market icon stays, text changes via JS or keep as is */
+}
+
+/* Hide empty sections if all children are hidden */
+.tag_sidebar .tag_sidebar_section:has(> a:only-child:not([style*="display: none"])) {
+    /* Keep section if it has visible items */
+}
+
+/* Auto-collapse Community and Explore sections by default */
+#collapseCommunity.show,
+#collapseExplore.show {
+    /* Let them stay collapsed on mobile for cleaner UX */
+}
+
+/* Improve visible menu item spacing */
+.tag_sidebar a {
+    padding: 12px 16px !important;
+    margin-bottom: 4px !important;
+    border-radius: var(--bc-radius-sm) !important;
+    transition: all var(--bc-transition-fast) !important;
+    font-weight: var(--bc-font-weight-normal) !important;
+    color: var(--bc-text-primary) !important;
+}
+
+.tag_sidebar a:hover,
+.tag_sidebar a.active {
+    background: var(--bc-bg) !important;
+    color: var(--bc-primary) !important;
+    transform: translateX(4px);
+}
+
+.tag_sidebar a svg {
+    opacity: 0.8;
+    transition: all var(--bc-transition-fast);
+}
+
+.tag_sidebar a:hover svg,
+.tag_sidebar a.active svg {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Section headers modern styling */
+.tag_sidebar_head {
+    font-weight: var(--bc-font-weight-medium) !important;
+    font-size: var(--bc-font-size-sm) !important;
+    color: var(--bc-text-secondary) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 16px 8px !important;
+}
+
+/* Remove old borders from sidebar */
+.tag_sidebar,
+.tag_sidebar_section,
+.tag_sidebar_section_prnt {
+    border: none !important;
+}

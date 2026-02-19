@@ -1,0 +1,293 @@
+/**
+ * BITCHAT VISUAL IDENTITY — DESIGN TOKENS
+ *
+ * Global design system for venture-backed product quality.
+ * Creates FB / X / Instagram level perception.
+ *
+ * Usage: Import this file FIRST in container.phtml header
+ */
+
+:root {
+    /* ========== BRAND COLORS ========== */
+    --bc-primary: #6C5CFF;           /* Primary purple - main brand */
+    --bc-primary-hover: #5847E6;     /* Darker purple for hover states */
+    --bc-primary-light: #8875FF;     /* Light purple for accents */
+
+    --bc-accent: #00D4FF;            /* Cyan accent - highlights */
+    --bc-accent-hover: #00BBEA;      /* Darker cyan */
+
+    --bc-success: #22C55E;           /* Green - positive actions */
+    --bc-warning: #F59E0B;           /* Amber - warnings */
+    --bc-error: #EF4444;             /* Red - errors */
+
+    /* ========== BACKGROUNDS ========== */
+    --bc-bg: #F8FAFF;                /* Main app background - soft blue tint */
+    --bc-bg-alt: #EEF2FF;            /* Alternative background */
+    --bc-card: #FFFFFF;              /* Card/surface background */
+    --bc-card-hover: #FAFBFF;        /* Card hover state */
+
+    /* ========== TEXT COLORS ========== */
+    --bc-text-primary: #1E293B;      /* Primary text - dark slate */
+    --bc-text-secondary: #64748B;    /* Secondary text - muted */
+    --bc-text-tertiary: #94A3B8;     /* Tertiary text - very muted */
+    --bc-text-inverse: #FFFFFF;      /* Text on dark backgrounds */
+
+    /* ========== BORDER RADIUS ========== */
+    --bc-radius-sm: 8px;             /* Small radius - buttons, inputs */
+    --bc-radius-md: 12px;            /* Medium radius - cards */
+    --bc-radius-lg: 16px;            /* Large radius - major cards */
+    --bc-radius-xl: 22px;            /* Extra large - hero sections */
+    --bc-radius-full: 9999px;        /* Full circle - avatars, pills */
+
+    /* ========== SHADOWS ========== */
+    --bc-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.06);           /* Subtle elevation */
+    --bc-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.10);         /* Hover elevation */
+    --bc-shadow-focus: 0 0 0 4px rgba(108, 92, 255, 0.15);      /* Focus ring */
+    --bc-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.12);        /* Strong elevation */
+
+    /* ========== SPACING SYSTEM ========== */
+    --bc-space-xs: 8px;              /* Extra small */
+    --bc-space-sm: 12px;             /* Small */
+    --bc-space-md: 20px;             /* Medium */
+    --bc-space-lg: 32px;             /* Large */
+    --bc-space-xl: 48px;             /* Extra large */
+    --bc-space-2xl: 64px;            /* 2x extra large */
+
+    /* ========== TYPOGRAPHY ========== */
+    --bc-font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    --bc-font-size-xs: 12px;         /* Extra small text */
+    --bc-font-size-sm: 14px;         /* Small text */
+    --bc-font-size-base: 16px;       /* Base text */
+    --bc-font-size-lg: 18px;         /* Large text */
+    --bc-font-size-xl: 24px;         /* Extra large text */
+    --bc-font-size-2xl: 32px;        /* 2x extra large */
+    --bc-font-size-3xl: 42px;        /* 3x extra large - hero */
+
+    --bc-font-weight-normal: 400;
+    --bc-font-weight-medium: 600;
+    --bc-font-weight-bold: 700;
+
+    --bc-line-height-tight: 1.25;
+    --bc-line-height-normal: 1.5;
+    --bc-line-height-relaxed: 1.75;
+
+    /* ========== TRANSITIONS ========== */
+    --bc-transition-fast: 0.15s ease;
+    --bc-transition-base: 0.2s ease;
+    --bc-transition-slow: 0.3s ease;
+
+    /* ========== Z-INDEX SYSTEM ========== */
+    --bc-z-base: 1;
+    --bc-z-dropdown: 100;
+    --bc-z-sticky: 200;
+    --bc-z-fixed: 300;
+    --bc-z-modal-backdrop: 400;
+    --bc-z-modal: 500;
+    --bc-z-tooltip: 600;
+
+    /* ========== CONTAINER WIDTHS ========== */
+    --bc-container-sm: 640px;
+    --bc-container-md: 768px;
+    --bc-container-lg: 1024px;
+    --bc-container-xl: 1180px;        /* Main content max width */
+    --bc-container-2xl: 1280px;
+}
+
+/* ========== GLOBAL RESETS & FOUNDATION ========== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--bc-font-family);
+    font-size: var(--bc-font-size-base);
+    line-height: var(--bc-line-height-normal);
+    color: var(--bc-text-primary);
+    background: var(--bc-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+/* Container */
+.bc-container {
+    max-width: var(--bc-container-xl);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--bc-space-md);
+    padding-right: var(--bc-space-md);
+}
+
+/* Spacing sections */
+.bc-section {
+    margin-top: var(--bc-space-xl);
+    margin-bottom: var(--bc-space-xl);
+}
+
+.bc-section-lg {
+    margin-top: var(--bc-space-2xl);
+    margin-bottom: var(--bc-space-2xl);
+}
+
+/* Card utilities */
+.bc-card {
+    background: var(--bc-card);
+    border-radius: var(--bc-radius-lg);
+    box-shadow: var(--bc-shadow-soft);
+    padding: var(--bc-space-lg);
+    transition: all var(--bc-transition-base);
+}
+
+.bc-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--bc-shadow-hover);
+}
+
+.bc-card-flat {
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Text utilities */
+.bc-text-primary { color: var(--bc-text-primary); }
+.bc-text-secondary { color: var(--bc-text-secondary); }
+.bc-text-tertiary { color: var(--bc-text-tertiary); }
+
+/* Gradient backgrounds */
+.bc-gradient-primary {
+    background: linear-gradient(135deg, var(--bc-primary), var(--bc-accent));
+}
+
+.bc-gradient-soft {
+    background: linear-gradient(to bottom, var(--bc-bg), var(--bc-bg-alt));
+}
+
+/* Remove hard borders */
+.bc-no-border {
+    border: none !important;
+}
+
+/* Modern button base */
+.bc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--bc-space-xs);
+    padding: 12px 24px;
+    border-radius: var(--bc-radius-sm);
+    font-weight: var(--bc-font-weight-medium);
+    font-size: var(--bc-font-size-base);
+    transition: all var(--bc-transition-base);
+    border: none;
+    cursor: pointer;
+}
+
+.bc-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--bc-shadow-soft);
+}
+
+.bc-btn-primary {
+    background: var(--bc-primary);
+    color: var(--bc-text-inverse);
+}
+
+.bc-btn-primary:hover {
+    background: var(--bc-primary-hover);
+}
+
+/* Smooth transitions everywhere */
+button, a, .card, input, textarea, select {
+    transition: all var(--bc-transition-base);
+}
+
+button:hover, a:hover {
+    transform: translateY(-1px);
+}
+
+/* Remove outline, add focus ring */
+*:focus {
+    outline: none;
+}
+
+*:focus-visible {
+    box-shadow: var(--bc-shadow-focus);
+}
+
+/* ========== RESPONSIVE BREAKPOINTS ========== */
+@media (max-width: 768px) {
+    :root {
+        --bc-space-xl: 32px;
+        --bc-space-2xl: 48px;
+    }
+
+    .bc-container {
+        padding-left: var(--bc-space-sm);
+        padding-right: var(--bc-space-sm);
+    }
+}
+
+/* ========== GLASS MORPHISM UTILITY ========== */
+.bc-glass {
+    backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.bc-glass-dark {
+    backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ========== ELEVATION SYSTEM ========== */
+.bc-elevation-0 { box-shadow: none; }
+.bc-elevation-1 { box-shadow: var(--bc-shadow-soft); }
+.bc-elevation-2 { box-shadow: var(--bc-shadow-hover); }
+.bc-elevation-3 { box-shadow: var(--bc-shadow-strong); }
+
+/* ========== ANIMATION UTILITIES ========== */
+@keyframes bc-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bc-slide-up {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes bc-scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.bc-animate-fade-in {
+    animation: bc-fade-in 0.3s ease;
+}
+
+.bc-animate-slide-up {
+    animation: bc-slide-up 0.3s ease;
+}
+
+.bc-animate-scale-in {
+    animation: bc-scale-in 0.3s ease;
+}
