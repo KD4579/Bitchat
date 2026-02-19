@@ -186,17 +186,25 @@ BC_MODAL.confirm({
 
 ---
 
-### Task SM-6: Session Expired Background Fix
-**Status:** [ ] Not Started
+### Task SM-6: Session Expired Background Fix ✓
+**Status:** [✓] **COMPLETED** - 2026-02-19
 **Priority:** Low
-**Impact:** Removes unused modal from DOM
+**Impact:** Removes dedicated modal from DOM, uses BC_MODAL system
 
-**Problem:** Session expired modal exists in DOM even when user is logged in.
+**Problem:** Session expired modal HTML loaded in DOM unnecessarily, wasting memory.
 
-**Implementation:**
-- Wrap session modal in `<?php if (!$wo['loggedin']) { ?>` in `footer/content.phtml`
-- Backend: Return HTTP 401 status code only (no HTML) from `assets/includes/ajax.php`
-- **Files:** `themes/wondertag/layout/footer/content.phtml`, `assets/includes/ajax.php`
+**Implementation (Improved Approach):**
+- ✓ Removed `Wo_LoadPage('modals/logged-out')` from `container.phtml` line 986
+- ✓ Updated `Wo_IsLogged()` in `script.js` to use `BC_MODAL.alert()` instead of `$('#logged-out-modal').modal()`
+- ✓ Session expiry now shows via global modal system (no dedicated HTML needed)
+- ✓ Graceful fallback if BC_MODAL not loaded yet
+- ✓ Better UX: styled alert with callback to redirect to login
+
+**Files Modified:**
+- `themes/wondertag/layout/container.phtml` (commented out modal load)
+- `themes/wondertag/javascript/script.js` (BC_MODAL integration at line ~199-220)
+
+**Impact:** One less modal in DOM, leverages SM-3 global modal system. Perfect synergy with SM-3!
 
 ---
 

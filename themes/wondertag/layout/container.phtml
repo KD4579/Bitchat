@@ -978,12 +978,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			</div>
 		</div>
 		
-		<?php 
+		<?php
 			if ($wo['loggedin'] == true && $wo['page'] != 'maintenance') {
 			if ($wo['config']['chatSystem'] == 1 && $wo['page'] != 'get_news_feed' && $wo['page'] != 'sharer' && $wo['page'] != 'video-api' && $wo['page'] != 'messages' && $wo['page'] != 'live' && $wo['page'] != 'start_up' && $wo['page'] != 'status' && $wo['page'] != 'video') {
 				echo Wo_LoadPage('chat/content');
 			}
-			echo Wo_LoadPage('modals/logged-out');
+			// SM-6: Removed logged-out modal - now uses BC_MODAL.alert() in script.js
+			// echo Wo_LoadPage('modals/logged-out');
 		?>
 		<?php } ?>
 		

@@ -203,9 +203,21 @@ function Wo_IsLogged() {
     // Only show logged out modal if we have a valid response AND logged_in is explicitly false
     // AND session_valid is also false (double check to prevent false positives)
     if(data && data.status == 200 && data.logged_in === false && data.session_valid === false) {
-      $('#logged-out-modal').modal({
-        show: true
-      });
+      // SM-6: Use BC_MODAL global modal system instead of dedicated logged-out modal
+      if (typeof BC_MODAL !== 'undefined') {
+        BC_MODAL.alert({
+          title: lang_session_expired || 'Session Expired',
+          message: lang_session_expired_message || 'Your session has expired. Please log in again to continue.',
+          type: 'warning',
+          onOk: function() {
+            window.location.href = site_url + '/welcome';
+          }
+        });
+      } else {
+        // Fallback if BC_MODAL not loaded yet
+        alert('Your session has expired. Please log in again.');
+        window.location.href = site_url + '/welcome';
+      }
     }
   }).fail(function() {
     // If AJAX fails, don't show the modal - user might still be logged in

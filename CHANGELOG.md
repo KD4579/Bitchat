@@ -102,6 +102,27 @@ BC_MODAL.confirm({
 
 ---
 
+#### SM-6: Session Expired Modal Optimization
+**Approach:** Leverage BC_MODAL global system instead of dedicated modal HTML
+
+**Implementation:**
+- Removed `Wo_LoadPage('modals/logged-out')` from `container.phtml` (line 986)
+- Updated `Wo_IsLogged()` function in `script.js` to use BC_MODAL.alert() instead of showing dedicated modal
+- Session expiry now displays via global modal system with better UX (warning alert + redirect callback)
+- Graceful fallback for edge cases where BC_MODAL might not be loaded
+
+**Files Modified:**
+- `themes/wondertag/layout/container.phtml` (removed modal load)
+- `themes/wondertag/javascript/script.js` (Wo_IsLogged function updated, lines ~199-220)
+
+**Impact:**
+- One less modal HTML structure in DOM
+- Perfect synergy with SM-3 global modal system
+- Better styled session expiry alert with smooth redirect
+- Demonstrates BC_MODAL real-world usage
+
+---
+
 ### Overall Performance Impact
 - **DOM size:** ~40-60% reduction potential (global modals + hidden input elimination)
 - **Page load:** Feed prioritized, stories lazy-loaded, duplicate API calls removed
