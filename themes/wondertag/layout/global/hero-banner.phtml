@@ -15,7 +15,7 @@ if ($r && $row = mysqli_fetch_assoc($r)) $total_users = number_format($row['cnt'
 $r2 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_POSTS . " WHERE `time` > UNIX_TIMESTAMP() - 86400 AND `postPrivacy` != '3'");
 if ($r2 && $row2 = mysqli_fetch_assoc($r2)) $posts_today = number_format($row2['cnt']);
 
-$r3 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE last_seen > UNIX_TIMESTAMP() - 900 AND active = '1'");
+$r3 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE lastseen > UNIX_TIMESTAMP() - 900 AND active = '1'");
 if ($r3 && $row3 = mysqli_fetch_assoc($r3)) $online_users = number_format($row3['cnt']);
 
 $user_name = !empty($wo['user']['name']) ? explode(' ', $wo['user']['name'])[0] : 'Trader';
