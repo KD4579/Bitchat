@@ -6,9 +6,6 @@
  * Creates an engagement loop by suggesting relevant next actions.
  */
 
-if (!defined('WOWONDER')) {
-    exit('Direct access is not allowed');
-}
 
 /**
  * Get user activity state for personalized prompts
@@ -33,7 +30,7 @@ function Wo_GetUserActivityState($user_id) {
 
     // Get user info
     $user_query = mysqli_query($sqlConnect, "SELECT * FROM " . T_USERS . " WHERE user_id = '$user_id'");
-    if (mysqli_num_rows($user_query) > 0) {
+    if ($user_query && mysqli_num_rows($user_query) > 0) {
         $user = mysqli_fetch_assoc($user_query);
 
         // Check if new user (registered within last 7 days)
@@ -50,14 +47,14 @@ function Wo_GetUserActivityState($user_id) {
 
     // Get total posts
     $posts_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_POSTS . " WHERE user_id = '$user_id' AND postType = ''");
-    if (mysqli_num_rows($posts_query) > 0) {
+    if ($posts_query && mysqli_num_rows($posts_query) > 0) {
         $posts = mysqli_fetch_assoc($posts_query);
         $state['total_posts'] = intval($posts['total']);
     }
 
     // Get last post time
     $last_post_query = mysqli_query($sqlConnect, "SELECT time FROM " . T_POSTS . " WHERE user_id = '$user_id' AND postType = '' ORDER BY time DESC LIMIT 1");
-    if (mysqli_num_rows($last_post_query) > 0) {
+    if ($last_post_query && mysqli_num_rows($last_post_query) > 0) {
         $last_post = mysqli_fetch_assoc($last_post_query);
         $last_post_timestamp = intval($last_post['time']);
         $state['days_since_last_post'] = (time() - $last_post_timestamp) / 86400;
@@ -70,7 +67,7 @@ function Wo_GetUserActivityState($user_id) {
 
     // Get follower count
     $followers_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_FOLLOWERS . " WHERE following_id = '$user_id' AND active = '1'");
-    if (mysqli_num_rows($followers_query) > 0) {
+    if ($followers_query && mysqli_num_rows($followers_query) > 0) {
         $followers = mysqli_fetch_assoc($followers_query);
         $state['total_followers'] = intval($followers['total']);
     }
@@ -81,7 +78,7 @@ function Wo_GetUserActivityState($user_id) {
         WHERE user_id = '$user_id'
         AND time >= '$today_start'
         AND (postText LIKE '%#btc%' OR postText LIKE '%#eth%' OR postText LIKE '%#nifty%' OR postText LIKE '%#trading%')");
-    if (mysqli_num_rows($trading_query) > 0) {
+    if ($trading_query && mysqli_num_rows($trading_query) > 0) {
         $trading = mysqli_fetch_assoc($trading_query);
         $state['has_traded_today'] = (intval($trading['total']) > 0);
     }
@@ -91,7 +88,7 @@ function Wo_GetUserActivityState($user_id) {
         WHERE user_id = '$user_id'
         AND (postText LIKE '%#btc%' OR postText LIKE '%#eth%' OR postText LIKE '%#nifty%' OR postText LIKE '%#sensex%' OR postText LIKE '%#trading%')
         LIMIT 3");
-    if (mysqli_num_rows($trader_query) > 0) {
+    if ($trader_query && mysqli_num_rows($trader_query) > 0) {
         $trader = mysqli_fetch_assoc($trader_query);
         $state['is_trader'] = (intval($trader['total']) >= 1);
     }
@@ -282,7 +279,7 @@ function Wo_LogTRDCTransaction($user_id, $amount, $type, $description) {
     // For now, we'll just skip logging if table doesn't exist
     $table_check = mysqli_query($sqlConnect, "SHOW TABLES LIKE 'trdc_transactions'");
 
-    if (mysqli_num_rows($table_check) > 0) {
+    if ($table_check && mysqli_num_rows($table_check) > 0) {
         mysqli_query($sqlConnect, "INSERT INTO trdc_transactions
             (user_id, amount, type, description, time)
             VALUES ('$user_id', '$amount', '$type', '$description', '$time')");
@@ -325,7 +322,7 @@ function Wo_IsFirstPost($user_id) {
     $query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_POSTS . "
         WHERE user_id = '$user_id' AND postType = ''");
 
-    if (mysqli_num_rows($query) > 0) {
+    if ($query && mysqli_num_rows($query) > 0) {
         $data = mysqli_fetch_assoc($query);
         return (intval($data['total']) === 1); // Returns true if this is exactly the first post
     }
@@ -421,7 +418,7 @@ function Wo_CheckUserBadges($user_id) {
     $trading_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_POSTS . "
         WHERE user_id = '$user_id'
         AND (postText LIKE '%#btc%' OR postText LIKE '%#eth%' OR postText LIKE '%#nifty%' OR postText LIKE '%#trading%')");
-    if (mysqli_num_rows($trading_query) > 0) {
+    if ($trading_query && mysqli_num_rows($trading_query) > 0) {
         $trading = mysqli_fetch_assoc($trading_query);
         if (intval($trading['total']) >= 25) {
             $earned_badges[] = 'market_master';
@@ -431,7 +428,7 @@ function Wo_CheckUserBadges($user_id) {
     // Community Helper badge (comments)
     $comments_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_COMMENTS . "
         WHERE user_id = '$user_id'");
-    if (mysqli_num_rows($comments_query) > 0) {
+    if ($comments_query && mysqli_num_rows($comments_query) > 0) {
         $comments = mysqli_fetch_assoc($comments_query);
         if (intval($comments['total']) >= 100) {
             $earned_badges[] = 'community_helper';
@@ -441,7 +438,7 @@ function Wo_CheckUserBadges($user_id) {
     // Trending Creator badge (likes received)
     $likes_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_REACTIONS . "
         WHERE post_id IN (SELECT id FROM " . T_POSTS . " WHERE user_id = '$user_id')");
-    if (mysqli_num_rows($likes_query) > 0) {
+    if ($likes_query && mysqli_num_rows($likes_query) > 0) {
         $likes = mysqli_fetch_assoc($likes_query);
         if (intval($likes['total']) >= 1000) {
             $earned_badges[] = 'trending_creator';
@@ -455,7 +452,7 @@ function Wo_CheckUserBadges($user_id) {
 
     // Verified badge (email verified)
     $user_query = mysqli_query($sqlConnect, "SELECT email_code FROM " . T_USERS . " WHERE user_id = '$user_id'");
-    if (mysqli_num_rows($user_query) > 0) {
+    if ($user_query && mysqli_num_rows($user_query) > 0) {
         $user = mysqli_fetch_assoc($user_query);
         if (empty($user['email_code'])) {
             $earned_badges[] = 'verified';
