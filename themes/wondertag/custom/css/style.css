@@ -2740,3 +2740,106 @@ html.bc-dark-mode #bc-market-strip {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   }
 }
+
+/* ============================================================
+   GE-3: Gamification Badges (Achievement System)
+   ============================================================ */
+
+/* Badge container */
+.bc-badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+/* Individual badge */
+.bc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.bc-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Small badge variant */
+.bc-badge-small {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 12px;
+}
+
+/* Badge icon */
+.bc-badge-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Badge unlock modal */
+.bc-badge-unlock-modal {
+  text-align: center;
+  padding: 20px;
+}
+
+.bc-badge-unlock-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  animation: bc-badge-unlock-pulse 1.5s ease infinite;
+}
+
+@keyframes bc-badge-unlock-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6); }
+}
+
+.bc-badge-unlock-title {
+  font-size: 14px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.bc-badge-unlock-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.bc-badge-unlock-desc {
+  font-size: 15px;
+  color: #666;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .bc-badge {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .bc-badge-unlock-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 40px;
+  }
+}

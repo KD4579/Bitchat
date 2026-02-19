@@ -332,3 +332,156 @@ function Wo_IsFirstPost($user_id) {
 
     return false;
 }
+
+/**
+ * GE-3: Gamification Badges - Achievement system
+ */
+
+/**
+ * Define all available badges
+ * @return array Badge definitions
+ */
+function Wo_GetBadgeDefinitions() {
+    return array(
+        'first_post' => array(
+            'name' => 'First Post',
+            'description' => 'Published your first post',
+            'icon' => '🎉',
+            'color' => '#f093fb'
+        ),
+        'post_master' => array(
+            'name' => 'Post Master',
+            'description' => 'Published 50+ posts',
+            'icon' => '📝',
+            'color' => '#667eea'
+        ),
+        'trending_creator' => array(
+            'name' => 'Trending Creator',
+            'description' => 'Got 1000+ total likes',
+            'icon' => '🔥',
+            'color' => '#fa709a'
+        ),
+        'market_master' => array(
+            'name' => 'Market Master',
+            'description' => 'Posted 25+ trading insights',
+            'icon' => '📈',
+            'color' => '#4facfe'
+        ),
+        'community_helper' => array(
+            'name' => 'Community Helper',
+            'description' => 'Posted 100+ comments',
+            'icon' => '💬',
+            'color' => '#30cfd0'
+        ),
+        'early_bird' => array(
+            'name' => 'Early Bird',
+            'description' => 'Logged in 7 days in a row',
+            'icon' => '🌅',
+            'color' => '#a8edea'
+        ),
+        'verified' => array(
+            'name' => 'Verified',
+            'description' => 'Verified email address',
+            'icon' => '✅',
+            'color' => '#00f2fe'
+        ),
+        'popular' => array(
+            'name' => 'Popular',
+            'description' => 'Got 100+ followers',
+            'icon' => '⭐',
+            'color' => '#f5576c'
+        )
+    );
+}
+
+/**
+ * Check which badges user has earned
+ * @param int $user_id User ID
+ * @return array Array of earned badge keys
+ */
+function Wo_CheckUserBadges($user_id) {
+    global $sqlConnect;
+    $user_id = Wo_Secure($user_id);
+    $earned_badges = array();
+
+    // Get user data
+    $state = Wo_GetUserActivityState($user_id);
+
+    // First Post badge
+    if ($state['total_posts'] >= 1) {
+        $earned_badges[] = 'first_post';
+    }
+
+    // Post Master badge
+    if ($state['total_posts'] >= 50) {
+        $earned_badges[] = 'post_master';
+    }
+
+    // Market Master badge (trading posts)
+    $trading_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_POSTS . "
+        WHERE user_id = '$user_id'
+        AND (postText LIKE '%#btc%' OR postText LIKE '%#eth%' OR postText LIKE '%#nifty%' OR postText LIKE '%#trading%')");
+    if (mysqli_num_rows($trading_query) > 0) {
+        $trading = mysqli_fetch_assoc($trading_query);
+        if (intval($trading['total']) >= 25) {
+            $earned_badges[] = 'market_master';
+        }
+    }
+
+    // Community Helper badge (comments)
+    $comments_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_COMMENTS . "
+        WHERE user_id = '$user_id'");
+    if (mysqli_num_rows($comments_query) > 0) {
+        $comments = mysqli_fetch_assoc($comments_query);
+        if (intval($comments['total']) >= 100) {
+            $earned_badges[] = 'community_helper';
+        }
+    }
+
+    // Trending Creator badge (likes received)
+    $likes_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_REACTIONS . "
+        WHERE post_id IN (SELECT id FROM " . T_POSTS . " WHERE user_id = '$user_id')");
+    if (mysqli_num_rows($likes_query) > 0) {
+        $likes = mysqli_fetch_assoc($likes_query);
+        if (intval($likes['total']) >= 1000) {
+            $earned_badges[] = 'trending_creator';
+        }
+    }
+
+    // Popular badge (followers)
+    if ($state['total_followers'] >= 100) {
+        $earned_badges[] = 'popular';
+    }
+
+    // Verified badge (email verified)
+    $user_query = mysqli_query($sqlConnect, "SELECT email_code FROM " . T_USERS . " WHERE user_id = '$user_id'");
+    if (mysqli_num_rows($user_query) > 0) {
+        $user = mysqli_fetch_assoc($user_query);
+        if (empty($user['email_code'])) {
+            $earned_badges[] = 'verified';
+        }
+    }
+
+    return $earned_badges;
+}
+
+/**
+ * Get user's badges with details
+ * @param int $user_id User ID
+ * @return array Array of badge objects with details
+ */
+function Wo_GetUserBadges($user_id) {
+    $earned_keys = Wo_CheckUserBadges($user_id);
+    $definitions = Wo_GetBadgeDefinitions();
+    $badges = array();
+
+    foreach ($earned_keys as $key) {
+        if (isset($definitions[$key])) {
+            $badge = $definitions[$key];
+            $badge['key'] = $key;
+            $badges[] = $badge;
+        }
+    }
+
+    return $badges;
+}
