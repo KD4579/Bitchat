@@ -13,7 +13,7 @@ $sql = "SELECT u.user_id, u.name, u.avatar, u.url,
         COUNT(p.id) as post_count
         FROM " . T_USERS . " u
         LEFT JOIN " . T_POSTS . " p ON p.user_id = u.user_id AND p.post_privacy != 'onlyme'
-        WHERE u.active = '1' AND u.banned = '0' AND u.user_id != '" . Wo_Secure($wo['user']['user_id']) . "'
+        WHERE u.active = '1' AND u.user_id != '" . Wo_Secure($wo['user']['user_id']) . "'
         GROUP BY u.user_id
         ORDER BY trdc_balance DESC, post_count DESC
         LIMIT 12";

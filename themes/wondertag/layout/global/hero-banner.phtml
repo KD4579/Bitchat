@@ -9,7 +9,7 @@ $total_users = 0;
 $posts_today = 0;
 $online_users = 0;
 
-$r = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE active = '1' AND banned = '0'");
+$r = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE active = '1'");
 if ($r && $row = mysqli_fetch_assoc($r)) $total_users = number_format($row['cnt']);
 
 $r2 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_POSTS . " WHERE TIME_TO_SEC(TIMEDIFF(NOW(), time)) < 86400 AND post_privacy != 'onlyme'");

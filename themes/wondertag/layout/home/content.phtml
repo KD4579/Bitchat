@@ -14,11 +14,11 @@
 		<?php } ?>
 
 
-tt<!-- UI-1: Hero Market Banner -->
-tt<?php echo Wo_LoadPage('global/hero-banner'); ?>
+		<!-- UI-1: Hero Market Banner -->
+		<?php $bc_hero_file = dirname(__FILE__) . '/../global/hero-banner.phtml'; if (file_exists($bc_hero_file)) echo Wo_LoadPage('global/hero-banner'); ?>
 
-tt<!-- UI-3: Creator Spotlight Strip -->
-tt<?php echo Wo_LoadPage('global/creator-strip'); ?>
+		<!-- UI-3: Creator Spotlight Strip -->
+		<?php $bc_strip_file = dirname(__FILE__) . '/../global/creator-strip.phtml'; if (file_exists($bc_strip_file)) echo Wo_LoadPage('global/creator-strip'); ?>
 
 		<!-- GE-1: Action Prompt Engine -->
 		<?php
