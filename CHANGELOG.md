@@ -2,6 +2,11 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-20
+
+- Verified auto-deploy webhook operational
+- All 11 UI improvements confirmed live
+
 ---
 
 ## 2026-02-19 — Speed Mode + Growth Engine Implementation (Phase 1 & 2)
