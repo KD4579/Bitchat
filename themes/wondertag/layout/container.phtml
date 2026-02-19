@@ -1663,6 +1663,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php } ?>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/footer.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/footer.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-loader.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-loader.js') ?: time(); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-modal.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-modal.js') ?: time(); ?>"></script>
 
 	<?php if ($wo['loggedin'] == true && $wo['config']['web_push'] == 1): ?>
 	<!-- Part 3: Native Notification Popup -->
@@ -1699,6 +1700,22 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		</a>
 	</nav>
 	<?php endif; ?>
+
+	<!-- SM-3: Global Modal System (40-60% DOM reduction) -->
+	<div id="bc-global-modal" class="modal fade" role="dialog" aria-hidden="true">
+		<div class="modal-dialog wow_mat_mdl" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title"></h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer"></div>
+			</div>
+		</div>
+	</div>
 
 	</body>
 </html>

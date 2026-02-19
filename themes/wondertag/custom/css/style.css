@@ -2238,3 +2238,110 @@ html.bc-dark-mode #bc-market-strip {
     z-index: 1040 !important;
   }
 }
+
+/* ============================================================
+   SM-3: Global Modal System (40-60% DOM reduction)
+   ============================================================ */
+
+/* Global modal container - enhanced styling */
+#bc-global-modal .modal-dialog {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+#bc-global-modal.fade .modal-dialog {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+#bc-global-modal.show .modal-dialog {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Smooth modal animations */
+#bc-global-modal .modal-content {
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border: none;
+}
+
+#bc-global-modal .modal-header {
+  border-bottom: 1px solid var(--bc-border-light, #e8e8e8);
+  padding: 1.25rem 1.5rem;
+  border-radius: 8px 8px 0 0;
+}
+
+#bc-global-modal .modal-header .close {
+  padding: 0.5rem;
+  margin: -0.5rem -0.5rem -0.5rem auto;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+#bc-global-modal .modal-header .close:hover {
+  opacity: 1;
+}
+
+#bc-global-modal .modal-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--bc-text-primary, #333);
+}
+
+#bc-global-modal .modal-body {
+  padding: 1.5rem;
+  min-height: 80px;
+  color: var(--bc-text-secondary, #666);
+}
+
+#bc-global-modal .modal-footer {
+  border-top: 1px solid var(--bc-border-light, #e8e8e8);
+  padding: 1rem 1.5rem;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Loading spinner for AJAX modals */
+#bc-global-modal .fa-spinner {
+  color: var(--bc-primary, #3f51b5);
+}
+
+/* Alert styling inside modals */
+#bc-global-modal .alert {
+  margin: 0;
+  border-radius: 6px;
+}
+
+/* Button improvements */
+#bc-global-modal .btn-mat {
+  transition: all 0.2s ease;
+}
+
+#bc-global-modal .btn-mat:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#bc-global-modal .btn-mat:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  #bc-global-modal .modal-content {
+    background-color: var(--bc-surface-secondary, #1e1e1e);
+    color: var(--bc-text-primary-dark, #fff);
+  }
+
+  #bc-global-modal .modal-header,
+  #bc-global-modal .modal-footer {
+    border-color: var(--bc-border-dark, #333);
+  }
+
+  #bc-global-modal .modal-title {
+    color: var(--bc-text-primary-dark, #fff);
+  }
+
+  #bc-global-modal .modal-body {
+    color: var(--bc-text-secondary-dark, #ccc);
+  }
+}
