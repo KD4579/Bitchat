@@ -233,6 +233,7 @@ function Wo_GetActionPromptJSON($user_id, $username = '') {
  * @param string $description Optional description
  * @return bool Success status
  */
+if (!function_exists('Wo_AwardTRDC')):
 function Wo_AwardTRDC($user_id, $amount, $type = 'general', $description = '') {
     global $sqlConnect;
 
@@ -258,6 +259,7 @@ function Wo_AwardTRDC($user_id, $amount, $type = 'general', $description = '') {
 
     return false;
 }
+endif; // Wo_AwardTRDC
 
 /**
  * Log TRDC transaction for history
