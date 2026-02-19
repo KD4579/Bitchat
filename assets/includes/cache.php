@@ -43,9 +43,11 @@ class Cache {
     function read($fileName) {
         $fileName = 'cache/' . $fileName;
         if (file_exists($fileName)) {
+            $size = filesize($fileName);
+            if ($size === 0) return null;
             $handle   = fopen($fileName, 'rb');
             if ($handle) {
-                $variable = fread($handle, filesize($fileName));
+                $variable = fread($handle, $size);
                 fclose($handle);
                 return unserialize($variable);
             }
