@@ -12,8 +12,8 @@ define('WEBHOOK_SECRET', 'bitchat_webhook_secret_8e296a067a37563370ded05f5a3bf3e
 // Path to the shell script that does the actual git pull
 define('DEPLOY_SCRIPT', __DIR__ . '/webhook-deploy.sh');
 
-// Log file
-define('LOG_FILE', __DIR__ . '/../logs/webhook-deploy.log');
+// Log file (must be within open_basedir: public_html/../private is allowed)
+define('LOG_FILE', __DIR__ . '/../private/webhook-deploy.log');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
