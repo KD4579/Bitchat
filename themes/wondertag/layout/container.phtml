@@ -1662,6 +1662,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<a href="<?php echo $wo['config']['site_url'].'/checkout';?>" data-ajax="?link1=checkout" id="load_checkout" style="display: none;"></a>
 		<?php } ?>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/footer.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/footer.js') ?: time(); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-loader.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-loader.js') ?: time(); ?>"></script>
 
 	<?php if ($wo['loggedin'] == true && $wo['config']['web_push'] == 1): ?>
 	<!-- Part 3: Native Notification Popup -->
