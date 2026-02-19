@@ -3088,7 +3088,8 @@ div[class*="timeline"] {
    ============================================================ */
 
 /* ---- UI-1: Hero Market Banner ---- */
-.bc-hero {
+/* Scoped to #bc-hero-banner (home page only) to avoid overriding welcome page .bc-hero */
+#bc-hero-banner {
   background: linear-gradient(135deg, #6C5CFF 0%, #00D4FF 100%);
   border-radius: var(--bc-radius-xl, 22px);
   padding: 36px 40px 0;
@@ -3097,7 +3098,7 @@ div[class*="timeline"] {
   overflow: hidden;
   position: relative;
 }
-.bc-hero::before {
+#bc-hero-banner::before {
   content: '';
   position: absolute;
   top: -60px;
@@ -3139,15 +3140,17 @@ div[class*="timeline"] {
   70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
   100%{ box-shadow: 0 0 0 0 rgba(34,197,94,0); }
 }
-.bc-hero-headline {
+#bc-hero-banner .bc-hero-headline {
   font-size: clamp(22px, 3vw, 30px);
   font-weight: 700;
   line-height: 1.25;
   margin: 0 0 10px;
   letter-spacing: -.02em;
+  background: none;
+  -webkit-text-fill-color: #fff;
 }
 .bc-hero-name { opacity: .9; }
-.bc-hero-sub {
+#bc-hero-banner .bc-hero-sub {
   font-size: 14px;
   opacity: .8;
   margin-bottom: 24px;
@@ -3206,8 +3209,8 @@ div[class*="timeline"] {
 .bc-hero-chart { width: 100%; height: 80px; }
 .bc-hero-chart svg { width: 100%; height: 100%; }
 
-/* Hero stats bar */
-.bc-hero-stats {
+/* Hero stats bar — scoped to home banner */
+#bc-hero-banner .bc-hero-stats {
   display: flex;
   align-items: center;
   gap: 0;
@@ -3216,7 +3219,7 @@ div[class*="timeline"] {
   background: rgba(0,0,0,.15);
   border-top: 1px solid rgba(255,255,255,.12);
 }
-.bc-hero-stat {
+#bc-hero-banner .bc-hero-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3227,7 +3230,7 @@ div[class*="timeline"] {
   font-weight: 700;
   letter-spacing: -.02em;
 }
-.bc-hero-stat-label {
+#bc-hero-banner .bc-hero-stat-label {
   font-size: 11px;
   opacity: .7;
   margin-top: 2px;
@@ -3238,19 +3241,19 @@ div[class*="timeline"] {
   background: rgba(255,255,255,.2);
 }
 
-/* Mobile hero */
+/* Mobile hero — scoped to home banner */
 @media (max-width: 768px) {
-  .bc-hero { padding: 28px 20px 0; }
+  #bc-hero-banner { padding: 28px 20px 0; }
   .bc-hero-visual { display: none; }
-  .bc-hero-stats { margin: 0 -20px; padding: 14px 20px; }
+  #bc-hero-banner .bc-hero-stats { margin: 0 -20px; padding: 14px 20px; }
   .bc-hero-stat-value { font-size: 15px; }
-  .bc-hero-stats { gap: 0; overflow-x: auto; }
+  #bc-hero-banner .bc-hero-stats { gap: 0; overflow-x: auto; }
 }
 
 /* ---- UI-2: Glass Market Ticker ---- */
+/* Note: #bc-market-strip is a full-width bar — excluded from glass card styles */
 .bc-market-ticker-wrap,
 .bc-ticker-bar,
-#bc-market-strip,
 .market-ticker {
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
@@ -3261,8 +3264,7 @@ div[class*="timeline"] {
 }
 /* Dark mode glass */
 body.night-mode .bc-market-ticker-wrap,
-body.night-mode .bc-ticker-bar,
-body.night-mode #bc-market-strip {
+body.night-mode .bc-ticker-bar {
   background: rgba(30,30,50,.7) !important;
   border-color: rgba(255,255,255,.08) !important;
 }
