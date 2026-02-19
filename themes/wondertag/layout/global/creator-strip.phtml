@@ -3,17 +3,16 @@
 // Only show on home page for logged-in users
 if ($wo['page'] !== 'home' || $wo['loggedin'] !== true) return;
 
-// Get top creators (users with most posts / highest TRDC balance)
+// Get top creators by post count (only real columns selected)
 global $sqlConnect;
 $creators = array();
 
-// Try to get creator-mode users first, fallback to most active
-$sql = "SELECT u.user_id, u.name, u.avatar, u.url,
-        COALESCE(u.balance, 0) as trdc_balance,
+$currentUserId = intval($wo['user']['user_id']);
+$sql = "SELECT u.user_id, COALESCE(u.balance, 0) as trdc_balance,
         COUNT(p.id) as post_count
         FROM " . T_USERS . " u
         LEFT JOIN " . T_POSTS . " p ON p.user_id = u.user_id AND p.postPrivacy != '3'
-        WHERE u.active = '1' AND u.user_id != '" . Wo_Secure($wo['user']['user_id']) . "'
+        WHERE u.active = '1' AND u.user_id != {$currentUserId}
         GROUP BY u.user_id
         ORDER BY post_count DESC
         LIMIT 12";
@@ -21,7 +20,12 @@ $sql = "SELECT u.user_id, u.name, u.avatar, u.url,
 $result = mysqli_query($sqlConnect, $sql);
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
-        $creators[] = $row;
+        // Use Wo_UserData to get properly assembled name/url/avatar
+        $userData = Wo_UserData($row['user_id']);
+        if (!empty($userData)) {
+            $userData['trdc_balance'] = $row['trdc_balance'];
+            $creators[] = $userData;
+        }
     }
 }
 
@@ -38,21 +42,21 @@ if (empty($creators)) return;
     </div>
     <div class="bc-creator-strip-scroll" id="bc-creator-scroll">
         <?php foreach ($creators as $i => $creator): ?>
-        <a class="bc-creator-card" href="<?php echo htmlspecialchars($creator['url']); ?>" title="<?php echo htmlspecialchars($creator['name']); ?>">
+        <a class="bc-creator-card" href="<?php echo htmlspecialchars($creator['url'] ?? ''); ?>" title="<?php echo htmlspecialchars($creator['name'] ?? ''); ?>">
             <div class="bc-creator-avatar-wrap">
-                <img src="<?php echo htmlspecialchars($creator['avatar']); ?>"
-                     alt="<?php echo htmlspecialchars($creator['name']); ?>"
+                <img src="<?php echo htmlspecialchars($creator['avatar'] ?? ''); ?>"
+                     alt="<?php echo htmlspecialchars($creator['name'] ?? ''); ?>"
                      class="bc-creator-avatar"
                      loading="lazy">
                 <?php if ($i < 3): ?>
                 <span class="bc-creator-rank bc-creator-rank-<?php echo ($i + 1); ?>">
-                    <?php echo ($i === 0) ? '🥇' : (($i === 1) ? '🥈' : '🥉'); ?>
+                    <?php echo ($i === 0) ? '&#127949;' : (($i === 1) ? '&#127950;' : '&#127951;'); ?>
                 </span>
                 <?php endif; ?>
             </div>
-            <p class="bc-creator-name"><?php echo htmlspecialchars(explode(' ', $creator['name'])[0]); ?></p>
+            <p class="bc-creator-name"><?php echo htmlspecialchars(explode(' ', $creator['name'] ?? '')[0]); ?></p>
             <?php if (!empty($creator['trdc_balance']) && $creator['trdc_balance'] > 0): ?>
-            <p class="bc-creator-trdc"><?php echo number_format($creator['trdc_balance']); ?> T</p>
+            <p class="bc-creator-trdc"><?php echo number_format((float)$creator['trdc_balance']); ?> T</p>
             <?php endif; ?>
         </a>
         <?php endforeach; ?>
