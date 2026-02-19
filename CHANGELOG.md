@@ -6,7 +6,7 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 - Verified auto-deploy webhook operational
 - All 11 UI improvements confirmed live
-- Fixed webhook deploy log write permissions (www-data owner)
+- Fixed webhook deploy log write permissions (KamalDave owner)
 
 ---
 
