@@ -3576,3 +3576,279 @@ body.night-mode #bc-market-strip {
   line-height: 1.5 !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
+
+/* ============================================================
+   WEEK 3 — APP-LEVEL FEEL
+   UI-8 FAB, UI-10 Mobile Bottom Nav, UI-12 Skeleton, UI-11 Micro-animations
+   ============================================================ */
+
+/* ---- UI-8: Floating Action Button (desktop) ---- */
+.bc-fab {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--bc-primary, #6C5CFF);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 28px rgba(108,92,255,.45);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+  z-index: 990;
+}
+.bc-fab:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 14px 36px rgba(108,92,255,.55);
+}
+.bc-fab:active { transform: scale(.96); }
+/* Hide FAB on mobile (mobile has bottom nav create button) */
+@media (max-width: 768px) {
+  .bc-fab { display: none; }
+}
+
+/* ---- UI-10: Mobile Bottom Navigation ---- */
+#bc-mobile-nav {
+  display: none; /* shown only on mobile */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0,0,0,.07);
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: 64px;
+  display: none;
+  align-items: center;
+  justify-content: space-around;
+}
+@media (max-width: 768px) {
+  #bc-mobile-nav { display: flex; }
+  /* Push page content above nav */
+  body { padding-bottom: 72px; }
+}
+.bc-mob-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #8899aa;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  transition: color .2s, transform .15s;
+  padding: 0;
+}
+.bc-mob-nav-item:hover,
+.bc-mob-nav-item.active {
+  color: var(--bc-primary, #6C5CFF);
+  text-decoration: none;
+}
+.bc-mob-nav-item:active { transform: scale(.9); }
+.bc-mob-nav-item span {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+/* Create button — elevated pill in the centre */
+.bc-mob-create-btn {
+  position: relative;
+  top: -8px;
+  flex: 0 0 auto;
+  padding: 0 !important;
+}
+.bc-mob-create-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--bc-primary, #6C5CFF);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(108,92,255,.4);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+}
+.bc-mob-create-btn:hover .bc-mob-create-icon {
+  transform: scale(1.08);
+  box-shadow: 0 10px 28px rgba(108,92,255,.55);
+}
+/* Profile avatar in nav */
+.bc-mob-nav-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid transparent;
+  transition: border-color .2s;
+}
+.bc-mob-profile-item:hover .bc-mob-nav-avatar,
+.bc-mob-profile-item.active .bc-mob-nav-avatar {
+  border-color: var(--bc-primary, #6C5CFF);
+}
+/* Night mode nav */
+body.night-mode #bc-mobile-nav {
+  background: rgba(30,30,45,.95);
+  border-top-color: rgba(255,255,255,.08);
+}
+body.night-mode .bc-mob-nav-item { color: #667788; }
+
+/* ---- UI-12: Skeleton Feed Loader ---- */
+@keyframes bc-skel-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.bc-skel-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+.bc-skel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.bc-skel-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 600px 100%;
+  animation: bc-skel-shimmer 1.4s infinite linear;
+}
+.bc-skel-meta { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.bc-skel-line {
+  height: 13px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 600px 100%;
+  animation: bc-skel-shimmer 1.4s infinite linear;
+}
+.bc-skel-body { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.bc-skel-image {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 600px 100%;
+  animation: bc-skel-shimmer 1.4s infinite linear;
+  margin-bottom: 16px;
+}
+.bc-skel-actions {
+  display: flex;
+  gap: 16px;
+}
+.bc-skel-action {
+  width: 64px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 600px 100%;
+  animation: bc-skel-shimmer 1.4s infinite linear;
+}
+/* Stagger shimmer animation offsets */
+.bc-skel-card:nth-child(2) .bc-skel-line,
+.bc-skel-card:nth-child(2) .bc-skel-avatar,
+.bc-skel-card:nth-child(2) .bc-skel-image,
+.bc-skel-card:nth-child(2) .bc-skel-action {
+  animation-delay: .15s;
+}
+.bc-skel-card:nth-child(3) .bc-skel-line,
+.bc-skel-card:nth-child(3) .bc-skel-avatar,
+.bc-skel-card:nth-child(3) .bc-skel-image,
+.bc-skel-card:nth-child(3) .bc-skel-action {
+  animation-delay: .3s;
+}
+/* Dark mode skeletons */
+body.night-mode .bc-skel-card { background: #1e1e2e; }
+body.night-mode .bc-skel-line,
+body.night-mode .bc-skel-avatar,
+body.night-mode .bc-skel-image,
+body.night-mode .bc-skel-action {
+  background: linear-gradient(90deg, #2a2a3e 25%, #33334a 50%, #2a2a3e 75%);
+  background-size: 600px 100%;
+}
+
+/* ---- UI-11: Micro Animation Pack ---- */
+/* Global smooth transitions on interactive elements */
+button:not(.bc-fab):not(.bc-mob-create-btn),
+.btn {
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, color .15s ease !important;
+}
+button:not(.bc-fab):not(.bc-mob-create-btn):hover,
+.btn:not(.btn-default):hover {
+  transform: translateY(-1px);
+}
+button:not(.bc-fab):active,
+.btn:active { transform: translateY(0) scale(.98) !important; }
+
+/* Link underline animation */
+a:not(.bc-btn-ghost):not(.bc-btn-primary):not(.bc-mob-nav-item):not(.bc-creator-card) {
+  transition: opacity .15s ease, color .15s ease;
+}
+
+/* Card lift on hover (post cards) */
+.wow_content:not(.tag_pub_box_bg):not(.bc-hero) {
+  transition: transform .2s ease, box-shadow .2s ease !important;
+}
+.wow_content:not(.tag_pub_box_bg):not(.bc-hero):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,.10) !important;
+}
+
+/* Input focus ring */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(108,92,255,.15) !important;
+  border-color: var(--bc-primary, #6C5CFF) !important;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+
+/* Image scale on hover inside cards */
+.wow_content img:not(.bc-mob-nav-avatar):not(.bc-creator-avatar) {
+  transition: transform .3s ease;
+}
+.wow_content:hover img:not(.bc-mob-nav-avatar):not(.bc-creator-avatar) {
+  transform: scale(1.01);
+}
+
+/* Smooth page transitions */
+.page-margin {
+  animation: bc-page-in .3s ease both;
+}
+@keyframes bc-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Nav item active indicator dot */
+.bc-mob-nav-item.active::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--bc-primary, #6C5CFF);
+  margin: 1px auto 0;
+}
