@@ -223,21 +223,37 @@ BC_MODAL.confirm({
 
 ## 🟠 PHASE 2: GROWTH ENGINE LAYER (Creates Addiction Loop)
 
-### Task GE-1: Action Prompt Engine
-**Status:** [ ] Not Started
+### Task GE-1: Action Prompt Engine ✓
+**Status:** [✓] **COMPLETED** - 2026-02-19
 **Priority:** Medium
-**Impact:** Guides users to take next action
+**Impact:** Contextual prompts that guide users to take action, creating engagement loops
 
-**Current State:** Part 10 greeting shows trading-themed messages.
+**Implementation:**
+- ✓ Created `functions_growth.php` with comprehensive user state detection logic:
+  - `Wo_GetUserActivityState()` - Analyzes user activity (posts, followers, trading, TRDC balance)
+  - `Wo_GetActionPrompt()` - Returns contextual prompts with 6 priority levels
+- ✓ Built `bc-prompts.js` for dynamic prompt display with icon system
+- ✓ Integrated into home page with automatic prompt loading
+- ✓ Added beautiful gradient prompt cards with type-specific styling
+- ✓ CTA actions: openComposer, goToDiscover, goToWallet
 
-**Enhancement Needed:**
-- Make prompts dynamic based on user state:
-  - New user → prompt first post
-  - Trader → prompt market opinion
-  - Creator → prompt upload
-  - Inactive (7d+) → comeback prompt
-- Create `/assets/includes/functions_growth.php` with prompt logic
-- **Files:** `assets/includes/functions_growth.php` (NEW), `themes/wondertag/layout/home/content.phtml`
+**Prompt Types Implemented:**
+1. **New User** (0 posts): "Welcome! Share your first post"
+2. **Inactive User** (7+ days): "Welcome back! Your followers miss you"
+3. **Trader** (hasn't traded today): "Markets are moving. Share your insight"
+4. **Creator** (TRDC > 100): "Your TRDC is growing! Keep creating"
+5. **Growing** (1-5 posts): "You're on a roll! Post 3 more this week"
+6. **Grow Audience** (<10 followers): "Comment on trending posts to grow"
+7. **Default**: Time-based general engagement prompts
+
+**Files Modified:**
+- `assets/includes/functions_growth.php` (NEW - 200+ lines, MySQL queries)
+- `themes/wondertag/custom/js/bc-prompts.js` (NEW - 180+ lines)
+- `themes/wondertag/layout/home/content.phtml` (prompt container integration)
+- `themes/wondertag/layout/container.phtml` (script loading)
+- `themes/wondertag/custom/css/style.css` (gradient cards, responsive design)
+
+**Impact:** Creates psychological activation loop - users get personalized guidance based on their activity state, increasing engagement and TRDC earning motivation.
 
 ---
 

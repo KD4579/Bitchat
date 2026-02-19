@@ -4,18 +4,22 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ---
 
-## 2026-02-19 — Speed Mode + Growth Engine Implementation (Phase 1)
+## 2026-02-19 — Speed Mode + Growth Engine Implementation (Phase 1 & 2)
 
-### Feature: Speed Mode Foundation (Common Starting Points + SM-1 + SM-3)
+### Feature: Speed Mode Foundation (Common Starting Points + SM-1 + SM-3 + SM-6)
 
-**Completed Tasks:**
+**Completed Speed Mode Tasks:**
 - **Task SM-2:** Removed duplicate markets loader from header
 - **Task SM-5:** Global JS config object (`window.BC_CONFIG`) to eliminate hidden inputs
 - **Task SM-7:** Chat offline false positive fix (Page Visibility API + WebSocket heartbeat)
 - **Task SM-1:** Feed-First Rendering Optimizer (conservative lazy-loading approach)
 - **Task SM-3:** Global Modal System (40-60% DOM reduction potential)
+- **Task SM-6:** Session Expired Modal Optimization (BC_MODAL integration)
 
-**Goal:** Make Bitchat feel instant while reducing DOM bloat and redundant renders.
+**Completed Growth Engine Tasks:**
+- **Task GE-1:** Action Prompt Engine (contextual prompts based on user state)
+
+**Goal:** Make Bitchat feel instant while reducing DOM bloat AND create engagement loops that guide users to take action.
 
 ---
 
@@ -120,6 +124,61 @@ BC_MODAL.confirm({
 - Perfect synergy with SM-3 global modal system
 - Better styled session expiry alert with smooth redirect
 - Demonstrates BC_MODAL real-world usage
+
+---
+
+## 🟠 PHASE 2: GROWTH ENGINE
+
+### GE-1: Action Prompt Engine (Contextual User Guidance)
+**Approach:** Dynamic prompts based on user activity state to create engagement loops
+
+**Implementation:**
+Created comprehensive prompt system that analyzes user state and displays personalized action prompts:
+
+**Backend Logic** (`functions_growth.php`):
+- `Wo_GetUserActivityState($user_id)` - Analyzes 10+ metrics:
+  - Registration date (is_new: within 7 days)
+  - Total posts count and last post time (is_inactive: 7+ days)
+  - Trading activity (posts with #btc, #eth, #nifty hashtags)
+  - Creator status (verified, pro_type)
+  - TRDC balance and follower count
+- `Wo_GetActionPrompt($user_id, $username)` - Returns contextual prompt with 6 priority levels:
+
+**Prompt Priority System:**
+1. **New User (0 posts)**: "Welcome to Bitchat! Share your first post and start earning TRDC"
+2. **Inactive User (7+ days)**: "Welcome back! It's been X days. Your followers miss you!"
+3. **Trader (hasn't traded today)**: Time-based market prompts ("Markets are opening. What's your play?")
+4. **Creator (TRDC > 100)**: "Your TRDC is growing! You have X TRDC. Keep creating!"
+5. **Growing User (1-5 posts)**: "You're on a roll! Post 3 more times this week to unlock rewards"
+6. **Low Followers (<10)**: "Grow your audience - comment on trending posts"
+7. **Default**: Time-based general prompts
+
+**Frontend Display** (`bc-prompts.js`):
+- Auto-initializes on home page
+- Displays beautiful gradient prompt cards with icons
+- CTA actions: `openComposer`, `goToDiscover`, `goToWallet`
+- Smooth fade-in animations
+- Optional analytics tracking
+
+**Prompt Card Design:**
+- Type-specific gradient backgrounds (trader: pink-red, creator: blue-cyan, etc.)
+- Icon system with 7 SVG icons (rocket, chart, star, fire, users, etc.)
+- Responsive mobile layout
+- Glassmorphic icon containers with backdrop blur
+
+**Files Modified:**
+- `assets/includes/functions_growth.php` (NEW - 240 lines, MySQL user state analysis)
+- `themes/wondertag/custom/js/bc-prompts.js` (NEW - 190 lines, dynamic display)
+- `themes/wondertag/layout/home/content.phtml` (prompt integration, lines ~16-22)
+- `themes/wondertag/layout/container.phtml` (script loading)
+- `themes/wondertag/custom/css/style.css` (180+ lines of prompt styling)
+
+**Impact:**
+- **Psychological Activation**: Users receive personalized guidance based on their exact activity state
+- **Engagement Loop**: Contextual CTAs guide users toward next action (post, trade, grow audience)
+- **TRDC Motivation**: Prompts emphasize earning potential and creator rewards
+- **Retention**: Inactive users get comeback prompts to re-engage
+- **Beautiful UX**: Gradient cards with smooth animations create premium feel
 
 ---
 

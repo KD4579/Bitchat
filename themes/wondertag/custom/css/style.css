@@ -2345,3 +2345,206 @@ html.bc-dark-mode #bc-market-strip {
     color: var(--bc-text-secondary-dark, #ccc);
   }
 }
+
+/* ============================================================
+   GE-1: Action Prompt Engine (Growth & Engagement)
+   ============================================================ */
+
+/* Prompt container */
+#bc-action-prompt {
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+#bc-action-prompt.bc-prompt-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Prompt card */
+.bc-prompt-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.bc-prompt-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Prompt type variations */
+.bc-prompt-new_user {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bc-prompt-trader {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bc-prompt-creator {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.bc-prompt-inactive {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.bc-prompt-growing {
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.bc-prompt-grow_audience {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.bc-prompt-default {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Prompt icon */
+.bc-prompt-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.bc-prompt-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+
+/* Prompt content */
+.bc-prompt-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.bc-prompt-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.bc-prompt-message {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Prompt CTA button */
+.bc-prompt-cta {
+  flex-shrink: 0;
+  background: #fff;
+  color: #667eea;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.bc-prompt-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.bc-prompt-cta:active {
+  transform: translateY(0);
+}
+
+.bc-prompt-cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Trader prompt CTA color */
+.bc-prompt-trader .bc-prompt-cta {
+  color: #f5576c;
+}
+
+/* Creator prompt CTA color */
+.bc-prompt-creator .bc-prompt-cta {
+  color: #00f2fe;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .bc-prompt-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .bc-prompt-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .bc-prompt-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .bc-prompt-title {
+    font-size: 16px;
+  }
+
+  .bc-prompt-message {
+    font-size: 13px;
+  }
+
+  .bc-prompt-cta {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+  }
+}
+
+/* Animation for prompt appearance */
+@keyframes bc-prompt-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bc-prompt-card {
+  animation: bc-prompt-slide-in 0.5s ease;
+}
