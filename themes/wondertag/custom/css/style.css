@@ -2101,143 +2101,7 @@ html.bc-dark-mode #bc-market-strip {
   display: none !important;
 }
 
-/* ============================================================
-   Part 11: Mobile Sticky Bottom Bar
-   ============================================================ */
-#bc-mobile-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1040;
-  background: var(--bc-surface-primary);
-  height: 56px;
-  justify-content: space-around;
-  align-items: center;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  border-top: none !important;
-  border-bottom: none !important;
-}
-.bc-mob-nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  height: 56px;
-  color: var(--bc-text-secondary);
-  text-decoration: none;
-  border: none !important;
-  background: none;
-  cursor: pointer;
-  position: relative;
-  transition: color 0.15s;
-  box-shadow: none !important;
-  outline: none !important;
-}
-.bc-mob-nav-item svg { width: 24px; height: 24px; }
-.bc-mob-nav-item:hover, .bc-mob-nav-item.bc-mob-active {
-  color: var(--main, #1d9bf0);
-}
-.bc-mob-nav-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid transparent;
-  transition: border-color 0.15s;
-}
-.bc-mob-nav-item.bc-mob-active .bc-mob-nav-avatar {
-  border-color: var(--main, #1d9bf0);
-}
-.bc-mob-notif-badge {
-  position: absolute;
-  top: 8px; right: calc(50% - 18px);
-  background: #f00;
-  color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-  border-radius: 999px;
-  min-width: 16px; height: 16px;
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 3px;
-  line-height: 1;
-}
-/* Remove any pseudo-elements that might create lines */
-#bc-mobile-nav::before,
-#bc-mobile-nav::after,
-.bc-mob-nav-item::before,
-.bc-mob-nav-item::after {
-  display: none !important;
-  content: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-/* Remove borders from SVG icons */
-.bc-mob-nav-item svg {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-@media (max-width: 900px) {
-  #bc-mobile-nav {
-    display: flex !important;
-    border: 0 !important;
-    border-top: 0 !important;
-    border-bottom: 0 !important;
-    box-shadow: 0 0 0 0 transparent !important;
-    margin: 0 !important;
-  }
-
-  /* Remove any border/shadow from body and main containers */
-  body,
-  body::before,
-  body::after,
-  #wrapper,
-  #wrapper::before,
-  #wrapper::after,
-  main,
-  main::before,
-  main::after {
-    border-bottom: 0 !important;
-    box-shadow: none !important;
-  }
-
-  body { padding-bottom: 60px !important; }
-
-  /* Hide ALL possible WoWonder bottom navigation elements */
-  .tag_bottom_nav,
-  .bottom-nav,
-  .mobile-nav,
-  .mobile-bottom-nav,
-  .navbar-fixed-bottom,
-  .fixed-bottom,
-  nav[class*="bottom"],
-  div[class*="bottom-nav"],
-  div[class*="mobile-nav"],
-  div[class*="mobile-bottom"],
-  .user-bottom-nav,
-  footer nav,
-  footer .navbar,
-  [style*="position: fixed"][style*="bottom"],
-  div[style*="bottom: 0"] {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    position: absolute !important;
-    z-index: -9999 !important;
-  }
-
-  /* Ensure ONLY bc-mobile-nav shows */
-  #bc-mobile-nav {
-    position: fixed !important;
-    z-index: 1040 !important;
-  }
-}
+/* Part 11: Mobile nav — replaced by UI-10 block below (Week 3) */
 
 /* ============================================================
    SM-3: Global Modal System (40-60% DOM reduction)
@@ -3613,12 +3477,12 @@ body.night-mode #bc-market-strip {
 
 /* ---- UI-10: Mobile Bottom Navigation ---- */
 #bc-mobile-nav {
-  display: none; /* shown only on mobile */
+  display: none; /* default hidden; shown via media query below */
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1040;
   background: rgba(255,255,255,.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -3626,14 +3490,17 @@ body.night-mode #bc-market-strip {
   padding: 0 8px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   height: 64px;
-  display: none;
   align-items: center;
   justify-content: space-around;
 }
-@media (max-width: 768px) {
-  #bc-mobile-nav { display: flex; }
+@media (max-width: 900px) {
+  #bc-mobile-nav { display: flex !important; }
   /* Push page content above nav */
-  body { padding-bottom: 72px; }
+  body { padding-bottom: 72px !important; }
+  /* Hide FAB on mobile too */
+  .bc-fab { display: none !important; }
+  /* Hide platform's own bottom nav if any */
+  .tag_bottom_nav { display: none !important; }
 }
 .bc-mob-nav-item {
   display: flex;

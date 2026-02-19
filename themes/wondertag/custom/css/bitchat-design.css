@@ -198,13 +198,13 @@ body {
     background: var(--bc-primary-hover);
 }
 
-/* Smooth transitions everywhere */
-button, a, .card, input, textarea, select {
-    transition: all var(--bc-transition-base);
+/* Smooth transitions on interactive elements (scoped to avoid nav jump) */
+button, input, textarea, select {
+    transition: background-color var(--bc-transition-base), color var(--bc-transition-base),
+                box-shadow var(--bc-transition-base), border-color var(--bc-transition-base);
 }
-
-button:hover, a:hover {
-    transform: translateY(-1px);
+a {
+    transition: color var(--bc-transition-base), opacity var(--bc-transition-base);
 }
 
 /* Remove outline, add focus ring */

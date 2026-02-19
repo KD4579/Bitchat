@@ -9,13 +9,13 @@ $total_users = 0;
 $posts_today = 0;
 $online_users = 0;
 
-$r = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE is_verified = 1");
+$r = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE active = '1' AND banned = '0'");
 if ($r && $row = mysqli_fetch_assoc($r)) $total_users = number_format($row['cnt']);
 
-$r2 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_POST . " WHERE TIME_TO_SEC(TIMEDIFF(NOW(), time)) < 86400 AND post_privacy != 'onlyme'");
+$r2 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_POSTS . " WHERE TIME_TO_SEC(TIMEDIFF(NOW(), time)) < 86400 AND post_privacy != 'onlyme'");
 if ($r2 && $row2 = mysqli_fetch_assoc($r2)) $posts_today = number_format($row2['cnt']);
 
-$r3 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE last_seen > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
+$r3 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE last_seen > DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND active = '1'");
 if ($r3 && $row3 = mysqli_fetch_assoc($r3)) $online_users = number_format($row3['cnt']);
 
 $user_name = !empty($wo['user']['name']) ? explode(' ', $wo['user']['name'])[0] : 'Trader';

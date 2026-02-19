@@ -479,10 +479,9 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>" id="night-mode-css">
 		<?php } ?>
 
-		<!-- Custom UI Overrides (loads last for highest priority) -->
-	<!-- VI-1: Bitchat Design System (MUST load before custom styles) -->
-	<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css?v=<?php echo @filemtime(__DIR__ . '/../custom/css/bitchat-design.css') ?: time(); ?>">
-
+		<!-- VI-1: Bitchat Design System (loads before custom overrides) -->
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css?v=<?php echo @filemtime(__DIR__ . '/../custom/css/bitchat-design.css') ?: time(); ?>">
+		<!-- Custom UI Overrides (highest priority) -->
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/style.css?v=<?php echo @filemtime(__DIR__ . '/../custom/css/style.css') ?: time(); ?>">
 
 		<?php if($wo['config']['googleLogin'] != 0): ?>
