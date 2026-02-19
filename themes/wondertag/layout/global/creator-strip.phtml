@@ -1,0 +1,60 @@
+<?php
+// UI-3: Creator Spotlight Strip
+// Only show on home page for logged-in users
+if ($wo['page'] !== 'home' || $wo['loggedin'] !== true) return;
+
+// Get top creators (users with most posts / highest TRDC balance)
+global $sqlConnect;
+$creators = array();
+
+// Try to get creator-mode users first, fallback to most active
+$sql = "SELECT u.user_id, u.name, u.avatar, u.url,
+        COALESCE(u.trdc_balance, 0) as trdc_balance,
+        COUNT(p.post_id) as post_count
+        FROM " . T_USERS . " u
+        LEFT JOIN " . T_POST . " p ON p.user_id = u.user_id AND p.post_privacy != 'onlyme'
+        WHERE u.is_verified = 1 AND u.user_id != '" . Wo_Secure($wo['user']['user_id']) . "'
+        GROUP BY u.user_id
+        ORDER BY trdc_balance DESC, post_count DESC
+        LIMIT 12";
+
+$result = mysqli_query($sqlConnect, $sql);
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $creators[] = $row;
+    }
+}
+
+if (empty($creators)) return;
+?>
+
+<div class="bc-creator-strip" id="bc-creator-strip">
+    <div class="bc-creator-strip-header">
+        <h3 class="bc-creator-strip-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Top Creators
+        </h3>
+        <a href="<?php echo Wo_SeoLink('index.php?link1=leaderboard'); ?>" class="bc-creator-strip-more">View All</a>
+    </div>
+    <div class="bc-creator-strip-scroll" id="bc-creator-scroll">
+        <?php foreach ($creators as $i => $creator): ?>
+        <a class="bc-creator-card" href="<?php echo htmlspecialchars($creator['url']); ?>" title="<?php echo htmlspecialchars($creator['name']); ?>">
+            <div class="bc-creator-avatar-wrap">
+                <img src="<?php echo htmlspecialchars($creator['avatar']); ?>"
+                     alt="<?php echo htmlspecialchars($creator['name']); ?>"
+                     class="bc-creator-avatar"
+                     loading="lazy">
+                <?php if ($i < 3): ?>
+                <span class="bc-creator-rank bc-creator-rank-<?php echo ($i + 1); ?>">
+                    <?php echo ($i === 0) ? '🥇' : (($i === 1) ? '🥈' : '🥉'); ?>
+                </span>
+                <?php endif; ?>
+            </div>
+            <p class="bc-creator-name"><?php echo htmlspecialchars(explode(' ', $creator['name'])[0]); ?></p>
+            <?php if (!empty($creator['trdc_balance']) && $creator['trdc_balance'] > 0): ?>
+            <p class="bc-creator-trdc"><?php echo number_format($creator['trdc_balance']); ?> T</p>
+            <?php endif; ?>
+        </a>
+        <?php endforeach; ?>
+    </div>
+</div>

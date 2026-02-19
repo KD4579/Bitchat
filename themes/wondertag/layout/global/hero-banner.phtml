@@ -1,0 +1,97 @@
+<?php
+// UI-1: Hero Market Banner
+// Only show on home page for logged-in users
+if ($wo['page'] !== 'home' || $wo['loggedin'] !== true) return;
+
+// Get live stats
+global $sqlConnect;
+$total_users = 0;
+$posts_today = 0;
+$online_users = 0;
+
+$r = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE is_verified = 1");
+if ($r && $row = mysqli_fetch_assoc($r)) $total_users = number_format($row['cnt']);
+
+$r2 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_POST . " WHERE TIME_TO_SEC(TIMEDIFF(NOW(), time)) < 86400 AND post_privacy != 'onlyme'");
+if ($r2 && $row2 = mysqli_fetch_assoc($r2)) $posts_today = number_format($row2['cnt']);
+
+$r3 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_USERS . " WHERE last_seen > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
+if ($r3 && $row3 = mysqli_fetch_assoc($r3)) $online_users = number_format($row3['cnt']);
+
+$user_name = !empty($wo['user']['name']) ? explode(' ', $wo['user']['name'])[0] : 'Trader';
+?>
+
+<div class="bc-hero" id="bc-hero-banner">
+    <div class="bc-hero-inner">
+        <div class="bc-hero-content">
+            <p class="bc-hero-eyebrow">
+                <span class="bc-live-dot"></span>
+                Markets are open
+            </p>
+            <h1 class="bc-hero-headline">
+                What's moving markets,<br><span class="bc-hero-name"><?php echo htmlspecialchars($user_name); ?></span>?
+            </h1>
+            <p class="bc-hero-sub">Share insights, earn TRDC, and connect with <?php echo $total_users; ?> traders</p>
+            <div class="bc-hero-ctas">
+                <button class="bc-btn-primary" data-toggle="modal" data-target="#tagPostBox" data-backdrop="static" data-keyboard="false">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    Share Insight
+                </button>
+                <a class="bc-btn-ghost" href="<?php echo Wo_SeoLink('index.php?link1=discover'); ?>">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                    Explore Creators
+                </a>
+            </div>
+        </div>
+        <div class="bc-hero-visual">
+            <div class="bc-hero-chart">
+                <svg viewBox="0 0 200 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/>
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0)"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M0,60 L20,50 L40,55 L60,35 L80,40 L100,25 L120,30 L140,15 L160,20 L180,10 L200,5 L200,80 L0,80 Z" fill="url(#chartGrad)"/>
+                    <path d="M0,60 L20,50 L40,55 L60,35 L80,40 L100,25 L120,30 L140,15 L160,20 L180,10 L200,5" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <div class="bc-hero-stats">
+        <div class="bc-hero-stat">
+            <span class="bc-hero-stat-value"><?php echo $online_users; ?></span>
+            <span class="bc-hero-stat-label">Online now</span>
+        </div>
+        <div class="bc-hero-stat-divider"></div>
+        <div class="bc-hero-stat">
+            <span class="bc-hero-stat-value"><?php echo $posts_today; ?></span>
+            <span class="bc-hero-stat-label">Insights today</span>
+        </div>
+        <div class="bc-hero-stat-divider"></div>
+        <div class="bc-hero-stat">
+            <span class="bc-hero-stat-value"><?php echo $total_users; ?></span>
+            <span class="bc-hero-stat-label">Total traders</span>
+        </div>
+        <div class="bc-hero-stat-divider"></div>
+        <div class="bc-hero-stat">
+            <span class="bc-hero-stat-value" id="bc-hero-btc">—</span>
+            <span class="bc-hero-stat-label">BTC/USD</span>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // Fetch live BTC price for hero stat
+    fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+        .then(r => r.json())
+        .then(d => {
+            const el = document.getElementById('bc-hero-btc');
+            if (el && d.price) {
+                el.textContent = '$' + parseFloat(d.price).toLocaleString('en-US', {maximumFractionDigits: 0});
+            }
+        })
+        .catch(() => {});
+})();
+</script>
