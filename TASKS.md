@@ -72,6 +72,166 @@
 ---
 ---
 
+# 🚀 BITCHAT — SPEED MODE + GROWTH ENGINE (PHASE 2026-02)
+
+> **Core Idea:** Bitchat Engine guides, rewards, and amplifies user actions for instant growth perception. Speed Mode makes everything feel instant.
+
+**Status Legend:**
+- [ ] Not Started
+- [~] In Progress
+- [x] Completed
+
+---
+
+## 🔴 PHASE 1: SPEED MODE (Foundation — Must Be Done First)
+
+### Task SM-1: Feed-First Rendering (Largest Speed Gain)
+**Status:** [ ] Not Started
+**Priority:** Critical
+**Impact:** Page load feels 2-3x faster
+
+**Problem:** Homepage loads markets, sidebar, chat, modals, and composer before feed.
+
+**Implementation:**
+- Render ONLY header, minimal composer, and feed container in initial HTML
+- Move sidebar, stories, markets, chat to async loaders
+- Create `/themes/wondertag/custom/js/bc-loader.js` for async module loading
+- **Files:** `themes/wondertag/layout/home/content.phtml`, `themes/wondertag/custom/js/bc-loader.js` (NEW)
+
+---
+
+### Task SM-2: Remove Duplicate Markets Loader ✓ Quick Win
+**Status:** [ ] Not Started
+**Priority:** High
+**Impact:** Removes one redundant API call and DOM render
+
+**Problem:** Market widget loads twice (confirmed in header and another location).
+
+**Implementation:**
+- Remove second `<?php echo Wo_LoadPage('market/widget'); ?>` include
+- **Files:** `themes/wondertag/layout/header/content.phtml`
+
+---
+
+### Task SM-3: Global Modal System (Huge DOM Reduction)
+**Status:** [ ] Not Started
+**Priority:** High
+**Impact:** Reduces HTML size by ~40-60% on feed pages
+
+**Problem:** Every post injects duplicate modals (Edit, Delete, Report, Schedule, AI, Offer) — repeated hundreds of times.
+
+**Implementation:**
+- Remove all post-level modal HTML from `layout/post/list.phtml`
+- Create `layout/global/modals.phtml` — load once in `footer/content.phtml`
+- Pass `post_id` dynamically via JS when modal is triggered
+- **Files:** `themes/wondertag/layout/post/list.phtml`, `themes/wondertag/layout/global/modals.phtml` (NEW), `themes/wondertag/layout/footer/content.phtml`
+
+---
+
+### Task SM-4: Composer Lightweight Mode ✓ Already Partially Done
+**Status:** [~] Partially Completed (Part 5 of UI Plan)
+**Priority:** Medium
+**Impact:** Faster composer open time
+
+**Current State:** Part 5 hides advanced tools behind "More" button via CSS.
+
+**Remaining Work:**
+- Load hidden tools via AJAX on "More" click instead of rendering all upfront
+- Create `/xhr/ajax/load-composer-tools.php`
+- **Files:** `themes/wondertag/layout/post/post-box.phtml`, `xhr/ajax/load-composer-tools.php` (NEW)
+
+---
+
+### Task SM-5: Hidden Input Elimination ✓ Quick Win
+**Status:** [ ] Not Started
+**Priority:** Medium
+**Impact:** Cleaner DOM, faster parsing
+
+**Problem:** Hundreds of hidden inputs scattered across pages for CSRF, user_id, config values.
+
+**Implementation:**
+- Create global JS config object in `layout/header/script.phtml`:
+  ```js
+  window.BC_CONFIG = {
+    csrf: "<?=$wo['csrf_token']?>",
+    userId: "<?=$wo['user']['user_id']?>",
+    siteUrl: "<?=$wo['config']['site_url']?>"
+  };
+  ```
+- Remove hidden inputs from: `post-box.phtml`, `home/content.phtml`, theme options
+- **Files:** `themes/wondertag/layout/header/script.phtml`, `themes/wondertag/layout/story/publisher-box.phtml`, `themes/wondertag/layout/home/content.phtml`
+
+---
+
+### Task SM-6: Session Expired Background Fix
+**Status:** [ ] Not Started
+**Priority:** Low
+**Impact:** Removes unused modal from DOM
+
+**Problem:** Session expired modal exists in DOM even when user is logged in.
+
+**Implementation:**
+- Wrap session modal in `<?php if (!$wo['loggedin']) { ?>` in `footer/content.phtml`
+- Backend: Return HTTP 401 status code only (no HTML) from `assets/includes/ajax.php`
+- **Files:** `themes/wondertag/layout/footer/content.phtml`, `assets/includes/ajax.php`
+
+---
+
+### Task SM-7: Chat False Offline Fix ✓ High Priority UX
+**Status:** [ ] Not Started
+**Priority:** High
+**Impact:** Fixes user confusion ("Why am I offline while browsing?")
+
+**Problem:** Chat shows "You are currently offline" banner while user is actively browsing.
+
+**Implementation:**
+- Replace polling `setInterval(checkStatus, 5000)` with `visibilitychange` event + WebSocket heartbeat
+- **Files:** `themes/wondertag/custom/js/chat.js` or main chat handler
+
+---
+
+## 🟠 PHASE 2: GROWTH ENGINE LAYER (Creates Addiction Loop)
+
+### Task GE-1: Action Prompt Engine
+**Status:** [ ] Not Started
+**Priority:** Medium
+**Impact:** Guides users to take next action
+
+**Current State:** Part 10 greeting shows trading-themed messages.
+
+**Enhancement Needed:**
+- Make prompts dynamic based on user state:
+  - New user → prompt first post
+  - Trader → prompt market opinion
+  - Creator → prompt upload
+  - Inactive (7d+) → comeback prompt
+- Create `/assets/includes/functions_growth.php` with prompt logic
+- **Files:** `assets/includes/functions_growth.php` (NEW), `themes/wondertag/layout/home/content.phtml`
+
+---
+
+### Task GE-2: TRDC Dopamine Feedback
+**Status:** [ ] Not Started
+**Priority:** Medium
+**Impact:** Reinforces positive behavior instantly
+
+**Implementation:**
+- After actions (post, comment, invite, follow), show reward toast: "+0.5 TRDC earned!"
+- Add `showTRDCReward(amount)` function in `themes/wondertag/custom/js/script.js`
+- **Files:** `themes/wondertag/custom/js/script.js`
+
+---
+
+### Task GE-3: Feed Ranking Engine ✓ Already Done
+**Status:** [x] Completed (Topic 2 from previous implementation)
+**Priority:** N/A
+
+**Current State:** Feed algorithm with scoring already implemented in `assets/includes/functions_feed.php`.
+
+---
+
+---
+
 # BITCHAT — GROWTH & TECHNICAL IMPROVEMENT INDEX
 
 > **Principle:** New development must NOT affect or disturb existing working features. All improvements must be backwards-compatible, reversible, and tested against existing functionality.

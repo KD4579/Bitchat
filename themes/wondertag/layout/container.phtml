@@ -532,8 +532,11 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
             }
           });
 		  socket.emit('join', {username: "<?php echo ($wo['loggedin'] ? $wo['user']['username'] : '');?>", user_id: _getCookie('user_id'), recipient_ids, recipient_group_ids }, ()=>{
+              // Visibility-aware presence heartbeat (SM-7: Chat offline fix)
               setInterval(() => {
-                socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")})
+                if (document.visibilityState === 'visible') {
+                  socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")})
+                }
               }, 2000);
           });
          }, 2500);
@@ -555,8 +558,11 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
               }
             });
 			socket.emit('join', {username: "<?php echo ($wo['loggedin'] ? $wo['user']['username'] : '');?>", user_id: _getCookie('user_id'), recipient_ids, recipient_group_ids }, ()=>{
+                // Visibility-aware presence heartbeat (SM-7: Chat offline fix)
                 setInterval(() => {
-                  socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")})
+                  if (document.visibilityState === 'visible') {
+                    socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")})
+                  }
                 }, 2000);
             });
           }, 3000);
@@ -806,6 +812,17 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/flatpickr.min.css">
 		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/flatpickr.js"></script>
+
+		<!-- Global BC Config (replaces hidden inputs) -->
+		<script>
+		window.BC_CONFIG = {
+			csrf: "<?php echo isset($wo['csrf_token']) ? $wo['csrf_token'] : ''; ?>",
+			userId: "<?php echo isset($wo['user']['user_id']) ? $wo['user']['user_id'] : ''; ?>",
+			siteUrl: "<?php echo $wo['config']['site_url']; ?>",
+			themeUrl: "<?php echo $wo['config']['theme_url']; ?>",
+			loggedIn: <?php echo $wo['loggedin'] ? 'true' : 'false'; ?>
+		};
+		</script>
 	</head>
    
 	<body <?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { ?> class="tag_header_top_p"<?php } ?><?php if ($wo['config']['chatSystem'] == 0) { ?> chat-off="true" <?php } ?>>
