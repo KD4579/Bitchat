@@ -3852,3 +3852,186 @@ textarea:focus {
   background: var(--bc-primary, #6C5CFF);
   margin: 1px auto 0;
 }
+
+/* ============================================================
+   WEEK 4 — POLISH
+   UI-13 Spacing, UI-14 Background Gradient, UI-15 Border Removal
+   ============================================================ */
+
+/* ---- UI-14: Soft Background Gradient ---- */
+/* Override flat bg with a living gradient that shifts subtly */
+body:not(.night-mode) {
+  background: linear-gradient(160deg, #F8FAFF 0%, #EEF2FF 60%, #F3F0FF 100%) !important;
+  background-attachment: fixed !important;
+  min-height: 100vh;
+}
+/* Ensure content areas don't inherit the gradient visually */
+.tag_sidebar .sidebar_innr,
+.right_side_bar {
+  background: transparent !important;
+}
+
+/* ---- UI-13: Spacing Expansion ---- */
+/* Between major sections on the feed */
+.posts_load {
+  margin-top: 8px;
+}
+.bc-feed-tabs {
+  margin-bottom: 20px !important;
+}
+/* More air between widgets in sidebar */
+.right_side_bar .wow_content,
+.right_side_bar > div {
+  margin-bottom: 20px !important;
+}
+/* Section gaps on home page */
+.bc-hero          { margin-bottom: 28px !important; }
+.bc-creator-strip { margin-bottom: 24px !important; }
+#bc-action-prompt + div,
+.greetalert       { margin-bottom: 24px !important; }
+/* Stories section breathing room */
+.tag_stories_on_home { margin-bottom: 24px !important; }
+/* Post cards */
+.wo_post_sec,
+.post-container,
+.wow_content:not(.tag_pub_box_bg):not(.bc-hero) {
+  margin-bottom: 20px !important;
+}
+/* Page container inner padding */
+.page-margin > .container {
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
+
+/* ---- UI-15: Remove Hard Borders — Replace With Shadows ---- */
+/* Main post / content cards */
+.wow_content {
+  border: none !important;
+  border-color: transparent !important;
+}
+/* Sidebar cards and widgets */
+.right_side_bar .wow_content,
+.tag_sidebar_section_prnt,
+.tag_sidebar .wow_content {
+  border: none !important;
+}
+/* Comment boxes */
+.comments-area,
+.comment-form,
+.wo_comments_box {
+  border-top: none !important;
+}
+/* Dividers inside cards — make ultra subtle */
+.card-footer,
+.post-footer,
+.wo_post_footer,
+.tag_pub_box .modal-footer {
+  border-top: 1px solid rgba(0,0,0,.04) !important;
+}
+/* Input fields — no hard outline, rely on focus ring */
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea:not(.postText) {
+  border: 1.5px solid rgba(0,0,0,.08) !important;
+  border-radius: 10px !important;
+  transition: border-color .2s, box-shadow .2s !important;
+}
+.form-control:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+textarea:not(.postText):focus {
+  border-color: var(--bc-primary, #6C5CFF) !important;
+  box-shadow: 0 0 0 3px rgba(108,92,255,.12) !important;
+  outline: none !important;
+}
+/* Tabs, nav items — border-bottom replaced with shadow line */
+.bc-lb-tabs,
+.bc-feed-tabs {
+  border-bottom: none !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,.07) !important;
+  padding-bottom: 14px !important;
+}
+/* Header/nav borders */
+.tag_header_main,
+.tag_top_bar {
+  border-bottom: none !important;
+  box-shadow: 0 1px 12px rgba(0,0,0,.07) !important;
+}
+/* Modals */
+.modal-content {
+  border: none !important;
+}
+.modal-header {
+  border-bottom: 1px solid rgba(0,0,0,.05) !important;
+}
+.modal-footer {
+  border-top: 1px solid rgba(0,0,0,.05) !important;
+}
+/* Story / status strips */
+.tag_lbox_stories,
+.tag_stories_mobi {
+  border: none !important;
+  background: transparent !important;
+}
+/* Tables in admin / settings */
+.table,
+table {
+  border-color: rgba(0,0,0,.06) !important;
+}
+td, th {
+  border-color: rgba(0,0,0,.05) !important;
+}
+/* Dropdown menus */
+.dropdown-menu {
+  border: none !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,.12) !important;
+  border-radius: 14px !important;
+}
+/* Night mode border overrides */
+body.night-mode .form-control,
+body.night-mode input[type="text"],
+body.night-mode input[type="email"],
+body.night-mode input[type="password"],
+body.night-mode input[type="search"],
+body.night-mode textarea:not(.postText) {
+  border-color: rgba(255,255,255,.08) !important;
+}
+body.night-mode .tag_header_main,
+body.night-mode .tag_top_bar {
+  box-shadow: 0 1px 12px rgba(0,0,0,.3) !important;
+}
+body.night-mode .dropdown-menu {
+  box-shadow: 0 12px 40px rgba(0,0,0,.4) !important;
+}
+
+/* ---- Final Polish: Typography Tightening ---- */
+/* Tighten up heading weights site-wide */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+}
+/* Slightly bigger base size for legibility */
+body, p, li, td {
+  font-size: 15px;
+  line-height: 1.6;
+}
+/* Username / display name in posts */
+.wo_time_format,
+.post-time,
+.tag_p_time {
+  font-size: 12px;
+  color: var(--bc-text-tertiary, #94A3B8);
+}
+/* Reaction count labels */
+.reactions span,
+.wonders_numb {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bc-text-secondary, #64748B);
+}
