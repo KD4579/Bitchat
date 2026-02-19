@@ -9,13 +9,13 @@ $creators = array();
 
 // Try to get creator-mode users first, fallback to most active
 $sql = "SELECT u.user_id, u.name, u.avatar, u.url,
-        COALESCE(u.trdc_balance, 0) as trdc_balance,
+        COALESCE(u.balance, 0) as trdc_balance,
         COUNT(p.id) as post_count
         FROM " . T_USERS . " u
-        LEFT JOIN " . T_POSTS . " p ON p.user_id = u.user_id AND p.post_privacy != 'onlyme'
+        LEFT JOIN " . T_POSTS . " p ON p.user_id = u.user_id AND p.postPrivacy != '3'
         WHERE u.active = '1' AND u.user_id != '" . Wo_Secure($wo['user']['user_id']) . "'
         GROUP BY u.user_id
-        ORDER BY trdc_balance DESC, post_count DESC
+        ORDER BY post_count DESC
         LIMIT 12";
 
 $result = mysqli_query($sqlConnect, $sql);
