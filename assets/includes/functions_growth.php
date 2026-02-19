@@ -223,3 +223,112 @@ function Wo_GetActionPromptJSON($user_id, $username = '') {
     $prompt = Wo_GetActionPrompt($user_id, $username);
     return json_encode($prompt);
 }
+
+/**
+ * GE-2: TRDC Dopamine Feedback - Reward tracking functions
+ */
+
+/**
+ * Award TRDC to user for an action
+ * @param int $user_id User ID
+ * @param int $amount TRDC amount to award
+ * @param string $type Reward type (post, comment, like_received, etc.)
+ * @param string $description Optional description
+ * @return bool Success status
+ */
+function Wo_AwardTRDC($user_id, $amount, $type = 'general', $description = '') {
+    global $sqlConnect;
+
+    $user_id = Wo_Secure($user_id);
+    $amount = intval($amount);
+    $type = Wo_Secure($type);
+    $description = Wo_Secure($description);
+
+    if ($amount <= 0) {
+        return false;
+    }
+
+    // Update user's TRDC balance
+    $query = mysqli_query($sqlConnect, "UPDATE " . T_USERS . "
+        SET trdc_balance = trdc_balance + $amount
+        WHERE user_id = '$user_id'");
+
+    if ($query) {
+        // Log the transaction (optional - for history tracking)
+        Wo_LogTRDCTransaction($user_id, $amount, $type, $description);
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Log TRDC transaction for history
+ * @param int $user_id User ID
+ * @param int $amount TRDC amount
+ * @param string $type Transaction type
+ * @param string $description Description
+ */
+function Wo_LogTRDCTransaction($user_id, $amount, $type, $description) {
+    global $sqlConnect;
+
+    $user_id = Wo_Secure($user_id);
+    $amount = intval($amount);
+    $type = Wo_Secure($type);
+    $description = Wo_Secure($description);
+    $time = time();
+
+    // Create transactions table if it doesn't exist (optional enhancement)
+    // For now, we'll just skip logging if table doesn't exist
+    $table_check = mysqli_query($sqlConnect, "SHOW TABLES LIKE 'trdc_transactions'");
+
+    if (mysqli_num_rows($table_check) > 0) {
+        mysqli_query($sqlConnect, "INSERT INTO trdc_transactions
+            (user_id, amount, type, description, time)
+            VALUES ('$user_id', '$amount', '$type', '$description', '$time')");
+    }
+}
+
+/**
+ * Get TRDC reward amount for action type
+ * @param string $type Action type
+ * @return int TRDC amount
+ */
+function Wo_GetTRDCReward($type) {
+    $rewards = array(
+        'post' => 50,
+        'comment' => 10,
+        'like_received' => 5,
+        'share' => 15,
+        'profile_view' => 2,
+        'first_post' => 100,
+        'daily_login' => 20,
+        'verify_email' => 50,
+        'complete_profile' => 75,
+        'follow' => 3,
+        'followed' => 5
+    );
+
+    return isset($rewards[$type]) ? $rewards[$type] : 0;
+}
+
+/**
+ * Check if user should receive first post bonus
+ * @param int $user_id User ID
+ * @return bool
+ */
+function Wo_IsFirstPost($user_id) {
+    global $sqlConnect;
+
+    $user_id = Wo_Secure($user_id);
+
+    $query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_POSTS . "
+        WHERE user_id = '$user_id' AND postType = ''");
+
+    if (mysqli_num_rows($query) > 0) {
+        $data = mysqli_fetch_assoc($query);
+        return (intval($data['total']) === 1); // Returns true if this is exactly the first post
+    }
+
+    return false;
+}

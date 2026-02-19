@@ -1666,6 +1666,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-loader.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-loader.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-modal.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-modal.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-prompts.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-prompts.js') ?: time(); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-rewards.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-rewards.js') ?: time(); ?>"></script>
 
 	<?php if ($wo['loggedin'] == true && $wo['config']['web_push'] == 1): ?>
 	<!-- Part 3: Native Notification Popup -->

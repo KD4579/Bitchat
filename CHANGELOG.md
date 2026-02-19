@@ -18,8 +18,9 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 **Completed Growth Engine Tasks:**
 - **Task GE-1:** Action Prompt Engine (contextual prompts based on user state)
+- **Task GE-2:** TRDC Dopamine Feedback (instant reward toasts with celebration animations)
 
-**Goal:** Make Bitchat feel instant while reducing DOM bloat AND create engagement loops that guide users to take action.
+**Goal:** Make Bitchat feel instant while reducing DOM bloat AND create engagement loops that guide users to take action with instant gratification.
 
 ---
 
@@ -179,6 +180,85 @@ Created comprehensive prompt system that analyzes user state and displays person
 - **TRDC Motivation**: Prompts emphasize earning potential and creator rewards
 - **Retention**: Inactive users get comeback prompts to re-engage
 - **Beautiful UX**: Gradient cards with smooth animations create premium feel
+
+---
+
+### GE-2: TRDC Dopamine Feedback (Instant Reward Toasts)
+**Approach:** Celebratory toast notifications when users earn TRDC - creates instant gratification feedback loop
+
+**Implementation:**
+Built comprehensive reward toast system that displays beautiful animated notifications when users earn TRDC tokens.
+
+**Toast Notification System** (`bc-rewards.js` - 260 lines):
+- Event-driven architecture with custom event listeners
+- Queue system for multiple simultaneous rewards (shows one at a time)
+- Auto-shows for 3 seconds with smooth slide-in/out animations
+- Updates TRDC balance in UI with pulse animation
+- Dispatches `bc:balance:updated` events for other components
+
+**TRDC Tracking Functions** (`functions_growth.php`):
+- `Wo_AwardTRDC($user_id, $amount, $type, $description)` - Award TRDC to users
+- `Wo_GetTRDCReward($type)` - Get standard reward amounts by action type
+- `Wo_IsFirstPost($user_id)` - Check if user's first post (bonus eligible)
+- `Wo_LogTRDCTransaction()` - Optional transaction history logging
+
+**Reward Amounts by Action:**
+- Post: 50 TRDC
+- Comment: 10 TRDC
+- Like received: 5 TRDC
+- Share: 15 TRDC
+- **First post bonus**: 100 TRDC 🎉
+- Daily login: 20 TRDC
+- Email verification: 50 TRDC
+- Profile completion: 75 TRDC
+
+**Visual Design:**
+- **Type-specific gradient backgrounds:**
+  - Post: Purple gradient (⭐ icon)
+  - Comment: Blue-cyan gradient
+  - Like received: Pink-yellow gradient
+  - Share: Blue-purple gradient
+  - First post: Pink-red gradient (🎉 icon for celebration)
+  - Daily login: Teal-pink gradient
+- **Advanced animations:**
+  - Icon bounce + rotation on appear
+  - Confetti particles falling effect
+  - Smooth cubic-bezier slide from right
+  - Balance pulse effect in sidebar
+  - 3-second auto-dismiss with fade out
+- **Mobile responsive:** Adapts to small screens, full-width toasts
+
+**Integration Example:**
+```javascript
+// From AJAX success handler:
+if (data.trdc_earned) {
+    BC_REWARDS.showReward(data.trdc_earned, 'post', 'Post published!');
+}
+
+// Or trigger manually:
+BC_REWARDS.triggerReward(100, 'first_post', 'Congrats on your first post!');
+
+// Listen for balance updates:
+document.addEventListener('bc:balance:updated', function(e) {
+    console.log('Earned:', e.detail.amount, 'TRDC');
+});
+```
+
+**Files Modified:**
+- `themes/wondertag/custom/js/bc-rewards.js` (NEW - 260 lines, toast system)
+- `assets/includes/functions_growth.php` (added TRDC tracking, 100+ lines)
+- `themes/wondertag/custom/css/style.css` (195+ lines toast styling & animations)
+- `themes/wondertag/layout/container.phtml` (script loading)
+
+**Impact:**
+- **Instant Gratification**: Users see immediate visual reward for actions (dopamine hit)
+- **Behavior Reinforcement**: Positive actions are celebrated with animations
+- **TRDC Awareness**: Toasts educate users about earning opportunities
+- **Addictive Loop**: Visual feedback makes engagement feel rewarding
+- **Premium Feel**: Gradient cards with confetti create celebration moment
+- **Scalable**: Easy to add new reward types via simple API calls
+
+**Synergy with GE-1:** Action prompts guide users → Users take action → Reward toasts celebrate = Complete engagement loop! 🔄
 
 ---
 
