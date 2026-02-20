@@ -2335,6 +2335,7 @@ html.bc-dark-mode #bc-market-strip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
   transition: all 0.2s ease;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
@@ -3059,6 +3060,7 @@ div[class*="timeline"] {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
   transition: transform .2s ease, box-shadow .2s ease;
 }
 .bc-btn-primary:hover {
@@ -3078,6 +3080,7 @@ div[class*="timeline"] {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
   transition: background .2s, transform .2s;
   text-decoration: none;
 }
@@ -3128,10 +3131,15 @@ div[class*="timeline"] {
   background: rgba(255,255,255,.2);
 }
 
+/* Medium screens — hide hero chart, stack CTA buttons */
+@media (max-width: 1150px) {
+  .bc-hero-visual { display: none; }
+  .bc-hero-ctas { flex-direction: column; }
+  .bc-hero-content { padding-bottom: 16px; }
+}
 /* Mobile hero — scoped to home banner */
 @media (max-width: 768px) {
   #bc-hero-banner { padding: 28px 20px 0; }
-  .bc-hero-visual { display: none; }
   #bc-hero-banner .bc-hero-stats { margin: 0 -20px; padding: 14px 20px; }
   .bc-hero-stat-value { font-size: 15px; }
   #bc-hero-banner .bc-hero-stats { gap: 0; overflow-x: auto; }
@@ -3915,7 +3923,7 @@ body, p, li, td {
    Facebook: 8px radius, 15px font for action CTAs
    Safe: only touch radius and font-size (no height/display changes on .btn)
    ──────────────────────────────────────────────────────────────────────── */
-.btn { border-radius: 8px !important; font-size: 13px !important; }
+.btn { border-radius: 8px !important; font-size: 13px !important; white-space: nowrap !important; }
 .btn-sm { font-size: 12px !important; }
 .btn-mat { border-radius: 8px !important; }
 
@@ -3931,6 +3939,8 @@ body, p, li, td {
 .tag_sidebar_section > a {
   font-size: 12px !important;
   padding: 10px 6px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 .tag_sidebar_section > a:hover:before {
   opacity: 0.06 !important;

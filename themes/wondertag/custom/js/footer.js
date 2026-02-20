@@ -228,74 +228,31 @@ function fetchTRDC() {
 }
 
 function fetchIndices() {
-    var niftyEl = document.getElementById('bc-tick-nifty');
-    var sensexEl = document.getElementById('bc-tick-sensex');
-    if (!niftyEl && !sensexEl) return;
-
-    function hideIndexEl(el) {
+    // Yahoo Finance blocks CORS from browsers — hide NIFTY/SENSEX elements
+    var ids = ['bc-tick-nifty', 'bc-tick-sensex'];
+    ids.forEach(function(id) {
+        var el = document.getElementById(id);
         if (el) {
             el.style.display = 'none';
-            // also hide the preceding separator
             var prev = el.previousElementSibling;
             if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
-            // hide cloned element
-            var cloneEl = document.getElementById(el.id + '-clone');
+            var cloneEl = document.getElementById(id + '-clone');
             if (cloneEl) {
                 cloneEl.style.display = 'none';
                 var prevClone = cloneEl.previousElementSibling;
                 if (prevClone && prevClone.classList.contains('bc-ticker-sep')) prevClone.style.display = 'none';
             }
         }
-    }
-
-    // NIFTY — Yahoo Finance (hide on rate-limit/error)
-    if (niftyEl) {
-        var xn = new XMLHttpRequest();
-        xn.open('GET', 'https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d&range=2d', true);
-        xn.timeout = 8000;
-        xn.onload = function() {
-            try {
-                var d = JSON.parse(xn.responseText);
-                var meta = d.chart.result[0].meta;
-                var price = meta.regularMarketPrice;
-                var prev  = meta.chartPreviousClose;
-                var chg   = prev ? ((price - prev) / prev * 100) : 0;
-                updateTicker(niftyEl, 'NIFTY', price.toFixed(2), chg, chg >= 0);
-            } catch(e) { hideIndexEl(niftyEl); }
-        };
-        xn.onerror = function() { hideIndexEl(niftyEl); };
-        xn.ontimeout = function() { hideIndexEl(niftyEl); };
-        xn.send();
-    }
-    // SENSEX — Yahoo Finance (hide on rate-limit/error)
-    if (sensexEl) {
-        var xs = new XMLHttpRequest();
-        xs.open('GET', 'https://query1.finance.yahoo.com/v8/finance/chart/%5EBSESN?interval=1d&range=2d', true);
-        xs.timeout = 8000;
-        xs.onload = function() {
-            try {
-                var d = JSON.parse(xs.responseText);
-                var meta = d.chart.result[0].meta;
-                var price = meta.regularMarketPrice;
-                var prev  = meta.chartPreviousClose;
-                var chg   = prev ? ((price - prev) / prev * 100) : 0;
-                updateTicker(sensexEl, 'SENSEX', price.toFixed(2), chg, chg >= 0);
-            } catch(e) { hideIndexEl(sensexEl); }
-        };
-        xs.onerror = function() { hideIndexEl(sensexEl); };
-        xs.ontimeout = function() { hideIndexEl(sensexEl); };
-        xs.send();
-    }
+    });
 }
 
 var marketStrip = document.getElementById('bc-market-strip');
 if (marketStrip) {
     fetchCrypto();
     fetchTRDC();
-    fetchIndices();
+    fetchIndices(); // runs once — just hides NIFTY/SENSEX (no CORS-friendly API)
     setInterval(fetchCrypto, 60000);
     setInterval(fetchTRDC, 60000);
-    setInterval(fetchIndices, 60000);
 }
 
 /* ---- Part 3: Native Notification Popup ---- */
