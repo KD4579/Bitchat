@@ -46,28 +46,10 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<div class="container">
 			<div class="valign row tag_wel_row">
 				<div class="col-xl-6 col-lg-6 col-sm-5">
-					<!-- Part 1: Landing Hero -->
-					<div class="bc-hero">
-						<div class="bc-hero-badge">
-							<span class="bc-hero-dot"></span>
-							India's Creator &amp; Crypto Network
-						</div>
-						<h1 class="bc-hero-headline">Earn. Create. Trade.</h1>
-						<p class="bc-hero-sub">India's first social platform that rewards creators and traders with TRDC tokens. Post insights. Get paid.</p>
-						<div class="bc-hero-stats">
-							<div class="bc-hero-stat">
-								<span class="bc-hero-stat-val">10,000+</span>
-								<span class="bc-hero-stat-label">Creators</span>
-							</div>
-							<div class="bc-hero-stat">
-								<span class="bc-hero-stat-val">₹50L+</span>
-								<span class="bc-hero-stat-label">Earned</span>
-							</div>
-							<div class="bc-hero-stat">
-								<span class="bc-hero-stat-val">Live</span>
-								<span class="bc-hero-stat-label">Markets</span>
-							</div>
-						</div>
+					<!-- Part 1: Landing Hero (compact ≤120px — Facebook rule: feed is the hero) -->
+					<div class="bc-hero bc-hero-compact">
+						<p class="bc-hero-line">Markets are open. Share insight. Earn TRDC.</p>
+						<a href="<?php echo Wo_SeoLink('index.php?link1=register');?>" class="bc-hero-cta">Get Started Free</a>
 					</div>
 					<h2 class="tag_wel_title"><?php echo $wo['lang']['welcome_share_text']?></h2>
 					<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_trend'] == 1) { ?>
