@@ -3906,95 +3906,154 @@ body, p, li, td {
 }
 
 /* ==========================================================================
-   MC: MASTER CODEX LAYOUT RESET
-   Facebook/Twitter-level clean + addictive layout.
-   Pure CSS overrides — fully reversible. No WoWonder core edits.
+   MC: MASTER CODEX v2 — Facebook-Matched Layout
+   Deep audit against Facebook measurements. Pure CSS overrides, reversible.
    ========================================================================== */
 
-/* MC-1: Clean Cards — border replaces heavy shadow, radius 12px
-   ---------------------------------------------------------------- */
+/* ── MC-1: Cards ─────────────────────────────────────────────────────────
+   Facebook: border-radius 8px, box-shadow 0 1px 2px rgba(0,0,0,.1)
+   WoWonder default: border-radius 10px, box-shadow (heavy)
+   ──────────────────────────────────────────────────────────────────────── */
 .wow_content {
   box-shadow: none !important;
-  border: 1px solid var(--bc-border-color, rgba(0,0,0,.08)) !important;
-  border-radius: 12px !important;
-  /* Allow hover to add shadow back (MC-9) — don't block it */
+  border: 1px solid rgba(0,0,0,.1) !important;
+  border-radius: 8px !important;
 }
 .post .panel {
   box-shadow: none !important;
-  border: 1px solid var(--bc-border-color, rgba(0,0,0,.08)) !important;
-  border-radius: 12px !important;
+  border: 1px solid rgba(0,0,0,.1) !important;
+  border-radius: 8px !important;
 }
+/* Gap between posts: 16px (Facebook uses 16px between cards) */
 .page-margin { margin: 16px 0 !important; }
+.post { margin-bottom: 16px !important; }
 
-/* MC-2: 3-Column Grid — 240px left / feed / 260px right
-   ---------------------------------------------------------------- */
-.tag_sidebar { max-width: 240px !important; }
-.tag_content  { margin-left: 240px !important; }
-/* Between 1150-1350px: sidebar collapses to hamburger — reset margin */
+/* ── MC-2: 3-Column Grid ────────────────────────────────────────────────
+   Facebook: left sidebar 280px, feed ~590px, right 360px
+   WoWonder: sidebar 350px, container 950px, col-lg-3 ~237px right
+   We set sidebar 280px + right col 280px → feed ≈ 950-280=670px
+   ──────────────────────────────────────────────────────────────────────── */
+.tag_sidebar { max-width: 280px !important; }
+.tag_content  { margin-left: 280px !important; }
 @media (max-width: 1150px) {
   .tag_content { margin-left: 0 !important; }
 }
-/* Right sidebar: 260px (was col-lg-3 ≈ 237px) — slight increase, safe at 950px container */
 .col-lg-3.sidebar.rightcol {
-  flex: 0 0 260px !important;
-  max-width: 260px !important;
-  width: 260px !important;
+  flex: 0 0 280px !important;
+  max-width: 280px !important;
+  width: 280px !important;
 }
-/* Hide right sidebar on tablet/mobile — WoWonder already hides at mobile, reinforce */
 @media (max-width: 991px) {
   .col-lg-3.sidebar.rightcol { display: none !important; }
 }
 
-/* MC-3: Post Card — 14px padding, 36px avatar, rounded media
-   ---------------------------------------------------------------- */
-.post .post-heading { padding: 12px 14px 8px !important; }
-.post .post-heading .image { margin-right: 10px !important; }
+/* ── MC-3: Post Card Anatomy ────────────────────────────────────────────
+   Facebook post header: padding 12px 16px, avatar 40×40px
+   WoWonder default: padding 15px, avatar 48px
+   ──────────────────────────────────────────────────────────────────────── */
+/* Post heading padding: 12px top, 16px sides (Facebook exact) */
+.post .post-heading { padding: 12px 16px 8px !important; }
+.post .post-heading .image { margin-right: 12px !important; }
+
+/* Avatar: 40px (Facebook standard; was 48px WoWonder, 36px our broken fix) */
 .post .post-heading .image img,
 .post .post-heading .image .avatar {
-  width: 36px !important;
-  height: 36px !important;
+  width: 40px !important;
+  height: 40px !important;
   border-radius: 50% !important;
 }
-/* post-footer: do NOT override padding — WoWonder's tag_post_actions uses
-   margin: 15px -15px 0 which is calibrated exactly for padding: 15px.
-   Overriding footer padding breaks the negative-margin bleed and crushes button widths. */
-/* Actual WoWonder post text class is post-description, not post-body */
-.post .post-description { padding: 4px 15px 10px !important; }
-.post_photo_section img { border-radius: 10px !important; }
 
-/* MC-4: Button Normalization — radius 8px, 13px font (safe: no height/display override)
-   ---------------------------------------------------------------- */
-.btn {
-  font-size: 13px !important;
-  border-radius: 8px !important;
+/* Post name: 15px, weight 600 (Facebook) */
+.post .post-heading .meta .title .name {
+  font-size: 15px !important;
+  font-weight: 600 !important;
 }
-.btn-sm {
+
+/* Post meta (time, privacy): 12px, muted */
+.post .post-heading .meta .time,
+.post .post-heading .meta a[class*="privacy"],
+.post .post-heading .meta .privacy {
   font-size: 12px !important;
+  opacity: 0.75;
 }
 
-/* MC-5: Sidebar Cleaning — icon 18px, text 12px, hover-only bg
-   ---------------------------------------------------------------- */
+/* Post text body: 15px, 1.333 line-height (Facebook standard) */
+.post .post-description {
+  padding: 8px 16px 12px !important;
+}
+.post .post-description p,
+.post .post-description .edited_text {
+  font-size: 15px !important;
+  line-height: 1.333 !important;
+}
+
+/* Post images: 8px radius (Facebook) */
+.post_photo_section img { border-radius: 8px !important; }
+
+/* ── MC-3b: Action Bar — CRITICAL layout guard ───────────────────────────
+   WoWonder: .post-footer { padding: 15px } + .tag_post_actions { margin: 15px -15px 0 }
+   These are PAIRED. Do NOT override .post-footer padding or the -15px
+   negative margin math breaks → button widths collapse → vertical text.
+   Instead: use flex guards + white-space to protect buttons explicitly.
+
+   Also: earlier custom CSS set .tag_post_actions .stat-item { font-size:13px }
+   Facebook uses 15px for action buttons. Override back to 15px here.
+   ──────────────────────────────────────────────────────────────────────── */
+/* Force horizontal flex — prevent any direction collapse */
+.tag_post_actions {
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow: visible !important;
+  align-items: center !important;
+}
+/* Action button items: no shrink, no text wrap, 15px font (Facebook) */
+.tag_post_actions .stat-item,
+.tag_post_actions .wo-reaction-post {
+  font-size: 15px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+/* React button inner spans: force inline */
+.tag_post_react_btn,
+.tag_post_react_btn span,
+.tag_post_foot_acticon {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* ── MC-4: Buttons ───────────────────────────────────────────────────────
+   Facebook: 8px radius, 15px font for action CTAs
+   Safe: only touch radius and font-size (no height/display changes on .btn)
+   ──────────────────────────────────────────────────────────────────────── */
+.btn { border-radius: 8px !important; font-size: 13px !important; }
+.btn-sm { font-size: 12px !important; }
+.btn-mat { border-radius: 8px !important; }
+
+/* ── MC-5: Left Sidebar Icons ───────────────────────────────────────────
+   Facebook: 20×20px icons, 15px label, 8px padding per item
+   ──────────────────────────────────────────────────────────────────────── */
 .tag_sidebar_section > a svg,
 .tag_sidebar_section > a img {
-  width: 18px !important;
-  height: 18px !important;
+  width: 20px !important;
+  height: 20px !important;
   margin: 0 auto 6px !important;
 }
 .tag_sidebar_section > a {
   font-size: 12px !important;
-  padding: 10px 4px !important;
+  padding: 10px 6px !important;
 }
 .tag_sidebar_section > a:hover:before {
-  opacity: 0.05 !important;
+  opacity: 0.06 !important;
   border-radius: 8px !important;
 }
 .tag_sidebar_head {
   font-size: 11px !important;
-  letter-spacing: 0.8px !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
 }
 
-/* MC-6: Landing Hero Cleanup — height -30%, inline stat pills
-   ---------------------------------------------------------------- */
+/* ── MC-6: Landing Hero ────────────────────────────────────────────────── */
 .bc-hero { padding: 20px 24px !important; margin-bottom: 16px !important; }
 .bc-hero-stats {
   flex-direction: row !important;
@@ -4009,10 +4068,8 @@ body, p, li, td {
   font-size: 12px !important;
 }
 
-/* MC-7: Mobile Double Icon Fix — one nav only at ≤900px
-   ---------------------------------------------------------------- */
+/* ── MC-7: Mobile Nav ───────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  /* Hide only WoWonder's own duplicate bottom bar — keep header icons */
   .tag_bottom_nav,
   .tag_mobi_bottom_bar { display: none !important; }
 }
@@ -4020,72 +4077,49 @@ body, p, li, td {
   #bc-mobile-nav { display: none !important; }
 }
 
-/* MC-8: Typography — Inter, 14px body, line-height 1.45
-   ---------------------------------------------------------------- */
+/* ── MC-8: Typography — Inter font stack ────────────────────────────────
+   Facebook: -apple-system / SF Pro / Segoe UI, 15px body, 1.333 lh
+   We use Inter (closest system equivalent). Body stays 14px (WoWonder
+   baseline) but post text is set to 15px above (MC-3).
+   ──────────────────────────────────────────────────────────────────────── */
 :root {
-  --bc-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bc-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
 }
-body, p, li, td {
-  font-family: var(--bc-font-sans) !important;
-  font-size: 14px !important;
-  line-height: 1.45 !important;
-}
-input, textarea, select {
+body, p, li, td, span, div {
   font-family: var(--bc-font-sans) !important;
 }
+body { font-size: 14px !important; line-height: 1.45 !important; }
+input, textarea, select { font-family: var(--bc-font-sans) !important; font-size: 14px !important; }
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--bc-font-sans) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.015em !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
 }
 
-/* MC-9: Addiction UX — hover lift on posts only, like scale, post fade-in
-   ---------------------------------------------------------------- */
-/* Hover lift scoped to feed posts — NOT sidebar widgets (they're sticky/fixed) */
+/* ── MC-9: Micro-animations ─────────────────────────────────────────────
+   Hover lift on feed post cards. Sidebar widgets: shadow only, no lift.
+   ──────────────────────────────────────────────────────────────────────── */
 .post .panel {
   transition: box-shadow 0.18s ease, transform 0.18s ease;
 }
 .post .panel:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,.12) !important;
   transform: translateY(-1px);
 }
-/* Sidebar cards: only subtle shadow on hover, no transform */
 .col-lg-3.sidebar.rightcol .wow_content:hover,
 .tag_main_right_side .wow_content:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  transform: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08) !important;
+  transform: none !important;
 }
-.like-btn,
-.tag_like_btn { transition: transform 0.15s ease !important; }
-.like-btn:hover,
-.tag_like_btn:hover { transform: scale(1.15) !important; }
+.like-btn, .tag_like_btn { transition: transform 0.15s ease !important; }
+.like-btn:hover, .tag_like_btn:hover { transform: scale(1.15) !important; }
 .post { animation: bc-fade-in 0.25s ease both; }
 
-/* MC-3b: Action button layout guard — prevents vertical text wrapping
-   regardless of any parent padding or width fluctuation
-   ---------------------------------------------------------------- */
-.tag_post_actions {
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  overflow: visible !important;
-}
-/* Each action button must not shrink or wrap text */
-.tag_post_actions .stat-item,
-.tag_post_actions .wo-reaction-post {
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-/* Ensure inner react button text stays inline */
-.tag_post_react_btn,
-.tag_post_react_btn span {
-  white-space: nowrap !important;
-}
-
-/* MC-10: Speed-Safe — no unnecessary will-change, respects reduced-motion
-   ---------------------------------------------------------------- */
-#bc-mobile-nav,
-#bc-market-strip,
-.tag_sidebar { will-change: auto !important; }
+/* ── MC-10: Speed-Safe ───────────────────────────────────────────────────
+   Remove costly will-change, respect prefers-reduced-motion.
+   ──────────────────────────────────────────────────────────────────────── */
+#bc-mobile-nav, #bc-market-strip, .tag_sidebar { will-change: auto !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
