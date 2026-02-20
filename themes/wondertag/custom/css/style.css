@@ -4269,21 +4269,54 @@ html { scroll-behavior: smooth; }
 #bc-market-strip .bc-ticker-wrapper + .bc-ticker-wrapper { display: none !important; }
 
 /* ==========================================================================
-   ACTION BAR: Targeted fix — one rule, works with WoWonder's .valign system
-   Root cause: core stylesheet line 2587 sets .like-btn{display:block}.
-   .like-btn-post also has class .valign (display:flex), but since .like-btn
-   appears later in the file with equal specificity, display:block wins.
-   This collapses the reaction button → text renders vertically.
-   Fix: re-assert display:flex on .like-btn-post in this specific context.
-   No padding/margin changes — WoWonder's negative-margin layout is kept intact.
+   ACTION BAR: Correct fix — proper selectors for WoWonder's actual DOM.
+
+   DOM path: .post > .panel > .post-description > .tag_post_actions
+             > div.valign > .wo-reaction-post.valign.stat-item
+             > .like-btn.like-btn-post > .valign.tag_post_react_btn
+
+   .like-btn-post is INSIDE .tag_post_actions — NOT inside .post-footer.
+   Previous attempts used .post .post-footer as ancestor → never matched.
+
+   Root cause 1: core line 2587 sets .like-btn{display:block}.
+   Root cause 2: core line 2591 sets action-bar SVGs to padding:9px + width:40px
+                 = 58px tall icon inside our 34px container → overflow collapses layout.
    ========================================================================== */
-.post .post-footer .like-btn-post {
-  display: flex !important;
+
+/* Fix 1: like-btn-post — correct selector, no wrong ancestor */
+.like-btn-post {
+  display: inline-flex !important;
   align-items: center !important;
   white-space: nowrap !important;
 }
-.post .post-footer .tag_post_react_btn span {
-  white-space: nowrap !important;
+
+/* Fix 2: Remove the 40px circular-background from action-bar SVG icons.
+   Core line 2591: padding:9px; border-radius:40%; background:rgba(0,0,0,.06);
+   width:40px; height:40px; margin:0 7px → total visual size 58px.
+   Our 34px container makes the 58px icon overflow and break surrounding layout.
+   Reset all action-bar SVGs to clean 18px inline icons. */
+.tag_post_react_btn svg,
+.tag_post_foot_acticon svg,
+.tag_post_actions svg {
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 5px 0 0 !important;
+}
+.tag_post_actions .stat-item .icoo {
+  padding: 0 !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+}
+.tag_post_actions .stat-item .icoo svg.feather {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 5px 0 0 !important;
 }
 
 /* ==========================================================================
@@ -4374,17 +4407,10 @@ a[href*="link1=memories"] { display: none !important; }
 }
 .tag_post_foot_acticon:hover { background: rgba(0,0,0,.05) !important; }
 
-/* All action bar SVG icons: 16px fixed */
-.tag_post_actions svg,
-.tag_post_actions .icoo svg { width: 16px !important; height: 16px !important; }
-
-/* Like/reaction SVG icon in action bar */
-.post .post-footer .tag_post_react_btn svg { width: 16px !important; height: 16px !important; }
-
-/* Reaction button same height as comment/share */
-.wo-reaction-post,
-.post .post-footer .like-btn-post {
+/* Reaction button wrapper — correct selector */
+.wo-reaction-post {
   height: 34px !important;
+  display: inline-flex !important;
   align-items: center !important;
 }
 
@@ -4395,12 +4421,13 @@ a[href*="link1=memories"] { display: none !important; }
   display: inline-flex !important;
 }
 
-/* Comment editor hidden by default — shown via WoWonder's Wo_ShowComments() JS */
-.post-footer .post-comments { display: none !important; }
-.post-footer .post-comments.d-block,
-.post-footer .post-comments.active,
-.post-footer .post-comments[style*="display: block"],
-.post-footer .post-comments[style*="display:block"] {
+/* Comment editor hidden by default — correct selector: both classes on same element.
+   The element is <div class="post-footer post-comments">, so use .post-footer.post-comments
+   (NOT .post-footer .post-comments which is a descendant selector — never matched). */
+.post-footer.post-comments { display: none !important; }
+.post-footer.post-comments.d-block,
+.post-footer.post-comments[style*="display: block"],
+.post-footer.post-comments[style*="display:block"] {
   display: block !important;
 }
 
