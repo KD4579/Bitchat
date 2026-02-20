@@ -3954,29 +3954,14 @@ body, p, li, td {
 .post .panel .panel-body img,
 .post_photo_section img { border-radius: 10px !important; }
 
-/* MC-4: Button Normalization — 34px height, 13px, radius 8px
+/* MC-4: Button Normalization — radius 8px, 13px font (safe: no height/display override)
    ---------------------------------------------------------------- */
 .btn {
-  height: 34px !important;
   font-size: 13px !important;
   border-radius: 8px !important;
-  padding: 0 14px !important;
-  line-height: 34px !important;
-  display: inline-flex !important;
-  align-items: center !important;
 }
 .btn-sm {
-  height: 28px !important;
   font-size: 12px !important;
-  line-height: 28px !important;
-  padding: 0 10px !important;
-}
-.btn-round,
-.btn-icon {
-  border-radius: 50% !important;
-  width: 34px !important;
-  padding: 0 !important;
-  justify-content: center !important;
 }
 
 /* MC-5: Sidebar Cleaning — icon 18px, text 12px, hover-only bg
@@ -4019,13 +4004,9 @@ body, p, li, td {
 /* MC-7: Mobile Double Icon Fix — one nav only at ≤900px
    ---------------------------------------------------------------- */
 @media (max-width: 900px) {
-  /* WoWonder's own bottom bar (if present) */
+  /* Hide only WoWonder's own duplicate bottom bar — keep header icons */
   .tag_bottom_nav,
   .tag_mobi_bottom_bar { display: none !important; }
-  /* Hide header icons duplicated in bc-mobile-nav */
-  .tag_hdr_right .notification-list,
-  .tag_hdr_right .messages-list,
-  .tag_hdr_right .user-request-list { display: none !important; }
 }
 @media (min-width: 901px) {
   #bc-mobile-nav { display: none !important; }
@@ -4036,12 +4017,13 @@ body, p, li, td {
 :root {
   --bc-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
-body,
-p, li, td,
-input, textarea, select, button {
+body, p, li, td {
   font-family: var(--bc-font-sans) !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
+}
+input, textarea, select {
+  font-family: var(--bc-font-sans) !important;
 }
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--bc-font-sans) !important;
@@ -4064,8 +4046,7 @@ h1, h2, h3, h4, h5, h6 {
 .tag_like_btn { transition: transform 0.15s ease !important; }
 .like-btn:hover,
 .tag_like_btn:hover { transform: scale(1.15) !important; }
-a, button { transition: opacity 0.12s ease, color 0.12s ease !important; }
-.post { animation: bc-fade-in 0.25s ease both !important; }
+.post { animation: bc-fade-in 0.25s ease both; }
 
 /* MC-10: Speed-Safe — no unnecessary will-change, respects reduced-motion
    ---------------------------------------------------------------- */
