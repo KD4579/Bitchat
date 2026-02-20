@@ -4262,15 +4262,23 @@ html { scroll-behavior: smooth; }
 #bc-market-strip .bc-ticker-wrapper + .bc-ticker-wrapper { display: none !important; }
 
 /* ==========================================================================
-   ACTION BAR: DEFINITIVE FIX — Facebook-style flat flex row
-   Root cause: WoWonder paired .post-footer{padding:15px} with
-   .tag_post_actions{margin:15px -15px 0}. When padding is changed without
-   margin (or vice versa), the reaction button collapses to ~0px width
-   → text renders vertically one character per line.
-   Fix: zero BOTH simultaneously, rebuild as clean equal-thirds flex row.
+   ACTION BAR: DEFINITIVE FIX v2 — DOM-aware selectors
+   Actual HTML structure (from footer.phtml inspection):
+     .post .post-footer
+       .tag_post_actions.valign.stats  (display:flex from .valign)
+         div.valign                   ← left group wrapper (NOT .stat-item!)
+           .wo-reaction-post.valign.stat-item
+           .valign.stat-item.commnt
+         div                          ← right group wrapper
+           .valign.stat-item.share
+
+   BUG in v1: used > (direct child) for .wo-reaction-post, but it is
+   a GRANDCHILD. Also: core CSS .like-btn{display:block} overrides
+   .valign flex on .like-btn-post, collapsing it to a narrow block
+   → text renders vertically character-by-character.
    ========================================================================== */
 
-/* Step 1 — neutralise the negative-margin pair completely */
+/* Step 1 — zero the negative-margin pair (must zero BOTH together) */
 .post .post-footer {
   padding: 0 !important;
 }
@@ -4278,59 +4286,66 @@ html { scroll-behavior: smooth; }
   margin: 0 !important;
   padding: 0 !important;
   border-top: 1px solid rgba(0,0,0,.08) !important;
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
+  min-height: 40px !important;
   align-items: stretch !important;
   width: 100% !important;
-  min-height: 40px !important;
+  /* display:flex already set by .valign class */
 }
 
-/* Step 2 — equal thirds, no shrink, centered */
-.post .post-footer .tag_post_actions > .stat-item,
-.post .post-footer .tag_post_actions > .wo-reaction-post {
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: flex !important;
+/* Step 2 — inner wrapper (div.valign: the left group holding React+Comment)
+   This is the DIRECT child that gets flex space. Force it to a row. */
+.post .post-footer .tag_post_actions > div {
+  display: inline-flex !important;
+  flex-direction: row !important;
   align-items: center !important;
-  justify-content: center !important;
+  flex-shrink: 0 !important;
 }
 
-/* Step 3 — reaction button internals: force inline, no wrap */
+/* Step 3 — .wo-reaction-post: use DESCENDANT selector (no >) */
+.post .post-footer .wo-reaction-post {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+/* Step 4 — .like-btn-post: override core .like-btn{display:block} with !important */
 .post .post-footer .like-btn-post,
 .post .post-footer .like-btn-lightbox {
   display: inline-flex !important;
+  flex-direction: row !important;
   align-items: center !important;
-  gap: 6px !important;
   white-space: nowrap !important;
   width: auto !important;
+  min-width: fit-content !important;
 }
+
+/* Step 5 — .tag_post_react_btn and its inner span (the text + SVG row) */
 .post .post-footer .tag_post_react_btn {
   display: inline-flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   gap: 4px !important;
   white-space: nowrap !important;
   width: auto !important;
 }
-.post .post-footer .tag_post_react_btn > span,
-.post .post-footer .tag_post_react_btn > div {
+.post .post-footer .tag_post_react_btn span,
+.post .post-footer .tag_post_react_btn div {
   white-space: nowrap !important;
   display: inline-flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   gap: 4px !important;
 }
-/* SVG icon inside reaction button */
 .post .post-footer .tag_post_react_btn svg {
   width: 20px !important;
   height: 20px !important;
   flex-shrink: 0 !important;
 }
 
-/* Step 4 — comment/share/like button internals */
+/* Step 6 — comment/share button internals */
 .post .post-footer .tag_post_foot_acticon {
   display: inline-flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   gap: 6px !important;
   white-space: nowrap !important;
@@ -4338,21 +4353,15 @@ html { scroll-behavior: smooth; }
   font-weight: 500 !important;
 }
 
-/* Step 5 — hover state (Facebook: subtle bg on button area) */
-.post .post-footer .tag_post_actions > .stat-item:hover,
-.post .post-footer .tag_post_actions > .wo-reaction-post:hover {
-  background: rgba(0,0,0,.04) !important;
-  cursor: pointer !important;
+/* Step 7 — stat-item margins inside post footer */
+.post .post-footer .tag_post_actions .stat-item {
+  margin: 0 8px !important;
 }
 
-/* Step 6 — like count / stats row above action bar */
-.post .post-footer .likes-section,
-.post .post-footer .wonders_section,
-.post .post-footer .stat_section {
-  padding: 4px 12px !important;
-  font-size: 13px !important;
-  color: #65676b !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+/* Step 8 — hover state (descendant, not direct child) */
+.post .post-footer .tag_post_actions .stat-item:hover,
+.post .post-footer .tag_post_actions .wo-reaction-post:hover {
+  background: rgba(0,0,0,.04) !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
 }
