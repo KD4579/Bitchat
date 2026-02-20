@@ -386,7 +386,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	</div>
 </div>
 
-<?php echo Wo_LoadPage('header/theme-options'); ?>
+<?php if (Wo_IsAdmin()) { echo Wo_LoadPage('header/theme-options'); } ?>
 
 <script>
 window.addEventListener('resize', () => {let vh = window.innerHeight * 0.01;document.documentElement.style.setProperty('--vh', `${vh}px`);});

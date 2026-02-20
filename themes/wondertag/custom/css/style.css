@@ -4285,3 +4285,161 @@ html { scroll-behavior: smooth; }
 .post .post-footer .tag_post_react_btn span {
   white-space: nowrap !important;
 }
+
+/* ==========================================================================
+   FINAL REFACTOR BLOCK — TG3/TG4/TG6/TG7/TG8 + Global polish
+   Update-safe CSS overrides. No WoWonder core edits.
+   ========================================================================== */
+
+/* ── TG6: Left Sidebar — keep core 6 links only ─────────────────────────────
+   KEEP: News Feed · Discover · Creator Dashboard · Leaderboard · Wallet · Invite & Earn
+   HIDE: Albums · Saved Posts · entire COMMUNITY section (events/blog/market/
+         forum/my-articles/my-products/groups/pages) + EXPLORE section
+   ──────────────────────────────────────────────────────────────────────────── */
+/* Hide Albums and Saved Posts from ME section */
+a[href*="link1=albums"],
+a[href*="link1=saved-posts"] { display: none !important; }
+
+/* Hide all COMMUNITY section links */
+a[href*="link1=products"],
+a[href*="link1=my-products"],
+a[href*="link1=my-blogs"],
+a[href*="link1=groups"],
+a[href*="link1=pages"],
+a[href*="link1=movies"],
+a[href*="link1=new-game"],
+a[href*="link1=common_things"],
+a[href*="link1=funding"],
+a[href*="link1=offers"],
+a[href*="link1=memories"] { display: none !important; }
+
+/* Hide COMMUNITY and EXPLORE section headers + their collapsed containers */
+[data-target="#collapseCommunity"],
+#collapseCommunity,
+[data-target="#collapseExplore"],
+#collapseExplore { display: none !important; }
+
+/* ── TG3: Composer — strip secondary tools, show only core 4 ────────────────
+   KEEP: Avatar prompt · Textarea · Photo/Video · Poll · Emoji
+   HIDE: Schedule · AI Generate · Sell Product · Location · Audio · File
+   ──────────────────────────────────────────────────────────────────────────── */
+/* Already hidden: Schedule, AI, LinkedinJob, create-product, map-form, recordPostAudio */
+/* Additional: file uploader, advanced privacy, link preview buttons */
+.tag_pub_box_btns[onclick*="openFileUploader"],
+.tag_pub_box_btns[onclick*="Wo_OpenLinkPreview"],
+.tag_pub_box_btns[data-target*="privacy"],
+.tag_pub_box_btns[onclick*="privacy"],
+.tag_pub_box_btns[title*="Privacy"],
+.tag_pub_box_btns[title*="Schedule"],
+.tag_pub_box_btns[title*="AI"],
+.tag_pub_box_btns[title*="Location"],
+.tag_pub_box_btns[title*="Sell"],
+.tag_pub_box_btns[title*="Product"],
+.tag_pub_box_btns[title*="Audio"] { display: none !important; }
+
+/* Composer idle state — compact 56px height */
+#tagPostBoxInput:not(:focus),
+.tag_pub_box_input:not(:focus-within) {
+  min-height: 56px !important;
+  max-height: 56px !important;
+  overflow: hidden !important;
+  transition: max-height 0.2s ease !important;
+}
+#tagPostBoxInput:focus,
+.tag_pub_box_input:focus-within {
+  max-height: 300px !important;
+  overflow: visible !important;
+}
+
+/* ── TG4: Post Layout — normalize all interaction elements ──────────────────
+   Action buttons: height 34px, font 13px, icon 16px, gap 8px
+   Post card: radius 14px, padding 16/12px, margin-bottom 14px
+   ──────────────────────────────────────────────────────────────────────────── */
+/* Post card geometry */
+.post .panel { border-radius: 14px !important; }
+.post { margin-bottom: 14px !important; }
+
+/* Action buttons — equal height 34px, font 13px */
+.tag_post_foot_acticon,
+.post .post-footer .tag_post_foot_acticon {
+  height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+  transition: background 0.12s ease !important;
+}
+.tag_post_foot_acticon:hover { background: rgba(0,0,0,.05) !important; }
+
+/* All action bar SVG icons: 16px fixed */
+.tag_post_actions svg,
+.tag_post_actions .icoo svg { width: 16px !important; height: 16px !important; }
+
+/* Like/reaction SVG icon in action bar */
+.post .post-footer .tag_post_react_btn svg { width: 16px !important; height: 16px !important; }
+
+/* Reaction button same height as comment/share */
+.wo-reaction-post,
+.post .post-footer .like-btn-post {
+  height: 34px !important;
+  align-items: center !important;
+}
+
+/* Reactions popup — show only 3 preview reactions; rest on hover */
+.reactions-box li.reaction:nth-child(n+4) { display: none !important; }
+.wo-reaction-post:hover .reactions-box li.reaction:nth-child(n+4),
+.wo-reaction-lightbox:hover .reactions-box li.reaction:nth-child(n+4) {
+  display: inline-flex !important;
+}
+
+/* Comment editor hidden by default — shown via WoWonder's Wo_ShowComments() JS */
+.post-footer .post-comments { display: none !important; }
+.post-footer .post-comments.d-block,
+.post-footer .post-comments.active,
+.post-footer .post-comments[style*="display: block"],
+.post-footer .post-comments[style*="display:block"] {
+  display: block !important;
+}
+
+/* Stats row (like count / comment count) — clean compact */
+.tag_post_foot_stats {
+  padding: 4px 16px 2px !important;
+  font-size: 12px !important;
+  opacity: 0.8;
+}
+
+/* ── TG8: Chat — hide offline container ────────────────────────────────────── */
+.chat-offline-container,
+.tag_chat_offline,
+.chat-offline-user,
+#chat-offline,
+.chat-opacity { opacity: 0 !important; pointer-events: none !important; height: 0 !important; overflow: hidden !important; }
+
+/* ── Global polish ─────────────────────────────────────────────────────────── */
+/* Consistent soft shadow — no hard borders on content cards */
+.wow_content {
+  box-shadow: 0 4px 12px rgba(0,0,0,.05) !important;
+  border: none !important;
+}
+
+/* Spacing scale enforcement */
+.tag_home_filters.home { margin-bottom: 12px !important; }
+
+/* Translator button — place inline below post text, before read-more */
+.post .translate-btn,
+.post [onclick*="translate"],
+.post [onclick*="Translate"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  font-size: 12px !important;
+  opacity: 0.6 !important;
+  margin: 4px 0 0 !important;
+  cursor: pointer !important;
+}
+.post .translate-btn:hover { opacity: 1 !important; }
+
+/* Post heading 3-dot menu — ensure only menu visible, not inline admin links */
+.post .post-heading .dropdown-toggle svg { width: 16px !important; height: 16px !important; }
