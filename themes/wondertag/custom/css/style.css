@@ -4187,34 +4187,11 @@ html { scroll-behavior: smooth; }
   font-size: 0 !important;
 }
 
-/* Fix 2: Remove the 40px circular-background from action-bar SVG icons.
-   Core line 2591: padding:9px; border-radius:40%; background:rgba(0,0,0,.06);
-   width:40px; height:40px; margin:0 7px → total visual size 58px.
-   Our 34px container makes the 58px icon overflow and break surrounding layout.
-   Reset all action-bar SVGs to clean 18px inline icons. */
-.tag_post_react_btn svg,
-.tag_post_foot_acticon svg,
-.tag_post_actions svg {
-  padding: 0 !important;
-  border-radius: 0 !important;
-  background-color: transparent !important;
-  width: 18px !important;
-  height: 18px !important;
-  margin: 0 5px 0 0 !important;
-}
-.tag_post_actions .stat-item .icoo {
-  padding: 0 !important;
-  background-color: transparent !important;
-  border-radius: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 !important;
-}
-.tag_post_actions .stat-item .icoo svg.feather {
-  width: 18px !important;
-  height: 18px !important;
-  margin: 0 5px 0 0 !important;
-}
+/* Action bar SVG icons — use WoWonder core sizing (40px grey circle).
+   Core line 2591 gives: padding:9px; border-radius:40%; background:rgba(0,0,0,.06);
+   width:40px; height:40px; margin:0 7px. This is the default WoWonder look.
+   We DON'T override these — let the core styling handle icon sizing.
+   The 34px height constraint is also removed (see TG4 below) so icons fit. */
 
 /* ==========================================================================
    FINAL REFACTOR BLOCK — TG3/TG4/TG6/TG7/TG8 + Global polish
@@ -4289,24 +4266,17 @@ a[href*="link1=memories"] { display: none !important; }
 .post .panel { border-radius: 14px !important; }
 .post { margin-bottom: 14px !important; }
 
-/* Action buttons — equal height 34px, font 13px */
-.tag_post_foot_acticon,
-.post .post-footer .tag_post_foot_acticon {
-  height: 34px !important;
+/* Action buttons — no fixed height (let WoWonder core 40px icons determine size) */
+.tag_post_foot_acticon {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
-  font-size: 13px !important;
-  padding: 0 12px !important;
-  border-radius: 6px !important;
   white-space: nowrap !important;
-  transition: background 0.12s ease !important;
+  cursor: pointer !important;
 }
-.tag_post_foot_acticon:hover { background: rgba(0,0,0,.05) !important; }
+.tag_post_foot_acticon:hover { background: rgba(0,0,0,.05) !important; border-radius: 6px !important; }
 
-/* Reaction button wrapper — correct selector */
+/* Reaction button wrapper */
 .wo-reaction-post {
-  height: 34px !important;
   display: inline-flex !important;
   align-items: center !important;
 }
