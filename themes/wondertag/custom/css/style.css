@@ -4068,12 +4068,23 @@ body, p, li, td {
   font-size: 12px !important;
 }
 
-/* ── MC-7: Mobile Nav ───────────────────────────────────────────────────── */
+/* ── MC-7: Mobile Nav — no duplicates across breakpoints ─────────────────
+   Mobile (≤900px): show #bc-mobile-nav, hide WoWonder bottom nav,
+   hide header icons that duplicate the mobile nav (notif/msg/requests).
+   Desktop (≥901px): hide #bc-mobile-nav, header icons are visible.
+   ──────────────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
+  /* WoWonder native bottom nav — replaced by #bc-mobile-nav */
   .tag_bottom_nav,
   .tag_mobi_bottom_bar { display: none !important; }
+
+  /* Header icons duplicated in mobile nav — suppress on mobile */
+  .tag_hdr_right .notification-list,
+  .tag_hdr_right .messages-list,
+  .tag_hdr_right .user-request-list { display: none !important; }
 }
 @media (min-width: 901px) {
+  /* Mobile nav hidden on desktop */
   #bc-mobile-nav { display: none !important; }
 }
 
