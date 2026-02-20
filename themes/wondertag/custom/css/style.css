@@ -2712,44 +2712,11 @@ html.bc-dark-mode #bc-market-strip {
    UI-4: Feed Card Redesign — Instagram/X level polish
    ============================================================ */
 
-/* Main post container - venture-backed quality */
-.post-container,
-.wo_post_sec,
-.post-card,
-.panel.panel-default,
-div[id^="post-"],
-div[class*="post_"] {
-    border: none !important;
-    border-radius: var(--bc-radius-lg) !important;
-    padding: 26px !important;
-    background: var(--bc-card) !important;
-    box-shadow: var(--bc-shadow-soft) !important;
-    margin-bottom: 24px !important;
-    transition: all var(--bc-transition-base) !important;
-}
-
-/* Hover elevation - feels premium */
-.post-container:hover,
-.wo_post_sec:hover,
-.post-card:hover,
-.panel.panel-default:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: var(--bc-shadow-hover) !important;
-}
-
-/* Post header spacing */
-.post-avatar,
-.publisher-box-avatar,
-div[class*="avatar"] {
-    margin-right: var(--bc-space-sm) !important;
-}
-
-.post-description,
-.post-header {
-    display: flex;
-    align-items: center;
-    gap: var(--bc-space-sm);
-}
+/* UI-4: DISABLED — these rules had catastrophic bugs:
+   - div[id^="post-"] matched actual post divs, adding 26px padding
+   - div[class*="post_"] matched tag_post_actions, tag_post_react_btn, etc.
+   - .post-description { display:flex } turned post content horizontal
+   All post styling now handled by MC-3 block below. */
 
 /* User names and time - modern typography */
 .post-user-name,
@@ -2760,108 +2727,25 @@ div[class*="avatar"] {
     font-size: var(--bc-font-size-base) !important;
 }
 
-.post-time,
-.publisher-box-time,
-span[class*="time"] {
-    font-size: var(--bc-font-size-sm) !important;
-    color: var(--bc-text-tertiary) !important;
-    font-weight: var(--bc-font-weight-normal) !important;
-}
+/* UI-4 time: DISABLED — span[class*="time"] too broad, matched any span
+   with "time" in class. Post time styling handled by MC-3 block. */
 
-/* Post content text */
-.post-description-text,
-.post-text,
-div[class*="description"] p {
-    font-size: var(--bc-font-size-base) !important;
-    line-height: var(--bc-line-height-relaxed) !important;
-    color: var(--bc-text-primary) !important;
-    margin-top: var(--bc-space-md) !important;
-    margin-bottom: var(--bc-space-md) !important;
-}
+/* UI-4 post text: DISABLED — div[class*="description"] p was too broad,
+   matched paragraphs inside .post-description and added unwanted margins.
+   Post text styling handled by MC-3 block. */
 
-/* Post images - modern rounded corners */
-.post-image img,
-.post-photo img,
-img[class*="post"] {
-    border-radius: var(--bc-radius-md) !important;
-    margin-top: var(--bc-space-sm);
-    margin-bottom: var(--bc-space-sm);
-}
+/* UI-4 post images: DISABLED — img[class*="post"] too broad.
+   Post image radius handled by MC-3 block. */
 
-/* Reaction bar modernization - UI-6
-   NOTE: .post-footer intentionally excluded — WoWonder pairs
-   .post .post-footer { padding: 15px } with
-   .tag_post_actions { margin: 15px -15px 0 } for full-width buttons.
-   Adding display:flex / padding-top to .post-footer breaks that math
-   → collapses .tag_post_actions width → character-by-character vertical text. */
-.post-actions,
-div[class*="post-options"] {
-    display: flex;
-    align-items: center;
-    gap: var(--bc-space-md);
-    padding-top: var(--bc-space-md);
-    margin-top: var(--bc-space-md);
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
+/* UI-6: DISABLED — .post-actions already has display:flex from .valign class.
+   The border-top/padding-top/margin-top added unwanted separators inside stats.
+   div[class*="post-options"] was overly broad.
+   Action bar styling handled by MC-3b and TG4 blocks. */
 
-/* Reaction buttons - bigger, more visible */
-.post-actions button,
-.post-actions a,
-.reactions button,
-.reactions a {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: var(--bc-radius-sm);
-    font-size: var(--bc-font-size-sm);
-    font-weight: var(--bc-font-weight-medium);
-    color: var(--bc-text-secondary);
-    transition: all var(--bc-transition-fast);
-    border: none;
-    background: transparent;
-}
-
-.post-actions button:hover,
-.post-actions a:hover,
-.reactions button:hover,
-.reactions a:hover {
-    background: var(--bc-bg);
-    color: var(--bc-primary);
-    transform: scale(1.05);
-}
-
-/* Reaction icons - bigger and better */
-.reactions img,
-.post-actions img,
-svg[class*="react"] {
-    width: 22px !important;
-    height: 22px !important;
-    opacity: 0.85;
-    transition: all var(--bc-transition-fast);
-}
-
-.reactions img:hover,
-.post-actions img:hover {
-    opacity: 1;
-    transform: scale(1.15);
-}
-
-/* Comment section spacing */
-.post-comments,
-div[class*="comment"] {
-    margin-top: var(--bc-space-md);
-    padding-top: var(--bc-space-md);
-}
-
-/* Individual comment styling */
-.comment-item,
-div[class*="comment-"] {
-    padding: var(--bc-space-sm);
-    border-radius: var(--bc-radius-sm);
-    margin-bottom: var(--bc-space-sm);
-    background: var(--bc-bg);
-}
+/* UI-4 comments: DISABLED — div[class*="comment"] matched everything with
+   "comment" in class (comment-textarea, comment-container, comment_combo_footer,
+   post-comments, etc.), adding unwanted padding/background to all of them.
+   Comment styling uses WoWonder defaults. */
 
 /* Remove old borders everywhere */
 .panel-default,
@@ -3980,9 +3864,11 @@ body, p, li, td {
   opacity: 0.75;
 }
 
-/* Post text body: 15px, 1.333 line-height (Facebook standard) */
+/* Post text body: 15px, 1.333 line-height (Facebook standard)
+   CRITICAL: left/right MUST be 15px to match core's .tag_post_actions { margin: -15px }
+   The negative margin cancels padding to make action bar edge-to-edge. */
 .post .post-description {
-  padding: 8px 16px 12px !important;
+  padding: 4px 15px 0 !important;
 }
 .post .post-description p,
 .post .post-description .edited_text {
