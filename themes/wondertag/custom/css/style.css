@@ -2788,10 +2788,13 @@ img[class*="post"] {
     margin-bottom: var(--bc-space-sm);
 }
 
-/* Reaction bar modernization - UI-6 */
+/* Reaction bar modernization - UI-6
+   NOTE: .post-footer intentionally excluded — WoWonder pairs
+   .post .post-footer { padding: 15px } with
+   .tag_post_actions { margin: 15px -15px 0 } for full-width buttons.
+   Adding display:flex / padding-top to .post-footer breaks that math
+   → collapses .tag_post_actions width → character-by-character vertical text. */
 .post-actions,
-.post-footer,
-div[class*="reactions"],
 div[class*="post-options"] {
     display: flex;
     align-items: center;
@@ -4290,6 +4293,14 @@ html { scroll-behavior: smooth; }
   white-space: nowrap !important;
 }
 
+/* Fix 2b: Hide the "Like"/"React" text inside non-reacted button.
+   Core CSS .tag_post_react_btn > span { font-size: 0 } hides it normally.
+   Our body/span font-family rule can inflate inherited font-size via cascade,
+   so explicitly reinforce font-size: 0 here with !important. */
+.tag_post_react_btn > span {
+  font-size: 0 !important;
+}
+
 /* Fix 2: Remove the 40px circular-background from action-bar SVG icons.
    Core line 2591: padding:9px; border-radius:40%; background:rgba(0,0,0,.06);
    width:40px; height:40px; margin:0 7px → total visual size 58px.
@@ -4421,15 +4432,11 @@ a[href*="link1=memories"] { display: none !important; }
   display: inline-flex !important;
 }
 
-/* Comment editor hidden by default — correct selector: both classes on same element.
-   The element is <div class="post-footer post-comments">, so use .post-footer.post-comments
-   (NOT .post-footer .post-comments which is a descendant selector — never matched). */
-.post-footer.post-comments { display: none !important; }
-.post-footer.post-comments.d-block,
-.post-footer.post-comments[style*="display: block"],
-.post-footer.post-comments[style*="display:block"] {
-  display: block !important;
-}
+/* Comment box show/hide: WoWonder's Wo_ShowComments() toggles .hidden class.
+   Core CSS: .hidden { display: none } (no !important).
+   Do NOT add display:none here — it would override the JS toggle and break comments.
+   Only boost d-block for PHP auto-show (tag_show_comments=1). */
+.post-footer.post-comments.d-block { display: block !important; }
 
 /* Stats row (like count / comment count) — clean compact */
 .tag_post_foot_stats {
