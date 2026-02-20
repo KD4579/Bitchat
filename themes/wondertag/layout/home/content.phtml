@@ -206,7 +206,7 @@
 				?>
 				<div class="btn btn-main btn-mat btn-mat-raised posts-count" onclick="Wo_GetNewPosts();"></div>
 				<link rel="manifest" href="manifest.json">
-				<link rel="stylesheet" href="<?php echo $wo['config']['theme_url']; ?>../stylesheet/style.css">
+				<link rel="stylesheet" href="<?php echo $wo['config']['theme_url']; ?>/stylesheet/style.css">
                 <meta name="theme-color" content="#000000">
                 <meta name="mobile-web-app-capable" content="yes">
                 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -650,7 +650,7 @@ $(function () {
     var color;
 	var quote;
     // Part 10: Psychological activation greeting
-    var userName = '<?php if (!empty($wo['user']['first_name'])) { echo $wo['user']['first_name']; } else { echo $wo['user']['name']; } ?>';
+    var userName = '<?php if (!empty($wo['user']['first_name'])) { echo addslashes($wo['user']['first_name']); } else { echo addslashes($wo['user']['name']); } ?>';
     if (hrs < 12) {
         greet = 'Markets are opening. What\u2019s your move today, ' + userName + '?';
         color = 'morning';
