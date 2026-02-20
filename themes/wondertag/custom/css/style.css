@@ -4061,6 +4061,26 @@ h1, h2, h3, h4, h5, h6 {
 .tag_like_btn:hover { transform: scale(1.15) !important; }
 .post { animation: bc-fade-in 0.25s ease both; }
 
+/* MC-3b: Action button layout guard — prevents vertical text wrapping
+   regardless of any parent padding or width fluctuation
+   ---------------------------------------------------------------- */
+.tag_post_actions {
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow: visible !important;
+}
+/* Each action button must not shrink or wrap text */
+.tag_post_actions .stat-item,
+.tag_post_actions .wo-reaction-post {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+/* Ensure inner react button text stays inline */
+.tag_post_react_btn,
+.tag_post_react_btn span {
+  white-space: nowrap !important;
+}
+
 /* MC-10: Speed-Safe — no unnecessary will-change, respects reduced-motion
    ---------------------------------------------------------------- */
 #bc-mobile-nav,
