@@ -55,6 +55,12 @@
          * @param {Object} prompt - Prompt data from PHP
          */
         show: function(prompt) {
+            // Validate prompt data before rendering
+            if (!prompt || typeof prompt !== 'object' || !prompt.title || !prompt.message || !prompt.cta_text) {
+                this.log('Invalid prompt data, skipping render');
+                return;
+            }
+
             this.currentPrompt = prompt;
 
             const icon = this.icons[prompt.icon] || this.icons['edit'];
