@@ -4333,3 +4333,188 @@ a[href*="link1=memories"] { display: none !important; }
 
 /* Post heading 3-dot menu — ensure only menu visible, not inline admin links */
 .post .post-heading .dropdown-toggle svg { width: 16px !important; height: 16px !important; }
+
+/* ==========================================================================
+   FIX-1: Hide WoWonder native FAB (.tag_create_dropup)
+   Our .bc-fab replaces it. The native one collides at bottom:30px right:30px
+   and MC-4 .btn { border-radius:8px } breaks its circle into a square.
+   ========================================================================== */
+.tag_create_dropup { display: none !important; }
+
+/* ==========================================================================
+   FIX-2: Dark Mode — Full coverage for all custom bc-* elements
+   Uses :has(link#night-mode-css) for modern browsers + .bc-dark-mode fallback
+   ========================================================================== */
+
+/* --- Cards: MC-1 border invisible in dark → use light border --- */
+html:has(link#night-mode-css) .wow_content,
+html.bc-dark-mode .wow_content,
+html:has(link#night-mode-css) .post .panel,
+html.bc-dark-mode .post .panel {
+  border-color: rgba(255,255,255,.1) !important;
+  box-shadow: none !important;
+}
+
+/* --- Mobile bottom nav --- */
+html:has(link#night-mode-css) #bc-mobile-nav,
+html.bc-dark-mode #bc-mobile-nav {
+  background: rgba(33,33,33,.95) !important;
+  border-top-color: rgba(255,255,255,.08) !important;
+}
+html:has(link#night-mode-css) .bc-mob-nav-item,
+html.bc-dark-mode .bc-mob-nav-item {
+  color: #8899a6 !important;
+}
+html:has(link#night-mode-css) .bc-mob-nav-item.active,
+html.bc-dark-mode .bc-mob-nav-item.active {
+  color: #e7e9ea !important;
+}
+
+/* --- Hero banner on home --- */
+html:has(link#night-mode-css) .bc-hero,
+html.bc-dark-mode .bc-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+}
+
+/* --- Action Prompt banner --- */
+html:has(link#night-mode-css) .bc-prompt-card,
+html.bc-dark-mode .bc-prompt-card {
+  box-shadow: 0 4px 20px rgba(0,0,0,.4) !important;
+}
+
+/* --- Sidebar widgets in dark mode --- */
+html:has(link#night-mode-css) .wo_page_hdng,
+html.bc-dark-mode .wo_page_hdng {
+  border-bottom-color: rgba(255,255,255,.1) !important;
+}
+
+/* --- Feed tabs --- */
+html:has(link#night-mode-css) .bc-feed-tabs,
+html.bc-dark-mode .bc-feed-tabs {
+  background: #212121 !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+html:has(link#night-mode-css) .bc-feed-tabs a,
+html.bc-dark-mode .bc-feed-tabs a {
+  color: #8899a6 !important;
+}
+html:has(link#night-mode-css) .bc-feed-tabs a.active,
+html.bc-dark-mode .bc-feed-tabs a.active {
+  color: #e7e9ea !important;
+}
+
+/* --- Creator Dashboard dark mode --- */
+html:has(link#night-mode-css) .bc-cd-cta-inner,
+html.bc-dark-mode .bc-cd-cta-inner,
+html:has(link#night-mode-css) .bc-cd-card,
+html.bc-dark-mode .bc-cd-card,
+html:has(link#night-mode-css) .bc-cd-thisweek,
+html.bc-dark-mode .bc-cd-thisweek,
+html:has(link#night-mode-css) .bc-cd-stat,
+html.bc-dark-mode .bc-cd-stat {
+  background: #212121 !important;
+}
+html:has(link#night-mode-css) .bc-cd-section-title,
+html.bc-dark-mode .bc-cd-section-title {
+  border-bottom-color: rgba(255,255,255,.1) !important;
+  color: #e7e9ea !important;
+}
+html:has(link#night-mode-css) .bc-cd-tw-item,
+html.bc-dark-mode .bc-cd-tw-item {
+  background: rgba(255,255,255,.05) !important;
+}
+html:has(link#night-mode-css) .bc-cd-ms-bar,
+html.bc-dark-mode .bc-cd-ms-bar {
+  background: rgba(255,255,255,.1) !important;
+}
+html:has(link#night-mode-css) .bc-cd-milestone,
+html.bc-dark-mode .bc-cd-milestone,
+html:has(link#night-mode-css) .bc-cd-history-item,
+html.bc-dark-mode .bc-cd-history-item {
+  border-bottom-color: rgba(255,255,255,.08) !important;
+}
+html:has(link#night-mode-css) .bc-cd-growth-reach,
+html.bc-dark-mode .bc-cd-growth-reach {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%) !important;
+}
+html:has(link#night-mode-css) .bc-cd-growth-invited,
+html.bc-dark-mode .bc-cd-growth-invited {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%) !important;
+}
+html:has(link#night-mode-css) .bc-cd-growth-engagement,
+html.bc-dark-mode .bc-cd-growth-engagement {
+  background: linear-gradient(135deg, #78350f 0%, #92400e 100%) !important;
+}
+
+/* --- Trending section dark mode --- */
+html:has(link#night-mode-css) .bc-trending-card,
+html.bc-dark-mode .bc-trending-card {
+  background: #1e1e2e !important;
+}
+html:has(link#night-mode-css) .bc-trending-info,
+html.bc-dark-mode .bc-trending-info {
+  color: #c5c5c5 !important;
+}
+
+/* --- Search bar in dark mode --- */
+html:has(link#night-mode-css) .tag_header .search-input,
+html.bc-dark-mode .tag_header .search-input {
+  background: rgba(255,255,255,.08) !important;
+  color: #e7e9ea !important;
+}
+
+/* --- Greeting alert in dark mode --- */
+html:has(link#night-mode-css) .greetalert,
+html.bc-dark-mode .greetalert {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+
+/* --- Font colors: ensure text is readable in both modes --- */
+html:has(link#night-mode-css) .post .post-heading .meta .title .name,
+html.bc-dark-mode .post .post-heading .meta .title .name {
+  color: #e7e9ea !important;
+}
+html:has(link#night-mode-css) .post .post-description p,
+html.bc-dark-mode .post .post-description p,
+html:has(link#night-mode-css) .post .post-description .edited_text,
+html.bc-dark-mode .post .post-description .edited_text {
+  color: #dcdcdc !important;
+}
+
+/* --- Featured users / Creators sidebar in dark mode --- */
+html:has(link#night-mode-css) .featured-users-innr .tag_pro_users > div a,
+html.bc-dark-mode .featured-users-innr .tag_pro_users > div a {
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1) !important;
+}
+html:has(link#night-mode-css) .featured-users-innr h4,
+html.bc-dark-mode .featured-users-innr h4 {
+  color: #c5c5c5 !important;
+}
+
+/* --- Publisher box in dark mode --- */
+html:has(link#night-mode-css) .tag_pub_box_bg_text,
+html.bc-dark-mode .tag_pub_box_bg_text {
+  background-color: #353535 !important;
+  color: #c5c5c5 !important;
+}
+
+/* --- Notification popup in dark --- */
+html:has(link#night-mode-css) .bc-notif-popup,
+html.bc-dark-mode .bc-notif-popup {
+  background: #2d2d2d !important;
+  border-color: rgba(255,255,255,.1) !important;
+  color: #dcdcdc !important;
+}
+
+/* ==========================================================================
+   FIX-3: Sidebar layout polish
+   ========================================================================== */
+/* Ensure right sidebar doesn't overlap content on medium screens */
+@media (max-width: 1250px) and (min-width: 992px) {
+  .col-lg-3.sidebar.rightcol {
+    flex: 0 0 240px !important;
+    max-width: 240px !important;
+    width: 240px !important;
+  }
+}
