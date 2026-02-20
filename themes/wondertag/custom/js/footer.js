@@ -156,25 +156,25 @@ function fetchCrypto() {
     if (!btcEl || !ethEl) return;
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin&vs_currencies=inr&include_24hr_change=true', true);
+    xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin&vs_currencies=usd&include_24hr_change=true', true);
     xhr.timeout = 10000;
     xhr.onload = function() {
         if (xhr.status === 200) {
             try {
                 var d = JSON.parse(xhr.responseText);
                 if (d.bitcoin) {
-                    var btcP = '₹' + Math.round(d.bitcoin.inr).toLocaleString('en-IN');
-                    var btcC = d.bitcoin.inr_24h_change || 0;
+                    var btcP = '$' + Math.round(d.bitcoin.usd).toLocaleString('en-US');
+                    var btcC = d.bitcoin.usd_24h_change || 0;
                     updateTicker(btcEl, 'BTC', btcP, btcC, btcC >= 0);
                 }
                 if (d.ethereum) {
-                    var ethP = '₹' + Math.round(d.ethereum.inr).toLocaleString('en-IN');
-                    var ethC = d.ethereum.inr_24h_change || 0;
+                    var ethP = '$' + Math.round(d.ethereum.usd).toLocaleString('en-US');
+                    var ethC = d.ethereum.usd_24h_change || 0;
                     updateTicker(ethEl, 'ETH', ethP, ethC, ethC >= 0);
                 }
                 if (d.binancecoin && bnbEl) {
-                    var bnbP = '₹' + Math.round(d.binancecoin.inr).toLocaleString('en-IN');
-                    var bnbC = d.binancecoin.inr_24h_change || 0;
+                    var bnbP = '$' + Math.round(d.binancecoin.usd).toLocaleString('en-US');
+                    var bnbC = d.binancecoin.usd_24h_change || 0;
                     updateTicker(bnbEl, 'BNB', bnbP, bnbC, bnbC >= 0);
                 }
             } catch(e) {}
@@ -199,16 +199,15 @@ function fetchTRDC() {
                 var d = JSON.parse(xhr.responseText);
                 var pool = d.data.attributes;
                 var priceUSD = parseFloat(pool.base_token_price_usd);
-                var priceINR = priceUSD * 85; // USD to INR conversion
                 var change24h = parseFloat(pool.price_change_percentage.h24) || 0;
 
                 var priceStr;
-                if (priceINR >= 1) {
-                    priceStr = '₹' + priceINR.toFixed(2);
-                } else if (priceINR >= 0.01) {
-                    priceStr = '₹' + priceINR.toFixed(4);
+                if (priceUSD >= 1) {
+                    priceStr = '$' + priceUSD.toFixed(2);
+                } else if (priceUSD >= 0.01) {
+                    priceStr = '$' + priceUSD.toFixed(4);
                 } else {
-                    priceStr = '₹' + priceINR.toFixed(6);
+                    priceStr = '$' + priceUSD.toFixed(6);
                 }
 
                 updateTicker(trdcEl, 'TRDC', priceStr, change24h, change24h >= 0);
