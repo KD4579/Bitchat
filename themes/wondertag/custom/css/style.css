@@ -3955,10 +3955,11 @@ body, p, li, td {
   height: 36px !important;
   border-radius: 50% !important;
 }
-.post .post-footer { padding: 6px 14px !important; }
+/* post-footer: do NOT override padding — WoWonder's tag_post_actions uses
+   margin: 15px -15px 0 which is calibrated exactly for padding: 15px.
+   Overriding footer padding breaks the negative-margin bleed and crushes button widths. */
 /* Actual WoWonder post text class is post-description, not post-body */
-.post .post-description { padding: 4px 14px 10px !important; }
-.post .post-description p { font-size: 14px !important; line-height: 1.5 !important; }
+.post .post-description { padding: 4px 15px 10px !important; }
 .post_photo_section img { border-radius: 10px !important; }
 
 /* MC-4: Button Normalization — radius 8px, 13px font (safe: no height/display override)
