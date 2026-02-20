@@ -3904,3 +3904,177 @@ body, p, li, td {
   font-weight: 600;
   color: var(--bc-text-secondary, #64748B);
 }
+
+/* ==========================================================================
+   MC: MASTER CODEX LAYOUT RESET
+   Facebook/Twitter-level clean + addictive layout.
+   Pure CSS overrides — fully reversible. No WoWonder core edits.
+   ========================================================================== */
+
+/* MC-1: Clean Cards — border replaces heavy shadow, radius 12px
+   ---------------------------------------------------------------- */
+.wow_content {
+  box-shadow: none !important;
+  border: 1px solid var(--bc-border-color, rgba(0,0,0,.08)) !important;
+  border-radius: 12px !important;
+}
+.post .panel {
+  box-shadow: none !important;
+  border: 1px solid var(--bc-border-color, rgba(0,0,0,.08)) !important;
+  border-radius: 12px !important;
+}
+.page-margin { margin: 16px 0 !important; }
+
+/* MC-2: 3-Column Grid — 240px left / feed / 280px right
+   ---------------------------------------------------------------- */
+.tag_sidebar { max-width: 240px !important; }
+.tag_content  { margin-left: 240px !important; }
+@media (max-width: 1150px) {
+  .tag_content { margin-left: 0 !important; }
+}
+/* Fix right sidebar to 280px (overrides Bootstrap col-lg-3 ~237px) */
+.col-lg-3.sidebar.rightcol {
+  flex: 0 0 280px !important;
+  max-width: 280px !important;
+  width: 280px !important;
+}
+
+/* MC-3: Post Card — 14px padding, 36px avatar, rounded media
+   ---------------------------------------------------------------- */
+.post .post-heading { padding: 12px 14px 8px !important; }
+.post .post-heading .image { margin-right: 10px !important; }
+.post .post-heading .image img,
+.post .post-heading .image .avatar {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+}
+.post .post-footer { padding: 6px 14px !important; }
+.post .post-body { padding: 6px 14px 10px !important; }
+.post .panel .panel-body img,
+.post_photo_section img { border-radius: 10px !important; }
+
+/* MC-4: Button Normalization — 34px height, 13px, radius 8px
+   ---------------------------------------------------------------- */
+.btn {
+  height: 34px !important;
+  font-size: 13px !important;
+  border-radius: 8px !important;
+  padding: 0 14px !important;
+  line-height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.btn-sm {
+  height: 28px !important;
+  font-size: 12px !important;
+  line-height: 28px !important;
+  padding: 0 10px !important;
+}
+.btn-round,
+.btn-icon {
+  border-radius: 50% !important;
+  width: 34px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+}
+
+/* MC-5: Sidebar Cleaning — icon 18px, text 12px, hover-only bg
+   ---------------------------------------------------------------- */
+.tag_sidebar_section > a svg,
+.tag_sidebar_section > a img {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 auto 6px !important;
+}
+.tag_sidebar_section > a {
+  font-size: 12px !important;
+  padding: 10px 4px !important;
+}
+.tag_sidebar_section > a:hover:before {
+  opacity: 0.05 !important;
+  border-radius: 8px !important;
+}
+.tag_sidebar_head {
+  font-size: 11px !important;
+  letter-spacing: 0.8px !important;
+}
+
+/* MC-6: Landing Hero Cleanup — height -30%, inline stat pills
+   ---------------------------------------------------------------- */
+.bc-hero { padding: 20px 24px !important; margin-bottom: 16px !important; }
+.bc-hero-stats {
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin-top: 10px !important;
+}
+.bc-hero-stat {
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.15) !important;
+  font-size: 12px !important;
+}
+
+/* MC-7: Mobile Double Icon Fix — one nav only at ≤900px
+   ---------------------------------------------------------------- */
+@media (max-width: 900px) {
+  /* WoWonder's own bottom bar (if present) */
+  .tag_bottom_nav,
+  .tag_mobi_bottom_bar { display: none !important; }
+  /* Hide header icons duplicated in bc-mobile-nav */
+  .tag_hdr_right .notification-list,
+  .tag_hdr_right .messages-list,
+  .tag_hdr_right .user-request-list { display: none !important; }
+}
+@media (min-width: 901px) {
+  #bc-mobile-nav { display: none !important; }
+}
+
+/* MC-8: Typography — Inter, 14px body, line-height 1.45
+   ---------------------------------------------------------------- */
+:root {
+  --bc-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+body,
+p, li, td,
+input, textarea, select, button {
+  font-family: var(--bc-font-sans) !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--bc-font-sans) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em !important;
+}
+
+/* MC-9: Addiction UX — hover lift, like scale, post fade-in
+   ---------------------------------------------------------------- */
+.wow_content,
+.post .panel {
+  transition: box-shadow 0.18s ease, transform 0.18s ease !important;
+}
+.wow_content:hover,
+.post .panel:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.1) !important;
+  transform: translateY(-1px) !important;
+}
+.like-btn,
+.tag_like_btn { transition: transform 0.15s ease !important; }
+.like-btn:hover,
+.tag_like_btn:hover { transform: scale(1.15) !important; }
+a, button { transition: opacity 0.12s ease, color 0.12s ease !important; }
+.post { animation: bc-fade-in 0.25s ease both !important; }
+
+/* MC-10: Speed-Safe — no unnecessary will-change, respects reduced-motion
+   ---------------------------------------------------------------- */
+#bc-mobile-nav,
+#bc-market-strip,
+.tag_sidebar { will-change: auto !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
