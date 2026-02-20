@@ -984,12 +984,49 @@ function Wo_ShowComments(post_id) {
   $('#post-comments-' + post_id).toggleClass('hidden');
 }
 
-// open post edit modal
+// open post edit modal — uses global modal (single instance, not per-post)
 function Wo_OpenPostEditBox(post_id) {
-  var edit_box = $('#post-' + post_id).find('#edit-post');
-  edit_box.modal({
-    show: true
+  var post = $('#post-' + post_id);
+  var orgText = post.attr('data-orginaltext') || '';
+  var editModal = $('#bc-edit-post-modal');
+  editModal.find('#bc-edit-post-textarea').val(orgText);
+  editModal.find('#bc-edit-post-id').val(post_id);
+  editModal.find('.edit_alert').empty();
+  // Wire up AJAX form submit
+  editModal.find('#bc-edit-post-form').off('submit').on('submit', function(e) {
+    e.preventDefault();
+    var textarea = editModal.find('#bc-edit-post-textarea');
+    if (textarea.val().trim() === '') {
+      editModal.find('.edit_alert').html("<div class='alert alert-danger'>Please add text.</div>");
+      return false;
+    }
+    var formData = new FormData(this);
+    $.ajax({
+      url: Wo_Ajax_Requests_File() + '?f=posts&s=edit_post',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(data) {
+        if (data.status == 200) {
+          var postEl = $('#post-' + post_id);
+          var postText = postEl.find('.post-description p');
+          if (postEl.attr('data-post-type') == 'share') {
+            postText = postEl.find('.post-description .edited_text');
+          }
+          if (data.html != '') {
+            postText.html(data.html);
+          }
+          postEl.attr('data-orginaltext', textarea.val());
+          if (data.reload == 'reload') {
+            location.reload();
+          }
+          editModal.modal('hide');
+        }
+      }
+    });
   });
+  editModal.modal('show');
 }
 function Wo_OpenOfferEditBox(offer_id) {
   $('.edit_offer_modal_form').empty();
@@ -1082,33 +1119,33 @@ function DeletePostImage(post_id,image_id = 0) {
   $.post(Wo_Ajax_Requests_File() + '?f=posts&s=delete_post_image', {post_id: post_id,image_id: image_id}, function(data, textStatus, xhr) {});
 }
 
-// open delete post modal
+// open delete post modal — uses global modal (single instance, not per-post)
 function Wo_OpenPostDeleteBox(post_id) {
-  var delete_box = $('#post-' + post_id).find('#delete-post');
-  delete_box.modal({
-    show: true
+  var deleteModal = $('#bc-delete-post-modal');
+  deleteModal.find('#bc-delete-post-confirm').off('click').on('click', function() {
+    Wo_DeletePost(post_id);
   });
+  deleteModal.modal('show');
 }
 
 // delete post
 function Wo_DeletePost(post_id) {
 	Wo_CloseLightbox();
-	var delete_box = $('#post-' + post_id).find('#delete-post');
-	var delete_button = delete_box.find('#delete-all-post');
-	$('#post-' + post_id).find('#delete-post .disable_btn').attr('disabled','disabled');
+	var deleteModal = $('#bc-delete-post-modal');
+	deleteModal.find('.btn').attr('disabled','disabled');
 	$.get(Wo_Ajax_Requests_File(), {
 		f: 'posts',
 		s: 'delete_post',
 		post_id: post_id
 	}, function (data) {
 		if(data.status == 200) {
-			delete_box.modal('hide');
+			deleteModal.modal('hide');
 			$('body').removeClass('modal-open');
 			$('#post-' + post_id).slideUp(200, function () {
 				$(this).remove();
 			});
 		}
-		$('#post-' + post_id).find('#delete-post .disable_btn').removeAttr("disabled");
+		deleteModal.find('.btn').removeAttr("disabled");
 	});
 }
 
@@ -1165,30 +1202,27 @@ function Wo_EditComment(text, comment_id, event) {
   }
 }
 
-// delete comment
+// delete comment — uses global modal (single instance, not per-comment)
 function Wo_DeleteComment(comment_id) {
-  var delete_box = $('[id=comment_' + comment_id + ']').find('#delete-comment');
-  var delete_button = delete_box.find('#delete-all-post');
-  delete_box.modal({
-    show: true
-  });
+  var deleteModal = $('#bc-delete-comment-modal');
   var comment = $('[id=comment_' + comment_id + ']');
-  delete_button.on('click', function () {
-    $('[id=comment_' + comment_id + ']').find('#delete-comment .disable_btn').attr('disabled','disabled');
+  deleteModal.find('#bc-delete-comment-confirm').off('click').on('click', function () {
+    deleteModal.find('.btn').attr('disabled','disabled');
     $.get(Wo_Ajax_Requests_File(), {
       f: 'posts',
       s: 'delete_comment',
       comment_id: comment_id
     }, function (data) {
       if(data.status == 200) {
-        delete_box.modal('hide');
-        $('.modal').modal('hide');
+        deleteModal.modal('hide');
         comment.fadeOut(300, function () {
           comment.remove();
         });
       }
+      deleteModal.find('.btn').removeAttr("disabled");
     });
   });
+  deleteModal.modal('show');
 }
 
 function Wo_DeleteReplyComment(reply_id) {

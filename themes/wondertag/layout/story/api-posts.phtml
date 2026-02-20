@@ -1337,12 +1337,7 @@ $current_post = $wo['current_post'] = $wo['story'];
 					</div>
 				<?php } ?>
 			
-				<?php 
-					if ($wo['loggedin'] == true) {
-						echo Wo_LoadPage('modals/edit-post');
-						echo Wo_LoadPage('modals/delete-post');
-					}
-				?>
+				<!-- Modals moved to global single-instance in container.phtml -->
 			</div>
 		</div>
 	</div>

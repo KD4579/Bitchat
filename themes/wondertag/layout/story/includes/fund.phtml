@@ -88,12 +88,7 @@
 				</div>
 			</div>
 		</div>
-		<?php 
-			if ($wo['loggedin'] == true) {
-				echo Wo_LoadPage('modals/delete-post');
-				echo Wo_LoadPage('modals/edit_job');
-			}
-		?>
+		<!-- Modals moved to global single-instance in container.phtml -->
 	</div>
 </div>
 

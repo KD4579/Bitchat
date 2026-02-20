@@ -1709,6 +1709,70 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	</nav>
 	<?php endif; ?>
 
+	<!-- Global Delete Post Modal (was per-post, now single instance) -->
+	<?php if ($wo['loggedin'] == true) { ?>
+	<div class="modal fade" id="bc-delete-post-modal" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-md wow_mat_mdl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title"><?php echo $wo['lang']['delete_post']; ?></h4>
+				</div>
+				<div class="modal-body">
+					<p><?php echo $wo['lang']['confirm_delete_post']; ?></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default btn-mat" data-dismiss="modal"><?php echo $wo['lang']['cancel']; ?></button>
+					<button type="button" class="btn btn-main btn-mat" id="bc-delete-post-confirm"><?php echo $wo['lang']['delete']; ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Global Delete Comment Modal (was per-comment, now single instance) -->
+	<div class="modal fade" id="bc-delete-comment-modal" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-md wow_mat_mdl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title"><?php echo $wo['lang']['delete_comment']; ?></h4>
+				</div>
+				<div class="modal-body">
+					<p><?php echo $wo['lang']['confirm_delete_comment']; ?></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default btn-mat" data-dismiss="modal"><?php echo $wo['lang']['cancel']; ?></button>
+					<button type="button" class="btn btn-main btn-mat" id="bc-delete-comment-confirm"><?php echo $wo['lang']['delete']; ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Global Edit Post Modal (was per-post, now single instance) -->
+	<div class="modal fade" id="bc-edit-post-modal" role="dialog" aria-hidden="true">
+		<div class="modal-dialog wow_mat_mdl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title"><?php echo $wo['lang']['edit_post']; ?></h4>
+				</div>
+				<form id="bc-edit-post-form" method="post">
+					<div class="modal-body">
+						<div class="edit_alert"></div>
+						<label class="tag_field">
+							<textarea placeholder=" " name="text" dir="auto" rows="6" id="bc-edit-post-textarea" onkeyup="Wo_Get_Mention(this)"></textarea>
+							<span><?php echo $wo['lang']['edit_post']; ?></span>
+						</label>
+						<input type="hidden" name="post_id" id="bc-edit-post-id" value="">
+						<input type="hidden" name="all_images" value="0">
+					</div>
+					<div class="modal-footer" style="border: none">
+						<button type="button" class="btn btn-default btn-mat" data-dismiss="modal"><?php echo $wo['lang']['cancel']; ?></button>
+						<button type="submit" class="btn btn-main btn-mat"><?php echo $wo['lang']['update']; ?></button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<?php } ?>
+
 	<!-- SM-3: Global Modal System (40-60% DOM reduction) -->
 	<div id="bc-global-modal" class="modal fade" role="dialog" aria-hidden="true">
 		<div class="modal-dialog wow_mat_mdl" role="document">

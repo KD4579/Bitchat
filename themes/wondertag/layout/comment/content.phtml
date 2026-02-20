@@ -215,7 +215,7 @@ if ($wo['config']['shout_box_system'] == 1 && $wo['story']['postPrivacy'] == 4 &
 			<?php } ?>
 		</div>
 	</div>
-	<?php echo Wo_LoadPage('modals/delete-comment');?>
+	<!-- Delete-comment modal moved to global single-instance in container.phtml -->
 	<script>
 		function Wo_PostReplyCommentGif_<?php echo $wo['comment']['id']; ?>(self,id) {
 			Wo_RegisterReply2(<?php echo $wo['comment']['id']; ?>,<?php echo $wo['story']['publisher']['user_id']; ?>, <?php echo (!empty($wo['story']['publisher']['page_id'])) ? $wo['story']['publisher']['page_id'] : '0'; ?>,'',$(self).attr('src'));
