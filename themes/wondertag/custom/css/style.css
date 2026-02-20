@@ -4246,11 +4246,7 @@ html { scroll-behavior: smooth; }
 .tag_home_filters.home { margin-top: 0 !important; margin-bottom: 8px !important; }
 .greetalert { display: none !important; } /* greeting alert removed per EP-10 */
 
-/* ── EP-12: Remove admin vocabulary from landing ───────────────────────── */
-/* Theme Options is already Wo_IsAdmin() gated in loggedin-header.phtml */
-/* Hide stray admin-only settings links visible in mobile dropdown */
-.tag_hdr_droptoggle + ul a[href*="admin"],
-.tag_footer_mobi a[href*="admin"] { display: none !important; }
+/* ── EP-12: Admin links kept visible — PHP already gates via Wo_IsAdmin() */
 
 /* ── Duplicate trending block ───────────────────────────────────────────── */
 /* If a second .bc-trending-section appears in right sidebar, hide it */
