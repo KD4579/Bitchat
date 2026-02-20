@@ -4421,15 +4421,11 @@ a[href*="link1=memories"] { display: none !important; }
   display: inline-flex !important;
 }
 
-/* Comment editor hidden by default — correct selector: both classes on same element.
-   The element is <div class="post-footer post-comments">, so use .post-footer.post-comments
-   (NOT .post-footer .post-comments which is a descendant selector — never matched). */
-.post-footer.post-comments { display: none !important; }
-.post-footer.post-comments.d-block,
-.post-footer.post-comments[style*="display: block"],
-.post-footer.post-comments[style*="display:block"] {
-  display: block !important;
-}
+/* Comment box show/hide: WoWonder's Wo_ShowComments() toggles .hidden class.
+   Core CSS: .hidden { display: none } (no !important).
+   Do NOT add display:none here — it would override the JS toggle and break comments.
+   Only boost d-block for PHP auto-show (tag_show_comments=1). */
+.post-footer.post-comments.d-block { display: block !important; }
 
 /* Stats row (like count / comment count) — clean compact */
 .tag_post_foot_stats {
