@@ -73,7 +73,7 @@
                         <h3 class="bc-prompt-title">${prompt.title}</h3>
                         <p class="bc-prompt-message">${prompt.message}</p>
                     </div>
-                    <button class="bc-prompt-cta" data-action="${prompt.cta_action}">
+                    <button type="button" class="bc-prompt-cta" data-action="${prompt.cta_action}">
                         ${prompt.cta_text}
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </button>
@@ -98,22 +98,22 @@
         handleAction: function(action, promptType) {
             this.log('Action triggered: ' + action + ' from ' + promptType);
 
+            var siteUrl = (window.BC_CONFIG && window.BC_CONFIG.siteUrl) ? window.BC_CONFIG.siteUrl : '';
+
             switch(action) {
                 case 'openComposer':
-                    // Open post composer
-                    if (typeof $('#tagPostBox') !== 'undefined') {
+                    // Open post composer modal
+                    if ($('#tagPostBox').length) {
                         $('#tagPostBox').modal('show');
                     }
                     break;
 
                 case 'goToDiscover':
-                    // Navigate to discover page
-                    window.location.href = window.BC_CONFIG.siteUrl + '/discover';
+                    window.location.href = siteUrl + '/discover';
                     break;
 
                 case 'goToWallet':
-                    // Navigate to wallet/earnings
-                    window.location.href = window.BC_CONFIG.siteUrl + '/wallet';
+                    window.location.href = siteUrl + '/wallet';
                     break;
 
                 default:

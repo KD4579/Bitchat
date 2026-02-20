@@ -4309,10 +4309,9 @@ a[href*="link1=memories"] { display: none !important; }
 .chat-opacity { opacity: 0 !important; pointer-events: none !important; height: 0 !important; overflow: hidden !important; }
 
 /* ── Global polish ─────────────────────────────────────────────────────────── */
-/* Consistent soft shadow — no hard borders on content cards */
+/* Consistent soft shadow on content cards (keeps MC-1 border for dark mode) */
 .wow_content {
   box-shadow: 0 4px 12px rgba(0,0,0,.05) !important;
-  border: none !important;
 }
 
 /* Spacing scale enforcement */
