@@ -3139,10 +3139,14 @@ div[class*="timeline"] {
 }
 /* Mobile hero — scoped to home banner */
 @media (max-width: 768px) {
-  #bc-hero-banner { padding: 28px 20px 0; }
-  #bc-hero-banner .bc-hero-stats { margin: 0 -20px; padding: 14px 20px; }
-  .bc-hero-stat-value { font-size: 15px; }
-  #bc-hero-banner .bc-hero-stats { gap: 0; overflow-x: auto; }
+  #bc-hero-banner { padding: 20px 16px 0; }
+  .bc-hero-headline { font-size: 20px !important; }
+  .bc-hero-sub { font-size: 13px !important; }
+  .bc-btn-primary, .bc-btn-ghost { width: 100%; justify-content: center; padding: 10px 16px; font-size: 13px; }
+  #bc-hero-banner .bc-hero-stats { margin: 0 -16px; padding: 12px 16px; }
+  .bc-hero-stat-value { font-size: 14px; }
+  .bc-hero-stat-label { font-size: 10px; }
+  #bc-hero-banner .bc-hero-stats { gap: 0; overflow-x: auto; flex-wrap: nowrap; }
 }
 
 /* ---- UI-2: Glass Market Ticker ---- */
@@ -3427,6 +3431,10 @@ body.night-mode .bc-ticker-bar {
   font-size: 10px;
   font-weight: 600;
   line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 64px;
 }
 /* Create button — elevated pill in the centre */
 .bc-mob-create-btn {
