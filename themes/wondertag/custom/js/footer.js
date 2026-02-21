@@ -324,9 +324,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         applyColors();
         popup.style.display = 'flex';
-        popup.classList.add('bc-install-visible');
+        /* Let browser paint, then trigger entrance animation */
+        requestAnimationFrame(function() {
+            popup.classList.add('bc-install-visible');
+        });
 
-        /* Auto-hide after 5 seconds */
+        /* Full 5 seconds AFTER entrance animation (300ms) completes */
         hideTimer = setTimeout(function() {
             popup.classList.remove('bc-install-visible');
             setTimeout(function() { popup.style.display = 'none'; }, 300);
@@ -335,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (showCount < MAX_SHOWS && !sessionStorage.getItem(KEY)) {
                 setTimeout(showPopup, INTERVAL);
             }
-        }, SHOW_DURATION);
+        }, 300 + SHOW_DURATION);
     }
 
     function dismiss() {
