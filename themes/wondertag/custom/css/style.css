@@ -2984,10 +2984,10 @@ div[class*="timeline"] {
 #bc-hero-banner {
   background: linear-gradient(135deg, #6C5CFF 0%, #00D4FF 100%);
   border-radius: var(--bc-radius-xl, 22px);
-  padding: 16px 24px 0;
+  padding: 10px 24px 0;
   color: #fff;
   margin-top: -24px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   overflow: hidden;
   position: relative;
 }
@@ -3007,7 +3007,7 @@ div[class*="timeline"] {
   justify-content: space-between;
   gap: 24px;
 }
-.bc-hero-content { flex: 1; padding-bottom: 14px; }
+.bc-hero-content { flex: 1; padding-bottom: 8px; }
 .bc-hero-eyebrow {
   display: inline-flex;
   align-items: center;
@@ -3101,7 +3101,7 @@ div[class*="timeline"] {
   align-self: flex-end;
   opacity: .6;
 }
-.bc-hero-chart { width: 100%; height: 80px; }
+.bc-hero-chart { width: 100%; height: 64px; }
 .bc-hero-chart svg { width: 100%; height: 100%; }
 
 /* Hero stats bar — scoped to home banner */
@@ -3110,7 +3110,7 @@ div[class*="timeline"] {
   align-items: center;
   gap: 0;
   margin: 0 -40px;
-  padding: 16px 40px;
+  padding: 10px 40px;
   background: rgba(0,0,0,.15);
   border-top: 1px solid rgba(255,255,255,.12);
 }
