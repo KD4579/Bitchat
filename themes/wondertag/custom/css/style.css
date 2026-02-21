@@ -2982,6 +2982,7 @@ div[class*="timeline"] {
   border-radius: var(--bc-radius-xl, 22px);
   padding: 16px 24px 0;
   color: #fff;
+  margin-top: -24px;
   margin-bottom: 24px;
   overflow: hidden;
   position: relative;
