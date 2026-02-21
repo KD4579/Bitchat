@@ -1736,11 +1736,11 @@ body.night_mode .bc-welcome-step-line {
   align-items: center;
   gap: 0;
   overflow: hidden;
-  height: 24px;
+  height: 39px;
   background: #0f1419;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   padding: 0;
-  font-size: 13px;
+  font-size: 16px;
   font-family: var(--bc-font-body);
   white-space: nowrap;
   z-index: 10;
@@ -1775,7 +1775,7 @@ html.bc-dark-mode #bc-market-strip {
   font-weight: 700;
   color: rgba(255,255,255,0.5);
   margin-right: 4px;
-  font-size: 11px;
+  font-size: 14px;
   text-transform: uppercase;
 }
 .bc-ticker-price {
@@ -1786,7 +1786,7 @@ html.bc-dark-mode #bc-market-strip {
 .bc-ticker-change {
   font-weight: 600;
   margin-right: 20px;
-  font-size: 11px;
+  font-size: 14px;
 }
 .bc-ticker-up { color: #00c853; }
 .bc-ticker-down { color: #ff5252; }
@@ -1799,7 +1799,7 @@ html.bc-dark-mode #bc-market-strip {
 }
 .bc-ticker-loading { display: none; }
 @media (max-width: 500px) {
-  #bc-market-strip { font-size: 11px; height: 22px; }
+  #bc-market-strip { font-size: 14px; height: 36px; }
   .bc-ticker-sep { margin-right: 12px; font-size: 16px; }
   .bc-ticker-change { margin-right: 12px; font-size: 13px; }
   .bc-ticker-label { font-size: 12px; }
@@ -2980,7 +2980,7 @@ div[class*="timeline"] {
 #bc-hero-banner {
   background: linear-gradient(135deg, #6C5CFF 0%, #00D4FF 100%);
   border-radius: var(--bc-radius-xl, 22px);
-  padding: 36px 40px 0;
+  padding: 16px 24px 0;
   color: #fff;
   margin-bottom: 24px;
   overflow: hidden;
@@ -3002,7 +3002,7 @@ div[class*="timeline"] {
   justify-content: space-between;
   gap: 24px;
 }
-.bc-hero-content { flex: 1; padding-bottom: 32px; }
+.bc-hero-content { flex: 1; padding-bottom: 14px; }
 .bc-hero-eyebrow {
   display: inline-flex;
   align-items: center;
@@ -3012,7 +3012,7 @@ div[class*="timeline"] {
   letter-spacing: .08em;
   text-transform: uppercase;
   opacity: .85;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 .bc-live-dot {
   display: inline-block;
@@ -3139,7 +3139,7 @@ div[class*="timeline"] {
 }
 /* Mobile hero — scoped to home banner */
 @media (max-width: 768px) {
-  #bc-hero-banner { padding: 20px 16px 0; }
+  #bc-hero-banner { padding: 12px 16px 0; }
   .bc-hero-headline { font-size: 20px !important; }
   .bc-hero-sub { font-size: 13px !important; }
   .bc-btn-primary, .bc-btn-ghost { width: 100%; justify-content: center; padding: 10px 16px; font-size: 13px; }
