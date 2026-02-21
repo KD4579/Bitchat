@@ -302,8 +302,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /* sessionStorage key — clears on logout (session end) */
-    var KEY = 'bc_install_dismissed';
-    var COUNT_KEY = 'bc_install_count';
+    var KEY = 'bc_install_v2';
+    var COUNT_KEY = 'bc_install_v2_count';
 
     if (sessionStorage.getItem(KEY)) return;
 
