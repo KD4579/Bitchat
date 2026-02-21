@@ -3840,17 +3840,15 @@ body, p, li, td {
 .tag_content  { margin-left: 280px !important; }
 @media (max-width: 1150px) {
   .tag_content { margin-left: 0 !important; }
-  /* Force sidebar off-screen on tablet/mobile (core uses transform without !important) */
+  /* Nuclear: hide sidebar completely on mobile/tablet */
   .tag_sidebar {
-    transform: translateX(-115%) !important;
-    -webkit-transform: translateX(-115%) !important;
-    visibility: hidden !important;
+    display: none !important;
   }
   /* Show sidebar only when hamburger menu opens it */
   body.side_open .tag_sidebar {
+    display: block !important;
     transform: none !important;
     -webkit-transform: none !important;
-    visibility: visible !important;
   }
 }
 .col-lg-3.sidebar.rightcol {
