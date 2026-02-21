@@ -5712,3 +5712,85 @@ body {
 
   .promoted-post { margin-bottom: 0 !important; }
 }
+
+/* ==========================================================================
+   FIX-3: Profile page avatar overlap — MC-1 border/radius breaks cover-to-info
+   connection. Cover card and info card must be seamless (no border-top, flat
+   top corners on info card).
+   ========================================================================== */
+
+/* Cover card — no border, no rounded bottom corners (info card sits flush below) */
+.wo_user_profile .cardheader.wow_content,
+.wo_page_profile .cardheader.wow_content,
+.wo_group_profile .cardheader.wow_content,
+.wo_event_profile .cardheader.wow_content {
+  border: none !important;
+  border-radius: 10px 10px 0 0 !important;
+  box-shadow: none !important;
+}
+
+/* Info card below cover — flat top, rounded bottom, NO border-top */
+.wo_user_profile .tag_page_name_hdr,
+.wo_page_profile .tag_page_name_hdr,
+.wo_group_profile .tag_group_name_hdr,
+.wo_event_profile .tag_event_name_hdr {
+  border-radius: 0 0 10px 10px !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+/* Hovercard wrapper — transparent, no border */
+.tag_cover_bg .card.hovercard {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Avatar — keep core sizing/overlap intact */
+.wo_user_profile .user-avatar {
+  width: 130px !important;
+  height: 130px !important;
+  margin: -70px 0 15px !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+.wo_user_profile .user-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  padding: 4px !important;
+  background-color: var(--bc-surface-primary, #fff) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Action buttons — stay to the right, above avatar */
+.wow_user_page_btns {
+  z-index: 11 !important;
+}
+
+/* Mobile — full-width profile cards, smaller avatar */
+@media (max-width: 768px) {
+  .wo_user_profile .cardheader.wow_content,
+  .wo_page_profile .cardheader.wow_content,
+  .wo_group_profile .cardheader.wow_content,
+  .wo_event_profile .cardheader.wow_content {
+    border-radius: 0 !important;
+  }
+  .wo_user_profile .tag_page_name_hdr,
+  .wo_page_profile .tag_page_name_hdr,
+  .wo_group_profile .tag_group_name_hdr,
+  .wo_event_profile .tag_event_name_hdr {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    margin: 0 -15px !important;
+  }
+  .wo_user_profile .user-avatar {
+    width: 110px !important;
+    height: 110px !important;
+    margin: -50px 0 15px !important;
+  }
+}
