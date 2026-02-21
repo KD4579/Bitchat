@@ -5009,6 +5009,25 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
 }
 
 /* --------------------------------------------------------------------------
+   RR-5b: Post card spacing — 70% tighter on mobile only
+   Sources of gap: .post margin, .wow_content.mb-15, .posts-container margin,
+   .page-margin margin. Override all on mobile.
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .post { margin-bottom: 2px !important; }
+  .post .panel { margin-bottom: 0 !important; }
+  .post-container,
+  .wo_post_sec { margin-bottom: 2px !important; }
+  .posts-container { margin-bottom: 4px !important; }
+  /* .mb-15 utility on feed post wrappers */
+  #posts-laoded .wow_content.mb-15,
+  #posts-laoded .mb-15,
+  .middlecol .wow_content.mb-15 { margin-bottom: 2px !important; }
+  /* Page margin between feed sections */
+  .page-margin { margin-top: 4px !important; margin-bottom: 4px !important; }
+}
+
+/* --------------------------------------------------------------------------
    RR-6: Composer textarea — reduce max-height on mobile (keyboard space)
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
