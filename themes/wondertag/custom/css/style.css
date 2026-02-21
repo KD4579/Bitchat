@@ -4684,19 +4684,40 @@ html.bc-dark-mode .bc-notif-popup {
   overflow-x: hidden !important;
 }
 
-/* --- 4a) Day mode: sidebar text colors --- */
+/* --- 4a) DAY MODE: sidebar explicit colors ---
+   Root cause: admin --header-background is #1e2321 (dark green-black),
+   which core uses for sidebar bg. Dark text on dark bg = unreadable.
+   Fix: force light bg + dark text for sidebar in day mode.
+   ---------------------------------------------------------------- */
+.tag_sidebar {
+  background: #f8f9fa !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+.tag_sidebar .sidebar_innr {
+  background: #f8f9fa !important;
+}
 .tag_sidebar_head {
-  color: var(--bc-text-secondary, #64748B) !important;
+  color: #64748B !important;
+}
+.tag_sidebar_section > a {
+  color: #334155 !important;
+}
+.tag_sidebar_section > a:hover {
+  color: #6C5CFF !important;
 }
 
-/* --- 4b) Night/Dark mode: sidebar background --- */
+/* --- 4b) NIGHT/DARK MODE: sidebar background --- */
 html:has(link#night-mode-css) .tag_sidebar,
 html.bc-dark-mode .tag_sidebar {
   background: #1a1a1a !important;
-  border-right-color: rgba(255,255,255,.06) !important;
+  border-right: 1px solid rgba(255,255,255,.06) !important;
+}
+html:has(link#night-mode-css) .tag_sidebar .sidebar_innr,
+html.bc-dark-mode .tag_sidebar .sidebar_innr {
+  background: #1a1a1a !important;
 }
 
-/* --- 4c) Night/Dark mode: sidebar links --- */
+/* --- 4c) NIGHT/DARK MODE: sidebar links --- */
 html:has(link#night-mode-css) .tag_sidebar a,
 html.bc-dark-mode .tag_sidebar a {
   color: #c5c5c5 !important;
@@ -4709,13 +4730,11 @@ html.bc-dark-mode .tag_sidebar a.active {
   color: #fff !important;
 }
 
-/* --- 4d) Night/Dark mode: sidebar section headers --- */
+/* --- 4d) NIGHT/DARK MODE: sidebar section headers + items --- */
 html:has(link#night-mode-css) .tag_sidebar_head,
 html.bc-dark-mode .tag_sidebar_head {
   color: #777 !important;
 }
-
-/* --- 4e) Night/Dark mode: sidebar section background (remove any light bg) --- */
 html:has(link#night-mode-css) .tag_sidebar_section_prnt,
 html.bc-dark-mode .tag_sidebar_section_prnt {
   background: transparent !important;
@@ -4729,7 +4748,7 @@ html.bc-dark-mode .tag_sidebar_section > a:hover {
   color: #fff !important;
 }
 
-/* --- 4f) Night/Dark mode: sidebar footer links --- */
+/* --- 4e) NIGHT/DARK MODE: sidebar footer links --- */
 html:has(link#night-mode-css) .tag_footer_links a,
 html.bc-dark-mode .tag_footer_links a {
   color: #666 !important;
@@ -4739,7 +4758,7 @@ html.bc-dark-mode .tag_footer_links a:hover {
   color: #aaa !important;
 }
 
-/* --- 4g) Night/Dark mode: sidebar scrollbar --- */
+/* --- 4f) NIGHT/DARK MODE: sidebar scrollbar --- */
 html:has(link#night-mode-css) .tag_sidebar .sidebar_innr::-webkit-scrollbar-thumb,
 html.bc-dark-mode .tag_sidebar .sidebar_innr::-webkit-scrollbar-thumb {
   background-color: #444 !important;
