@@ -3353,27 +3353,9 @@ body.night-mode .bc-ticker-bar {
    ============================================================ */
 
 /* ---- UI-8: Floating Action Button (desktop) ---- */
+/* bc-fab hidden — using WoWonder native .tag_create_dropup instead */
 .bc-fab {
-  position: fixed;
-  bottom: 32px;
-  right: 110px; /* clear chat sidebar (90px wide) */
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--bc-primary, #6C5CFF);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 28px rgba(108,92,255,.45);
-  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
-  z-index: 990;
-}
-/* When chat is disabled, FAB can sit closer to the edge */
-body[chat-off="true"] .bc-fab {
-  right: 32px;
+  display: none !important;
 }
 .bc-fab:hover {
   transform: scale(1.08) translateY(-2px);
@@ -4520,11 +4502,38 @@ a[href*="link1=memories"] { display: none !important; }
 .post .post-heading .dropdown-toggle svg { width: 16px !important; height: 16px !important; }
 
 /* ==========================================================================
-   FIX-1: Hide WoWonder native FAB (.tag_create_dropup)
-   Our .bc-fab replaces it. The native one collides at bottom:30px right:30px
-   and MC-4 .btn { border-radius:8px } breaks its circle into a square.
+   FIX-1: Restore WoWonder native FAB (.tag_create_dropup)
+   Moved left to clear 90px chat sidebar. Fix circle shape broken by MC-4.
    ========================================================================== */
-.tag_create_dropup { display: none !important; }
+.tag_create_dropup {
+  display: block !important;
+  right: 110px !important;
+}
+body[chat-off="true"] .tag_create_dropup {
+  right: 30px !important;
+}
+/* Restore circle shape — MC-4 .btn rule breaks it to 8px */
+.tag_create_dropup > .btn {
+  border-radius: 50% !important;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--bc-primary, #6C5CFF) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 28px rgba(108,92,255,.45) !important;
+}
+.tag_create_dropup > .btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 14px 36px rgba(108,92,255,.55) !important;
+}
+/* Hide native FAB on mobile — mobile nav has create button */
+@media (max-width: 900px) {
+  .tag_create_dropup { display: none !important; }
+}
 
 /* ==========================================================================
    FIX-2: Dark Mode — Full coverage for all custom bc-* elements
