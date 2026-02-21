@@ -259,10 +259,18 @@ if (marketStrip) {
 /* Shows for 5s, hides, repeats every 5min, max 5 times.
    If user clicks Install or X → never shows again until logout.
    Uses sessionStorage (clears on logout/tab close).
-   Random bg + font color from 15 presets each appearance. */
+   Random bg + font color from 15 presets each appearance.
+   Also captures beforeinstallprompt for native PWA install. */
 document.addEventListener('DOMContentLoaded', function() {
     var popup = document.getElementById('bc-install-popup');
     if (!popup) return;
+
+    /* Capture native PWA install prompt */
+    var deferredPWAPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPWAPrompt = e;
+    });
 
     /* 15 vibrant color pairs: [background, text] */
     var colorPairs = [
@@ -348,10 +356,15 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() { popup.style.display = 'none'; }, 300);
     }
 
-    /* Install button */
+    /* Install button — triggers PWA install + OneSignal push */
     document.getElementById('bc-install-btn').addEventListener('click', function() {
         dismiss();
-        /* Trigger OneSignal if available */
+        /* Trigger native PWA Add to Home Screen if available */
+        if (deferredPWAPrompt) {
+            deferredPWAPrompt.prompt();
+            deferredPWAPrompt.userChoice.then(function() { deferredPWAPrompt = null; });
+        }
+        /* Trigger OneSignal push notifications if available */
         if (window.OneSignal) {
             OneSignal.push(function() { OneSignal.registerForPushNotifications(); });
         }

@@ -208,80 +208,13 @@
 				<link rel="manifest" href="manifest.json">
 
 
-                <!-- Add Shortcut Button -->
-                <div id="pwaInstallBtn" 
-                     class="btn btn-main btn-mat btn-mat-raised buttonDownload" 
-                     style="position: fixed; top: 53px; left: 50%; transform: translateX(-50%); z-index: 9999; display: none; " 
-                     onclick="showInstallPrompt();">
-                     Install Now
-                </div>
-                
-                
-                <!-- JavaScript for Install Button -->
-                
+                <!-- Service worker for PWA -->
                 <script>
-                  let deferredPrompt;
-                
-                
-                  // Listen for beforeinstallprompt event (when browser is ready to show the Add to Home Screen prompt)
-                  window.addEventListener('beforeinstallprompt', (e) => {
-                      console.log("HLo")
-                    e.preventDefault();
-                    deferredPrompt = e;
-                    
-                    // Show the install button
-                    const installBtn = document.getElementById('pwaInstallBtn');
-                    installBtn.style.display = 'block';
-                    
-                    
-                
-                    // Automatically hide the button after 10 seconds
-                    setTimeout(() => {
-                      installBtn.style.display = 'none';
-                    }, 15000); // 10,000 milliseconds = 10 seconds
-                    
-                  });
-                
-                  // Show prompt when user clicks the button
-                  function showInstallPrompt() {
-                    const installBtn = document.getElementById('pwaInstallBtn');
-                    if (deferredPrompt) {
-                        
-                      deferredPrompt.prompt();
-                      deferredPrompt.userChoice.then((choice) => {
-                        if (choice.outcome === 'accepted') {
-                          console.log('User accepted A2HS');
-                        } else {
-                          console.log('User dismissed A2HS');
-                        }
-                        document.getElementById('pwaInstallBtn').style.display = 'none';
-                        deferredPrompt = null;
-                      });
-                    } else {
-                      alert("To add this site to your Home Screen, use your browser menu.");
-                    }
-                  }
-                  window.addEventListener('DOMContentLoaded', () => {
-                    if (window.matchMedia('(display-mode: browser)').matches) {
-                      const installBtn = document.getElementById('pwaInstallBtn');
-                      installBtn.style.display = 'block';
-                    }
-                
-                    // Optionally change text for Windows users
-                    if (navigator.userAgent.includes('Windows')) {
-                      document.getElementById('pwaInstallBtn').innerText = 'Install Now ';
-                    }
-                  });
-                  
-                
-                  // Register service worker
                   if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('/sw.js')
                       .then(reg => console.log('Service worker registered'))
                       .catch(err => console.log('Service worker failed', err));
                   }
-                  
-                  
                 </script>
                 
                 
