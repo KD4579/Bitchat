@@ -4291,7 +4291,7 @@ a[href*="link1=memories"] { display: none !important; }
    Post card: radius 14px, padding 16/12px, margin-bottom 14px
    ──────────────────────────────────────────────────────────────────────────── */
 /* Post card geometry */
-.post .panel { border-radius: 14px !important; }
+.post .panel { border-radius: 14px !important; margin-bottom: 0 !important; }
 .post { margin-bottom: 5px !important; }
 
 /* Action buttons — no fixed height (let WoWonder core 40px icons determine size) */
