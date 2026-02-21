@@ -1736,11 +1736,11 @@ body.night_mode .bc-welcome-step-line {
   align-items: center;
   gap: 0;
   overflow: hidden;
-  height: 39px;
+  height: 24px;
   background: #0f1419;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   padding: 0;
-  font-size: 16px;
+  font-size: 13px;
   font-family: var(--bc-font-body);
   white-space: nowrap;
   z-index: 10;
@@ -1775,7 +1775,7 @@ html.bc-dark-mode #bc-market-strip {
   font-weight: 700;
   color: rgba(255,255,255,0.5);
   margin-right: 4px;
-  font-size: 14px;
+  font-size: 11px;
   text-transform: uppercase;
 }
 .bc-ticker-price {
@@ -1786,7 +1786,7 @@ html.bc-dark-mode #bc-market-strip {
 .bc-ticker-change {
   font-weight: 600;
   margin-right: 20px;
-  font-size: 14px;
+  font-size: 11px;
 }
 .bc-ticker-up { color: #00c853; }
 .bc-ticker-down { color: #ff5252; }
@@ -1799,7 +1799,7 @@ html.bc-dark-mode #bc-market-strip {
 }
 .bc-ticker-loading { display: none; }
 @media (max-width: 500px) {
-  #bc-market-strip { font-size: 14px; height: 36px; }
+  #bc-market-strip { font-size: 11px; height: 22px; }
   .bc-ticker-sep { margin-right: 12px; font-size: 16px; }
   .bc-ticker-change { margin-right: 12px; font-size: 13px; }
   .bc-ticker-label { font-size: 12px; }
@@ -3173,14 +3173,14 @@ body.night-mode .bc-ticker-bar {
   background: var(--bc-card, #fff);
   border-radius: var(--bc-radius-lg, 16px);
   box-shadow: var(--bc-shadow-soft, 0 8px 24px rgba(0,0,0,.06));
-  padding: 16px 20px;
+  padding: 10px 16px;
   margin-bottom: 20px;
 }
 .bc-creator-strip-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 .bc-creator-strip-title {
   display: flex;
@@ -3200,18 +3200,18 @@ body.night-mode .bc-ticker-bar {
 .bc-creator-strip-more:hover { text-decoration: underline; color: var(--bc-primary, #6C5CFF); }
 .bc-creator-strip-scroll {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
 }
 .bc-creator-strip-scroll::-webkit-scrollbar { display: none; }
 .bc-creator-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   text-decoration: none;
   flex-shrink: 0;
   transition: transform .2s ease;
@@ -3222,12 +3222,12 @@ body.night-mode .bc-ticker-bar {
 }
 .bc-creator-avatar-wrap {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
 }
 .bc-creator-avatar {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(108,92,255,.3);
