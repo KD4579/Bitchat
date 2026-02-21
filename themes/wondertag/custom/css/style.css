@@ -4925,3 +4925,557 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
     min-height: 100% !important;
   }
 }
+
+/* ==========================================================================
+   RR: RESPONSIVE RESET — Universal device compatibility
+   Corrections only. No fundamental design changes.
+   Covers: mobile (≤480), phablet (481–600), tablet (601–768),
+           small-desktop (769–991), medium-desktop (992–1150),
+           wide-desktop (1151–1350), ultra-wide (1351+)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   RR-1: iOS zoom prevention — inputs must be ≥16px
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  input, textarea, select, .form-control {
+    font-size: 16px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-2: Install popup — position above mobile nav on all mobile sizes
+   Currently only adjusted at ≤480px. Mobile nav shows at ≤900px.
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  #bc-install-popup {
+    bottom: 76px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-3: Hero banner buttons — constrain width on landscape tablets
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .bc-btn-primary, .bc-btn-ghost,
+  #bc-hero-banner .bc-btn-primary,
+  #bc-hero-banner .bc-btn-ghost {
+    max-width: 320px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-4: Feed tabs — extend responsive rule to 768px (was 600px only)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .bc-feed-tabs {
+    gap: 0 !important;
+  }
+  .bc-feed-tab {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-5: Post cards — consistent mobile spacing
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .post .panel {
+    border-radius: 10px !important;
+  }
+  .post .post-heading {
+    padding: 10px 12px 6px !important;
+  }
+  .post .post-heading .image img,
+  .post .post-heading .image .avatar {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .post .post-heading .image {
+    margin-right: 10px !important;
+  }
+  .post .post-body {
+    padding: 4px 12px 8px !important;
+  }
+  .post .post-footer {
+    padding: 4px 12px !important;
+  }
+  .tag_post_foot_stats {
+    padding: 2px 12px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-6: Composer textarea — reduce max-height on mobile (keyboard space)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  #tagPostBoxInput:focus,
+  .tag_pub_box_input:focus-within {
+    max-height: 180px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-7: Composer modal — widen to 600px breakpoint for tablets
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  #tagPostBox.show .modal-dialog {
+    max-width: 100% !important;
+    margin: 0 !important;
+    height: 100% !important;
+  }
+  #tagPostBox.show .modal-content {
+    border-radius: 0 !important;
+    min-height: 100% !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-8: Market strip — mobile adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  #bc-market-strip {
+    font-size: 13px !important;
+    height: 34px !important;
+  }
+  .bc-ticker-sep {
+    margin: 0 8px !important;
+  }
+}
+@media (max-width: 900px) {
+  #bc-market-strip {
+    margin-left: 0 !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-9: Right sidebar — compress on medium desktop, hide on tablet
+   Existing: hidden at ≤991px, 320px at ≥992px, 240px at 992–1250px
+   Fix: ensure container adapts when right sidebar hidden
+   -------------------------------------------------------------------------- */
+@media (max-width: 991px) {
+  .page-margin > .container,
+  .tag_content > .container,
+  .tag_content .page-margin > .container {
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .page-margin > .container > .row,
+  .tag_content .container > .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .page-margin > .container > .row > [class*="col-"],
+  .tag_content .container > .row > [class*="col-"] {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-10: Welcome/login page — responsive padding
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .tag_auth_box {
+    padding: 18px !important;
+  }
+  .tag_welcome .bc-hero-compact {
+    padding: 10px 14px !important;
+    gap: 10px !important;
+  }
+  .bc-hero-line {
+    font-size: 14px !important;
+  }
+  .bc-hero-cta {
+    padding: 6px 16px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-11: Profile page buttons — stack vertically on small mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .tag_page_name_hdr .buttons-profile {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .tag_page_name_hdr .buttons-profile .btn {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  .tag_page_name_hdr .event-info-cont-small h3 {
+    font-size: 16px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-12: Mobile bottom nav — safe area + body padding fix
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #bc-mobile-nav {
+    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-13: FAB button — hide when mobile nav visible (prevent overlap)
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .bc-fab {
+    display: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-14: Hover effects — disable on touch devices (prevent sticky hover)
+   -------------------------------------------------------------------------- */
+@media (hover: none) {
+  .post .panel:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,.05) !important;
+    transform: none !important;
+  }
+  .wow_content:hover {
+    transform: none !important;
+  }
+  .like-btn:hover, .tag_like_btn:hover {
+    transform: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-15: Images and media — prevent overflow
+   -------------------------------------------------------------------------- */
+img, video, iframe, embed, object {
+  max-width: 100% !important;
+  height: auto;
+}
+/* Exclude avatars and icons from height:auto */
+.avatar, .bc-mob-nav-avatar,
+.post .post-heading .image img,
+.tag_sidebar_section > a img,
+#bc-mobile-nav img {
+  height: unset;
+}
+
+/* --------------------------------------------------------------------------
+   RR-16: Dropdowns and notification panels — mobile full-width
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .tag_hdr_right > .dropdown .dropdown-menu {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    max-width: 100% !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+    border-radius: 16px 16px 0 0 !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.15) !important;
+    z-index: 1060 !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-17: Announcement banner — responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .bc-announce-banner {
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+  }
+  .bc-announce-close {
+    min-width: 28px !important;
+    min-height: 28px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-18: Greeting banner — compact on mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .greetalert {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+  .greetalert .small-texts {
+    font-size: 11px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-19: CSS variables — extend to 1151px+ (was 1351px only)
+   At 1151–1350px the sidebar is visible but variables weren't overridden.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1151px) and (max-width: 1350px) {
+  .tag_sidebar,
+  .tag_hdr_right,
+  .tag_header > .search-container,
+  .tag_sett_sidebar,
+  .tag_live_sidebar {
+    --header-color: #334155;
+    --header-background: #f8f9fa;
+    --header-search-color: #e8ecf1;
+    --header-hover-border: #6C5CFF;
+  }
+  .tag_header .search-input {
+    border: 1px solid #e2e8f0 !important;
+  }
+}
+@media (min-width: 1151px) and (max-width: 1350px) {
+  html:has(link#night-mode-css) .tag_sidebar,
+  html.bc-dark-mode .tag_sidebar,
+  html:has(link#night-mode-css) .tag_hdr_right,
+  html.bc-dark-mode .tag_hdr_right,
+  html:has(link#night-mode-css) .tag_header > .search-container,
+  html.bc-dark-mode .tag_header > .search-container,
+  html:has(link#night-mode-css) .tag_sett_sidebar,
+  html.bc-dark-mode .tag_sett_sidebar,
+  html:has(link#night-mode-css) .tag_live_sidebar,
+  html.bc-dark-mode .tag_live_sidebar {
+    --header-color: #c5c5c5;
+    --header-background: #1a1a1a;
+    --header-search-color: rgba(255,255,255,.1);
+    --header-hover-border: #6C5CFF;
+  }
+  html:has(link#night-mode-css) .tag_header .search-input,
+  html.bc-dark-mode .tag_header .search-input {
+    border: 1px solid rgba(255,255,255,.1) !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-20: Story avatars — smaller on mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .status-list li .wo_story_list_avatar,
+  .status-list li .status-icon img {
+    width: 52px !important;
+    height: 52px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-21: Sidebar widgets (right) — full-width card fix on tablet
+   When right sidebar is visible (992–1250px at 240px) ensure widgets don't overflow
+   -------------------------------------------------------------------------- */
+@media (max-width: 1250px) and (min-width: 992px) {
+  .col-lg-3.sidebar.rightcol .wow_content {
+    padding: 12px !important;
+  }
+  .col-lg-3.sidebar.rightcol .wo_page_hdng {
+    font-size: 13px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-22: Trending cards — prevent overflow on tiny screens
+   -------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .bc-trending-card {
+    flex: 0 0 130px !important;
+  }
+  .bc-trending-thumb {
+    height: 70px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-23: Leaderboard — better touch targets
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .bc-lb-row {
+    padding: 12px 10px !important;
+    gap: 10px !important;
+  }
+  .bc-lb-avatar {
+    width: 34px !important;
+    height: 34px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-24: Badge unlock page — responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .bc-badge {
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+  }
+  .bc-badge-unlock-icon {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 32px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-25: Reward toast — full width on mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .bc-reward-container {
+    top: auto !important;
+    bottom: 80px !important;
+    right: 8px !important;
+    left: 8px !important;
+  }
+  .bc-reward-toast {
+    min-width: auto !important;
+    max-width: 100% !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-26: Creator dashboard — responsive grid
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .bc-cd-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+  .bc-cd-stat {
+    padding: 12px 8px !important;
+  }
+  .bc-cd-chart {
+    height: 100px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-27: Discover grid — single column on very small screens
+   -------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .bc-discover-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-28: Text overflow protection — prevent horizontal scroll
+   -------------------------------------------------------------------------- */
+body {
+  overflow-x: hidden !important;
+}
+.tag_content, .page-margin, .container {
+  overflow-x: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   RR-29: Hero banner stats bar — horizontal scroll on mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  #bc-hero-banner .bc-hero-stats {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 6px 16px !important;
+  }
+  #bc-hero-banner .bc-hero-stat {
+    flex: 0 0 auto !important;
+    min-width: 70px !important;
+  }
+  .bc-hero-stat-value {
+    font-size: 15px !important;
+  }
+  #bc-hero-banner .bc-hero-stat-label {
+    font-size: 10px !important;
+  }
+  .bc-hero-stat-divider {
+    height: 20px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-30: Prompt cards — stack on mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .bc-prompt-card {
+    flex-direction: column !important;
+    padding: 14px !important;
+    gap: 10px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-31: Container gutters — extend tight gutters below 992px
+   -------------------------------------------------------------------------- */
+@media (max-width: 991px) and (min-width: 769px) {
+  .page-margin > .container > .row > [class*="col-"],
+  .tag_content .container > .row > [class*="col-"] {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-32: Landscape phone specific fixes
+   -------------------------------------------------------------------------- */
+@media (max-height: 450px) and (orientation: landscape) {
+  #bc-mobile-nav {
+    height: 48px !important;
+    padding-bottom: 0 !important;
+  }
+  .bc-mob-nav-item span {
+    display: none !important;
+  }
+  .bc-mob-create-icon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .bc-mob-create-btn {
+    top: -4px !important;
+  }
+  body {
+    padding-bottom: 52px !important;
+  }
+  #bc-install-popup {
+    bottom: 56px !important;
+  }
+  #tagPostBox.show .modal-dialog {
+    max-width: 80% !important;
+    height: auto !important;
+    max-height: 100vh !important;
+    margin: auto !important;
+  }
+  #tagPostBox.show .modal-content {
+    border-radius: 12px !important;
+    min-height: auto !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-33: Tablet portrait (768–991px) — optimize 2-column layout
+   Right sidebar hidden, so feed gets full width
+   -------------------------------------------------------------------------- */
+@media (max-width: 991px) and (min-width: 769px) {
+  .page-margin > .container > .row > .col-lg-9,
+  .tag_content .container > .row > .col-lg-9 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-34: Print styles — hide UI chrome
+   -------------------------------------------------------------------------- */
+@media print {
+  #bc-mobile-nav, #bc-market-strip, .bc-fab,
+  .tag_sidebar, .tag_header, nav.navbar,
+  #bc-install-popup, .bc-announce-banner,
+  .bc-feed-tabs, .tag_bottom_nav { display: none !important; }
+  .tag_content { margin-left: 0 !important; }
+  body { padding: 0 !important; }
+  .post .panel { box-shadow: none !important; border: 1px solid #ddd !important; }
+}
