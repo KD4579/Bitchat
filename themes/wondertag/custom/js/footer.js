@@ -381,3 +381,91 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 })();
+
+/* ==========================================================================
+   FIX-4: Post Composer Modal — Bulletproof open/close
+   Ensures the #tagPostBox modal dialog is visible when Bootstrap opens it.
+   Also allows dismissing by clicking the dark overlay.
+   ========================================================================== */
+(function() {
+    // Wait for jQuery and Bootstrap to be ready
+    if (typeof $ === 'undefined') return;
+
+    // 1. Remove data-backdrop=static so clicking overlay dismisses the modal
+    $(document).on('show.bs.modal', '#tagPostBox', function() {
+        $(this).removeAttr('data-backdrop');
+        $(this).removeAttr('data-keyboard');
+    });
+
+    // 2. After modal is shown, force dialog + content to be visible
+    $(document).on('shown.bs.modal', '#tagPostBox', function() {
+        var $modal = $(this);
+        var $dialog = $modal.find('.modal-dialog').first();
+        var $content = $dialog.find('.modal-content').first();
+
+        // Force visibility via inline styles (highest specificity)
+        $dialog[0].style.setProperty('transform', 'scale(1)', 'important');
+        $dialog[0].style.setProperty('opacity', '1', 'important');
+        $dialog[0].style.setProperty('visibility', 'visible', 'important');
+
+        if ($content.length) {
+            $content[0].style.setProperty('opacity', '1', 'important');
+            $content[0].style.setProperty('visibility', 'visible', 'important');
+        }
+    });
+
+    // 3. Clean up inline styles when modal is hidden
+    $(document).on('hidden.bs.modal', '#tagPostBox', function() {
+        var $dialog = $(this).find('.modal-dialog').first();
+        var $content = $dialog.find('.modal-content').first();
+
+        if ($dialog.length && $dialog[0]) {
+            $dialog[0].style.removeProperty('transform');
+            $dialog[0].style.removeProperty('opacity');
+            $dialog[0].style.removeProperty('visibility');
+        }
+
+        if ($content.length && $content[0]) {
+            $content[0].style.removeProperty('opacity');
+            $content[0].style.removeProperty('visibility');
+        }
+    });
+
+    // 4. Fallback: if clicking any "create post" button doesn't trigger
+    //    Bootstrap's modal show within 500ms, force-open it manually
+    $(document).on('click', '[data-target="#tagPostBox"], .bc-fab, .tag_pub_box_bg_text', function() {
+        var $tagPost = $('#tagPostBox');
+        if (!$tagPost.length) return;
+
+        setTimeout(function() {
+            // If modal didn't get .show class after 500ms, force it open
+            if (!$tagPost.hasClass('show') && !$tagPost.hasClass('in')) {
+                try {
+                    $tagPost.modal('show');
+                } catch(e) {
+                    // Absolute fallback: manually toggle show
+                    $tagPost.addClass('show');
+                    $tagPost.css({
+                        'opacity': '1',
+                        'visibility': 'visible'
+                    });
+                    $('body').addClass('modal-open');
+                }
+            }
+        }, 500);
+    });
+
+    // 5. Allow clicking overlay to close (safety for any residual data-backdrop=static)
+    $(document).on('click', '#tagPostBox', function(e) {
+        if (e.target === this) {
+            try {
+                $(this).modal('hide');
+            } catch(err) {
+                $(this).removeClass('show');
+                $(this).css({'opacity': '', 'visibility': ''});
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
+            }
+        }
+    });
+})();
