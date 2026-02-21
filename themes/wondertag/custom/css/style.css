@@ -4765,6 +4765,142 @@ html.bc-dark-mode .tag_sidebar .sidebar_innr::-webkit-scrollbar-thumb {
   border-color: #1a1a1a !important;
 }
 
+/* --- 5) Header elements inside sidebar: day/night color harmony ---
+   At ≥1351px, logo/icons/search are position:fixed inside the sidebar
+   visual space. Core uses --header-color (white) + --header-search-color
+   (translucent), which clash with our light sidebar bg.
+   ---------------------------------------------------------------- */
+@media (min-width: 1351px) {
+  /* Nav icon buttons: dark on light sidebar */
+  .tag_hdr_droptoggle {
+    color: #334155 !important;
+  }
+  .tag_hdr_droptoggle:hover {
+    background: rgba(0,0,0,.06) !important;
+    color: #1e293b !important;
+  }
+
+  /* Hamburger toggle */
+  .tag_toggle_sidebar {
+    color: #334155 !important;
+  }
+
+  /* Search bar */
+  .tag_header .search-input {
+    background: #e8ecf1 !important;
+    color: #334155 !important;
+  }
+  .tag_header .search-input::placeholder {
+    color: #94A3B8 !important;
+    opacity: 1 !important;
+  }
+  .tag_header > .search-container > form svg {
+    color: #64748B !important;
+  }
+
+  /* Search results + notification dropdown panels */
+  .tag_header > .search-container .dropdown-menu {
+    background: #f8f9fa !important;
+    border-right: 1px solid #e2e8f0 !important;
+  }
+  .tag_hdr_right > .dropdown .dropdown-menu {
+    background: #f8f9fa !important;
+    border-right: 1px solid #e2e8f0 !important;
+  }
+
+  /* Dropdown item text color */
+  .tag_hdr_right > .dropdown .dropdown-menu .tag_switch_noti {
+    color: #334155 !important;
+  }
+  .tag_hdr_right > .dropdown .dropdown-menu .tag_switch_noti > li > a {
+    color: #334155 !important;
+  }
+  .notification-list,
+  .user-request-list,
+  .messages-list,
+  .show-message-link,
+  .search-advanced-container a,
+  .search-dropdown-result a,
+  .hashtag-search-result a {
+    color: #334155 !important;
+  }
+
+  /* Notification text spans */
+  .notification-list .notification-text > span {
+    color: #64748B !important;
+  }
+
+  /* Scrollbar in dropdown to match sidebar */
+  .tag_hdr_right > .dropdown .dropdown-menu::-webkit-scrollbar-thumb {
+    border-color: #f8f9fa !important;
+  }
+  .tag_sidebar .sidebar_innr::-webkit-scrollbar-thumb {
+    border-color: #f8f9fa !important;
+  }
+}
+
+/* --- 5b) DARK MODE: header elements inside sidebar --- */
+@media (min-width: 1351px) {
+  html:has(link#night-mode-css) .tag_hdr_droptoggle,
+  html.bc-dark-mode .tag_hdr_droptoggle {
+    color: #c5c5c5 !important;
+  }
+  html:has(link#night-mode-css) .tag_hdr_droptoggle:hover,
+  html.bc-dark-mode .tag_hdr_droptoggle:hover {
+    background: rgba(255,255,255,.1) !important;
+    color: #fff !important;
+  }
+  html:has(link#night-mode-css) .tag_toggle_sidebar,
+  html.bc-dark-mode .tag_toggle_sidebar {
+    color: #c5c5c5 !important;
+  }
+  html:has(link#night-mode-css) .tag_header .search-input,
+  html.bc-dark-mode .tag_header .search-input {
+    background: rgba(255,255,255,.1) !important;
+    color: #e0e0e0 !important;
+  }
+  html:has(link#night-mode-css) .tag_header .search-input::placeholder,
+  html.bc-dark-mode .tag_header .search-input::placeholder {
+    color: #888 !important;
+  }
+  html:has(link#night-mode-css) .tag_header > .search-container > form svg,
+  html.bc-dark-mode .tag_header > .search-container > form svg {
+    color: #999 !important;
+  }
+  html:has(link#night-mode-css) .tag_header > .search-container .dropdown-menu,
+  html.bc-dark-mode .tag_header > .search-container .dropdown-menu {
+    background: #1a1a1a !important;
+    border-right-color: rgba(255,255,255,.06) !important;
+  }
+  html:has(link#night-mode-css) .tag_hdr_right > .dropdown .dropdown-menu,
+  html.bc-dark-mode .tag_hdr_right > .dropdown .dropdown-menu {
+    background: #1a1a1a !important;
+    border-right-color: rgba(255,255,255,.06) !important;
+  }
+  html:has(link#night-mode-css) .tag_hdr_right > .dropdown .dropdown-menu .tag_switch_noti,
+  html.bc-dark-mode .tag_hdr_right > .dropdown .dropdown-menu .tag_switch_noti {
+    color: #c5c5c5 !important;
+  }
+  html:has(link#night-mode-css) .tag_hdr_right > .dropdown .dropdown-menu .tag_switch_noti > li > a,
+  html.bc-dark-mode .tag_hdr_right > .dropdown .dropdown-menu .tag_switch_noti > li > a {
+    color: #c5c5c5 !important;
+  }
+  html:has(link#night-mode-css) .notification-list,
+  html.bc-dark-mode .notification-list,
+  html:has(link#night-mode-css) .user-request-list,
+  html.bc-dark-mode .user-request-list,
+  html:has(link#night-mode-css) .messages-list,
+  html.bc-dark-mode .messages-list,
+  html:has(link#night-mode-css) .show-message-link,
+  html.bc-dark-mode .show-message-link {
+    color: #c5c5c5 !important;
+  }
+  html:has(link#night-mode-css) .tag_hdr_right > .dropdown .dropdown-menu::-webkit-scrollbar-thumb,
+  html.bc-dark-mode .tag_hdr_right > .dropdown .dropdown-menu::-webkit-scrollbar-thumb {
+    border-color: #1a1a1a !important;
+  }
+}
+
 /* ==========================================================================
    FIX-4: Post Composer Modal — CSS safety net
    JS in footer.js moves #tagPostBox to <body> and forces inline styles.
