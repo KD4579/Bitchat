@@ -3835,9 +3835,9 @@ body, p, li, td {
 .post { margin-bottom: 5px !important; }
 
 /* ── MC-2: 3-Column Grid ────────────────────────────────────────────────
-   Facebook: left sidebar 280px, feed ~590px, right 360px
-   WoWonder: sidebar 350px, container 950px, col-lg-3 ~237px right
-   We set sidebar 280px + right col 280px → feed ≈ 950-280=670px
+   Left sidebar 280px | Feed (flexible) | Right sidebar 280px
+   Container expands to fill available space (was 950px, too narrow).
+   Gutters reduced from 30px to 8px for tighter layout.
    ──────────────────────────────────────────────────────────────────────── */
 .tag_sidebar { max-width: 280px !important; }
 .tag_content  { margin-left: 280px !important; }
@@ -3861,6 +3861,34 @@ body, p, li, td {
 }
 @media (max-width: 991px) {
   .col-lg-3.sidebar.rightcol { display: none !important; }
+}
+
+/* --- MC-2b: Expand container + reduce gaps (80% tighter) ---
+   Before: container 950px centered in ~1160px → 105px gap each side
+   After:  container fills available space (capped at 1200px) → ~8px gap
+   Gutters: 30px → 8px between feed and right sidebar
+   ------------------------------------------------------------------- */
+@media (min-width: 1151px) {
+  .page-margin > .container,
+  .tag_content > .container,
+  .tag_content .page-margin > .container {
+    max-width: min(1200px, calc(100% - 16px)) !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+/* Tighter column gutters between feed and right sidebar */
+@media (min-width: 992px) {
+  .page-margin > .container > .row,
+  .tag_content .container > .row {
+    margin-left: -4px !important;
+    margin-right: -4px !important;
+  }
+  .page-margin > .container > .row > [class*="col-"],
+  .tag_content .container > .row > [class*="col-"] {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
 }
 
 /* ── MC-3: Post Card Anatomy ────────────────────────────────────────────
