@@ -4645,13 +4645,37 @@ html.bc-dark-mode .bc-notif-popup {
 }
 
 /* ==========================================================================
-   FIX-5: Sidebar — z-index, overflow, day/night mode colors
-   1) Ticker z-index raised to 100 (above sidebar's 99)
-   2) Sidebar overflow hidden to prevent child elements leaking out
-   3) Dark mode overrides for sidebar text/hover/background
+   FIX-5: Sidebar + Ticker + Header — comprehensive layout fix
+   1) Ticker stops at sidebar edge (margin-left = sidebar width)
+   2) Header elements (search, profile icons) fit within 280px sidebar
+   3) Sidebar overflow containment
+   4) Dark mode: sidebar background, text, hover colors
    ========================================================================== */
 
-/* Sidebar overflow containment — prevent any child from leaking outside */
+/* --- 1) Ticker: stop before sidebar on desktop --- */
+@media (min-width: 1151px) {
+  #bc-market-strip {
+    margin-left: 280px !important;
+  }
+}
+
+/* --- 2) Header elements: match 280px sidebar width (core uses 350px) --- */
+@media (min-width: 1351px) {
+  .tag_hdr_right {
+    width: 280px !important;
+  }
+  .tag_header > .search-container {
+    width: 280px !important;
+  }
+  .tag_header > .search-container .dropdown-menu {
+    max-width: 280px !important;
+  }
+  .tag_hdr_right > .dropdown .dropdown-menu {
+    max-width: 280px !important;
+  }
+}
+
+/* --- 3) Sidebar overflow containment --- */
 .tag_sidebar {
   overflow: hidden !important;
 }
@@ -4660,13 +4684,19 @@ html.bc-dark-mode .bc-notif-popup {
   overflow-x: hidden !important;
 }
 
-/* --- Day mode: sidebar link colors (already using --bc-text-primary which is dark, correct for light bg) --- */
-/* Ensure sidebar section headers are readable in both modes */
+/* --- 4a) Day mode: sidebar text colors --- */
 .tag_sidebar_head {
   color: var(--bc-text-secondary, #64748B) !important;
 }
 
-/* --- Night/Dark mode: sidebar links, hover, section headers --- */
+/* --- 4b) Night/Dark mode: sidebar background --- */
+html:has(link#night-mode-css) .tag_sidebar,
+html.bc-dark-mode .tag_sidebar {
+  background: #1a1a1a !important;
+  border-right-color: rgba(255,255,255,.06) !important;
+}
+
+/* --- 4c) Night/Dark mode: sidebar links --- */
 html:has(link#night-mode-css) .tag_sidebar a,
 html.bc-dark-mode .tag_sidebar a {
   color: #c5c5c5 !important;
@@ -4678,18 +4708,42 @@ html.bc-dark-mode .tag_sidebar a.active {
   background: rgba(255,255,255,.08) !important;
   color: #fff !important;
 }
+
+/* --- 4d) Night/Dark mode: sidebar section headers --- */
 html:has(link#night-mode-css) .tag_sidebar_head,
 html.bc-dark-mode .tag_sidebar_head {
-  color: #888 !important;
+  color: #777 !important;
 }
-/* Sidebar footer links in dark mode */
+
+/* --- 4e) Night/Dark mode: sidebar section background (remove any light bg) --- */
+html:has(link#night-mode-css) .tag_sidebar_section_prnt,
+html.bc-dark-mode .tag_sidebar_section_prnt {
+  background: transparent !important;
+}
+html:has(link#night-mode-css) .tag_sidebar_section > a,
+html.bc-dark-mode .tag_sidebar_section > a {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .tag_sidebar_section > a:hover,
+html.bc-dark-mode .tag_sidebar_section > a:hover {
+  color: #fff !important;
+}
+
+/* --- 4f) Night/Dark mode: sidebar footer links --- */
 html:has(link#night-mode-css) .tag_footer_links a,
 html.bc-dark-mode .tag_footer_links a {
-  color: #888 !important;
+  color: #666 !important;
 }
 html:has(link#night-mode-css) .tag_footer_links a:hover,
 html.bc-dark-mode .tag_footer_links a:hover {
-  color: #c5c5c5 !important;
+  color: #aaa !important;
+}
+
+/* --- 4g) Night/Dark mode: sidebar scrollbar --- */
+html:has(link#night-mode-css) .tag_sidebar .sidebar_innr::-webkit-scrollbar-thumb,
+html.bc-dark-mode .tag_sidebar .sidebar_innr::-webkit-scrollbar-thumb {
+  background-color: #444 !important;
+  border-color: #1a1a1a !important;
 }
 
 /* ==========================================================================
