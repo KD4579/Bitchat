@@ -4030,10 +4030,11 @@ body, p, li, td {
   .tag_bottom_nav,
   .tag_mobi_bottom_bar { display: none !important; }
 
-  /* Header icons duplicated in mobile nav — suppress on mobile */
-  .tag_hdr_right .notification-list,
-  .tag_hdr_right .messages-list,
-  .tag_hdr_right .user-request-list { display: none !important; }
+  /* Hide WoWonder header-right bar that core moves to bottom:0 at ≤768px.
+     Our #bc-mobile-nav replaces it entirely. */
+  .tag_hdr_right {
+    display: none !important;
+  }
 }
 @media (min-width: 901px) {
   /* Mobile nav hidden on desktop */
