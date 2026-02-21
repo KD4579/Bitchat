@@ -482,7 +482,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<!-- VI-1: Bitchat Design System (loads before custom overrides) -->
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css?v=<?php echo @filemtime(__DIR__ . '/../custom/css/bitchat-design.css') ?: time(); ?>">
 		<!-- Custom UI Overrides (highest priority) -->
-		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/style.css?v=<?php echo @filemtime(__DIR__ . '/../custom/css/style.css') ?: time(); ?>">
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/style.css?v=2.<?php echo @filemtime(__DIR__ . '/../custom/css/style.css') ?: time(); ?>">
 
 		<?php if($wo['config']['googleLogin'] != 0): ?>
 			<script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1652,7 +1652,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
     
 			<a href="<?php echo $wo['config']['site_url'].'/checkout';?>" data-ajax="?link1=checkout" id="load_checkout" style="display: none;"></a>
 		<?php } ?>
-	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/footer.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/footer.js') ?: time(); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/footer.js?v=2.<?php echo @filemtime(__DIR__ . '/../custom/js/footer.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-loader.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-loader.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-modal.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-modal.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-prompts.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-prompts.js') ?: time(); ?>"></script>
