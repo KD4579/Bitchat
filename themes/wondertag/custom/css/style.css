@@ -3855,9 +3855,9 @@ body, p, li, td {
   }
 }
 .col-lg-3.sidebar.rightcol {
-  flex: 0 0 280px !important;
-  max-width: 280px !important;
-  width: 280px !important;
+  flex: 0 0 320px !important;
+  max-width: 320px !important;
+  width: 320px !important;
 }
 @media (max-width: 991px) {
   .col-lg-3.sidebar.rightcol { display: none !important; }
@@ -3877,17 +3877,17 @@ body, p, li, td {
     padding-right: 8px !important;
   }
 }
-/* Tighter column gutters between feed and right sidebar */
+/* Tighter column gutters — 12px total gap (matches left sidebar to feed gap) */
 @media (min-width: 992px) {
   .page-margin > .container > .row,
   .tag_content .container > .row {
-    margin-left: -4px !important;
-    margin-right: -4px !important;
+    margin-left: -6px !important;
+    margin-right: -6px !important;
   }
   .page-margin > .container > .row > [class*="col-"],
   .tag_content .container > .row > [class*="col-"] {
-    padding-left: 4px !important;
-    padding-right: 4px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
   }
 }
 
