@@ -5258,24 +5258,7 @@ img, video, iframe, embed, object {
   height: unset;
 }
 
-/* --------------------------------------------------------------------------
-   RR-16: Dropdowns and notification panels — mobile full-width
-   -------------------------------------------------------------------------- */
-@media (max-width: 768px) {
-  .tag_hdr_right > .dropdown .dropdown-menu {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    max-width: 100% !important;
-    max-height: 70vh !important;
-    overflow-y: auto !important;
-    border-radius: 16px 16px 0 0 !important;
-    box-shadow: 0 -4px 20px rgba(0,0,0,.15) !important;
-    z-index: 1060 !important;
-  }
-}
+/* RR-16: Removed — let WoWonder core handle mobile dropdown panels natively */
 
 /* --------------------------------------------------------------------------
    RR-17: Announcement banner — responsive
