@@ -3829,7 +3829,7 @@ body, p, li, td {
 }
 /* Gap between posts */
 .page-margin { margin: 11px 0 !important; }
-.post { margin-bottom: 11px !important; }
+.post { margin-bottom: 5px !important; }
 
 /* ── MC-2: 3-Column Grid ────────────────────────────────────────────────
    Facebook: left sidebar 280px, feed ~590px, right 360px
@@ -4143,7 +4143,7 @@ a[href*="link1=forum"] { display: none !important; }
 
 /* ── EP-3: White space — top margin, between posts ──────────────────── */
 .page-margin { margin: 17px 0 0 !important; }
-.post { margin-bottom: 10px !important; }
+.post { margin-bottom: 5px !important; }
 
 /* ── EP-4: Hover physics (already in MC-9, reinforce values) ───────────── */
 .post .panel:hover { transform: translateY(-1px) !important; transition: all 0.15s ease !important; }
@@ -4292,7 +4292,7 @@ a[href*="link1=memories"] { display: none !important; }
    ──────────────────────────────────────────────────────────────────────────── */
 /* Post card geometry */
 .post .panel { border-radius: 14px !important; }
-.post { margin-bottom: 10px !important; }
+.post { margin-bottom: 5px !important; }
 
 /* Action buttons — no fixed height (let WoWonder core 40px icons determine size) */
 .tag_post_foot_acticon {
