@@ -94,6 +94,25 @@
     --bc-container-2xl: 1280px;
 }
 
+/* ========== DARK MODE VARIABLE OVERRIDES ========== */
+/* When night-mode-css link is present OR .bc-dark-mode class is set */
+html:has(link#night-mode-css),
+html.bc-dark-mode {
+    --bc-bg: #121212;
+    --bc-bg-alt: #2a2a2a;
+    --bc-card: #212121;
+    --bc-card-hover: #2a2a2a;
+
+    --bc-text-primary: #e0e0e0;
+    --bc-text-secondary: #a0a0a0;
+    --bc-text-tertiary: #777;
+    --bc-text-inverse: #121212;
+
+    --bc-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.3);
+    --bc-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --bc-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
 /* ========== GLOBAL RESETS & FOUNDATION ========== */
 
 * {

@@ -2932,12 +2932,12 @@ div[class*="timeline"] {
     border-radius: var(--bc-radius-sm) !important;
     transition: all var(--bc-transition-fast) !important;
     font-weight: var(--bc-font-weight-normal) !important;
-    color: var(--bc-text-primary) !important;
+    color: var(--bc-text-primary) !important;  /* --bc-text-primary now has dark mode override */
 }
 
 .tag_sidebar a:hover,
 .tag_sidebar a.active {
-    background: var(--bc-bg) !important;
+    background: var(--bc-bg-alt, #EEF2FF) !important;  /* --bc-bg-alt now has dark mode override */
     color: var(--bc-primary) !important;
     transform: translateX(4px);
 }
