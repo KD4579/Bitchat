@@ -318,7 +318,7 @@
  *     size: 'lg',
  *     buttons: [
  *         { text: 'Cancel', class: 'btn-default', onClick: () => BC_MODAL.hide() },
- *         { text: 'Save', class: 'btn-main', onClick: () => { /* save logic */ } }
+ *         { text: 'Save', class: 'btn-main', onClick: () => { saveLogic(); } }
  *     ]
  * });
  *

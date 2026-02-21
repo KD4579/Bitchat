@@ -513,10 +513,11 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
       $(()=>{
         <?php if ($wo['config']['node_socket_flow'] == "1"){ $parse = parse_url($wo['config']['site_url']);?>
         var main_hash_id = $('.main_session').val();
+        try {
         <?php if ($wo['config']['nodejs_ssl'] == "1") {?>
-          socket = io("https://<?php echo $parse['host'];?>:<?php echo $wo['config']['nodejs_ssl_port'];?>/?hash=" + main_hash_id)
+          socket = io("https://<?php echo $parse['host'];?>:<?php echo $wo['config']['nodejs_ssl_port'];?>/?hash=" + main_hash_id, {reconnectionAttempts: 3, timeout: 5000})
         <?php } else {?>
-         socket = io("http://<?php echo $parse['host'];?>:<?php echo $wo['config']['nodejs_port'];?>/?hash=" + main_hash_id)
+         socket = io("http://<?php echo $parse['host'];?>:<?php echo $wo['config']['nodejs_port'];?>/?hash=" + main_hash_id, {reconnectionAttempts: 3, timeout: 5000})
         <?php } ?>
         let recipient_ids = []
         let recipient_group_ids = []
@@ -783,6 +784,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
             }
           })
 
+        } catch(e) { console.warn('[Socket] Connection failed:', e.message); }
         <?php } ?>
       });
       </script>
