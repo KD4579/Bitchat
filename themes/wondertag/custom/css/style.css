@@ -5582,34 +5582,66 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   UNIFORM SPACING: Market strip ↔ Hero banner — 12px gap everywhere
-   Applies to both desktop and mobile for consistent visual rhythm.
+   UNIFORM SPACING: Tighten gap between ticker → hero → sections
+   Desktop: reduce top blank space above hero. Section gaps stay as-is (perfect).
+   Mobile:  tighten ALL section gaps for compact feed layout.
    -------------------------------------------------------------------------- */
+/* Desktop — reduce the stacked gap above hero */
 #bc-market-strip {
   margin-bottom: 0 !important;
 }
 #bc-hero-banner {
-  margin-top: 12px !important;
-  margin-bottom: 12px !important;
-}
-.tag_welcome .bc-hero {
-  margin-top: 12px !important;
-  margin-bottom: 12px !important;
+  margin-top: -8px !important;
+  margin-bottom: 16px !important;
 }
 .page-margin {
-  margin-top: 12px !important;
+  margin-top: 0 !important;
 }
+.page-margin > .container {
+  padding-top: 10px !important;
+}
+
+/* Mobile — compact all section gaps */
 @media (max-width: 900px) {
+  .page-margin {
+    margin-top: 0 !important;
+  }
+  .page-margin > .container {
+    padding-top: 6px !important;
+  }
   #bc-hero-banner {
-    margin-top: 12px !important;
-    margin-bottom: 12px !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+    border-radius: 0 !important;
   }
   .tag_welcome .bc-hero {
-    margin-top: 12px !important;
-    margin-bottom: 12px !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
   }
-  .page-margin {
-    margin-top: 12px !important;
+  /* Creator strip gap */
+  .bc-creator-strip {
+    margin-bottom: 8px !important;
+  }
+  /* Hero bottom gap */
+  .bc-hero {
+    margin-bottom: 8px !important;
+  }
+  /* Action prompt / greeting card gap */
+  #bc-action-prompt + div,
+  .greetalert {
+    margin-bottom: 8px !important;
+  }
+  /* Stories section */
+  .tag_stories_on_home {
+    margin-bottom: 8px !important;
+  }
+  /* General widgets in feed */
+  .wow_content:not(.tag_pub_box_bg):not(.bc-hero) {
+    margin-bottom: 8px !important;
+  }
+  /* Feed tabs */
+  .bc-feed-tabs {
+    margin-bottom: 8px !important;
   }
 }
 
@@ -5654,7 +5686,7 @@ body {
     border-bottom: 1px solid rgba(0,0,0,.06) !important;
   }
 
-  .page-margin { margin-top: 12px !important; margin-bottom: 0 !important; }
+  .page-margin { margin-top: 0 !important; margin-bottom: 0 !important; }
 
   .tag_post_skel { margin-bottom: 0 !important; }
   .tag_post_people_know { margin-bottom: 3px !important; }
