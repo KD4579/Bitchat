@@ -4984,7 +4984,12 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
   .post .panel {
-    border-radius: 10px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid rgba(0,0,0,.06) !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
   }
   .post .post-heading {
     padding: 10px 12px 6px !important;
@@ -5015,19 +5020,19 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
    -------------------------------------------------------------------------- */
 @media (max-width: 900px) {
   /* Post element itself */
-  .post { margin-bottom: 1px !important; }
+  .post { margin-bottom: 0 !important; }
   /* .panel base rule (core: 20px, core mobile: 10px) — kill it */
   .post .panel,
   .post > .panel,
   .panel { margin-bottom: 0 !important; }
   /* Post containers */
   .post-container,
-  .wo_post_sec { margin-bottom: 1px !important; }
-  .posts-container { margin-bottom: 1px !important; }
+  .wo_post_sec { margin-bottom: 0 !important; }
+  .posts-container { margin-bottom: 0 !important; }
   /* Loading skeleton (core mobile: 10px) */
-  .tag_post_skel { margin-bottom: 1px !important; }
+  .tag_post_skel { margin-bottom: 0 !important; }
   /* People you may know widget (core mobile: 15px) */
-  .tag_post_people_know { margin-bottom: 4px !important; }
+  .tag_post_people_know { margin-bottom: 3px !important; }
   /* .mb-* utilities inside feed area */
   #posts-laoded .wow_content.mb-15,
   #posts-laoded .mb-15,
@@ -5035,15 +5040,15 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
   #posts-laoded .mb-25,
   .middlecol .wow_content.mb-15,
   .middlecol .mb-15,
-  .middlecol .mb-20 { margin-bottom: 1px !important; }
+  .middlecol .mb-20 { margin-bottom: 0 !important; }
   /* Page margin between feed sections */
-  .page-margin { margin-top: 1px !important; margin-bottom: 1px !important; }
+  .page-margin { margin-top: 0 !important; margin-bottom: 0 !important; }
   /* Remove gap between consecutive posts */
   .post + .post,
   .wo_post_sec + .wo_post_sec { margin-top: 0 !important; }
   /* wow_content cards in feed — kill bottom margin */
   .middlecol .wow_content,
-  #posts-laoded .wow_content { margin-bottom: 1px !important; }
+  #posts-laoded .wow_content { margin-bottom: 0 !important; }
 }
 
 /* --------------------------------------------------------------------------
@@ -5577,17 +5582,26 @@ body {
   .wo_post_sec,
   .posts-container,
   div.post,
-  div.post-container { margin-bottom: 1px !important; margin-top: 0 !important; }
+  div.post-container { margin-bottom: 0 !important; margin-top: 0 !important; padding-bottom: 0 !important; }
 
   .panel,
   .post .panel,
   .post > .panel,
   .post .panel.panel-white,
-  .post .panel.panel-white.panel-shadow { margin-bottom: 0 !important; }
+  .post .panel.panel-white.panel-shadow {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: 1px solid rgba(0,0,0,.06) !important;
+  }
 
-  .page-margin { margin: 1px 0 !important; }
+  .page-margin { margin: 0 !important; }
 
-  .tag_post_skel { margin-bottom: 1px !important; }
+  .tag_post_skel { margin-bottom: 0 !important; }
   .tag_post_people_know { margin-bottom: 3px !important; }
 
   #posts-laoded .wow_content,
@@ -5596,5 +5610,11 @@ body {
   .middlecol .wow_content,
   .middlecol .mb-15,
   .middlecol .mb-20,
-  .home_post_people .wow_content { margin-bottom: 1px !important; }
+  .home_post_people .wow_content { margin-bottom: 0 !important; }
+
+  .home_post_people,
+  #posts-laoded,
+  #posts { gap: 0 !important; }
+
+  .promoted-post { margin-bottom: 0 !important; }
 }
