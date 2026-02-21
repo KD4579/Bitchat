@@ -5014,23 +5014,36 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
    .page-margin margin. Override all on mobile.
    -------------------------------------------------------------------------- */
 @media (max-width: 900px) {
+  /* Post element itself */
   .post { margin-bottom: 1px !important; }
-  .post .panel { margin-bottom: 0 !important; }
+  /* .panel base rule (core: 20px, core mobile: 10px) — kill it */
+  .post .panel,
+  .post > .panel,
+  .panel { margin-bottom: 0 !important; }
+  /* Post containers */
   .post-container,
   .wo_post_sec { margin-bottom: 1px !important; }
   .posts-container { margin-bottom: 1px !important; }
+  /* Loading skeleton (core mobile: 10px) */
+  .tag_post_skel { margin-bottom: 1px !important; }
+  /* People you may know widget (core mobile: 15px) */
+  .tag_post_people_know { margin-bottom: 4px !important; }
   /* .mb-* utilities inside feed area */
   #posts-laoded .wow_content.mb-15,
   #posts-laoded .mb-15,
   #posts-laoded .mb-20,
   #posts-laoded .mb-25,
   .middlecol .wow_content.mb-15,
-  .middlecol .mb-15 { margin-bottom: 1px !important; }
+  .middlecol .mb-15,
+  .middlecol .mb-20 { margin-bottom: 1px !important; }
   /* Page margin between feed sections */
   .page-margin { margin-top: 1px !important; margin-bottom: 1px !important; }
-  /* Remove any gap between consecutive posts */
+  /* Remove gap between consecutive posts */
   .post + .post,
   .wo_post_sec + .wo_post_sec { margin-top: 0 !important; }
+  /* wow_content cards in feed — kill bottom margin */
+  .middlecol .wow_content,
+  #posts-laoded .wow_content { margin-bottom: 1px !important; }
 }
 
 /* --------------------------------------------------------------------------
@@ -5490,6 +5503,53 @@ body {
   .tag_content .container > .row > .col-lg-9 {
     flex: 0 0 100% !important;
     max-width: 100% !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   RR-34: Print styles — hide UI chrome
+   -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------
+   RR-35: Wallet balance — responsive font size
+   Core: .wow_mini_wallets h5 { font-size: 60px }, sup { font-size: 30px }
+   -------------------------------------------------------------------------- */
+.wow_mini_wallets h5 {
+  font-size: clamp(28px, 6vw, 60px) !important;
+  word-break: break-all !important;
+  line-height: 1.1 !important;
+}
+.wow_mini_wallets h5 sup {
+  font-size: clamp(14px, 3vw, 30px) !important;
+  top: clamp(-10px, -2vw, -25px) !important;
+}
+@media (max-width: 480px) {
+  .wow_mini_wallets h5 {
+    font-size: 28px !important;
+  }
+  .wow_mini_wallets h5 sup {
+    font-size: 14px !important;
+    top: -8px !important;
+  }
+  .wow_mini_wallets {
+    padding: 12px !important;
+  }
+  .wow_mini_wallets_btns .btn {
+    padding: 10px !important;
+    min-width: 80px !important;
+  }
+  .wow_mini_wallets_btns .btn svg {
+    width: 28px !important;
+    height: 28px !important;
+    margin-bottom: 8px !important;
+  }
+}
+@media (max-width: 768px) {
+  .wow_mini_wallets h5 {
+    font-size: 32px !important;
+  }
+  .wow_mini_wallets h5 sup {
+    font-size: 16px !important;
+    top: -10px !important;
   }
 }
 
