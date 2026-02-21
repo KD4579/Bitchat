@@ -4041,6 +4041,29 @@ body, p, li, td {
   #bc-mobile-nav { display: none !important; }
 }
 
+/* ── MC-7b: Mobile Logo — force logo visible on small screens ────────────
+   Core hides .header-brand at ≤520px. Override to show the mobile icon
+   logo (.tag_logo_mobi) in the top-left corner of the header bar.
+   ──────────────────────────────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .header-brand {
+    display: block !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+  }
+  .header-brand .tag_logo_mobi {
+    display: inline-block !important;
+    max-height: 32px !important;
+    width: auto !important;
+  }
+  .header-brand .tag_logo_pc {
+    display: none !important;
+  }
+}
+
 /* ── MC-8: Typography — Inter font stack ────────────────────────────────
    Facebook: -apple-system / SF Pro / Segoe UI, 15px body, 1.333 lh
    We use Inter (closest system equivalent). Body stays 14px (WoWonder
