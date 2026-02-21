@@ -3834,7 +3834,7 @@ body, p, li, td {
   border: 1px solid rgba(0,0,0,.1) !important;
   border-radius: 8px !important;
 }
-/* Gap between posts */
+/* Gap between posts — desktop only, mobile overridden in RR-5b */
 .page-margin { margin: 11px 0 !important; }
 .post { margin-bottom: 5px !important; }
 
@@ -5564,4 +5564,37 @@ body {
   .tag_content { margin-left: 0 !important; }
   body { padding: 0 !important; }
   .post .panel { box-shadow: none !important; border: 1px solid #ddd !important; }
+}
+
+/* ==========================================================================
+   MOBILE POST SPACING — FINAL OVERRIDE (must be last in file)
+   This block MUST remain at the very end of the stylesheet.
+   It overrides all earlier .post/.panel/.page-margin margin rules.
+   ========================================================================== */
+@media (max-width: 900px) {
+  .post,
+  .post-container,
+  .wo_post_sec,
+  .posts-container,
+  div.post,
+  div.post-container { margin-bottom: 1px !important; margin-top: 0 !important; }
+
+  .panel,
+  .post .panel,
+  .post > .panel,
+  .post .panel.panel-white,
+  .post .panel.panel-white.panel-shadow { margin-bottom: 0 !important; }
+
+  .page-margin { margin: 1px 0 !important; }
+
+  .tag_post_skel { margin-bottom: 1px !important; }
+  .tag_post_people_know { margin-bottom: 3px !important; }
+
+  #posts-laoded .wow_content,
+  #posts-laoded .mb-15,
+  #posts-laoded .mb-20,
+  .middlecol .wow_content,
+  .middlecol .mb-15,
+  .middlecol .mb-20,
+  .home_post_people .wow_content { margin-bottom: 1px !important; }
 }
