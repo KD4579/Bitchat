@@ -3665,7 +3665,9 @@ body:not(.night-mode) {
 .tag_stories_on_home { margin-bottom: 17px !important; }
 /* Post cards */
 .wo_post_sec,
-.post-container,
+.post-container {
+  margin-bottom: 5px !important;
+}
 .wow_content:not(.tag_pub_box_bg):not(.bc-hero) {
   margin-bottom: 14px !important;
 }
