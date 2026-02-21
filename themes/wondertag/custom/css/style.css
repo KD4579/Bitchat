@@ -5014,17 +5014,23 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
    .page-margin margin. Override all on mobile.
    -------------------------------------------------------------------------- */
 @media (max-width: 900px) {
-  .post { margin-bottom: 2px !important; }
+  .post { margin-bottom: 1px !important; }
   .post .panel { margin-bottom: 0 !important; }
   .post-container,
-  .wo_post_sec { margin-bottom: 2px !important; }
-  .posts-container { margin-bottom: 4px !important; }
-  /* .mb-15 utility on feed post wrappers */
+  .wo_post_sec { margin-bottom: 1px !important; }
+  .posts-container { margin-bottom: 1px !important; }
+  /* .mb-* utilities inside feed area */
   #posts-laoded .wow_content.mb-15,
   #posts-laoded .mb-15,
-  .middlecol .wow_content.mb-15 { margin-bottom: 2px !important; }
+  #posts-laoded .mb-20,
+  #posts-laoded .mb-25,
+  .middlecol .wow_content.mb-15,
+  .middlecol .mb-15 { margin-bottom: 1px !important; }
   /* Page margin between feed sections */
-  .page-margin { margin-top: 4px !important; margin-bottom: 4px !important; }
+  .page-margin { margin-top: 1px !important; margin-bottom: 1px !important; }
+  /* Remove any gap between consecutive posts */
+  .post + .post,
+  .wo_post_sec + .wo_post_sec { margin-top: 0 !important; }
 }
 
 /* --------------------------------------------------------------------------
