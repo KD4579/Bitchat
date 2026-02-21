@@ -3356,7 +3356,7 @@ body.night-mode .bc-ticker-bar {
 .bc-fab {
   position: fixed;
   bottom: 32px;
-  right: 32px;
+  right: 110px; /* clear chat sidebar (90px wide) */
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -3370,6 +3370,10 @@ body.night-mode .bc-ticker-bar {
   box-shadow: 0 8px 28px rgba(108,92,255,.45);
   transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
   z-index: 990;
+}
+/* When chat is disabled, FAB can sit closer to the edge */
+body[chat-off="true"] .bc-fab {
+  right: 32px;
 }
 .bc-fab:hover {
   transform: scale(1.08) translateY(-2px);
