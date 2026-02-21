@@ -4535,3 +4535,45 @@ html.bc-dark-mode .bc-notif-popup {
     width: 240px !important;
   }
 }
+
+/* ==========================================================================
+   FIX-4: Post Composer Modal — force correct stacking
+   The modal must be position:fixed to viewport. CSS transforms on ancestor
+   elements (.wow_content:hover, .post animation) can create new stacking
+   contexts that trap position:fixed children. Force the modal above all.
+   ========================================================================== */
+#tagPostBox.show {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 1050 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: rgba(0,0,0,.6) !important;
+}
+#tagPostBox .modal-dialog {
+  max-width: 550px !important;
+  width: 100% !important;
+  margin: auto !important;
+  transform: none !important;
+}
+#tagPostBox.show .modal-content {
+  background: #fff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3) !important;
+}
+/* Dark mode modal content */
+html:has(link#night-mode-css) #tagPostBox.show .modal-content,
+html.bc-dark-mode #tagPostBox.show .modal-content {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden !important;
+}
