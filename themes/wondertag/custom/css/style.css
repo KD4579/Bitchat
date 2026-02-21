@@ -5582,6 +5582,38 @@ body {
 }
 
 /* --------------------------------------------------------------------------
+   UNIFORM SPACING: Market strip ↔ Hero banner — 12px gap everywhere
+   Applies to both desktop and mobile for consistent visual rhythm.
+   -------------------------------------------------------------------------- */
+#bc-market-strip {
+  margin-bottom: 0 !important;
+}
+#bc-hero-banner {
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+}
+.tag_welcome .bc-hero {
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+}
+.page-margin {
+  margin-top: 12px !important;
+}
+@media (max-width: 900px) {
+  #bc-hero-banner {
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+  }
+  .tag_welcome .bc-hero {
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+  }
+  .page-margin {
+    margin-top: 12px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
    RR-34: Print styles — hide UI chrome
    -------------------------------------------------------------------------- */
 @media print {
@@ -5622,7 +5654,7 @@ body {
     border-bottom: 1px solid rgba(0,0,0,.06) !important;
   }
 
-  .page-margin { margin: 0 !important; }
+  .page-margin { margin-top: 12px !important; margin-bottom: 0 !important; }
 
   .tag_post_skel { margin-bottom: 0 !important; }
   .tag_post_people_know { margin-bottom: 3px !important; }
