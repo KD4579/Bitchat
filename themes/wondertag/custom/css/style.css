@@ -4016,10 +4016,50 @@ body, p, li, td {
   .tag_bottom_nav,
   .tag_mobi_bottom_bar { display: none !important; }
 
-  /* Hide WoWonder header-right bar that core moves to bottom:0 at ≤768px.
-     Our #bc-mobile-nav replaces it entirely. */
-  .tag_hdr_right {
+  /* Hide notification/message/request icons (duplicated by #bc-mobile-nav).
+     Keep .tag_main_usr_ddmenu (user profile dropdown) visible. */
+  .tag_hdr_right .requests-container,
+  .tag_hdr_right .messages-notification-container,
+  .tag_hdr_right .notification-container,
+  .tag_hdr_right .tag_prem {
     display: none !important;
+  }
+  /* Reset core's bottom:0 positioning — keep header-right in the top bar */
+  .tag_hdr_right {
+    position: static !important;
+    width: auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    justify-content: flex-end !important;
+  }
+  /* User avatar button — compact for mobile header */
+  .tag_hdr_right .tag_hdr_user_droptoggle {
+    padding: 4px !important;
+  }
+  .tag_hdr_right .tag_hdr_user_droptoggle img {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+  }
+  .tag_hdr_right .tag_hdr_user_droptoggle span {
+    display: none !important;
+  }
+  /* User dropdown opens as full-width overlay on mobile */
+  .tag_hdr_right .tag_main_usr_ddmenu .dropdown-menu {
+    position: fixed !important;
+    top: 52px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    z-index: 1050 !important;
   }
 }
 @media (min-width: 901px) {
