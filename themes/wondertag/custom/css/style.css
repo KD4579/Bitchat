@@ -4950,7 +4950,7 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
   background: #212121 !important;
   color: #dcdcdc !important;
 }
-/* Mobile: full-screen modal */
+/* Mobile: full-screen modal with flex layout */
 @media (max-width: 540px) {
   #tagPostBox.show .modal-dialog {
     max-width: 100% !important;
@@ -4960,6 +4960,39 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
   #tagPostBox.show .modal-content {
     border-radius: 0 !important;
     min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  /* Textarea area fills available space */
+  #tagPostBox.show .modal-content #post-textarea {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo textarea,
+  #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo .postText {
+    flex: 1 !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    height: auto !important;
+    resize: none !important;
+  }
+  /* Footer sticks to bottom */
+  #tagPostBox.show .modal-content .modal-footer {
+    margin-top: auto !important;
+    flex-shrink: 0 !important;
+  }
+  /* publisher-box form wraps everything — make it flex too */
+  #tagPostBox.show .modal-content .publisher-box,
+  #tagPostBox.show .modal-content #publisher-box-focus {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 }
 
@@ -5109,6 +5142,8 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
   #tagPostBox.show .modal-content {
     border-radius: 0 !important;
     min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 }
 
