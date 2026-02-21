@@ -3646,33 +3646,33 @@ body:not(.night-mode) {
 /* ---- UI-13: Spacing Expansion ---- */
 /* Between major sections on the feed */
 .posts_load {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 .bc-feed-tabs {
-  margin-bottom: 20px !important;
+  margin-bottom: 14px !important;
 }
 /* More air between widgets in sidebar */
 .right_side_bar .wow_content,
 .right_side_bar > div {
-  margin-bottom: 20px !important;
+  margin-bottom: 14px !important;
 }
 /* Section gaps on home page */
-.bc-hero          { margin-bottom: 28px !important; }
-.bc-creator-strip { margin-bottom: 24px !important; }
+.bc-hero          { margin-bottom: 20px !important; }
+.bc-creator-strip { margin-bottom: 17px !important; }
 #bc-action-prompt + div,
-.greetalert       { margin-bottom: 24px !important; }
+.greetalert       { margin-bottom: 17px !important; }
 /* Stories section breathing room */
-.tag_stories_on_home { margin-bottom: 24px !important; }
+.tag_stories_on_home { margin-bottom: 17px !important; }
 /* Post cards */
 .wo_post_sec,
 .post-container,
 .wow_content:not(.tag_pub_box_bg):not(.bc-hero) {
-  margin-bottom: 20px !important;
+  margin-bottom: 14px !important;
 }
 /* Page container inner padding */
 .page-margin > .container {
-  padding-top: 24px !important;
-  padding-bottom: 24px !important;
+  padding-top: 17px !important;
+  padding-bottom: 17px !important;
 }
 
 /* ---- UI-15: Remove Hard Borders — Replace With Shadows ---- */
@@ -3827,9 +3827,9 @@ body, p, li, td {
   border: 1px solid rgba(0,0,0,.1) !important;
   border-radius: 8px !important;
 }
-/* Gap between posts: 16px (Facebook uses 16px between cards) */
-.page-margin { margin: 16px 0 !important; }
-.post { margin-bottom: 16px !important; }
+/* Gap between posts */
+.page-margin { margin: 11px 0 !important; }
+.post { margin-bottom: 11px !important; }
 
 /* ── MC-2: 3-Column Grid ────────────────────────────────────────────────
    Facebook: left sidebar 280px, feed ~590px, right 360px
@@ -4141,9 +4141,9 @@ a[href*="link1=forum"] { display: none !important; }
 .post .post-heading .meta .time { font-weight: 400 !important; }
 .tag_post_actions .stat-item { font-weight: 500 !important; }
 
-/* ── EP-3: White space — 24px top, 14px between posts ──────────────────── */
-.page-margin { margin: 24px 0 0 !important; }
-.post { margin-bottom: 14px !important; }
+/* ── EP-3: White space — top margin, between posts ──────────────────── */
+.page-margin { margin: 17px 0 0 !important; }
+.post { margin-bottom: 10px !important; }
 
 /* ── EP-4: Hover physics (already in MC-9, reinforce values) ───────────── */
 .post .panel:hover { transform: translateY(-1px) !important; transition: all 0.15s ease !important; }
@@ -4171,7 +4171,7 @@ a[href*="link1=forum"] { display: none !important; }
 html { scroll-behavior: smooth; }
 
 /* ── EP-10: First post visible rule — remove extra top spacing ─────────── */
-.tag_home_filters.home { margin-top: 0 !important; margin-bottom: 8px !important; }
+.tag_home_filters.home { margin-top: 0 !important; margin-bottom: 6px !important; }
 .greetalert { display: none !important; } /* greeting alert removed per EP-10 */
 
 /* ── EP-12: Admin links kept visible — PHP already gates via Wo_IsAdmin() */
@@ -4292,7 +4292,7 @@ a[href*="link1=memories"] { display: none !important; }
    ──────────────────────────────────────────────────────────────────────────── */
 /* Post card geometry */
 .post .panel { border-radius: 14px !important; }
-.post { margin-bottom: 14px !important; }
+.post { margin-bottom: 10px !important; }
 
 /* Action buttons — no fixed height (let WoWonder core 40px icons determine size) */
 .tag_post_foot_acticon {
@@ -4343,7 +4343,7 @@ a[href*="link1=memories"] { display: none !important; }
 }
 
 /* Spacing scale enforcement */
-.tag_home_filters.home { margin-bottom: 12px !important; }
+.tag_home_filters.home { margin-bottom: 8px !important; }
 
 /* Translator button — place inline below post text, before read-more */
 .post .translate-btn,
