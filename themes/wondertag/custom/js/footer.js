@@ -383,86 +383,89 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 
 /* ==========================================================================
-   FIX-4: Post Composer Modal — Bulletproof open/close
-   Ensures the #tagPostBox modal dialog is visible when Bootstrap opens it.
-   Also allows dismissing by clicking the dark overlay.
+   FIX-4: Post Composer Modal — Nuclear fix
+   The #tagPostBox modal is rendered inside #ajax_loading > #contnet which
+   can have CSS containment issues. We move the modal to <body> so
+   position:fixed works relative to the viewport, then force all styles.
    ========================================================================== */
 (function() {
-    // Wait for jQuery and Bootstrap to be ready
     if (typeof $ === 'undefined') return;
 
-    // 1. Remove data-backdrop=static so clicking overlay dismisses the modal
+    // 0. Move #tagPostBox out of nested containers to <body>
+    //    This eliminates ALL CSS containment/stacking-context issues.
+    $(function() {
+        var $tp = $('#tagPostBox');
+        if ($tp.length && !$tp.parent().is('body')) {
+            $tp.detach().appendTo('body');
+        }
+    });
+
+    // 1. Before modal shows: strip static backdrop, ensure proper styles
     $(document).on('show.bs.modal', '#tagPostBox', function() {
-        $(this).removeAttr('data-backdrop');
-        $(this).removeAttr('data-keyboard');
+        var $m = $(this);
+        $m.removeAttr('data-backdrop');
+        $m.removeAttr('data-keyboard');
     });
 
-    // 2. After modal is shown, force dialog + content to be visible
+    // 2. After modal is fully shown: force dialog + content visible
     $(document).on('shown.bs.modal', '#tagPostBox', function() {
-        var $modal = $(this);
-        var $dialog = $modal.find('.modal-dialog').first();
-        var $content = $dialog.find('.modal-content').first();
+        var el = this;
+        var dlg = el.querySelector('.modal-dialog');
+        var cnt = el.querySelector('.modal-content');
 
-        // Force visibility via inline styles (highest specificity)
-        $dialog[0].style.setProperty('transform', 'scale(1)', 'important');
-        $dialog[0].style.setProperty('opacity', '1', 'important');
-        $dialog[0].style.setProperty('visibility', 'visible', 'important');
+        // Force modal itself
+        el.style.setProperty('display', 'flex', 'important');
+        el.style.setProperty('opacity', '1', 'important');
+        el.style.setProperty('visibility', 'visible', 'important');
 
-        if ($content.length) {
-            $content[0].style.setProperty('opacity', '1', 'important');
-            $content[0].style.setProperty('visibility', 'visible', 'important');
+        // Force dialog
+        if (dlg) {
+            dlg.style.setProperty('transform', 'scale(1)', 'important');
+            dlg.style.setProperty('opacity', '1', 'important');
+            dlg.style.setProperty('visibility', 'visible', 'important');
+            dlg.style.setProperty('display', 'inline-block', 'important');
+        }
+
+        // Force content
+        if (cnt) {
+            cnt.style.setProperty('opacity', '1', 'important');
+            cnt.style.setProperty('visibility', 'visible', 'important');
+            cnt.style.setProperty('display', 'block', 'important');
         }
     });
 
-    // 3. Clean up inline styles when modal is hidden
+    // 3. Clean up inline styles on hide
     $(document).on('hidden.bs.modal', '#tagPostBox', function() {
-        var $dialog = $(this).find('.modal-dialog').first();
-        var $content = $dialog.find('.modal-content').first();
-
-        if ($dialog.length && $dialog[0]) {
-            $dialog[0].style.removeProperty('transform');
-            $dialog[0].style.removeProperty('opacity');
-            $dialog[0].style.removeProperty('visibility');
-        }
-
-        if ($content.length && $content[0]) {
-            $content[0].style.removeProperty('opacity');
-            $content[0].style.removeProperty('visibility');
-        }
+        var el = this;
+        var dlg = el.querySelector('.modal-dialog');
+        var cnt = el.querySelector('.modal-content');
+        ['display','opacity','visibility'].forEach(function(p) { el.style.removeProperty(p); });
+        if (dlg) ['transform','opacity','visibility','display'].forEach(function(p) { dlg.style.removeProperty(p); });
+        if (cnt) ['opacity','visibility','display'].forEach(function(p) { cnt.style.removeProperty(p); });
     });
 
-    // 4. Fallback: if clicking any "create post" button doesn't trigger
-    //    Bootstrap's modal show within 500ms, force-open it manually
+    // 4. Fallback: if modal doesn't open within 500ms, force it
     $(document).on('click', '[data-target="#tagPostBox"], .bc-fab, .tag_pub_box_bg_text', function() {
-        var $tagPost = $('#tagPostBox');
-        if (!$tagPost.length) return;
-
+        var $tp = $('#tagPostBox');
+        if (!$tp.length) return;
         setTimeout(function() {
-            // If modal didn't get .show class after 500ms, force it open
-            if (!$tagPost.hasClass('show') && !$tagPost.hasClass('in')) {
-                try {
-                    $tagPost.modal('show');
-                } catch(e) {
-                    // Absolute fallback: manually toggle show
-                    $tagPost.addClass('show');
-                    $tagPost.css({
-                        'opacity': '1',
-                        'visibility': 'visible'
-                    });
+            if (!$tp.hasClass('show')) {
+                try { $tp.modal('show'); } catch(e) {
+                    $tp.addClass('show');
+                    $tp[0].style.setProperty('opacity','1','important');
+                    $tp[0].style.setProperty('visibility','visible','important');
                     $('body').addClass('modal-open');
                 }
             }
         }, 500);
     });
 
-    // 5. Allow clicking overlay to close (safety for any residual data-backdrop=static)
+    // 5. Click overlay to close
     $(document).on('click', '#tagPostBox', function(e) {
         if (e.target === this) {
-            try {
-                $(this).modal('hide');
-            } catch(err) {
+            try { $(this).modal('hide'); } catch(err) {
                 $(this).removeClass('show');
-                $(this).css({'opacity': '', 'visibility': ''});
+                this.style.cssText = '';
                 $('body').removeClass('modal-open');
                 $('.modal-backdrop').remove();
             }

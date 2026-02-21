@@ -4537,16 +4537,62 @@ html.bc-dark-mode .bc-notif-popup {
 }
 
 /* ==========================================================================
-   FIX-4: Post Composer Modal — minimal CSS, JS handles the rest
-   See footer.js "FIX-4" section for the JavaScript safety net.
+   FIX-4: Post Composer Modal — CSS safety net
+   JS in footer.js moves #tagPostBox to <body> and forces inline styles.
+   These CSS rules act as backup in case JS hasn't run yet.
    ========================================================================== */
-/* Prevent body scroll when modal is open */
 body.modal-open {
   overflow: hidden !important;
 }
-/* Ensure modal dialog is visible when shown (safety net — JS also enforces) */
+/* The modal itself: full viewport overlay */
+#tagPostBox {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1050 !important;
+}
+#tagPostBox.show {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: rgba(0,0,0,.6) !important;
+  overflow-y: auto !important;
+}
+/* The dialog box inside: centered, visible, proper scale */
 #tagPostBox.show .modal-dialog {
   transform: scale(1) !important;
   opacity: 1 !important;
   visibility: visible !important;
+  margin: auto !important;
+  width: 100% !important;
+  max-width: 550px !important;
+}
+/* The white content card */
+#tagPostBox.show .modal-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  background: #fff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3) !important;
+}
+/* Dark mode */
+html:has(link#night-mode-css) #tagPostBox.show .modal-content,
+html.bc-dark-mode #tagPostBox.show .modal-content {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+/* Mobile: full-screen modal */
+@media (max-width: 540px) {
+  #tagPostBox.show .modal-dialog {
+    max-width: 100% !important;
+    margin: 0 !important;
+    height: 100% !important;
+  }
+  #tagPostBox.show .modal-content {
+    border-radius: 0 !important;
+    min-height: 100% !important;
+  }
 }
