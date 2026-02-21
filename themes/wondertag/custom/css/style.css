@@ -1743,7 +1743,7 @@ body.night_mode .bc-welcome-step-line {
   font-size: 16px;
   font-family: var(--bc-font-body);
   white-space: nowrap;
-  z-index: 10;
+  z-index: 100;
   position: relative;
 }
 html:has(link#night-mode-css) #bc-market-strip,
@@ -4552,6 +4552,54 @@ html.bc-dark-mode .bc-notif-popup {
     max-width: 240px !important;
     width: 240px !important;
   }
+}
+
+/* ==========================================================================
+   FIX-5: Sidebar — z-index, overflow, day/night mode colors
+   1) Ticker z-index raised to 100 (above sidebar's 99)
+   2) Sidebar overflow hidden to prevent child elements leaking out
+   3) Dark mode overrides for sidebar text/hover/background
+   ========================================================================== */
+
+/* Sidebar overflow containment — prevent any child from leaking outside */
+.tag_sidebar {
+  overflow: hidden !important;
+}
+.tag_sidebar .sidebar_innr {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* --- Day mode: sidebar link colors (already using --bc-text-primary which is dark, correct for light bg) --- */
+/* Ensure sidebar section headers are readable in both modes */
+.tag_sidebar_head {
+  color: var(--bc-text-secondary, #64748B) !important;
+}
+
+/* --- Night/Dark mode: sidebar links, hover, section headers --- */
+html:has(link#night-mode-css) .tag_sidebar a,
+html.bc-dark-mode .tag_sidebar a {
+  color: #c5c5c5 !important;
+}
+html:has(link#night-mode-css) .tag_sidebar a:hover,
+html.bc-dark-mode .tag_sidebar a:hover,
+html:has(link#night-mode-css) .tag_sidebar a.active,
+html.bc-dark-mode .tag_sidebar a.active {
+  background: rgba(255,255,255,.08) !important;
+  color: #fff !important;
+}
+html:has(link#night-mode-css) .tag_sidebar_head,
+html.bc-dark-mode .tag_sidebar_head {
+  color: #888 !important;
+}
+/* Sidebar footer links in dark mode */
+html:has(link#night-mode-css) .tag_footer_links a,
+html.bc-dark-mode .tag_footer_links a {
+  color: #888 !important;
+}
+html:has(link#night-mode-css) .tag_footer_links a:hover,
+html.bc-dark-mode .tag_footer_links a:hover {
+  color: #c5c5c5 !important;
 }
 
 /* ==========================================================================
