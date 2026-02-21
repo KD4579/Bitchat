@@ -4095,6 +4095,96 @@ h1, h2, h3, h4, h5, h6 {
 .bc-hero-badge, .bc-hero-headline, .bc-hero-sub,
 .bc-hero-stats, .bc-hero-stat { display: none !important; }
 
+/* ── LP-1B: Welcome/Login Page — Full-screen layout fix ──────────────────
+   Issues fixed:
+   1) Mobile: too much blank space between header and login form
+   2) Desktop: content not filling viewport properly
+   3) All devices: vertically center content for clean look
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Desktop: reduce top margin so content sits higher, vertically centered */
+.tag_welcome .tag_wel_middle {
+  margin: 40px 0 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  flex: 1 !important;
+}
+
+/* Ensure welcome container fills viewport and centers content */
+.tag_welcome {
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Row alignment — vertically center both columns */
+.tag_wel_row {
+  align-items: center !important;
+}
+
+/* Left column — hide the title (redundant with hero) */
+.tag_welcome .tag_wel_title {
+  display: none !important;
+}
+
+/* Tablet (≤768px): reduce spacing for mobile layouts */
+@media (max-width: 768px) {
+  .tag_welcome .tag_wel_middle {
+    margin: 20px 0 0 !important;
+  }
+  .tag_wel_row {
+    padding: 0 !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  /* Left column (hero + trending + users) shows above login */
+  .tag_wel_row > .col-sm-5,
+  .tag_wel_row > .col-xl-6:first-child {
+    order: 0 !important;
+    position: static !important;
+  }
+  .tag_wel_row > .col-sm-7,
+  .tag_wel_row > .col-xl-6:last-child {
+    order: 1 !important;
+  }
+  /* Auth box centered on mobile */
+  .tag_auth_box {
+    margin: 0 auto !important;
+    max-width: 100% !important;
+  }
+  .tag_wel_register {
+    margin: 16px auto 0 !important;
+    max-width: 100% !important;
+    text-align: center !important;
+  }
+  /* Hide trending/users on small mobile to keep it tight */
+  .tag_wel_widget {
+    margin: 12px 0 0 !important;
+  }
+  .tag_pro_widget {
+    position: static !important;
+  }
+}
+
+/* Small phones (≤500px): further tightening */
+@media (max-width: 500px) {
+  .tag_welcome .tag_wel_middle {
+    margin: 10px 0 0 !important;
+  }
+  /* Hero compact even tighter on small phones */
+  .bc-hero-compact {
+    padding: 12px 16px !important;
+    margin-bottom: 8px !important;
+  }
+  /* Hide non-essential widgets on very small screens */
+  .tag_wel_widget.tag_pro_widget {
+    display: none !important;
+  }
+  .tag_auth_box {
+    padding: 20px !important;
+  }
+}
+
 /* ── LP-2: Composer Minimal Mode ────────────────────────────────────────────
    Primary: Photo/Video, Poll, Text
    Secondary (hidden by default): Schedule, AI, Sell Product, Location, Audio
