@@ -1808,75 +1808,79 @@ html.bc-dark-mode #bc-market-strip {
 /* ============================================================
    Part 3: Native Notification Popup
    ============================================================ */
-#bc-notif-popup {
+/* ---- Part 3: Install App Popup ---- */
+#bc-install-popup {
   position: fixed;
   bottom: 24px;
-  right: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
   z-index: 9999;
-  background: var(--bc-surface-primary);
-  border: var(--bc-border-light);
-  border-radius: var(--bc-radius-lg);
-  box-shadow: var(--bc-shadow-dropdown);
-  padding: 20px 20px 16px;
-  width: 300px;
   display: none;
-  animation: bc-slide-up 0.3s ease;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  max-width: 480px;
+  width: calc(100% - 32px);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
-@keyframes bc-slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: none; }
+#bc-install-popup.bc-install-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
-#bc-notif-popup.bc-notif-visible { display: block; }
-.bc-notif-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1d9bf0, #0078d4);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 12px;
-}
-.bc-notif-icon svg { color: #fff; }
-.bc-notif-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--bc-text-primary);
-  margin: 0 0 4px;
-}
-.bc-notif-desc {
-  font-size: 13px;
-  color: var(--bc-text-secondary);
-  margin: 0 0 16px;
-  line-height: 1.5;
-}
-.bc-notif-actions {
-  display: flex;
-  gap: 8px;
-}
-.bc-notif-btn-allow {
-  flex: 1;
-  padding: 8px 0;
-  background: #1d9bf0;
-  color: #fff;
+.bc-install-close {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   border: none;
-  border-radius: var(--bc-radius-full);
+  background: rgba(0,0,0,.35);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.bc-install-close:hover { background: rgba(0,0,0,.55); }
+.bc-install-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.bc-install-icon {
+  flex-shrink: 0;
+}
+.bc-install-text {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.bc-install-text b {
+  font-weight: 700;
+}
+.bc-install-btn {
+  flex-shrink: 0;
+  padding: 7px 18px;
+  border: none;
+  border-radius: 9999px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s;
+  white-space: nowrap;
+  transition: opacity 0.15s;
 }
-.bc-notif-btn-allow:hover { opacity: 0.85; }
-.bc-notif-btn-dismiss {
-  flex: 1;
-  padding: 8px 0;
-  background: var(--bc-surface-secondary);
-  color: var(--bc-text-secondary);
-  border: var(--bc-border-light);
-  border-radius: var(--bc-radius-full);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+.bc-install-btn:hover { opacity: 0.85; }
+@media (max-width: 480px) {
+  #bc-install-popup { bottom: 70px; gap: 8px; padding: 10px 12px; }
+  .bc-install-text { font-size: 12px; }
 }
-.bc-notif-btn-dismiss:hover { background: var(--bc-surface-hover); }
 
 /* ============================================================
    Part 4: Feed Tabs
@@ -4652,13 +4656,7 @@ html.bc-dark-mode .tag_pub_box_bg_text {
   color: #c5c5c5 !important;
 }
 
-/* --- Notification popup in dark --- */
-html:has(link#night-mode-css) .bc-notif-popup,
-html.bc-dark-mode .bc-notif-popup {
-  background: #2d2d2d !important;
-  border-color: rgba(255,255,255,.1) !important;
-  color: #dcdcdc !important;
-}
+/* Install popup uses inline colors via JS — no dark mode override needed */
 
 /* ==========================================================================
    FIX-3: Sidebar layout polish

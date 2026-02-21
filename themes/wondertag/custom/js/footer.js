@@ -255,65 +255,110 @@ if (marketStrip) {
     setInterval(fetchTRDC, 60000);
 }
 
-/* ---- Part 3: Native Notification Popup ---- */
-/* Wrapped in DOMContentLoaded: popup HTML is after this script tag in the DOM */
+/* ---- Part 3: Install App Popup ---- */
+/* Shows for 5s, hides, repeats every 5min, max 5 times.
+   If user clicks Install or X → never shows again until logout.
+   Uses sessionStorage (clears on logout/tab close).
+   Random bg + font color from 15 presets each appearance. */
 document.addEventListener('DOMContentLoaded', function() {
-    var popup = document.getElementById('bc-notif-popup');
+    var popup = document.getElementById('bc-install-popup');
     if (!popup) return;
 
-    function getCookie(name) {
-        var m = document.cookie.match('(?:^|;)\\s*' + name + '=([^;]*)');
-        return m ? m[1] : null;
-    }
-    function setCookie(name, val, days) {
-        var d = new Date();
-        d.setTime(d.getTime() + days * 86400000);
-        document.cookie = name + '=' + val + ';expires=' + d.toUTCString() + ';path=/';
+    /* 15 vibrant color pairs: [background, text] */
+    var colorPairs = [
+        ['#FF6B6B', '#FFFFFF'], /* Coral red */
+        ['#4ECDC4', '#FFFFFF'], /* Teal */
+        ['#FFE66D', '#1a1a2e'], /* Sunny yellow */
+        ['#6C5CFF', '#FFFFFF'], /* Brand purple */
+        ['#FF9F43', '#FFFFFF'], /* Warm orange */
+        ['#00D2D3', '#1a1a2e'], /* Cyan */
+        ['#EE5A24', '#FFFFFF'], /* Burnt orange */
+        ['#0ABDE3', '#FFFFFF'], /* Sky blue */
+        ['#10AC84', '#FFFFFF'], /* Emerald */
+        ['#F368E0', '#FFFFFF'], /* Pink */
+        ['#1B9CFC', '#FFFFFF'], /* Bright blue */
+        ['#FF6348', '#FFFFFF'], /* Tomato */
+        ['#2ED573', '#1a1a2e'], /* Lime green */
+        ['#A55EEA', '#FFFFFF'], /* Amethyst */
+        ['#FD7272', '#FFFFFF']  /* Salmon */
+    ];
+    var usedColors = [];
+
+    function pickColor() {
+        if (usedColors.length >= colorPairs.length) usedColors = [];
+        var idx;
+        do { idx = Math.floor(Math.random() * colorPairs.length); }
+        while (usedColors.indexOf(idx) !== -1);
+        usedColors.push(idx);
+        return colorPairs[idx];
     }
 
-    if (getCookie('bc_push_shown')) return;
+    /* sessionStorage key — clears on logout (session end) */
+    var KEY = 'bc_install_dismissed';
+    var COUNT_KEY = 'bc_install_count';
 
-    var shown = false;
+    if (sessionStorage.getItem(KEY)) return;
+
+    var showCount = parseInt(sessionStorage.getItem(COUNT_KEY) || '0', 10);
+    var MAX_SHOWS = 5;
+    var SHOW_DURATION = 5000;   /* 5 seconds visible */
+    var INTERVAL = 300000;      /* 5 minutes between shows */
+    var hideTimer = null;
+
+    function applyColors() {
+        var pair = pickColor();
+        popup.style.background = pair[0];
+        popup.style.color = pair[1];
+        popup.querySelector('.bc-install-btn').style.color = pair[0];
+        popup.querySelector('.bc-install-btn').style.background = pair[1];
+        popup.querySelector('.bc-install-close').style.color = pair[1];
+        popup.querySelector('.bc-install-icon').style.color = pair[1];
+    }
+
     function showPopup() {
-        if (shown) return;
-        shown = true;
-        popup.classList.add('bc-notif-visible');
-    }
+        if (sessionStorage.getItem(KEY)) return;
+        if (showCount >= MAX_SHOWS) return;
 
-    // Trigger on 40% scroll depth
-    window.addEventListener('scroll', function onScroll() {
-        var scrolled = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
-        if (scrolled > 0.4) {
-            showPopup();
-            window.removeEventListener('scroll', onScroll);
-        }
-    }, { passive: true });
+        showCount++;
+        sessionStorage.setItem(COUNT_KEY, String(showCount));
 
-    // Trigger on 25s session time
-    setTimeout(showPopup, 25000);
+        applyColors();
+        popup.style.display = 'flex';
+        popup.classList.add('bc-install-visible');
 
-    // Allow button
-    var allowBtn = document.getElementById('bc-notif-allow');
-    if (allowBtn) {
-        allowBtn.addEventListener('click', function() {
-            setCookie('bc_push_shown', '1', 7);
-            popup.classList.remove('bc-notif-visible');
-            if (window.OneSignal) {
-                OneSignal.push(function() {
-                    OneSignal.registerForPushNotifications();
-                });
+        /* Auto-hide after 5 seconds */
+        hideTimer = setTimeout(function() {
+            popup.classList.remove('bc-install-visible');
+            setTimeout(function() { popup.style.display = 'none'; }, 300);
+
+            /* Schedule next show if under max */
+            if (showCount < MAX_SHOWS && !sessionStorage.getItem(KEY)) {
+                setTimeout(showPopup, INTERVAL);
             }
-        });
+        }, SHOW_DURATION);
     }
 
-    // Dismiss button
-    var dismissBtn = document.getElementById('bc-notif-dismiss');
-    if (dismissBtn) {
-        dismissBtn.addEventListener('click', function() {
-            setCookie('bc_push_shown', '1', 7);
-            popup.classList.remove('bc-notif-visible');
-        });
+    function dismiss() {
+        sessionStorage.setItem(KEY, '1');
+        if (hideTimer) clearTimeout(hideTimer);
+        popup.classList.remove('bc-install-visible');
+        setTimeout(function() { popup.style.display = 'none'; }, 300);
     }
+
+    /* Install button */
+    document.getElementById('bc-install-btn').addEventListener('click', function() {
+        dismiss();
+        /* Trigger OneSignal if available */
+        if (window.OneSignal) {
+            OneSignal.push(function() { OneSignal.registerForPushNotifications(); });
+        }
+    });
+
+    /* Close X button */
+    document.getElementById('bc-install-close').addEventListener('click', dismiss);
+
+    /* First show after 3 seconds (let page settle) */
+    setTimeout(showPopup, 3000);
 });
 
 /* ---- Part 5: Composer "More Options" Button ---- */
