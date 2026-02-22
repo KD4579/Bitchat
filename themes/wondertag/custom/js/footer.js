@@ -517,11 +517,12 @@ document.addEventListener('click', function(e) {
     });
 
     // 4. Fallback: if modal doesn't open within 500ms, force it
-    $(document).on('click', '[data-target="#tagPostBox"], .tag_pub_box_bg_text', function() {
+    //    Only for elements that lack data-toggle (Bootstrap handles those natively)
+    $(document).on('click', '.tag_pub_box_bg_text', function() {
         var $tp = $('#tagPostBox');
         if (!$tp.length) return;
         setTimeout(function() {
-            if (!$tp.hasClass('show')) {
+            if (!$tp.hasClass('show') && !$tp.hasClass('in') && !$('.modal-backdrop').length) {
                 try { $tp.modal('show'); } catch(e) {
                     $tp.addClass('show');
                     $tp[0].style.setProperty('opacity','1','important');
