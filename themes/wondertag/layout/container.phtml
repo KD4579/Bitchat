@@ -806,16 +806,16 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/website_mode/linkedin.js"></script>
 		<?php } ?>
 	
-		<script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
+		<script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js" defer></script>
 		
 		<?php if ($wo['config']['yandex_map'] == 1) { ?>
 			<script src="https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=<?php echo $wo['config']['yandex_map_api'];?>" type="text/javascript"></script>
 		<?php } ?>
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/javascript/green-audio-player/green-audio-player.css" />
-		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/green-audio-player/green-audio-player.js"></script>
+		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/green-audio-player/green-audio-player.js" defer></script>
 		
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/flatpickr.min.css">
-		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/flatpickr.js"></script>
+		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/flatpickr.js" defer></script>
 
 		<!-- Global BC Config (replaces hidden inputs) -->
 		<script>
