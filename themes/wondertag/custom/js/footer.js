@@ -464,21 +464,17 @@ document.addEventListener('click', function(e) {
     if (typeof $ === 'undefined' || window.__FIX4_LOADED) return;
     window.__FIX4_LOADED = true;
 
-    // Gate: prevent .modal('show') on #tagPostBox if already open
+    var _tpLock = false; // Lock to prevent double-open
+
+    // Gate ALL .modal() calls on #tagPostBox — block if already opening/open
     var origModal = $.fn.modal;
     $.fn.modal = function(option) {
-        if (this.length && this[0].id === 'tagPostBox' && option === 'show') {
-            var el = this[0];
-            // Already visible? Skip the call entirely
-            if (el.classList.contains('show') || el.classList.contains('in') ||
-                el.style.display === 'flex' || el.getAttribute('aria-hidden') === 'false') {
-                return this;
-            }
-            // Dedupe: remove extra #tagPostBox elements
-            var all = document.querySelectorAll('#tagPostBox');
-            for (var i = 1; i < all.length; i++) {
-                all[i].parentNode.removeChild(all[i]);
-            }
+        if (this.length && this[0].id === 'tagPostBox' && option !== 'hide' && option !== 'handleUpdate' && option !== 'dispose') {
+            if (_tpLock) return this; // Already opening — block
+            _tpLock = true;
+            // Release lock after Bootstrap finishes the show transition
+            var self = this;
+            setTimeout(function() { _tpLock = false; }, 600);
         }
         return origModal.apply(this, arguments);
     };
@@ -486,26 +482,14 @@ document.addEventListener('click', function(e) {
     $.fn.modal.noConflict = origModal.noConflict;
 
     // Move #tagPostBox out of nested containers to <body>
-    $(function() {
-        var $tp = $('#tagPostBox');
-        if ($tp.length && !$tp.parent().is('body')) {
-            $tp.detach().appendTo('body');
-        }
-    });
-
-    // After AJAX navigation, dedupe + move any new #tagPostBox
-    $(document).ajaxComplete(function() {
+    function moveToBody() {
         var all = document.querySelectorAll('#tagPostBox');
-        if (all.length > 1) {
-            for (var i = 1; i < all.length; i++) {
-                all[i].parentNode.removeChild(all[i]);
-            }
-        }
+        for (var i = 1; i < all.length; i++) all[i].parentNode.removeChild(all[i]);
         var $tp = $('#tagPostBox');
-        if ($tp.length && !$tp.parent().is('body')) {
-            $tp.detach().appendTo('body');
-        }
-    });
+        if ($tp.length && !$tp.parent().is('body')) $tp.detach().appendTo('body');
+    }
+    $(moveToBody);
+    $(document).ajaxComplete(moveToBody);
 
     // Before modal shows: strip static backdrop
     $(document).on('show.bs.modal', '#tagPostBox', function() {
@@ -536,9 +520,9 @@ document.addEventListener('click', function(e) {
 
         // Kill extra backdrops (keep at most one)
         var bds = document.querySelectorAll('.modal-backdrop');
-        for (var i = 1; i < bds.length; i++) {
-            bds[i].parentNode.removeChild(bds[i]);
-        }
+        for (var i = 1; i < bds.length; i++) bds[i].parentNode.removeChild(bds[i]);
+
+        _tpLock = false; // Release lock once fully shown
     });
 
     // Clean up inline styles on hide + nuke all backdrops
@@ -551,6 +535,7 @@ document.addEventListener('click', function(e) {
         if (cnt) ['opacity','visibility','display'].forEach(function(p) { cnt.style.removeProperty(p); });
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
+        _tpLock = false; // Release lock on hide
     });
 
     // Click overlay to close
