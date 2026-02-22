@@ -459,27 +459,48 @@ document.addEventListener('click', function(e) {
    The #tagPostBox modal is rendered inside #ajax_loading > #contnet which
    can have CSS containment issues. We move the modal to <body> so
    position:fixed works relative to the viewport, then force all styles.
+
+   AJAX navigation can create duplicate #tagPostBox elements — we dedupe
+   on every open to ensure only one exists in the DOM.
    ========================================================================== */
 (function() {
     if (typeof $ === 'undefined') return;
 
-    // 0. Move #tagPostBox out of nested containers to <body>
-    //    This eliminates ALL CSS containment/stacking-context issues.
-    $(function() {
+    // Dedupe + move: keep only ONE #tagPostBox, in <body>
+    function ensureSingleModal() {
+        var all = document.querySelectorAll('#tagPostBox');
+        if (all.length > 1) {
+            // Keep the first one, remove extras
+            for (var i = 1; i < all.length; i++) {
+                all[i].parentNode.removeChild(all[i]);
+            }
+        }
         var $tp = $('#tagPostBox');
         if ($tp.length && !$tp.parent().is('body')) {
             $tp.detach().appendTo('body');
         }
+    }
+
+    // Run on page load
+    $(ensureSingleModal);
+
+    // Run after AJAX page navigation loads new content
+    $(document).ajaxComplete(function(e, xhr, settings) {
+        // Only dedupe when the main content area was updated
+        if (document.querySelectorAll('#tagPostBox').length > 1) {
+            ensureSingleModal();
+        }
     });
 
-    // 1. Before modal shows: strip static backdrop, ensure proper styles
+    // 1. Before modal shows: strip static backdrop, dedupe, clean extra backdrops
     $(document).on('show.bs.modal', '#tagPostBox', function() {
         var $m = $(this);
         $m.removeAttr('data-backdrop');
         $m.removeAttr('data-keyboard');
+        ensureSingleModal();
     });
 
-    // 2. After modal is fully shown: force dialog + content visible
+    // 2. After modal is fully shown: force dialog + content visible, ensure single backdrop
     $(document).on('shown.bs.modal', '#tagPostBox', function() {
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
@@ -504,9 +525,15 @@ document.addEventListener('click', function(e) {
             cnt.style.setProperty('visibility', 'visible', 'important');
             cnt.style.setProperty('display', 'block', 'important');
         }
+
+        // Ensure only one backdrop exists
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        for (var i = 1; i < backdrops.length; i++) {
+            backdrops[i].parentNode.removeChild(backdrops[i]);
+        }
     });
 
-    // 3. Clean up inline styles on hide
+    // 3. Clean up inline styles on hide + remove all backdrops
     $(document).on('hidden.bs.modal', '#tagPostBox', function() {
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
@@ -514,26 +541,12 @@ document.addEventListener('click', function(e) {
         ['display','opacity','visibility'].forEach(function(p) { el.style.removeProperty(p); });
         if (dlg) ['transform','opacity','visibility','display'].forEach(function(p) { dlg.style.removeProperty(p); });
         if (cnt) ['opacity','visibility','display'].forEach(function(p) { cnt.style.removeProperty(p); });
+        // Clean up any leftover backdrops
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
     });
 
-    // 4. Fallback: if modal doesn't open within 500ms, force it
-    //    Only for elements that lack data-toggle (Bootstrap handles those natively)
-    $(document).on('click', '.tag_pub_box_bg_text', function() {
-        var $tp = $('#tagPostBox');
-        if (!$tp.length) return;
-        setTimeout(function() {
-            if (!$tp.hasClass('show') && !$tp.hasClass('in') && !$('.modal-backdrop').length) {
-                try { $tp.modal('show'); } catch(e) {
-                    $tp.addClass('show');
-                    $tp[0].style.setProperty('opacity','1','important');
-                    $tp[0].style.setProperty('visibility','visible','important');
-                    $('body').addClass('modal-open');
-                }
-            }
-        }, 500);
-    });
-
-    // 5. Click overlay to close
+    // 4. Click overlay to close
     $(document).on('click', '#tagPostBox', function(e) {
         if (e.target === this) {
             try { $(this).modal('hide'); } catch(err) {
