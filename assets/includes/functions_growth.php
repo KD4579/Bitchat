@@ -45,15 +45,15 @@ function Wo_GetUserActivityState($user_id) {
         $state['is_creator'] = ($user['verified'] == 1 || $user['pro_type'] > 0);
     }
 
-    // Get total posts
-    $posts_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_POSTS . " WHERE user_id = '$user_id' AND postType = ''");
+    // Get total posts (exclude profile_picture/profile_cover updates)
+    $posts_query = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_POSTS . " WHERE user_id = '$user_id' AND postType NOT IN ('profile_picture','profile_cover','profile_cover_picture')");
     if ($posts_query && mysqli_num_rows($posts_query) > 0) {
         $posts = mysqli_fetch_assoc($posts_query);
         $state['total_posts'] = intval($posts['total']);
     }
 
-    // Get last post time
-    $last_post_query = mysqli_query($sqlConnect, "SELECT time FROM " . T_POSTS . " WHERE user_id = '$user_id' AND postType = '' ORDER BY time DESC LIMIT 1");
+    // Get last post time (exclude profile updates)
+    $last_post_query = mysqli_query($sqlConnect, "SELECT time FROM " . T_POSTS . " WHERE user_id = '$user_id' AND postType NOT IN ('profile_picture','profile_cover','profile_cover_picture') ORDER BY time DESC LIMIT 1");
     if ($last_post_query && mysqli_num_rows($last_post_query) > 0) {
         $last_post = mysqli_fetch_assoc($last_post_query);
         $last_post_timestamp = intval($last_post['time']);
