@@ -5801,3 +5801,14 @@ body {
     margin: -50px 0 15px !important;
   }
 }
+
+/* ==========================================================================
+   FIX-4b: Mobile bottom nav icons — 50% larger (24px → 36px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .tag_hdr_droptoggle svg,
+  .tag_hdr_user_droptoggle img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
