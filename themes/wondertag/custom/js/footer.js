@@ -463,6 +463,22 @@ document.addEventListener('click', function(e) {
    AJAX navigation can create duplicate #tagPostBox elements — we dedupe
    on every open to ensure only one exists in the DOM.
    ========================================================================== */
+/* DEBUG: Intercept modal calls on #tagPostBox to trace double-open */
+(function() {
+    if (typeof $ === 'undefined') return;
+    var origModal = $.fn.modal;
+    $.fn.modal = function(option) {
+        if (this.attr && this.attr('id') === 'tagPostBox' && (option === 'show' || (typeof option === 'object'))) {
+            console.trace('[FIX-4 DEBUG] .modal("' + (typeof option === 'string' ? option : 'options') + '") called on #tagPostBox');
+            console.log('[FIX-4 DEBUG] #tagPostBox count in DOM:', document.querySelectorAll('#tagPostBox').length);
+            console.log('[FIX-4 DEBUG] backdrops:', document.querySelectorAll('.modal-backdrop').length);
+        }
+        return origModal.apply(this, arguments);
+    };
+    // Copy all properties from original
+    $.fn.modal.Constructor = origModal.Constructor;
+    $.fn.modal.noConflict = origModal.noConflict;
+})();
 (function() {
     if (typeof $ === 'undefined') return;
 
