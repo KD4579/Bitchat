@@ -294,6 +294,13 @@ if (!empty($wo['config']['auto_backup_enabled']) && $wo['config']['auto_backup_e
 }
 // ********** Automated Backup **********
 
+// ********** Session Cleanup **********
+_cron_log_section('session_cleanup');
+// Remove DB login sessions older than 30 days (matches PHP session gc_maxlifetime)
+$sessionCutoff = time() - 2592000;
+@mysqli_query($sqlConnect, "DELETE FROM Wo_AppsSessions WHERE time < {$sessionCutoff}");
+// ********** Session Cleanup **********
+
 _cron_log_write();
 
 header("Content-type: application/json");

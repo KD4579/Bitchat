@@ -199,7 +199,7 @@ function scrollToTop() {
 // check if user is logged in function
 function Wo_IsLogged() {
   $.post(Wo_Ajax_Requests_File() + '?f=session_status', function (data) {
-    setTimeout(Wo_UpdateLastSeen, 30000);
+    setTimeout(Wo_IsLogged, 30000);
     // Only show logged out modal if we have a valid response AND logged_in is explicitly false
     // AND session_valid is also false (double check to prevent false positives)
     if(data && data.status == 200 && data.logged_in === false && data.session_valid === false) {
