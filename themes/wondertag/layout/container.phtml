@@ -819,13 +819,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 
 		<!-- Global BC Config (replaces hidden inputs) -->
 		<script>
-		window.BC_CONFIG = {
-			csrf: "<?php echo isset($wo['csrf_token']) ? $wo['csrf_token'] : ''; ?>",
-			userId: "<?php echo isset($wo['user']['user_id']) ? $wo['user']['user_id'] : ''; ?>",
-			siteUrl: "<?php echo $wo['config']['site_url']; ?>",
-			themeUrl: "<?php echo $wo['config']['theme_url']; ?>",
-			loggedIn: <?php echo $wo['loggedin'] ? 'true' : 'false'; ?>
-		};
+		window.BC_CONFIG = <?php echo json_encode([
+			'csrf'     => isset($wo['csrf_token']) ? $wo['csrf_token'] : '',
+			'userId'   => isset($wo['user']['user_id']) ? $wo['user']['user_id'] : '',
+			'siteUrl'  => $wo['config']['site_url'],
+			'themeUrl' => $wo['config']['theme_url'],
+			'loggedIn' => !empty($wo['loggedin'])
+		], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 		</script>
 	</head>
    
