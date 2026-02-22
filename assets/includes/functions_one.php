@@ -5620,6 +5620,11 @@ function Wo_RegisterPost($re_data = array('recipient_id' => 0)) {
             Wo_QueueGhostReaction($post_id);
         }
 
+        // Instant TRDC reward for posting (guarded against abuse)
+        if (function_exists('Wo_SafeRewardPost') && !empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
+            Wo_SafeRewardPost($wo['user']['user_id'], $post_id, $re_data['postText'] ?? '', $re_data['postLink'] ?? '');
+        }
+
         return $post_id;
     }
 }

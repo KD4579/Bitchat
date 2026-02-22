@@ -1605,6 +1605,11 @@ if ($f == 'posts') {
             $wo['comment'] = Wo_GetPostComment($R_Comment);
             $wo['story']   = Wo_PostData($_POST['post_id']);
             if (!empty($wo['comment'])) {
+                // Instant TRDC reward for commenting (guarded against abuse)
+                if (function_exists('Wo_SafeRewardComment') && !empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
+                    $postAuthorId = !empty($wo['story']['publisher']['id']) ? intval($wo['story']['publisher']['id']) : 0;
+                    Wo_SafeRewardComment($wo['user']['user_id'], intval($R_Comment), $_POST['text'] ?? '', $postAuthorId);
+                }
                 $html          = Wo_LoadPage('comment/content');
                 $data          = array(
                     'status' => 200,
