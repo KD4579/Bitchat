@@ -1469,6 +1469,13 @@ if ($f == 'posts') {
                 }
             }
             $data['dislike'] = 0;
+            // Attach reward toasts for frontend display
+            if (function_exists('Wo_GetCurrentRequestToasts')) {
+                $toasts = Wo_GetCurrentRequestToasts();
+                if (!empty($toasts)) {
+                    $data['reward_toasts'] = $toasts;
+                }
+            }
         }
         header("Content-type: application/json");
         echo json_encode($data);
@@ -1487,6 +1494,13 @@ if ($f == 'posts') {
                 }
             }
             $data['dislike'] = 0;
+            // Attach reward toasts for frontend display
+            if (function_exists('Wo_GetCurrentRequestToasts')) {
+                $toasts = Wo_GetCurrentRequestToasts();
+                if (!empty($toasts)) {
+                    $data['reward_toasts'] = $toasts;
+                }
+            }
         }
         header("Content-type: application/json");
         echo json_encode($data);
@@ -1505,6 +1519,13 @@ if ($f == 'posts') {
                 }
             }
             $data['dislike'] = 0;
+            // Attach reward toasts for frontend display
+            if (function_exists('Wo_GetCurrentRequestToasts')) {
+                $toasts = Wo_GetCurrentRequestToasts();
+                if (!empty($toasts)) {
+                    $data['reward_toasts'] = $toasts;
+                }
+            }
         }
         header("Content-type: application/json");
         echo json_encode($data);

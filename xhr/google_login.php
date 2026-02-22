@@ -66,12 +66,9 @@ if ($f == 'google_login') {
                             $re_data['referrer'] = Wo_Secure($ref_user_id);
                             $re_data['src']      = Wo_Secure('Referrer');
                             if ($wo['config']['affiliate_level'] < 2) {
-                                // Credit TRDC wallet instead of affiliate balance
-                                $ref_amount = floatval($wo['config']['amount_ref']);
-                                mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$ref_amount} WHERE user_id = {$ref_user_id}");
-                                cache($ref_user_id, 'users', 'delete');
-                                if (function_exists('Wo_RegisterNotification')) {
-                                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned {$ref_amount} TRDC for inviting a friend!", 'url' => 'index.php?link1=wallet'));
+                                // TRDC referral reward via Reward Engine (guards + audit trail)
+                                if (function_exists('Wo_TriggerReward')) {
+                                    Wo_TriggerReward($ref_user_id, 'referral_signup', ['ip' => $_SERVER['REMOTE_ADDR'] ?? '']);
                                 }
                             }
                         }
