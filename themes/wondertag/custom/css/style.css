@@ -5812,3 +5812,21 @@ body {
     height: 36px !important;
   }
 }
+
+/* === Creator Rank Badge on Posts === */
+.bc-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 2px 7px 2px 5px;
+  border-radius: 999px;
+  vertical-align: middle;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.bc-rank-badge svg {
+  flex-shrink: 0;
+}

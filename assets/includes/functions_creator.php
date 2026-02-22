@@ -290,3 +290,29 @@ function Wo_GetCreatorRank($stats) {
         return array('rank' => 'Rising Star', 'color' => '#10b981', 'bg' => '#d1fae5');
     }
 }
+
+/**
+ * Get creator rank for post display with per-request static cache.
+ * Avoids repeated DB queries for the same user within a single page load.
+ *
+ * @param int $userId User ID
+ * @return array|false Rank array or false if not a creator
+ */
+function Wo_GetCreatorRankForDisplay($userId) {
+    static $cache = array();
+    $userId = intval($userId);
+    if ($userId <= 0) return false;
+
+    if (isset($cache[$userId])) {
+        return $cache[$userId];
+    }
+
+    if (!function_exists('Wo_GetCreatorStats') || !function_exists('Wo_GetCreatorRank')) {
+        return false;
+    }
+
+    $stats = Wo_GetCreatorStats($userId);
+    $rank  = Wo_GetCreatorRank($stats);
+    $cache[$userId] = $rank;
+    return $rank;
+}
