@@ -4863,9 +4863,9 @@ html.bc-dark-mode .tag_sidebar .sidebar_innr::-webkit-scrollbar-thumb {
 }
 
 /* ==========================================================================
-   FIX-4: Post Composer Modal — CSS safety net
-   JS in footer.js moves #tagPostBox to <body> and forces inline styles.
-   These CSS rules act as backup in case JS hasn't run yet.
+   FIX-4: Post Composer Modal
+   JS in footer.js moves #tagPostBox to <body> to escape CSS containment.
+   These CSS rules are the PRIMARY visibility mechanism (no inline styles).
    ========================================================================== */
 body.modal-open {
   overflow: hidden !important;

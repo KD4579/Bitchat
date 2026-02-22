@@ -455,15 +455,18 @@ document.addEventListener('click', function(e) {
 })();
 
 /* ==========================================================================
-   FIX-4: Post Composer Modal — Nuclear fix
-   Eliminates double-popup by intercepting Bootstrap's show.bs.modal event
-   and allowing only ONE show per open cycle.
+   FIX-4: Post Composer Modal
+   Moves #tagPostBox to <body> to escape CSS containment contexts.
+   Prevents double-open via show.bs.modal gate.
+   NO inline style forcing — CSS rules (#tagPostBox.show) handle visibility.
+   Inline !important styles were causing the "double popup" artifact by
+   persisting during Bootstrap's fade-out transition.
    ========================================================================== */
 (function() {
     if (typeof $ === 'undefined' || window.__FIX4_LOADED) return;
     window.__FIX4_LOADED = true;
 
-    var _isOpen = false; // true while modal is open or opening
+    var _isOpen = false;
 
     // Dedupe + move #tagPostBox to <body>
     function moveToBody() {
@@ -476,56 +479,24 @@ document.addEventListener('click', function(e) {
     $(function() { moveToBody(); });
     $(document).ajaxComplete(moveToBody);
 
-    // CORE FIX: Cancel the show event if modal is already open/opening.
-    // show.bs.modal is cancellable — e.preventDefault() stops Bootstrap
-    // from creating a backdrop and showing the modal a second time.
-    // This fires REGARDLESS of how the modal was triggered (data-toggle,
-    // .modal('show'), .modal(config), etc.)
+    // Gate: prevent double-open
     $(document).on('show.bs.modal', '#tagPostBox', function(e) {
         if (_isOpen) {
             e.preventDefault();
             return false;
         }
         _isOpen = true;
-        $(this).removeAttr('data-backdrop').removeAttr('data-keyboard');
     });
 
-    // After modal is fully shown: force visibility + clean extra backdrops
+    // After shown: only clean extra backdrops (no inline styles!)
     $(document).on('shown.bs.modal', '#tagPostBox', function() {
-        var el = this;
-        var dlg = el.querySelector('.modal-dialog');
-        var cnt = el.querySelector('.modal-content');
-
-        el.style.setProperty('display', 'flex', 'important');
-        el.style.setProperty('opacity', '1', 'important');
-        el.style.setProperty('visibility', 'visible', 'important');
-
-        if (dlg) {
-            dlg.style.setProperty('transform', 'scale(1)', 'important');
-            dlg.style.setProperty('opacity', '1', 'important');
-            dlg.style.setProperty('visibility', 'visible', 'important');
-            dlg.style.setProperty('display', 'inline-block', 'important');
-        }
-        if (cnt) {
-            cnt.style.setProperty('opacity', '1', 'important');
-            cnt.style.setProperty('visibility', 'visible', 'important');
-            cnt.style.setProperty('display', 'block', 'important');
-        }
-
-        // Kill extra backdrops
         var bds = document.querySelectorAll('.modal-backdrop');
         for (var i = 1; i < bds.length; i++) bds[i].parentNode.removeChild(bds[i]);
     });
 
-    // Clean up on hide — reset _isOpen so modal can be reopened
+    // Reset on hide
     $(document).on('hidden.bs.modal', '#tagPostBox', function() {
         _isOpen = false;
-        var el = this;
-        var dlg = el.querySelector('.modal-dialog');
-        var cnt = el.querySelector('.modal-content');
-        ['display','opacity','visibility'].forEach(function(p) { el.style.removeProperty(p); });
-        if (dlg) ['transform','opacity','visibility','display'].forEach(function(p) { dlg.style.removeProperty(p); });
-        if (cnt) ['opacity','visibility','display'].forEach(function(p) { cnt.style.removeProperty(p); });
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
     });
@@ -533,12 +504,7 @@ document.addEventListener('click', function(e) {
     // Click overlay to close
     $(document).on('click', '#tagPostBox', function(e) {
         if (e.target === this) {
-            try { $(this).modal('hide'); } catch(err) {
-                $(this).removeClass('show');
-                this.style.cssText = '';
-                $('body').removeClass('modal-open');
-                $('.modal-backdrop').remove();
-            }
+            $(this).modal('hide');
         }
     });
 })();
