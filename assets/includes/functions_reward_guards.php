@@ -49,10 +49,10 @@ function Wo_RewardGuard_Post($userId, $postId, $postText = '', $postLink = '') {
 
     // 1. Account age >= 3 days
     $q = mysqli_query($sqlConnect,
-        "SELECT member_since FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1"
+        "SELECT joined FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1"
     );
     if ($q && ($row = mysqli_fetch_assoc($q))) {
-        if ((time() - intval($row['member_since'])) < 259200) { // 3 days
+        if ((time() - intval($row['joined'])) < 259200) { // 3 days
             return false;
         }
     } else {
@@ -190,7 +190,7 @@ function Wo_RewardGuard_Milestone($userId, $postId, $threshold) {
 
     // Get all reactors for this post
     $reactors = mysqli_query($sqlConnect,
-        "SELECT u.user_id, u.ip_address, u.member_since
+        "SELECT u.user_id, u.ip_address, u.joined
          FROM " . T_REACTIONS . " r
          JOIN " . T_USERS . " u ON r.user_id = u.user_id
          WHERE r.post_id = {$postId}"
@@ -208,7 +208,7 @@ function Wo_RewardGuard_Milestone($userId, $postId, $threshold) {
         if (!empty($r['ip_address'])) {
             $uniqueIps[$r['ip_address']] = true;
         }
-        if (intval($r['member_since']) < $threeDaysAgo) {
+        if (intval($r['joined']) < $threeDaysAgo) {
             $agedCount++;
         }
     }
@@ -256,7 +256,7 @@ function Wo_RewardGuard_Referral($referrerId, $newUserIp = '') {
         $ipQ = mysqli_query($sqlConnect,
             "SELECT COUNT(*) AS cnt FROM " . T_USERS . "
              WHERE ip_address = '{$ipSafe}'
-               AND member_since > {$since30}
+               AND joined > {$since30}
                AND user_id != {$referrerId}"
         );
         if ($ipQ && ($row = mysqli_fetch_assoc($ipQ))) {
