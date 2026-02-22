@@ -35,7 +35,13 @@ VALUES
   ('milestone_1000',   '1000 Reactions',    'Post reached 1000 reactions milestone',        1,  5.0000,  0,  0, 0, 'Wo_RewardGuard_Milestone',  10, UNIX_TIMESTAMP()),
   ('first_video',      'First Video Post',  'One-time bonus for your first video post',     1,  0.2500,  0,  1, 0, NULL,                        11, UNIX_TIMESTAMP()),
   ('verify_email',     'Email Verified',    'Reward for verifying your email address',      1, 50.0000,  0,  1, 0, NULL,                        12, UNIX_TIMESTAMP()),
-  ('complete_profile', 'Profile Completed', 'Reward for completing your profile',           1, 75.0000,  0,  1, 0, NULL,                        13, UNIX_TIMESTAMP());
+  ('complete_profile', 'Profile Completed', 'Reward for completing your profile',           1, 75.0000,  0,  1, 0, NULL,                        13, UNIX_TIMESTAMP()),
+  ('first_album',     'First Album',       'One-time bonus for creating your first album',           1, 25.0000,  0,  1, 0, 'Wo_RewardGuard_FirstAction', 14, UNIX_TIMESTAMP()),
+  ('first_article',   'First Article',     'One-time bonus for publishing your first article',       1, 50.0000,  0,  1, 0, 'Wo_RewardGuard_FirstAction', 15, UNIX_TIMESTAMP()),
+  ('first_event',     'First Event',       'One-time bonus for creating your first event',           1, 30.0000,  0,  1, 0, 'Wo_RewardGuard_FirstAction', 16, UNIX_TIMESTAMP()),
+  ('first_funding',   'First Funding',     'One-time bonus for creating your first funding request', 1, 20.0000,  0,  1, 0, 'Wo_RewardGuard_FirstAction', 17, UNIX_TIMESTAMP()),
+  ('first_group',     'First Group',       'One-time bonus for creating your first group',           1, 30.0000,  0,  1, 0, 'Wo_RewardGuard_FirstAction', 18, UNIX_TIMESTAMP()),
+  ('first_page',      'First Page',        'One-time bonus for creating your first page',            1, 30.0000,  0,  1, 0, 'Wo_RewardGuard_FirstAction', 19, UNIX_TIMESTAMP());
 
 -- Track engine version in config
 INSERT IGNORE INTO `Wo_Config` (`name`, `value`) VALUES ('reward_engine_version', '1');

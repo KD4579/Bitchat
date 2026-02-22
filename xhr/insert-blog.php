@@ -100,6 +100,10 @@ if ($f == "insert-blog") {
                         'status' => 200,
                         'url' => Wo_SeoLink('index.php?link1=read-blog&id=' . $last_id)
                     );
+                    // First article TRDC reward
+                    if (function_exists('Wo_TriggerReward')) {
+                        Wo_TriggerReward($wo['user']['user_id'], 'first_article', ['action_type' => 'article']);
+                    }
                     if ($active == 0) {
                         $data = array(
                             'status' => 300

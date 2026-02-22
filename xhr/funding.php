@@ -37,6 +37,10 @@ if ($f == 'funding' && $wo['config']['funding_system'] == 1) {
                     $data['status']  = 200;
                     $data['message'] = $wo['lang']['funding_created'];
                     $data['url']     = Wo_SeoLink('index.php?link1=my_funding');
+                    // First funding request TRDC reward
+                    if (function_exists('Wo_TriggerReward')) {
+                        Wo_TriggerReward($wo['user']['user_id'], 'first_funding', ['action_type' => 'funding']);
+                    }
                 } else {
                     $data['message'] = $error_icon . $wo['lang']['file_not_supported'];
                 }

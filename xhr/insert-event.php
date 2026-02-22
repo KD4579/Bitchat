@@ -72,6 +72,10 @@ if ($f == "insert-event") {
                     'status' => 200,
                     'url' => Wo_SeoLink("index.php?link1=show-event&eid=" . $last_id)
                 );
+                // First event TRDC reward
+                if (function_exists('Wo_TriggerReward')) {
+                    Wo_TriggerReward($wo['user']['user_id'], 'first_event', ['action_type' => 'event']);
+                }
             }
         } else {
             $data = array(

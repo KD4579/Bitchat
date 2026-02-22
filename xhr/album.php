@@ -69,6 +69,10 @@ if ($f == 'album') {
                 'status' => 200,
                 'href' => Wo_SeoLink('index.php?link1=post&id=' . $id)
             );
+            // First album TRDC reward (only for new albums, not edits)
+            if (empty($_POST['id']) && function_exists('Wo_TriggerReward')) {
+                Wo_TriggerReward($wo['user']['user_id'], 'first_album', ['action_type' => 'album']);
+            }
         }
         header("Content-type: application/json");
         if (isset($errors)) {

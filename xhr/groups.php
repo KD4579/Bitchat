@@ -77,6 +77,10 @@ if ($f == 'groups') {
                     'status' => 200,
                     'location' => Wo_SeoLink('index.php?link1=timeline&u=' . Wo_Secure($_POST['group_name']))
                 );
+                // First group TRDC reward
+                if (function_exists('Wo_TriggerReward')) {
+                    Wo_TriggerReward($wo['user']['user_id'], 'first_group', ['action_type' => 'group']);
+                }
             }
         }
         header("Content-type: application/json");

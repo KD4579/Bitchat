@@ -64,6 +64,10 @@ if ($f == 'pages') {
                     'status' => 200,
                     'location' => Wo_SeoLink('index.php?link1=timeline&u=' . Wo_Secure($_POST['page_name']))
                 );
+                // First page TRDC reward
+                if (function_exists('Wo_TriggerReward')) {
+                    Wo_TriggerReward($wo['user']['user_id'], 'first_page', ['action_type' => 'page']);
+                }
             }
         }
         header("Content-type: application/json");
