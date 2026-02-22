@@ -1,4 +1,14 @@
 <?php
+// Prevent concurrent cron execution with file lock
+$_cron_lock_fp = fopen(__DIR__ . '/assets/logs/cron.lock', 'w');
+if (!$_cron_lock_fp || !flock($_cron_lock_fp, LOCK_EX | LOCK_NB)) {
+    // Another instance is already running — exit silently
+    if ($_cron_lock_fp) fclose($_cron_lock_fp);
+    header("Content-type: application/json");
+    echo json_encode(["status" => 200, "message" => "skipped (already running)"]);
+    exit();
+}
+
 require_once('assets/init.php');
 
 mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'cronjob_last_run'");
@@ -302,6 +312,12 @@ $sessionCutoff = time() - 2592000;
 // ********** Session Cleanup **********
 
 _cron_log_write();
+
+// Release cron lock
+if (isset($_cron_lock_fp) && $_cron_lock_fp) {
+    flock($_cron_lock_fp, LOCK_UN);
+    fclose($_cron_lock_fp);
+}
 
 header("Content-type: application/json");
 echo json_encode(["status" => 200, "message" => "success"]);
