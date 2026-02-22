@@ -122,10 +122,10 @@ function Wo_TriggerReward($userId, $rewardKey, $context = array()) {
     $minAgeDays = intval($config['min_account_age_days']);
     if ($minAgeDays > 0) {
         $aq = mysqli_query($sqlConnect,
-            "SELECT member_since FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1"
+            "SELECT joined FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1"
         );
         if ($aq && ($arow = mysqli_fetch_assoc($aq))) {
-            if ((time() - intval($arow['member_since'])) < ($minAgeDays * 86400)) {
+            if ((time() - intval($arow['joined'])) < ($minAgeDays * 86400)) {
                 return false;
             }
         } else {
