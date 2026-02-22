@@ -568,6 +568,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'creator-dashboard':
                         include('sources/creator_dashboard.php');
                         break;
+                    case 'my-points':
+                        include('sources/my_points.php');
+                        break;
                     case 'leaderboard':
                         include('sources/leaderboard.php');
                         break;
@@ -597,6 +600,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                         break;
                     case 'creator-dashboard':
                         include('sources/creator_dashboard.php');
+                        break;
+                    case 'my-points':
+                        include('sources/my_points.php');
                         break;
                     case 'leaderboard':
                         include('sources/leaderboard.php');
@@ -1163,6 +1169,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                 break;
             case 'creator-dashboard':
                 include('sources/creator_dashboard.php');
+                break;
+            case 'my-points':
+                include('sources/my_points.php');
                 break;
             case 'leaderboard':
                 include('sources/leaderboard.php');
