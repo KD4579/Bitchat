@@ -256,6 +256,7 @@ $(document).ready(function() {
         $.post(Wo_Ajax_Requests_File() + '?f=trdc_rewards', postData, function(data) {
             if (data.status == 200) {
                 Wo_ShowNotifications('success', 'Reward settings saved successfully!');
+                setTimeout(function() { window.location.reload(); }, 800);
             } else {
                 Wo_ShowNotifications('error', data.message || 'Failed to save settings');
             }
