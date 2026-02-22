@@ -456,48 +456,51 @@ document.addEventListener('click', function(e) {
 
 /* ==========================================================================
    FIX-4: Post Composer Modal — Nuclear fix
-   The #tagPostBox modal is rendered inside #ajax_loading > #contnet which
-   can have CSS containment issues. We move the modal to <body> so
-   position:fixed works relative to the viewport, then force all styles.
+   Eliminates double-popup by:
+   1. Removing data-toggle from buttons (disabling Bootstrap's data-api)
+   2. Using a single programmatic .modal('show') with a lock
+   3. Moving modal to <body> for CSS containment
    ========================================================================== */
 (function() {
     if (typeof $ === 'undefined' || window.__FIX4_LOADED) return;
     window.__FIX4_LOADED = true;
 
-    var _tpLock = false; // Lock to prevent double-open
-
-    // Gate ALL .modal() calls on #tagPostBox — block if already opening/open
-    var origModal = $.fn.modal;
-    $.fn.modal = function(option) {
-        if (this.length && this[0].id === 'tagPostBox' && option !== 'hide' && option !== 'handleUpdate' && option !== 'dispose') {
-            if (_tpLock) return this; // Already opening — block
-            _tpLock = true;
-            // Release lock after Bootstrap finishes the show transition
-            var self = this;
-            setTimeout(function() { _tpLock = false; }, 600);
-        }
-        return origModal.apply(this, arguments);
-    };
-    $.fn.modal.Constructor = origModal.Constructor;
-    $.fn.modal.noConflict = origModal.noConflict;
-
-    // Move #tagPostBox out of nested containers to <body>
+    // Dedupe + move #tagPostBox to <body>
     function moveToBody() {
         var all = document.querySelectorAll('#tagPostBox');
         for (var i = 1; i < all.length; i++) all[i].parentNode.removeChild(all[i]);
         var $tp = $('#tagPostBox');
         if ($tp.length && !$tp.parent().is('body')) $tp.detach().appendTo('body');
     }
-    $(moveToBody);
-    $(document).ajaxComplete(moveToBody);
 
-    // Before modal shows: strip static backdrop
+    // Strip data-toggle from ALL tagPostBox triggers to kill Bootstrap data-api
+    function disableDataToggle() {
+        $('[data-target="#tagPostBox"][data-toggle="modal"]').each(function() {
+            $(this).removeAttr('data-toggle');
+        });
+    }
+
+    $(function() { moveToBody(); disableDataToggle(); });
+    $(document).ajaxComplete(function() { moveToBody(); disableDataToggle(); });
+
+    // Single click handler for ALL tagPostBox openers
+    var _opening = false;
+    $(document).on('click', '[data-target="#tagPostBox"], .tag_pub_box_bg_text', function(e) {
+        if (_opening) return;
+        var $tp = $('#tagPostBox');
+        if (!$tp.length || $tp.hasClass('show') || $tp.hasClass('in')) return;
+        _opening = true;
+        $tp.modal('show');
+    });
+
+    // Before modal shows: clean config
     $(document).on('show.bs.modal', '#tagPostBox', function() {
         $(this).removeAttr('data-backdrop').removeAttr('data-keyboard');
     });
 
     // After modal is fully shown: force visibility + clean extra backdrops
     $(document).on('shown.bs.modal', '#tagPostBox', function() {
+        _opening = false;
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
         var cnt = el.querySelector('.modal-content');
@@ -518,15 +521,14 @@ document.addEventListener('click', function(e) {
             cnt.style.setProperty('display', 'block', 'important');
         }
 
-        // Kill extra backdrops (keep at most one)
+        // Kill extra backdrops
         var bds = document.querySelectorAll('.modal-backdrop');
         for (var i = 1; i < bds.length; i++) bds[i].parentNode.removeChild(bds[i]);
-
-        _tpLock = false; // Release lock once fully shown
     });
 
-    // Clean up inline styles on hide + nuke all backdrops
+    // Clean up on hide
     $(document).on('hidden.bs.modal', '#tagPostBox', function() {
+        _opening = false;
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
         var cnt = el.querySelector('.modal-content');
@@ -535,7 +537,6 @@ document.addEventListener('click', function(e) {
         if (cnt) ['opacity','visibility','display'].forEach(function(p) { cnt.style.removeProperty(p); });
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
-        _tpLock = false; // Release lock on hide
     });
 
     // Click overlay to close

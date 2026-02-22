@@ -102,9 +102,10 @@
 
             switch(action) {
                 case 'openComposer':
-                    // Open post composer modal
-                    if ($('#tagPostBox').length) {
-                        $('#tagPostBox').modal('show');
+                    // Open post composer modal (only if not already open)
+                    var $tpb = $('#tagPostBox');
+                    if ($tpb.length && !$tpb.hasClass('show') && !$tpb.hasClass('in')) {
+                        $tpb.modal('show');
                     }
                     break;
 
