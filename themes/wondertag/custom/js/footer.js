@@ -153,10 +153,13 @@ function fetchCrypto() {
     var btcEl = document.getElementById('bc-tick-btc');
     var ethEl = document.getElementById('bc-tick-eth');
     var bnbEl = document.getElementById('bc-tick-bnb');
+    var xrpEl = document.getElementById('bc-tick-xrp');
+    var solEl = document.getElementById('bc-tick-sol');
+    var trxEl = document.getElementById('bc-tick-trx');
     if (!btcEl || !ethEl) return;
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin&vs_currencies=usd&include_24hr_change=true', true);
+    xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,ripple,solana,tron&vs_currencies=usd&include_24hr_change=true', true);
     xhr.timeout = 10000;
     xhr.ontimeout = function() { console.warn('[Bitchat] Crypto ticker request timed out'); };
     xhr.onload = function() {
@@ -177,6 +180,21 @@ function fetchCrypto() {
                     var bnbP = '$' + Math.round(d.binancecoin.usd).toLocaleString('en-US');
                     var bnbC = d.binancecoin.usd_24h_change || 0;
                     updateTicker(bnbEl, 'BNB', bnbP, bnbC, bnbC >= 0);
+                }
+                if (d.ripple && xrpEl) {
+                    var xrpP = '$' + d.ripple.usd.toFixed(2);
+                    var xrpC = d.ripple.usd_24h_change || 0;
+                    updateTicker(xrpEl, 'XRP', xrpP, xrpC, xrpC >= 0);
+                }
+                if (d.solana && solEl) {
+                    var solP = '$' + Math.round(d.solana.usd).toLocaleString('en-US');
+                    var solC = d.solana.usd_24h_change || 0;
+                    updateTicker(solEl, 'SOL', solP, solC, solC >= 0);
+                }
+                if (d.tron && trxEl) {
+                    var trxP = '$' + d.tron.usd.toFixed(3);
+                    var trxC = d.tron.usd_24h_change || 0;
+                    updateTicker(trxEl, 'TRX', trxP, trxC, trxC >= 0);
                 }
             } catch(e) { console.warn('[Bitchat] Crypto ticker parse error:', e.message); }
         }
