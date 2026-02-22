@@ -241,19 +241,9 @@ if ($f == 'register') {
                     $re_data['referrer'] = Wo_Secure($ref_user_id);
                     $re_data['src']      = Wo_Secure('Referrer');
                     if ($wo['config']['affiliate_level'] < 2) {
-                        // Referral guard: daily cap + broader IP check
-                        $referral_ok = true;
-                        if (function_exists('Wo_RewardGuard_Referral')) {
-                            $referral_ok = Wo_RewardGuard_Referral($ref_user_id, $_SERVER['REMOTE_ADDR'] ?? '');
-                        }
-                        if ($referral_ok) {
-                            // Credit TRDC wallet instead of affiliate balance
-                            $ref_amount = floatval($wo['config']['amount_ref']);
-                            mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$ref_amount} WHERE user_id = {$ref_user_id}");
-                            cache($ref_user_id, 'users', 'delete');
-                            if (function_exists('Wo_RegisterNotification')) {
-                                Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned {$ref_amount} TRDC for inviting a friend!", 'url' => 'index.php?link1=wallet'));
-                            }
+                        // Referral TRDC reward (via Reward Engine)
+                        if (function_exists('Wo_TriggerReward')) {
+                            Wo_TriggerReward($ref_user_id, 'referral_signup', ['ip' => $_SERVER['REMOTE_ADDR'] ?? '']);
                         }
                     }
                 }

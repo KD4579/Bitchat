@@ -1,83 +1,135 @@
 <div class="col-md-12">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">TRDC Creator Rewards</h3>
-            <p class="text-muted">Configure milestone-based TRDC token rewards for content creators.</p>
+            <h3 class="panel-title">TRDC Reward Engine</h3>
+            <p class="text-muted">Configure all TRDC token rewards from one place. Toggle, adjust amounts, caps, and cooldowns.</p>
         </div>
         <div class="panel-body">
             <form id="trdc-rewards-form">
                 <div class="form-group">
-                    <label>TRDC Creator Rewards</label>
-                    <select name="trdc_creator_rewards_enabled" class="form-control">
+                    <label>Master Switch — TRDC Creator Rewards</label>
+                    <select name="trdc_creator_rewards_enabled" class="form-control" style="max-width:200px;">
                         <option value="0" <?php echo (($wo['config']['trdc_creator_rewards_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
                         <option value="1" <?php echo (($wo['config']['trdc_creator_rewards_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
                     </select>
-                    <small class="text-muted">When enabled, creators earn TRDC tokens when their posts hit engagement milestones. Tokens added to their wallet.</small>
+                    <small class="text-muted">When disabled, NO rewards are given for any action.</small>
                 </div>
 
                 <hr>
-                <h4>Reward Milestones</h4>
-                <p class="text-muted">Set TRDC amount for each milestone. Set to 0 to disable a specific milestone.</p>
+                <h4>Reward Configuration</h4>
+                <p class="text-muted">Edit each reward type below. Set amount to 0 or toggle off to disable a specific reward.</p>
 
                 <?php
-                $milestones = array(
-                    'post_likes_100' => 0.5,
-                    'post_likes_500' => 2.0,
-                    'post_likes_1000' => 5.0,
-                    'first_video_post' => 0.25
-                );
-                if (!empty($wo['config']['trdc_reward_milestones'])) {
-                    $parsed = json_decode($wo['config']['trdc_reward_milestones'], true);
-                    if (is_array($parsed)) {
-                        $milestones = array_merge($milestones, $parsed);
-                    }
+                $rewardConfigs = array();
+                if (function_exists('Wo_GetAllRewardConfigs')) {
+                    $rewardConfigs = Wo_GetAllRewardConfigs();
                 }
                 ?>
 
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>100 Reactions</label>
-                            <div class="input-group">
-                                <input type="number" step="0.01" name="m_post_likes_100" class="form-control" value="<?php echo $milestones['post_likes_100']; ?>">
-                                <span class="input-group-addon">TRDC</span>
-                            </div>
-                            <small>Reward when a post reaches 100 reactions</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>500 Reactions</label>
-                            <div class="input-group">
-                                <input type="number" step="0.01" name="m_post_likes_500" class="form-control" value="<?php echo $milestones['post_likes_500']; ?>">
-                                <span class="input-group-addon">TRDC</span>
-                            </div>
-                            <small>Reward when a post reaches 500 reactions</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>1000 Reactions</label>
-                            <div class="input-group">
-                                <input type="number" step="0.01" name="m_post_likes_1000" class="form-control" value="<?php echo $milestones['post_likes_1000']; ?>">
-                                <span class="input-group-addon">TRDC</span>
-                            </div>
-                            <small>Reward when a post reaches 1000 reactions</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>First Video Post</label>
-                            <div class="input-group">
-                                <input type="number" step="0.01" name="m_first_video_post" class="form-control" value="<?php echo $milestones['first_video_post']; ?>">
-                                <span class="input-group-addon">TRDC</span>
-                            </div>
-                            <small>Reward for posting first video</small>
-                        </div>
-                    </div>
+                <?php if (!empty($rewardConfigs)): ?>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="reward-config-table">
+                        <thead>
+                            <tr>
+                                <th style="width:25%;">Reward</th>
+                                <th style="width:10%;">Enabled</th>
+                                <th style="width:15%;">Amount (TRDC)</th>
+                                <th style="width:12%;">Max / Day</th>
+                                <th style="width:12%;">Cooldown (hrs)</th>
+                                <th style="width:26%;">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($rewardConfigs as $rc): ?>
+                            <tr>
+                                <td>
+                                    <strong><?php echo htmlspecialchars($rc['title']); ?></strong>
+                                    <input type="hidden" name="rc_key[]" value="<?php echo htmlspecialchars($rc['reward_key']); ?>">
+                                    <br><code style="font-size:11px;"><?php echo htmlspecialchars($rc['reward_key']); ?></code>
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="rc_enabled_<?php echo htmlspecialchars($rc['reward_key']); ?>" value="1" <?php echo $rc['enabled'] ? 'checked' : ''; ?>>
+                                </td>
+                                <td>
+                                    <input type="number" step="0.0001" min="0" name="rc_amount_<?php echo htmlspecialchars($rc['reward_key']); ?>" class="form-control input-sm" value="<?php echo number_format(floatval($rc['reward_amount']), 4, '.', ''); ?>">
+                                </td>
+                                <td>
+                                    <input type="number" step="1" min="0" name="rc_maxday_<?php echo htmlspecialchars($rc['reward_key']); ?>" class="form-control input-sm" value="<?php echo intval($rc['max_per_day']); ?>">
+                                </td>
+                                <td>
+                                    <input type="number" step="1" min="0" name="rc_cooldown_<?php echo htmlspecialchars($rc['reward_key']); ?>" class="form-control input-sm" value="<?php echo intval($rc['cooldown_hours']); ?>">
+                                </td>
+                                <td>
+                                    <small class="text-muted"><?php echo htmlspecialchars($rc['description']); ?></small>
+                                    <?php if (!empty($rc['guard_function'])): ?>
+                                        <br><span class="label label-info" style="font-size:10px;">Guard: <?php echo htmlspecialchars($rc['guard_function']); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
+                <?php else: ?>
+                    <div class="alert alert-warning">
+                        <strong>Reward Engine table not found.</strong> Run the SQL migration <code>sql/003_reward_engine.sql</code> to create the <code>Wo_Rewards_Config</code> table.
+                    </div>
+                    <!-- Fallback: show old milestone config -->
+                    <?php
+                    $milestones = array(
+                        'post_likes_100' => 0.5,
+                        'post_likes_500' => 2.0,
+                        'post_likes_1000' => 5.0,
+                        'first_video_post' => 0.25
+                    );
+                    if (!empty($wo['config']['trdc_reward_milestones'])) {
+                        $parsed = json_decode($wo['config']['trdc_reward_milestones'], true);
+                        if (is_array($parsed)) {
+                            $milestones = array_merge($milestones, $parsed);
+                        }
+                    }
+                    ?>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>100 Reactions</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" name="m_post_likes_100" class="form-control" value="<?php echo $milestones['post_likes_100']; ?>">
+                                    <span class="input-group-addon">TRDC</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>500 Reactions</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" name="m_post_likes_500" class="form-control" value="<?php echo $milestones['post_likes_500']; ?>">
+                                    <span class="input-group-addon">TRDC</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>1000 Reactions</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" name="m_post_likes_1000" class="form-control" value="<?php echo $milestones['post_likes_1000']; ?>">
+                                    <span class="input-group-addon">TRDC</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>First Video Post</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" name="m_first_video_post" class="form-control" value="<?php echo $milestones['first_video_post']; ?>">
+                                    <span class="input-group-addon">TRDC</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-                <button type="submit" class="btn btn-primary">Save Settings</button>
+                <button type="submit" class="btn btn-primary" style="margin-top:10px;">Save All Changes</button>
             </form>
 
             <hr>
@@ -105,7 +157,7 @@
                                 <th>User</th>
                                 <th>Amount</th>
                                 <th>Reason</th>
-                                <th>Milestone</th>
+                                <th>Type</th>
                                 <th>Post ID</th>
                                 <th>Date</th>
                             </tr>
@@ -168,42 +220,48 @@
 
 <script>
 $(document).ready(function() {
-    console.log('TRDC Rewards form handler initializing...');
-
     $('#trdc-rewards-form').on('submit', function(e) {
         e.preventDefault();
-        console.log('TRDC Rewards form submitted!');
 
         var form = $(this);
-        var milestones = JSON.stringify({
-            post_likes_100: parseFloat(form.find('[name=m_post_likes_100]').val()) || 0,
-            post_likes_500: parseFloat(form.find('[name=m_post_likes_500]').val()) || 0,
-            post_likes_1000: parseFloat(form.find('[name=m_post_likes_1000]').val()) || 0,
-            first_video_post: parseFloat(form.find('[name=m_first_video_post]').val()) || 0
-        });
+        var postData = {
+            trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val()
+        };
 
-        console.log('Sending data:', {
-            trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val(),
-            trdc_reward_milestones: milestones
-        });
+        // Collect reward config rows (if engine table exists)
+        var keys = form.find('[name="rc_key[]"]');
+        if (keys.length > 0) {
+            var rewards = [];
+            keys.each(function() {
+                var key = $(this).val();
+                rewards.push({
+                    key: key,
+                    enabled: form.find('[name=rc_enabled_' + key + ']').is(':checked') ? 1 : 0,
+                    amount: parseFloat(form.find('[name=rc_amount_' + key + ']').val()) || 0,
+                    max_per_day: parseInt(form.find('[name=rc_maxday_' + key + ']').val()) || 0,
+                    cooldown_hours: parseInt(form.find('[name=rc_cooldown_' + key + ']').val()) || 0
+                });
+            });
+            postData.reward_configs = JSON.stringify(rewards);
+        } else {
+            // Fallback: old milestone format
+            postData.trdc_reward_milestones = JSON.stringify({
+                post_likes_100: parseFloat(form.find('[name=m_post_likes_100]').val()) || 0,
+                post_likes_500: parseFloat(form.find('[name=m_post_likes_500]').val()) || 0,
+                post_likes_1000: parseFloat(form.find('[name=m_post_likes_1000]').val()) || 0,
+                first_video_post: parseFloat(form.find('[name=m_first_video_post]').val()) || 0
+            });
+        }
 
-        $.post(Wo_Ajax_Requests_File() + '?f=trdc_rewards', {
-            trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val(),
-            trdc_reward_milestones: milestones
-        }, function(data) {
-            console.log('TRDC Rewards response:', data);
+        $.post(Wo_Ajax_Requests_File() + '?f=trdc_rewards', postData, function(data) {
             if (data.status == 200) {
-                Wo_ShowNotifications('success', 'TRDC Rewards settings saved successfully!');
+                Wo_ShowNotifications('success', 'Reward settings saved successfully!');
             } else {
-                Wo_ShowNotifications('error', data.message || 'Failed to save TRDC settings');
+                Wo_ShowNotifications('error', data.message || 'Failed to save settings');
             }
         }, 'json').fail(function(xhr, status, error) {
-            console.error('TRDC Rewards AJAX error:', status, error);
-            console.error('Response:', xhr.responseText);
             Wo_ShowNotifications('error', 'Request failed: ' + error);
         });
     });
-
-    console.log('TRDC Rewards form handler ready. Form found:', $('#trdc-rewards-form').length > 0);
 });
 </script>

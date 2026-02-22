@@ -5620,9 +5620,13 @@ function Wo_RegisterPost($re_data = array('recipient_id' => 0)) {
             Wo_QueueGhostReaction($post_id);
         }
 
-        // Instant TRDC reward for posting (guarded against abuse)
-        if (function_exists('Wo_SafeRewardPost') && !empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
-            Wo_SafeRewardPost($wo['user']['user_id'], $post_id, $re_data['postText'] ?? '', $re_data['postLink'] ?? '');
+        // TRDC reward for posting (via Reward Engine)
+        if (function_exists('Wo_TriggerReward')) {
+            Wo_TriggerReward($wo['user']['user_id'], 'post_create', [
+                'post_id'   => $post_id,
+                'post_text' => $re_data['postText'] ?? '',
+                'post_link' => $re_data['postLink'] ?? ''
+            ]);
         }
 
         return $post_id;
@@ -7302,6 +7306,10 @@ function Wo_AddReactions($post_id, $reaction) {
         Wo_RegisterNotification($notification_data_array);
         //Register point level system for reaction
         Wo_RegisterPoint($post_id, "reaction");
+        // Reward post owner for receiving a reaction (not self-react)
+        if (function_exists('Wo_TriggerReward') && $user_id != $logged_user_id) {
+            Wo_TriggerReward($user_id, 'like_received', ['post_id' => $post_id]);
+        }
         return 'reacted';
     }
 }

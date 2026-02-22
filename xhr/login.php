@@ -79,6 +79,10 @@ if ($f == 'login') {
             cache($userid, 'users', 'delete');
             $session             = Wo_CreateLoginSession(Wo_UserIdForLogin($username));
             $_SESSION['user_id'] = $session;
+            // Daily login TRDC reward
+            if (function_exists('Wo_TriggerReward')) {
+                Wo_TriggerReward($userid, 'daily_login');
+            }
             Wo_DeleteBadLogins();
             // Always set persistent cookie so users stay logged in (like Facebook/X)
             // Cookie expires in 10 years; session only ends when user clicks Logout

@@ -1550,6 +1550,10 @@ if ($f == 'posts') {
                 if (Wo_CanSenEmails()) {
                     $data['can_send'] = 1;
                 }
+                // TRDC reward for sharing a post
+                if (function_exists('Wo_TriggerReward')) {
+                    Wo_TriggerReward($wo['user']['user_id'], 'post_share', ['post_id' => intval($_GET['post_id'])]);
+                }
             }
         }
         header("Content-type: application/json");
@@ -1605,10 +1609,15 @@ if ($f == 'posts') {
             $wo['comment'] = Wo_GetPostComment($R_Comment);
             $wo['story']   = Wo_PostData($_POST['post_id']);
             if (!empty($wo['comment'])) {
-                // Instant TRDC reward for commenting (guarded against abuse)
-                if (function_exists('Wo_SafeRewardComment') && !empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
+                // TRDC reward for commenting (via Reward Engine)
+                if (function_exists('Wo_TriggerReward')) {
                     $postAuthorId = !empty($wo['story']['publisher']['id']) ? intval($wo['story']['publisher']['id']) : 0;
-                    Wo_SafeRewardComment($wo['user']['user_id'], intval($R_Comment), $_POST['text'] ?? '', $postAuthorId);
+                    Wo_TriggerReward($wo['user']['user_id'], 'comment_create', [
+                        'comment_id'     => intval($R_Comment),
+                        'comment_text'   => $_POST['text'] ?? '',
+                        'post_author_id' => $postAuthorId,
+                        'post_id'        => intval($_POST['post_id'])
+                    ]);
                 }
                 $html          = Wo_LoadPage('comment/content');
                 $data          = array(

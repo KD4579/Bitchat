@@ -294,6 +294,22 @@ function Wo_LogTRDCTransaction($user_id, $amount, $type, $description) {
  * @return int TRDC amount
  */
 function Wo_GetTRDCReward($type) {
+    // Try Reward Engine DB config first
+    if (function_exists('Wo_GetRewardConfig')) {
+        // Map old type names to new reward_key names
+        $keyMap = array(
+            'post'    => 'post_create',
+            'comment' => 'comment_create',
+            'share'   => 'post_share',
+        );
+        $rewardKey = isset($keyMap[$type]) ? $keyMap[$type] : $type;
+        $config = Wo_GetRewardConfig($rewardKey);
+        if ($config) {
+            return floatval($config['reward_amount']);
+        }
+    }
+
+    // Fallback hardcoded values (safety net)
     $rewards = array(
         'post' => 50,
         'comment' => 10,

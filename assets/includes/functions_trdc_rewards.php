@@ -74,11 +74,20 @@ function Wo_CheckPostLikeMilestone($userId, $threshold, $milestoneType, $rewardA
     if (!$result) return;
 
     while ($row = mysqli_fetch_assoc($result)) {
-        // Milestone guard: check reactor uniqueness and account age
-        if (function_exists('Wo_RewardGuard_Milestone') && !Wo_RewardGuard_Milestone($userId, intval($row['id']), $threshold)) {
-            continue; // Skip — suspected engagement farm
+        // Route through Reward Engine if available
+        $milestoneKey = 'milestone_' . $threshold;
+        if (function_exists('Wo_TriggerReward')) {
+            Wo_TriggerReward($userId, $milestoneKey, [
+                'post_id'   => intval($row['id']),
+                'threshold' => $threshold
+            ]);
+        } else {
+            // Fallback: direct award with guard
+            if (function_exists('Wo_RewardGuard_Milestone') && !Wo_RewardGuard_Milestone($userId, intval($row['id']), $threshold)) {
+                continue;
+            }
+            Wo_AwardTRDC($userId, $rewardAmount, "Post reached {$threshold} reactions", $milestoneType, intval($row['id']));
         }
-        Wo_AwardTRDC($userId, $rewardAmount, "Post reached {$threshold} reactions", $milestoneType, intval($row['id']));
     }
 }
 
