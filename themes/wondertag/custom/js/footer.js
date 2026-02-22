@@ -459,34 +459,44 @@ document.addEventListener('click', function(e) {
    The #tagPostBox modal is rendered inside #ajax_loading > #contnet which
    can have CSS containment issues. We move the modal to <body> so
    position:fixed works relative to the viewport, then force all styles.
-
-   AJAX navigation can create duplicate #tagPostBox elements — we dedupe
-   on every open to ensure only one exists in the DOM.
    ========================================================================== */
-/* DEBUG: Intercept modal calls on #tagPostBox to trace double-open */
 (function() {
-    if (typeof $ === 'undefined') return;
+    if (typeof $ === 'undefined' || window.__FIX4_LOADED) return;
+    window.__FIX4_LOADED = true;
+
+    // Gate: prevent .modal('show') on #tagPostBox if already open
     var origModal = $.fn.modal;
     $.fn.modal = function(option) {
-        if (this.attr && this.attr('id') === 'tagPostBox' && (option === 'show' || (typeof option === 'object'))) {
-            console.trace('[FIX-4 DEBUG] .modal("' + (typeof option === 'string' ? option : 'options') + '") called on #tagPostBox');
-            console.log('[FIX-4 DEBUG] #tagPostBox count in DOM:', document.querySelectorAll('#tagPostBox').length);
-            console.log('[FIX-4 DEBUG] backdrops:', document.querySelectorAll('.modal-backdrop').length);
+        if (this.length && this[0].id === 'tagPostBox' && option === 'show') {
+            var el = this[0];
+            // Already visible? Skip the call entirely
+            if (el.classList.contains('show') || el.classList.contains('in') ||
+                el.style.display === 'flex' || el.getAttribute('aria-hidden') === 'false') {
+                return this;
+            }
+            // Dedupe: remove extra #tagPostBox elements
+            var all = document.querySelectorAll('#tagPostBox');
+            for (var i = 1; i < all.length; i++) {
+                all[i].parentNode.removeChild(all[i]);
+            }
         }
         return origModal.apply(this, arguments);
     };
-    // Copy all properties from original
     $.fn.modal.Constructor = origModal.Constructor;
     $.fn.modal.noConflict = origModal.noConflict;
-})();
-(function() {
-    if (typeof $ === 'undefined') return;
 
-    // Dedupe + move: keep only ONE #tagPostBox, in <body>
-    function ensureSingleModal() {
+    // Move #tagPostBox out of nested containers to <body>
+    $(function() {
+        var $tp = $('#tagPostBox');
+        if ($tp.length && !$tp.parent().is('body')) {
+            $tp.detach().appendTo('body');
+        }
+    });
+
+    // After AJAX navigation, dedupe + move any new #tagPostBox
+    $(document).ajaxComplete(function() {
         var all = document.querySelectorAll('#tagPostBox');
         if (all.length > 1) {
-            // Keep the first one, remove extras
             for (var i = 1; i < all.length; i++) {
                 all[i].parentNode.removeChild(all[i]);
             }
@@ -495,61 +505,43 @@ document.addEventListener('click', function(e) {
         if ($tp.length && !$tp.parent().is('body')) {
             $tp.detach().appendTo('body');
         }
-    }
-
-    // Run on page load
-    $(ensureSingleModal);
-
-    // Run after AJAX page navigation loads new content
-    $(document).ajaxComplete(function(e, xhr, settings) {
-        // Only dedupe when the main content area was updated
-        if (document.querySelectorAll('#tagPostBox').length > 1) {
-            ensureSingleModal();
-        }
     });
 
-    // 1. Before modal shows: strip static backdrop, dedupe, clean extra backdrops
+    // Before modal shows: strip static backdrop
     $(document).on('show.bs.modal', '#tagPostBox', function() {
-        var $m = $(this);
-        $m.removeAttr('data-backdrop');
-        $m.removeAttr('data-keyboard');
-        ensureSingleModal();
+        $(this).removeAttr('data-backdrop').removeAttr('data-keyboard');
     });
 
-    // 2. After modal is fully shown: force dialog + content visible, ensure single backdrop
+    // After modal is fully shown: force visibility + clean extra backdrops
     $(document).on('shown.bs.modal', '#tagPostBox', function() {
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
         var cnt = el.querySelector('.modal-content');
 
-        // Force modal itself
         el.style.setProperty('display', 'flex', 'important');
         el.style.setProperty('opacity', '1', 'important');
         el.style.setProperty('visibility', 'visible', 'important');
 
-        // Force dialog
         if (dlg) {
             dlg.style.setProperty('transform', 'scale(1)', 'important');
             dlg.style.setProperty('opacity', '1', 'important');
             dlg.style.setProperty('visibility', 'visible', 'important');
             dlg.style.setProperty('display', 'inline-block', 'important');
         }
-
-        // Force content
         if (cnt) {
             cnt.style.setProperty('opacity', '1', 'important');
             cnt.style.setProperty('visibility', 'visible', 'important');
             cnt.style.setProperty('display', 'block', 'important');
         }
 
-        // Ensure only one backdrop exists
-        var backdrops = document.querySelectorAll('.modal-backdrop');
-        for (var i = 1; i < backdrops.length; i++) {
-            backdrops[i].parentNode.removeChild(backdrops[i]);
+        // Kill extra backdrops (keep at most one)
+        var bds = document.querySelectorAll('.modal-backdrop');
+        for (var i = 1; i < bds.length; i++) {
+            bds[i].parentNode.removeChild(bds[i]);
         }
     });
 
-    // 3. Clean up inline styles on hide + remove all backdrops
+    // Clean up inline styles on hide + nuke all backdrops
     $(document).on('hidden.bs.modal', '#tagPostBox', function() {
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
@@ -557,12 +549,11 @@ document.addEventListener('click', function(e) {
         ['display','opacity','visibility'].forEach(function(p) { el.style.removeProperty(p); });
         if (dlg) ['transform','opacity','visibility','display'].forEach(function(p) { dlg.style.removeProperty(p); });
         if (cnt) ['opacity','visibility','display'].forEach(function(p) { cnt.style.removeProperty(p); });
-        // Clean up any leftover backdrops
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
     });
 
-    // 4. Click overlay to close
+    // Click overlay to close
     $(document).on('click', '#tagPostBox', function(e) {
         if (e.target === this) {
             try { $(this).modal('hide'); } catch(err) {
