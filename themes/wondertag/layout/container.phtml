@@ -27,7 +27,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-title" content="<?php echo $wo['config']['siteName'];?>">
 		
-		<?php if ($_COOKIE['mode'] == 'night') { ?>
+		<?php if (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') { ?>
 			<meta name="theme-color" content="#212121" id="night-mode-meta">
 		<?php } ?>
 		<meta name="pinterest-rich-pin" content="false" />
@@ -475,7 +475,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
       
 		<?php echo Wo_LoadPage('style') ?>
 
-		<?php if ($_COOKIE['mode'] == 'night') { ?>
+		<?php if (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') { ?>
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>" id="night-mode-css">
 		<?php } ?>
 

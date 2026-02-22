@@ -83,7 +83,7 @@
                         var s = document.createElement('script');
                         s.textContent = scripts[i].textContent;
                         scripts[i].parentNode.replaceChild(s, scripts[i]);
-                    } catch(e) {}
+                    } catch(e) { console.warn('[Bitchat] Script injection error:', e.message); }
                 }
             } else {
                 postsEl.innerHTML = '<div style="text-align:center;padding:20px;">' +
@@ -158,6 +158,7 @@ function fetchCrypto() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin&vs_currencies=usd&include_24hr_change=true', true);
     xhr.timeout = 10000;
+    xhr.ontimeout = function() { console.warn('[Bitchat] Crypto ticker request timed out'); };
     xhr.onload = function() {
         if (xhr.status === 200) {
             try {
@@ -177,7 +178,7 @@ function fetchCrypto() {
                     var bnbC = d.binancecoin.usd_24h_change || 0;
                     updateTicker(bnbEl, 'BNB', bnbP, bnbC, bnbC >= 0);
                 }
-            } catch(e) {}
+            } catch(e) { console.warn('[Bitchat] Crypto ticker parse error:', e.message); }
         }
     };
     xhr.send();
@@ -193,6 +194,12 @@ function fetchTRDC() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', apiUrl, true);
     xhr.timeout = 10000;
+    xhr.ontimeout = function() {
+        console.warn('[Bitchat] TRDC ticker request timed out');
+        if (trdcEl) trdcEl.style.display = 'none';
+        var prev = trdcEl.previousElementSibling;
+        if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
+    };
     xhr.onload = function() {
         if (xhr.status === 200) {
             try {
@@ -212,7 +219,7 @@ function fetchTRDC() {
 
                 updateTicker(trdcEl, 'TRDC', priceStr, change24h, change24h >= 0);
             } catch(e) {
-                // Hide TRDC on error
+                console.warn('[Bitchat] TRDC ticker parse error:', e.message);
                 if (trdcEl) trdcEl.style.display = 'none';
                 var prev = trdcEl.previousElementSibling;
                 if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
@@ -251,8 +258,12 @@ if (marketStrip) {
     fetchCrypto();
     fetchTRDC();
     fetchIndices(); // runs once — just hides NIFTY/SENSEX (no CORS-friendly API)
-    setInterval(fetchCrypto, 60000);
-    setInterval(fetchTRDC, 60000);
+    var _cryptoInterval = setInterval(fetchCrypto, 60000);
+    var _trdcInterval = setInterval(fetchTRDC, 60000);
+    window.addEventListener('beforeunload', function() {
+        clearInterval(_cryptoInterval);
+        clearInterval(_trdcInterval);
+    });
 }
 
 /* ---- Part 3: Install App Popup ---- */
@@ -420,26 +431,8 @@ document.addEventListener('click', function(e) {
     }
 }, { passive: true });
 
-/* ---- Part 11: Mobile Bottom Nav Active State ---- */
-/* Wrapped in DOMContentLoaded: nav HTML is after this script tag in the DOM */
-document.addEventListener('DOMContentLoaded', function() {
-    var nav = document.getElementById('bc-mobile-nav');
-    if (!nav) return;
-    var items = nav.querySelectorAll('.bc-mob-nav-item');
-    var href = window.location.href;
-    items.forEach(function(item) {
-        var itemHref = item.getAttribute('href') || item.getAttribute('data-href') || '';
-        if (itemHref && itemHref !== '#' && href.indexOf(itemHref) !== -1) {
-            item.classList.add('bc-mob-active');
-        }
-    });
-    // Home special case
-    var homeItem = nav.querySelector('.bc-mob-home');
-    if (homeItem && (href.match(/\/index\.php$/) || href.match(/\/$/) || href.match(/link1=home/))) {
-        nav.querySelectorAll('.bc-mob-nav-item').forEach(function(i) { i.classList.remove('bc-mob-active'); });
-        homeItem.classList.add('bc-mob-active');
-    }
-});
+/* ---- Part 11: Mobile Bottom Nav — REMOVED ---- */
+/* #bc-mobile-nav is hidden (display:none). Using WoWonder native bottom bar instead. */
 
 })();
 
@@ -506,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 4. Fallback: if modal doesn't open within 500ms, force it
-    $(document).on('click', '[data-target="#tagPostBox"], .bc-fab, .tag_pub_box_bg_text', function() {
+    $(document).on('click', '[data-target="#tagPostBox"], .tag_pub_box_bg_text', function() {
         var $tp = $('#tagPostBox');
         if (!$tp.length) return;
         setTimeout(function() {
