@@ -456,14 +456,14 @@ document.addEventListener('click', function(e) {
 
 /* ==========================================================================
    FIX-4: Post Composer Modal — Nuclear fix
-   Eliminates double-popup by:
-   1. Removing data-toggle from buttons (disabling Bootstrap's data-api)
-   2. Using a single programmatic .modal('show') with a lock
-   3. Moving modal to <body> for CSS containment
+   Eliminates double-popup by intercepting Bootstrap's show.bs.modal event
+   and allowing only ONE show per open cycle.
    ========================================================================== */
 (function() {
     if (typeof $ === 'undefined' || window.__FIX4_LOADED) return;
     window.__FIX4_LOADED = true;
+
+    var _isOpen = false; // true while modal is open or opening
 
     // Dedupe + move #tagPostBox to <body>
     function moveToBody() {
@@ -473,34 +473,25 @@ document.addEventListener('click', function(e) {
         if ($tp.length && !$tp.parent().is('body')) $tp.detach().appendTo('body');
     }
 
-    // Strip data-toggle from ALL tagPostBox triggers to kill Bootstrap data-api
-    function disableDataToggle() {
-        $('[data-target="#tagPostBox"][data-toggle="modal"]').each(function() {
-            $(this).removeAttr('data-toggle');
-        });
-    }
+    $(function() { moveToBody(); });
+    $(document).ajaxComplete(moveToBody);
 
-    $(function() { moveToBody(); disableDataToggle(); });
-    $(document).ajaxComplete(function() { moveToBody(); disableDataToggle(); });
-
-    // Single click handler for ALL tagPostBox openers
-    var _opening = false;
-    $(document).on('click', '[data-target="#tagPostBox"], .tag_pub_box_bg_text', function(e) {
-        if (_opening) return;
-        var $tp = $('#tagPostBox');
-        if (!$tp.length || $tp.hasClass('show') || $tp.hasClass('in')) return;
-        _opening = true;
-        $tp.modal('show');
-    });
-
-    // Before modal shows: clean config
-    $(document).on('show.bs.modal', '#tagPostBox', function() {
+    // CORE FIX: Cancel the show event if modal is already open/opening.
+    // show.bs.modal is cancellable — e.preventDefault() stops Bootstrap
+    // from creating a backdrop and showing the modal a second time.
+    // This fires REGARDLESS of how the modal was triggered (data-toggle,
+    // .modal('show'), .modal(config), etc.)
+    $(document).on('show.bs.modal', '#tagPostBox', function(e) {
+        if (_isOpen) {
+            e.preventDefault();
+            return false;
+        }
+        _isOpen = true;
         $(this).removeAttr('data-backdrop').removeAttr('data-keyboard');
     });
 
     // After modal is fully shown: force visibility + clean extra backdrops
     $(document).on('shown.bs.modal', '#tagPostBox', function() {
-        _opening = false;
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
         var cnt = el.querySelector('.modal-content');
@@ -526,9 +517,9 @@ document.addEventListener('click', function(e) {
         for (var i = 1; i < bds.length; i++) bds[i].parentNode.removeChild(bds[i]);
     });
 
-    // Clean up on hide
+    // Clean up on hide — reset _isOpen so modal can be reopened
     $(document).on('hidden.bs.modal', '#tagPostBox', function() {
-        _opening = false;
+        _isOpen = false;
         var el = this;
         var dlg = el.querySelector('.modal-dialog');
         var cnt = el.querySelector('.modal-content');
