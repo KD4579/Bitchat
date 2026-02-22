@@ -10,9 +10,10 @@ $wo['page']        = 'my_points';
 $wo['title']       = 'Earn & Rewards';
 
 // Load user balance data for the template
-$wo['setting'] = array_merge($wo['setting'] ?? array(), array(
-    'balance' => floatval($wo['user']['wallet'] ?? 0),
-    'points'  => intval($wo['user']['points'] ?? 0)
-));
+if (!isset($wo['setting']) || !is_array($wo['setting'])) {
+    $wo['setting'] = array();
+}
+$wo['setting']['balance'] = floatval($wo['user']['wallet'] ?? 0);
+$wo['setting']['points']  = intval($wo['user']['points'] ?? 0);
 
 $wo['content'] = Wo_LoadPage('my_points/content');

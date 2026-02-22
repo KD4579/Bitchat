@@ -200,7 +200,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
                         </a>
 
 					<?php if ($wo['config']['point_level_system'] == 1) { ?>
-						<a href="<?php echo Wo_SeoLink('index.php?link1=my-points'); ?>" data-ajax="?link1=my-points" title="<?php echo $wo['lang']['points']; ?>" data-toggle="tooltip">
+						<a href="<?php echo Wo_SeoLink('index.php?link1=my-points'); ?>" title="<?php echo $wo['lang']['points']; ?>">
 							<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_anron_ico_head'] == 1) { ?>
 								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M18 8C18 11.3137 15.3137 14 12 14C8.68629 14 6 11.3137 6 8C6 4.68629 8.68629 2 12 2C15.3137 2 18 4.68629 18 8ZM13.9932 14.7121C13.3615 14.8995 12.6925 15 12 15C8.71646 15 5.96095 12.7392 5.2052 9.6893C3.29924 10.6944 2 12.6955 2 15C2 18.3137 4.68629 21 8 21C11.3137 21 14 18.3137 14 15C14 14.9035 13.9977 14.8075 13.9932 14.7121ZM14.9693 14.3408C16.8562 13.4557 18.2833 11.7532 18.7948 9.68929C20.7007 10.6944 22 12.6955 22 15C22 18.3137 19.3137 21 16 21C14.8285 21 13.7355 20.6643 12.8119 20.0839C14.1594 18.808 15 17.0022 15 15C15 14.7777 14.9896 14.5578 14.9693 14.3408Z" fill="currentColor"/></svg> 
 							<?php } else { ?>
