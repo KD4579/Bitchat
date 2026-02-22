@@ -158,17 +158,91 @@ function Wo_TriggerReward($userId, $rewardKey, $context = array()) {
 
     // For first_post, also trigger the first-action check via the engine
     if ($rewardKey === 'post_create') {
-        // Check first-post bonus separately
         $firstConfig = Wo_GetRewardConfig('first_post');
         if ($firstConfig && !empty($firstConfig['enabled'])) {
             $firstAmount = floatval($firstConfig['reward_amount']);
             if ($firstAmount > 0 && function_exists('Wo_RewardGuard_FirstAction') && Wo_RewardGuard_FirstAction($userId, 'post')) {
-                Wo_AwardTRDC($userId, $firstAmount, "First post bonus", 'first_post', $postId);
+                if (Wo_AwardTRDC($userId, $firstAmount, "First post bonus", 'first_post', $postId)) {
+                    Wo_QueueRewardToast($userId, $firstAmount, 'first_post', $firstConfig);
+                }
             }
         }
     }
 
-    return Wo_AwardTRDC($userId, $amount, $reason, $rewardKey, $postId);
+    $awarded = Wo_AwardTRDC($userId, $amount, $reason, $rewardKey, $postId);
+
+    // Queue toast notification for the user
+    if ($awarded) {
+        Wo_QueueRewardToast($userId, $amount, $rewardKey, $config);
+    }
+
+    return $awarded;
+}
+
+/**
+ * Queue a reward toast notification for display on next page load or AJAX response.
+ * Stores in $_SESSION for full page loads and in a global array for AJAX responses.
+ *
+ * @param int    $userId    User ID who earned the reward
+ * @param float  $amount    TRDC amount earned
+ * @param string $rewardKey Reward key
+ * @param array  $config    Reward config row from DB
+ */
+function Wo_QueueRewardToast($userId, $amount, $rewardKey, $config) {
+    global $wo;
+
+    // Only queue for the currently logged-in user
+    if (empty($wo['user']['user_id']) || intval($wo['user']['user_id']) !== intval($userId)) {
+        return;
+    }
+
+    $toast = array(
+        'amount'    => floatval($amount),
+        'type'      => $rewardKey,
+        'title'     => $config['title'] ?? '',
+        'punchline' => $config['punchline'] ?? '',
+        'timestamp' => time()
+    );
+
+    // Store in session for next page load
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        if (!isset($_SESSION['pending_reward_toasts'])) {
+            $_SESSION['pending_reward_toasts'] = array();
+        }
+        $_SESSION['pending_reward_toasts'][] = $toast;
+    }
+
+    // Also store in global for immediate AJAX response
+    if (!isset($GLOBALS['bc_pending_toasts'])) {
+        $GLOBALS['bc_pending_toasts'] = array();
+    }
+    $GLOBALS['bc_pending_toasts'][] = $toast;
+}
+
+/**
+ * Get and clear pending reward toasts for current page render.
+ * Call this in the footer template to output toast data.
+ *
+ * @return array Array of toast objects
+ */
+function Wo_GetPendingRewardToasts() {
+    $toasts = array();
+
+    if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['pending_reward_toasts'])) {
+        $toasts = $_SESSION['pending_reward_toasts'];
+        unset($_SESSION['pending_reward_toasts']);
+    }
+
+    return $toasts;
+}
+
+/**
+ * Get pending toasts from the current request (for AJAX responses).
+ *
+ * @return array Array of toast objects
+ */
+function Wo_GetCurrentRequestToasts() {
+    return isset($GLOBALS['bc_pending_toasts']) ? $GLOBALS['bc_pending_toasts'] : array();
 }
 
 /**

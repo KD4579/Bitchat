@@ -2,43 +2,21 @@
  * Bitchat TRDC Dopamine Feedback System (GE-2)
  *
  * Displays celebratory toast notifications when users earn TRDC tokens.
- * Creates instant gratification feedback loop for engagement actions.
+ * Consumes server-pushed reward toasts from:
+ *   1. Page-load: window.__BC_PENDING_TOASTS (set by PHP in container.phtml)
+ *   2. AJAX responses: data.reward_toasts array from XHR handlers
+ *   3. Custom JS events: bc:trdc:earned
  */
 
 (function() {
     'use strict';
 
-    const BC_REWARDS = {
+    var BC_REWARDS = {
         debug: false,
         toastQueue: [],
         isShowingToast: false,
         container: null,
-
-        // TRDC reward amounts for different actions
-        rewards: {
-            'post': 50,
-            'comment': 10,
-            'like_received': 5,
-            'share': 15,
-            'profile_view': 2,
-            'first_post': 100,
-            'daily_login': 20,
-            'verify_email': 50,
-            'complete_profile': 75
-        },
-
-        // Celebration messages for different reward types
-        messages: {
-            'post': ['Post published!', 'Great content!', 'Keep it up!', 'Awesome post!'],
-            'comment': ['Comment added!', 'Nice insight!', 'Great contribution!'],
-            'like_received': ['Someone liked your content!', 'You\'re getting popular!', 'Nice work!'],
-            'share': ['Content shared!', 'Spreading the word!'],
-            'profile_view': ['Profile view earned!'],
-            'first_post': ['🎉 First Post Achievement!', 'Welcome to Bitchat!', 'You\'re a creator now!'],
-            'daily_login': ['Daily streak bonus!', 'Welcome back!'],
-            'verify_email': ['Email verified!', 'Account secured!'],
-            'complete_profile': ['Profile completed!', 'Looking good!']
-        },
+        sessionEarnings: 0,
 
         log: function(message) {
             if (this.debug) console.log('[BC Rewards]', message);
@@ -48,12 +26,10 @@
          * Initialize reward system
          */
         init: function() {
-            // Create toast container
             this.createContainer();
-
-            // Listen for TRDC earning events
             this.attachEventListeners();
-
+            this.processPageLoadToasts();
+            this.interceptAjax();
             this.log('TRDC Reward system initialized');
         },
 
@@ -66,7 +42,7 @@
                 return;
             }
 
-            const container = document.createElement('div');
+            var container = document.createElement('div');
             container.id = 'bc-reward-container';
             container.className = 'bc-reward-container';
             document.body.appendChild(container);
@@ -74,60 +50,93 @@
         },
 
         /**
-         * Attach event listeners for TRDC earning events
+         * Attach event listeners for custom TRDC earning events
          */
         attachEventListeners: function() {
-            const self = this;
+            var self = this;
 
             // Listen for custom TRDC earning events
             document.addEventListener('bc:trdc:earned', function(e) {
-                const { amount, type, message } = e.detail;
-                self.showReward(amount, type, message);
-            });
-
-            // Listen for post publish success
-            $(document).on('post:published', function(e, data) {
-                if (data && data.trdc_earned) {
-                    self.showReward(data.trdc_earned, 'post');
-                }
-            });
-
-            // Listen for comment success
-            $(document).on('comment:added', function(e, data) {
-                if (data && data.trdc_earned) {
-                    self.showReward(data.trdc_earned, 'comment');
-                }
+                var d = e.detail || {};
+                self.showReward(d.amount, d.type, d.message, d.punchline);
             });
 
             this.log('Event listeners attached');
         },
 
         /**
+         * Process page-load toasts from PHP session (set as inline JS in container.phtml)
+         */
+        processPageLoadToasts: function() {
+            if (window.__BC_PENDING_TOASTS && window.__BC_PENDING_TOASTS.length > 0) {
+                var self = this;
+                var toasts = window.__BC_PENDING_TOASTS;
+                window.__BC_PENDING_TOASTS = [];
+
+                // Show with slight delay for page to settle
+                setTimeout(function() {
+                    for (var i = 0; i < toasts.length; i++) {
+                        var t = toasts[i];
+                        self.showReward(t.amount, t.type, t.title, t.punchline);
+                    }
+                }, 800);
+
+                this.log('Processed ' + toasts.length + ' page-load toasts');
+            }
+        },
+
+        /**
+         * Intercept jQuery AJAX responses to catch reward_toasts from any XHR handler
+         */
+        interceptAjax: function() {
+            var self = this;
+
+            if (typeof $ !== 'undefined' && $.ajaxSetup) {
+                $(document).ajaxSuccess(function(event, xhr, settings) {
+                    try {
+                        var contentType = xhr.getResponseHeader('Content-Type') || '';
+                        if (contentType.indexOf('json') === -1) return;
+
+                        var data = typeof xhr.responseJSON !== 'undefined'
+                            ? xhr.responseJSON
+                            : JSON.parse(xhr.responseText);
+
+                        if (data && data.reward_toasts && data.reward_toasts.length > 0) {
+                            for (var i = 0; i < data.reward_toasts.length; i++) {
+                                var t = data.reward_toasts[i];
+                                self.showReward(t.amount, t.type, t.title, t.punchline);
+                            }
+                            self.log('Processed ' + data.reward_toasts.length + ' AJAX toasts');
+                        }
+                    } catch (e) {
+                        // Silently ignore parse errors
+                    }
+                });
+            }
+        },
+
+        /**
          * Show reward toast notification
          * @param {number} amount - TRDC amount earned
-         * @param {string} type - Reward type (post, comment, like_received, etc.)
-         * @param {string} customMessage - Optional custom message
+         * @param {string} type - Reward type key (post_create, comment_create, etc.)
+         * @param {string} title - Reward title (e.g. "Post Created")
+         * @param {string} punchline - Motivational punchline from DB
          */
-        showReward: function(amount, type, customMessage) {
-            amount = parseInt(amount) || 0;
+        showReward: function(amount, type, title, punchline) {
+            amount = parseFloat(amount) || 0;
             if (amount <= 0) return;
 
-            // Get random celebration message
-            const messages = this.messages[type] || ['TRDC earned!'];
-            const message = customMessage || messages[Math.floor(Math.random() * messages.length)];
-
-            // Create toast object
-            const toast = {
+            var toast = {
                 amount: amount,
-                type: type,
-                message: message,
+                type: type || 'general',
+                title: title || 'TRDC Earned',
+                punchline: punchline || '',
                 timestamp: Date.now()
             };
 
-            // Add to queue
             this.toastQueue.push(toast);
+            this.sessionEarnings += amount;
 
-            // Show if not already showing
             if (!this.isShowingToast) {
                 this.showNextToast();
             }
@@ -145,63 +154,93 @@
             }
 
             this.isShowingToast = true;
-            const toast = this.toastQueue.shift();
+            var toast = this.toastQueue.shift();
+            var self = this;
 
-            // Create toast element
-            const toastEl = this.createToastElement(toast);
+            var toastEl = this.createToastElement(toast);
             this.container.appendChild(toastEl);
 
             // Animate in
-            setTimeout(() => {
+            setTimeout(function() {
                 toastEl.classList.add('bc-reward-show');
             }, 10);
 
-            // Animate out after 3 seconds
-            setTimeout(() => {
+            // Animate out after 4 seconds
+            setTimeout(function() {
                 toastEl.classList.remove('bc-reward-show');
                 toastEl.classList.add('bc-reward-hide');
 
-                // Remove from DOM after animation
-                setTimeout(() => {
+                setTimeout(function() {
                     if (toastEl.parentNode) {
                         toastEl.parentNode.removeChild(toastEl);
                     }
-                    // Show next toast
-                    this.showNextToast();
-                }, 300);
-            }, 3000);
+                    self.showNextToast();
+                }, 400);
+            }, 4000);
 
-            // Update total TRDC in UI (if element exists)
             this.updateTRDCBalance(toast.amount);
-
             this.log('Toast shown: +' + toast.amount + ' TRDC');
         },
 
         /**
-         * Create toast DOM element
+         * Create toast DOM element with punchline
          * @param {Object} toast - Toast data
          * @returns {HTMLElement}
          */
         createToastElement: function(toast) {
-            const div = document.createElement('div');
+            var div = document.createElement('div');
             div.className = 'bc-reward-toast bc-reward-' + toast.type;
 
-            // Icon based on reward size
-            let icon = '💰';
-            if (toast.amount >= 100) icon = '🎉';
-            else if (toast.amount >= 50) icon = '⭐';
-            else if (toast.amount >= 20) icon = '🌟';
+            // TRDC coin SVG icon
+            var coinSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512">'
+                + '<circle cx="256" cy="256" r="256" fill="#1a1a2e"/>'
+                + '<path d="M351.7 160H280V110h0v50h-110.7v50H232v142h48V210h71.7v-50z" fill="#fcd535"/>'
+                + '<ellipse cx="256" cy="210" rx="128" ry="40" fill="none" stroke="#fcd500" stroke-width="20"/>'
+                + '</svg>';
 
-            div.innerHTML = `
-                <div class="bc-reward-icon">${icon}</div>
-                <div class="bc-reward-content">
-                    <div class="bc-reward-amount">+${toast.amount} TRDC</div>
-                    <div class="bc-reward-message">${toast.message}</div>
-                </div>
-                <div class="bc-reward-confetti"></div>
-            `;
+            // Format amount: show decimals only if needed
+            var amountStr = toast.amount % 1 === 0
+                ? toast.amount.toString()
+                : toast.amount.toFixed(2);
+
+            // Build toast HTML
+            var html = '<div class="bc-reward-coin">' + coinSvg + '</div>'
+                + '<div class="bc-reward-body">'
+                + '<div class="bc-reward-amount">+' + amountStr + ' TRDC</div>';
+
+            if (toast.punchline) {
+                html += '<div class="bc-reward-punchline">' + this.escapeHtml(toast.punchline) + '</div>';
+            } else if (toast.title) {
+                html += '<div class="bc-reward-punchline">' + this.escapeHtml(toast.title) + '</div>';
+            }
+
+            html += '</div>'
+                + '<button class="bc-reward-close" aria-label="Close">&times;</button>';
+
+            div.innerHTML = html;
+
+            // Close button handler
+            var closeBtn = div.querySelector('.bc-reward-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    div.classList.remove('bc-reward-show');
+                    div.classList.add('bc-reward-hide');
+                    setTimeout(function() {
+                        if (div.parentNode) div.parentNode.removeChild(div);
+                    }, 400);
+                });
+            }
 
             return div;
+        },
+
+        /**
+         * Escape HTML to prevent XSS in toast content
+         */
+        escapeHtml: function(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
         },
 
         /**
@@ -209,46 +248,34 @@
          * @param {number} amount - Amount to add
          */
         updateTRDCBalance: function(amount) {
-            // Update sidebar TRDC balance if it exists
-            const balanceEl = document.querySelector('.bc-trdc-balance');
+            var balanceEl = document.querySelector('.bc-trdc-balance');
             if (balanceEl) {
-                const currentBalance = parseInt(balanceEl.textContent) || 0;
-                const newBalance = currentBalance + amount;
-                balanceEl.textContent = newBalance + ' TRDC';
+                var currentBalance = parseFloat(balanceEl.textContent) || 0;
+                var newBalance = currentBalance + amount;
+                balanceEl.textContent = newBalance.toFixed(2) + ' TRDC';
 
-                // Animate the balance update
                 balanceEl.classList.add('bc-balance-updated');
-                setTimeout(() => {
+                setTimeout(function() {
                     balanceEl.classList.remove('bc-balance-updated');
                 }, 600);
             }
 
-            // Dispatch custom event for other components
-            const event = new CustomEvent('bc:balance:updated', {
+            document.dispatchEvent(new CustomEvent('bc:balance:updated', {
                 detail: { amount: amount }
-            });
-            document.dispatchEvent(event);
+            }));
         },
 
         /**
-         * Manually trigger a reward (for testing or manual events)
-         * @param {number} amount - TRDC amount
-         * @param {string} type - Reward type
-         * @param {string} message - Custom message
+         * Manually trigger a reward (for testing)
          */
-        triggerReward: function(amount, type, message) {
-            this.showReward(amount, type, message);
+        triggerReward: function(amount, type, title, punchline) {
+            this.showReward(amount, type, title, punchline);
         },
 
         /**
          * Get total TRDC earned in this session
-         * @returns {number}
          */
         getSessionEarnings: function() {
-            // Track session earnings (optional)
-            if (!this.sessionEarnings) {
-                this.sessionEarnings = 0;
-            }
             return this.sessionEarnings;
         }
     };
@@ -262,27 +289,3 @@
     window.BC_REWARDS = BC_REWARDS;
 
 })();
-
-
-/**
- * USAGE EXAMPLES:
- *
- * 1. Trigger reward from PHP AJAX response:
- * In your AJAX success handler:
- * if (data.trdc_earned) {
- *     BC_REWARDS.showReward(data.trdc_earned, 'post', 'Post published!');
- * }
- *
- * 2. Trigger custom event:
- * document.dispatchEvent(new CustomEvent('bc:trdc:earned', {
- *     detail: { amount: 50, type: 'post', message: 'Great post!' }
- * }));
- *
- * 3. Manual trigger (for testing):
- * BC_REWARDS.triggerReward(100, 'first_post', 'Congrats on your first post!');
- *
- * 4. Listen for balance updates:
- * document.addEventListener('bc:balance:updated', function(e) {
- *     console.log('TRDC added:', e.detail.amount);
- * });
- */

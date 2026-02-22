@@ -819,6 +819,14 @@ if ($f == 'posts') {
                         $data['send_notify'] = 'yes';
                     }
                 }
+                // Attach reward toasts for frontend display
+                if (function_exists('Wo_GetCurrentRequestToasts')) {
+                    $toasts = Wo_GetCurrentRequestToasts();
+                    if (!empty($toasts)) {
+                        $data['reward_toasts'] = $toasts;
+                    }
+                }
+
                 ob_end_clean();
                 header("Content-Encoding: none");
                 header("Connection: close");
@@ -1554,6 +1562,13 @@ if ($f == 'posts') {
                 if (function_exists('Wo_TriggerReward')) {
                     Wo_TriggerReward($wo['user']['user_id'], 'post_share', ['post_id' => intval($_GET['post_id'])]);
                 }
+                // Attach reward toasts for frontend display
+                if (function_exists('Wo_GetCurrentRequestToasts')) {
+                    $toasts = Wo_GetCurrentRequestToasts();
+                    if (!empty($toasts)) {
+                        $data['reward_toasts'] = $toasts;
+                    }
+                }
             }
         }
         header("Content-type: application/json");
@@ -1637,6 +1652,13 @@ if ($f == 'posts') {
                 }
                 if (Wo_CanSenEmails()) {
                     $data['can_send'] = 1;
+                }
+                // Attach reward toasts for frontend display
+                if (function_exists('Wo_GetCurrentRequestToasts')) {
+                    $toasts = Wo_GetCurrentRequestToasts();
+                    if (!empty($toasts)) {
+                        $data['reward_toasts'] = $toasts;
+                    }
                 }
             }
         }

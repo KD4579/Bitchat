@@ -1662,6 +1662,11 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-loader.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-loader.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-modal.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-modal.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-prompts.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-prompts.js') ?: time(); ?>"></script>
+	<?php if ($wo['loggedin'] == true && function_exists('Wo_GetPendingRewardToasts')): ?>
+	<?php $__bc_toasts = Wo_GetPendingRewardToasts(); if (!empty($__bc_toasts)): ?>
+	<script>window.__BC_PENDING_TOASTS = <?php echo json_encode($__bc_toasts, JSON_HEX_TAG | JSON_HEX_AMP); ?>;</script>
+	<?php endif; ?>
+	<?php endif; ?>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-rewards.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-rewards.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-badges.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-badges.js') ?: time(); ?>"></script>
 	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-skeleton.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-skeleton.js') ?: time(); ?>"></script>
