@@ -63,7 +63,8 @@
 
 /* Dark mode overrides — uses :has() for modern browsers, .bc-dark-mode class as JS fallback */
 html:has(link#night-mode-css),
-html.bc-dark-mode {
+html.bc-dark-mode,
+body.night_mode {
   --bc-surface-primary: #212121;
   --bc-surface-secondary: #181818;
   --bc-surface-hover: rgba(255, 255, 255, 0.05);
@@ -73,10 +74,15 @@ html.bc-dark-mode {
   --bc-border-color: rgba(255, 255, 255, 0.08);
   --bc-border-light: 1px solid rgba(255, 255, 255, 0.08);
   --bc-border-default: 1px solid rgba(255, 255, 255, 0.12);
+  --bc-border: rgba(255, 255, 255, 0.08);
+  --bc-bg-tertiary: #2a2a2a;
+  --bc-bg-hover: rgba(255, 255, 255, 0.06);
   --bc-shadow-sm: none;
   --bc-shadow-md: 0 1px 3px rgba(0, 0, 0, 0.3);
   --bc-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4);
   --bc-shadow-dropdown: 0 4px 24px rgba(0, 0, 0, 0.5);
+  --bc-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --bc-shadow-soft: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -6737,4 +6743,387 @@ html.bc-dark-mode .tag_lbox_toolbar .close-lightbox,
 body.night_mode .tag_lbox_toolbar .close-lightbox {
   background: #333 !important;
   color: #e0e0e0 !important;
+}
+
+/* ==========================================================================
+   SITE-WIDE DARK MODE FIXES — Phase 2 (Audit-driven)
+   Covers: leaderboard, invite widget, hero banner, prompt cards, trending,
+   cover/go-back buttons, inline style overrides, admin panel gaps, and
+   remaining base theme elements without dark.css coverage.
+   ========================================================================== */
+
+/* --- Leaderboard: silver rank contrast --- */
+html:has(link#night-mode-css) .bc-lb-rank-2 .bc-lb-rank-num,
+html.bc-dark-mode .bc-lb-rank-2 .bc-lb-rank-num,
+body.night_mode .bc-lb-rank-2 .bc-lb-rank-num {
+  color: #c0c8d4 !important;
+}
+
+/* --- Invite widget: green button dark mode enhancement --- */
+html:has(link#night-mode-css) .bc-invite-widget-btn,
+html.bc-dark-mode .bc-invite-widget-btn,
+body.night_mode .bc-invite-widget-btn {
+  background: #059669 !important;
+}
+
+/* --- Hero banner: dark mode adjustments --- */
+html:has(link#night-mode-css) #bc-hero-banner,
+html.bc-dark-mode #bc-hero-banner,
+body.night_mode #bc-hero-banner {
+  background: linear-gradient(135deg, #4a3cb8 0%, #007aa8 100%) !important;
+}
+html:has(link#night-mode-css) .bc-btn-primary,
+html.bc-dark-mode .bc-btn-primary,
+body.night_mode .bc-btn-primary {
+  background: rgba(255,255,255,0.95) !important;
+  color: #4a3cb8 !important;
+}
+html:has(link#night-mode-css) .bc-btn-primary:hover,
+html.bc-dark-mode .bc-btn-primary:hover,
+body.night_mode .bc-btn-primary:hover {
+  background: #fff !important;
+}
+html:has(link#night-mode-css) .bc-btn-ghost,
+html.bc-dark-mode .bc-btn-ghost,
+body.night_mode .bc-btn-ghost {
+  border-color: rgba(255,255,255,0.35) !important;
+  color: #fff !important;
+}
+html:has(link#night-mode-css) .bc-btn-ghost:hover,
+html.bc-dark-mode .bc-btn-ghost:hover,
+body.night_mode .bc-btn-ghost:hover {
+  background: rgba(255,255,255,0.18) !important;
+}
+
+/* --- Prompt cards: CTA text colors --- */
+html:has(link#night-mode-css) .bc-prompt-trader .bc-prompt-cta,
+html.bc-dark-mode .bc-prompt-trader .bc-prompt-cta,
+body.night_mode .bc-prompt-trader .bc-prompt-cta {
+  color: #ff7b8a !important;
+}
+html:has(link#night-mode-css) .bc-prompt-creator .bc-prompt-cta,
+html.bc-dark-mode .bc-prompt-creator .bc-prompt-cta,
+body.night_mode .bc-prompt-creator .bc-prompt-cta {
+  color: #4df0ff !important;
+}
+
+/* --- Trending tag hover --- */
+html:has(link#night-mode-css) .bc-trending-tag-pill:hover,
+html.bc-dark-mode .bc-trending-tag-pill:hover,
+body.night_mode .bc-trending-tag-pill:hover {
+  background: rgba(29,155,240,0.15) !important;
+  color: #5fb8f5 !important;
+  border-color: rgba(29,155,240,0.25) !important;
+}
+
+/* --- Cover photo / Go back buttons: invert for dark bg --- */
+html:has(link#night-mode-css) .btn_goback,
+html.bc-dark-mode .btn_goback,
+body.night_mode .btn_goback {
+  background: rgba(255,255,255,0.15) !important;
+  color: #fff !important;
+}
+html:has(link#night-mode-css) .btn_goback:hover,
+html.bc-dark-mode .btn_goback:hover,
+body.night_mode .btn_goback:hover {
+  background: rgba(255,255,255,0.25) !important;
+}
+html:has(link#night-mode-css) .profile_cover .btn,
+html:has(link#night-mode-css) .tag_cover_bg .cardheader > .btn,
+html.bc-dark-mode .profile_cover .btn,
+html.bc-dark-mode .tag_cover_bg .cardheader > .btn,
+body.night_mode .profile_cover .btn,
+body.night_mode .tag_cover_bg .cardheader > .btn {
+  background: rgba(255,255,255,0.2) !important;
+}
+html:has(link#night-mode-css) .profile_cover .btn:hover,
+html:has(link#night-mode-css) .tag_cover_bg .cardheader > .btn:hover,
+html.bc-dark-mode .profile_cover .btn:hover,
+html.bc-dark-mode .tag_cover_bg .cardheader > .btn:hover,
+body.night_mode .profile_cover .btn:hover,
+body.night_mode .tag_cover_bg .cardheader > .btn:hover {
+  background: rgba(255,255,255,0.35) !important;
+}
+
+/* --- Ticker text in dark mode --- */
+html:has(link#night-mode-css) .bc-ticker-flat,
+html.bc-dark-mode .bc-ticker-flat,
+body.night_mode .bc-ticker-flat {
+  color: #aab !important;
+}
+
+/* --- Reward toast dark mode enhancement --- */
+html:has(link#night-mode-css) .bc-reward-toast,
+html.bc-dark-mode .bc-reward-toast,
+body.night_mode .bc-reward-toast {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+}
+
+/* --- Install guide modal icon/button colors (already dark-themed) --- */
+html:has(link#night-mode-css) .bc-ig-icon,
+html.bc-dark-mode .bc-ig-icon,
+body.night_mode .bc-ig-icon {
+  color: #8b7dff !important;
+}
+html:has(link#night-mode-css) .bc-ig-num,
+html.bc-dark-mode .bc-ig-num,
+body.night_mode .bc-ig-num {
+  background: #5b4cc8 !important;
+}
+html:has(link#night-mode-css) .bc-ig-done,
+html.bc-dark-mode .bc-ig-done,
+body.night_mode .bc-ig-done {
+  background: #5b4cc8 !important;
+}
+
+/* --- TRDC sidebar card dark mode --- */
+html:has(link#night-mode-css) .bc-trdc-sidebar-card,
+html.bc-dark-mode .bc-trdc-sidebar-card,
+body.night_mode .bc-trdc-sidebar-card {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+}
+
+/* ==========================================================================
+   INLINE STYLE OVERRIDES
+   Template .phtml files have hardcoded inline colors that can't be edited.
+   Override with CSS !important using attribute selectors.
+   ========================================================================== */
+
+/* Points/TRDC balance title — inline color:#0073CE */
+html:has(link#night-mode-css) h5[style*="color:#0073CE"],
+html:has(link#night-mode-css) h5[style*="color: #0073CE"],
+html.bc-dark-mode h5[style*="color:#0073CE"],
+html.bc-dark-mode h5[style*="color: #0073CE"],
+body.night_mode h5[style*="color:#0073CE"],
+body.night_mode h5[style*="color: #0073CE"] {
+  color: #4da6ff !important;
+}
+
+/* Post metadata — inline color:#9197a3 */
+html:has(link#night-mode-css) span[style*="color:#9197a3"],
+html.bc-dark-mode span[style*="color:#9197a3"],
+body.night_mode span[style*="color:#9197a3"] {
+  color: #8899a6 !important;
+}
+
+/* Post links — inline color: #666 */
+html:has(link#night-mode-css) a[style*="color: #666"],
+html:has(link#night-mode-css) a[style*="color:#666"],
+html.bc-dark-mode a[style*="color: #666"],
+html.bc-dark-mode a[style*="color:#666"],
+body.night_mode a[style*="color: #666"],
+body.night_mode a[style*="color:#666"] {
+  color: #aab !important;
+}
+
+/* Sidebar content button — inline color: #0073CE */
+html:has(link#night-mode-css) button[style*="color: #0073CE"],
+html:has(link#night-mode-css) button[style*="color:#0073CE"],
+html.bc-dark-mode button[style*="color: #0073CE"],
+html.bc-dark-mode button[style*="color:#0073CE"],
+body.night_mode button[style*="color: #0073CE"],
+body.night_mode button[style*="color:#0073CE"] {
+  color: #4da6ff !important;
+}
+
+/* No posts found message — inline color:#8899a6 */
+html:has(link#night-mode-css) div[style*="color:#8899a6"],
+html.bc-dark-mode div[style*="color:#8899a6"],
+body.night_mode div[style*="color:#8899a6"] {
+  color: #8899a6 !important;
+}
+
+/* Register page — inline color: #888 and #666 */
+html:has(link#night-mode-css) small[style*="color: #888"],
+html:has(link#night-mode-css) small[style*="color:#888"],
+html.bc-dark-mode small[style*="color: #888"],
+html.bc-dark-mode small[style*="color:#888"],
+body.night_mode small[style*="color: #888"],
+body.night_mode small[style*="color:#888"] {
+  color: #aaa !important;
+}
+html:has(link#night-mode-css) small[style*="color: #666"],
+html:has(link#night-mode-css) small[style*="color:#666"],
+html.bc-dark-mode small[style*="color: #666"],
+html.bc-dark-mode small[style*="color:#666"],
+body.night_mode small[style*="color: #666"],
+body.night_mode small[style*="color:#666"] {
+  color: #aab !important;
+}
+
+/* Share post container — inline #a33e40 reddish text */
+html:has(link#night-mode-css) a[style*="color:#a33e40"],
+html.bc-dark-mode a[style*="color:#a33e40"],
+body.night_mode a[style*="color:#a33e40"] {
+  color: #d66b6d !important;
+}
+
+/* Social sharing icon colors — these are brand colors, intentionally kept
+   but slightly brightened for dark backgrounds */
+html:has(link#night-mode-css) .social-btn[style*="color: #337ab7"],
+html.bc-dark-mode .social-btn[style*="color: #337ab7"],
+body.night_mode .social-btn[style*="color: #337ab7"] {
+  color: #5a9bd6 !important;
+}
+
+/* ==========================================================================
+   BASE THEME ELEMENTS — Missing dark.css overrides
+   These selectors exist in stylesheet/style.css with hardcoded light colors
+   but dark.css never overrides them.
+   ========================================================================== */
+
+/* --- Sidebar profile style --- */
+html:has(link#night-mode-css) .sidebar-profile-style,
+html.bc-dark-mode .sidebar-profile-style,
+body.night_mode .sidebar-profile-style {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+
+/* --- Padding-15 utility with !important bg --- */
+html:has(link#night-mode-css) .padding-15,
+html.bc-dark-mode .padding-15,
+body.night_mode .padding-15 {
+  background: #212121 !important;
+}
+
+/* --- Panel white footer --- */
+html:has(link#night-mode-css) .panel-white .panel-footer,
+html.bc-dark-mode .panel-white .panel-footer,
+body.night_mode .panel-white .panel-footer {
+  background: #1a1a1a !important;
+  border-top-color: #333 !important;
+}
+
+/* --- Div control --- */
+html:has(link#night-mode-css) .div-control,
+html.bc-dark-mode .div-control,
+body.night_mode .div-control {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+
+/* --- Status media selector --- */
+html:has(link#night-mode-css) #select-status-media,
+html.bc-dark-mode #select-status-media,
+body.night_mode #select-status-media {
+  background: #2a2a2a !important;
+}
+
+/* --- Blog section background --- */
+html:has(link#night-mode-css) .blog-com-wrapper .blog-comment-item-body > div,
+html.bc-dark-mode .blog-com-wrapper .blog-comment-item-body > div,
+body.night_mode .blog-com-wrapper .blog-comment-item-body > div {
+  color: #aaa !important;
+}
+
+/* --- User discovery / nearby --- */
+html:has(link#night-mode-css) .nearby_user_wrapper,
+html.bc-dark-mode .nearby_user_wrapper,
+body.night_mode .nearby_user_wrapper {
+  background: #212121 !important;
+}
+html:has(link#night-mode-css) .friends_nearby_status_ul li,
+html.bc-dark-mode .friends_nearby_status_ul li,
+body.night_mode .friends_nearby_status_ul li {
+  background: #2a2a2a !important;
+}
+
+/* --- Header loading spinner --- */
+html:has(link#night-mode-css) .header-loading-sppiner,
+html.bc-dark-mode .header-loading-sppiner,
+body.night_mode .header-loading-sppiner {
+  color: #aaa !important;
+}
+
+/* --- Pace loader overlay --- */
+html:has(link#night-mode-css) .pace-activity-parent,
+html.bc-dark-mode .pace-activity-parent,
+body.night_mode .pace-activity-parent {
+  background: #121212 !important;
+}
+
+/* --- Group dropdown --- */
+html:has(link#night-mode-css) .group_tab_dropdown span:hover,
+html.bc-dark-mode .group_tab_dropdown span:hover,
+body.night_mode .group_tab_dropdown span:hover {
+  background: #333 !important;
+  color: #e0e0e0 !important;
+}
+
+/* --- Search articles / blog --- */
+html:has(link#night-mode-css) .search-artiles-form .inner-addon .glyphicon,
+html.bc-dark-mode .search-artiles-form .inner-addon .glyphicon,
+body.night_mode .search-artiles-form .inner-addon .glyphicon {
+  color: #aaa !important;
+}
+
+/* --- Active gray list item --- */
+html:has(link#night-mode-css) .gray-list.active a,
+html.bc-dark-mode .gray-list.active a,
+body.night_mode .gray-list.active a {
+  color: #fff !important;
+}
+
+/* --- Movies mobile search dropdown --- */
+html:has(link#night-mode-css) .navbar-movies-mobile-search-dropdown ul,
+html.bc-dark-mode .navbar-movies-mobile-search-dropdown ul,
+body.night_mode .navbar-movies-mobile-search-dropdown ul {
+  color: #dcdcdc !important;
+}
+
+/* --- Story progress bar --- */
+html:has(link#night-mode-css) .story_lightbox .mfp-wrap .mfp_progress_line_ .load,
+html.bc-dark-mode .story_lightbox .mfp-wrap .mfp_progress_line_ .load,
+body.night_mode .story_lightbox .mfp-wrap .mfp_progress_line_ .load {
+  background: #e0e0e0 !important;
+}
+
+/* --- Lightbox preloader --- */
+html:has(link#night-mode-css) .lb-preloader svg,
+html.bc-dark-mode .lb-preloader svg,
+body.night_mode .lb-preloader svg {
+  background: #212121 !important;
+}
+
+/* --- Blog categories in sidebar --- */
+html:has(link#night-mode-css) .tag_pop_artis li,
+html.bc-dark-mode .tag_pop_artis li,
+body.night_mode .tag_pop_artis li {
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+
+/* --- Characters left message --- */
+html:has(link#night-mode-css) .charsLeft-message,
+html.bc-dark-mode .charsLeft-message,
+body.night_mode .charsLeft-message {
+  color: #999 !important;
+}
+
+/* --- Upload bank receipts --- */
+html:has(link#night-mode-css) .upload_bank_receipts > div,
+html.bc-dark-mode .upload_bank_receipts > div,
+body.night_mode .upload_bank_receipts > div {
+  background: #2a2a2a !important;
+}
+
+/* --- Video player (plyr) slider thumb --- */
+html:has(link#night-mode-css) .plyr--full-ui input[type=range]::-webkit-slider-thumb,
+html.bc-dark-mode .plyr--full-ui input[type=range]::-webkit-slider-thumb,
+body.night_mode .plyr--full-ui input[type=range]::-webkit-slider-thumb {
+  background: #e0e0e0 !important;
+}
+
+/* --- Post publish time label --- */
+html:has(link#night-mode-css) .tag_pub_rectime,
+html.bc-dark-mode .tag_pub_rectime,
+body.night_mode .tag_pub_rectime {
+  background: #2a2a2a !important;
+}
+
+/* --- Ad format header --- */
+html:has(link#night-mode-css) .wo_ad_header_format,
+html.bc-dark-mode .wo_ad_header_format,
+body.night_mode .wo_ad_header_format {
+  background: #212121 !important;
 }
