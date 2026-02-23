@@ -7364,3 +7364,9 @@ body.night_mode .creator_dashboard {
   background-color: #212121 !important;
   color: #dcdcdc !important;
 }
+
+/* Language dropdown — make scrollable when too many languages */
+.lang_select.dropup .dropdown-menu {
+  max-height: 50vh;
+  overflow-y: auto;
+}
