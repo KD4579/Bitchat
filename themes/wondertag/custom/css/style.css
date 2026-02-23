@@ -3328,6 +3328,15 @@ body.night-mode .bc-ticker-bar {
 #post-textarea {
   padding: 16px 20px !important;
 }
+#post-textarea .wo_pub_txtara_combo {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 4px;
+}
+.bc-dark-mode #post-textarea .wo_pub_txtara_combo,
+body.night-mode #post-textarea .wo_pub_txtara_combo {
+  border-color: rgba(255, 255, 255, 0.2);
+}
 #post-textarea .postText {
   font-size: 15px !important;
   line-height: 1.5 !important;
