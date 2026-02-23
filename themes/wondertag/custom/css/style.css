@@ -6010,16 +6010,11 @@ body {
    Ensure text colors, sizes, and borders are consistent in day & night views.
    ========================================================================== */
 
-/* Page title — explicit colors for both modes */
+/* Page title — uses dark.css --header-color (#e8e8e8) in dark mode,
+   falls back to inherit (dark body text) in light mode */
 .tag_page_title,
 h2.tag_page_title {
-  color: #1a1a1a !important;
-}
-html:has(link#night-mode-css) .tag_page_title,
-html:has(link#night-mode-css) h2.tag_page_title,
-html.bc-dark-mode .tag_page_title,
-html.bc-dark-mode h2.tag_page_title {
-  color: #ffffff !important;
+  color: var(--header-color, inherit) !important;
 }
 
 /* "My Balance" label and balance amount */
