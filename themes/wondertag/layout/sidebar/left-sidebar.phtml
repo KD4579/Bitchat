@@ -41,9 +41,6 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 							<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Invite &amp; Earn
 						</a>
 						<?php } ?>
-						<a href="<?php echo Wo_SeoLink('index.php?link1=setting');?>" data-ajax="?link1=setting">
-							<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings
-						</a>
 						<a href="<?php echo Wo_SeoLink('index.php?link1=discover');?>" data-ajax="?link1=discover">
 							<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> Discover
 						</a>
@@ -51,6 +48,73 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				</div>
 			</div>
 		<?php } ?>
+		<div class="tag_sidebar_section_prnt">
+			<div class="valign tag_sidebar_head" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="false" aria-controls="collapseSettings"><?php echo $wo['lang']['setting'];?> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path></svg></div>
+			<div class="collapse" id="collapseSettings">
+				<div class="tag_sidebar_section">
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=general-setting');?>" data-ajax="?link1=setting&page=general-setting">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> <?php echo $wo['lang']['general'];?>
+					</a>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=profile-setting');?>" data-ajax="?link1=setting&page=profile-setting">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FE7676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <?php echo $wo['lang']['profile'];?> <?php echo $wo['lang']['setting'];?>
+					</a>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=avatar-setting');?>" data-ajax="?link1=setting&page=avatar-setting">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> <?php echo $wo['lang']['avatar_and_cover'];?>
+					</a>
+					<?php if ($wo['config']['profile_back'] == 1 || $wo['config']['css_upload'] == 1) { ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=design-setting');?>" data-ajax="?link1=setting&page=design-setting">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6c63ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> <?php echo $wo['lang']['profile'];?> <?php echo $wo['lang']['design'];?>
+					</a>
+					<?php } ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=my_info');?>" data-ajax="?link1=setting&page=my_info">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#607d8b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> <?php echo $wo['lang']['my_info'];?>
+					</a>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=social-links');?>" data-ajax="?link1=setting&page=social-links">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#1da1f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> <?php echo $wo['lang']['social_links'];?>
+					</a>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=notifications-settings');?>" data-ajax="?link1=setting&page=notifications-settings">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#23BB9B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> <?php echo $wo['lang']['notification_settings'];?>
+					</a>
+					<?php if ($wo['config']['invite_links_system'] == 1) { ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=invitation_links');?>" data-ajax="?link1=setting&page=invitation_links">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#e91e63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <?php echo $wo['lang']['invitation_links'];?>
+					</a>
+					<?php } ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=privacy-setting');?>" data-ajax="?link1=setting&page=privacy-setting">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#9c27b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <?php echo $wo['lang']['privacy'];?>
+					</a>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=change-password-setting');?>" data-ajax="?link1=setting&page=change-password-setting">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FE6720" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <?php echo $wo['lang']['password'];?>
+					</a>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=manage-sessions');?>" data-ajax="?link1=setting&page=manage-sessions">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#23BB9B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> <?php echo $wo['lang']['manage_sessions'];?>
+					</a>
+					<?php if ($wo['config']['two_factor'] == 1 || $wo['config']['google_authenticator'] == '1' || $wo['config']['authy_settings'] == '1') { ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=two-factor');?>" data-ajax="?link1=setting&page=two-factor">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FE7676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> <?php echo $wo['lang']['two_factor'];?>
+					</a>
+					<?php } ?>
+					<?php if (!Wo_IsAdmin() && $wo['user']['verified'] == 0) { ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=verification');?>" data-ajax="?link1=setting&page=verification">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <?php echo $wo['lang']['verification'];?>
+					</a>
+					<?php } ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=blocked-users');?>" data-ajax="?link1=setting&page=blocked-users">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg> <?php echo $wo['lang']['blocked_users'];?>
+					</a>
+					<?php if ($wo['config']['store_system'] == 'on') { ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=addresses');?>" data-ajax="?link1=setting&page=addresses">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#1da1f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> <?php echo $wo['lang']['my_addresses'];?>
+					</a>
+					<?php } ?>
+					<?php if ($wo['config']['deleteAccount'] == 1) { ?>
+					<a href="<?php echo Wo_SeoLink('index.php?link1=setting&page=delete-account');?>" data-ajax="?link1=setting&page=delete-account">
+						<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg> <?php echo $wo['lang']['delete_account'];?>
+					</a>
+					<?php } ?>
+				</div>
+			</div>
+		</div>
 		<div class="tag_sidebar_section_prnt">
 			<div class="valign tag_sidebar_head" data-toggle="collapse" data-target="#collapseCommunity" aria-expanded="true" aria-controls="collapseCommunity"><?php echo $wo['lang']['community'];?> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"></path></svg></div>
 			<div class="collapse show" id="collapseCommunity">
