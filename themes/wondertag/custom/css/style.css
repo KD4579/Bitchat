@@ -4973,8 +4973,9 @@ html.bc-dark-mode .tag_sidebar_section > a:hover {
 
 /* --- 4e) NIGHT/DARK MODE: sidebar footer links --- */
 html:has(link#night-mode-css) .tag_footer_links a,
-html.bc-dark-mode .tag_footer_links a {
-  color: #666 !important;
+html.bc-dark-mode .tag_footer_links a,
+body.night_mode .tag_footer_links a {
+  color: #888 !important;
 }
 html:has(link#night-mode-css) .tag_footer_links a:hover,
 html.bc-dark-mode .tag_footer_links a:hover {
@@ -6246,4 +6247,411 @@ body.night_mode .wow_snd_money_form .add-amount h5 sup {
   .header-brand .tag_logo_mobi {
     max-height: 38px !important;
   }
+}
+
+/* ==========================================================================
+   COMPREHENSIVE DARK MODE TEXT FIXES
+   body.night_mode is now set by footer.js (previously never set).
+   Using all 3 selectors for maximum browser compatibility:
+     - html:has(link#night-mode-css) — CSS-only, modern browsers
+     - html.bc-dark-mode — JS fallback via footer.js
+     - body.night_mode — JS fallback via footer.js (NEW)
+   ========================================================================== */
+
+/* --- Global: ensure all page content text is readable in dark mode --- */
+html:has(link#night-mode-css) .tag_content,
+html.bc-dark-mode .tag_content,
+body.night_mode .tag_content {
+  color: #dcdcdc !important;
+}
+
+/* --- Page titles across ALL inner pages --- */
+html:has(link#night-mode-css) .tag_page_title,
+html:has(link#night-mode-css) h2.tag_page_title,
+html.bc-dark-mode .tag_page_title,
+html.bc-dark-mode h2.tag_page_title,
+body.night_mode .tag_page_title,
+body.night_mode h2.tag_page_title {
+  color: #e0e0e0 !important;
+}
+
+/* --- Utility text color classes that break in dark mode --- */
+html:has(link#night-mode-css) .gray,
+html.bc-dark-mode .gray,
+body.night_mode .gray {
+  color: #aaa !important;
+}
+html:has(link#night-mode-css) .gray-1,
+html.bc-dark-mode .gray-1,
+body.night_mode .gray-1 {
+  color: #aaa !important;
+}
+html:has(link#night-mode-css) .black-color,
+html.bc-dark-mode .black-color,
+body.night_mode .black-color {
+  color: #ccc !important;
+}
+html:has(link#night-mode-css) .second-user-color,
+html.bc-dark-mode .second-user-color,
+body.night_mode .second-user-color {
+  color: #ccc !important;
+}
+html:has(link#night-mode-css) .small-mention,
+html.bc-dark-mode .small-mention,
+body.night_mode .small-mention {
+  color: #aaa !important;
+}
+
+/* --- Panel/card headings --- */
+html:has(link#night-mode-css) .panel-white .panel-heading,
+html.bc-dark-mode .panel-white .panel-heading,
+body.night_mode .panel-white .panel-heading {
+  color: #dcdcdc !important;
+}
+
+/* --- Settings sidebar + collapsible panels --- */
+html:has(link#night-mode-css) .tag_sett_sidebar,
+html.bc-dark-mode .tag_sett_sidebar,
+body.night_mode .tag_sett_sidebar {
+  background: #1a1a1a !important;
+  color: #dcdcdc !important;
+}
+html:has(link#night-mode-css) .colloape-panel-stg,
+html.bc-dark-mode .colloape-panel-stg,
+body.night_mode .colloape-panel-stg {
+  background: #212121 !important;
+  color: #ccc !important;
+}
+html:has(link#night-mode-css) .colloape-panel-stg i,
+html.bc-dark-mode .colloape-panel-stg i,
+body.night_mode .colloape-panel-stg i {
+  color: #aaa !important;
+}
+
+/* --- Form controls, inputs, textareas --- */
+html:has(link#night-mode-css) .form-control,
+html.bc-dark-mode .form-control,
+body.night_mode .form-control {
+  color: #e2e2e2 !important;
+  background-color: #373737 !important;
+  border-color: #484848 !important;
+}
+html:has(link#night-mode-css) textarea,
+html.bc-dark-mode textarea,
+body.night_mode textarea {
+  color: #e2e2e2 !important;
+}
+html:has(link#night-mode-css) input[type="text"],
+html:has(link#night-mode-css) input[type="email"],
+html:has(link#night-mode-css) input[type="password"],
+html:has(link#night-mode-css) input[type="number"],
+html:has(link#night-mode-css) input[type="search"],
+html.bc-dark-mode input[type="text"],
+html.bc-dark-mode input[type="email"],
+html.bc-dark-mode input[type="password"],
+html.bc-dark-mode input[type="number"],
+html.bc-dark-mode input[type="search"],
+body.night_mode input[type="text"],
+body.night_mode input[type="email"],
+body.night_mode input[type="password"],
+body.night_mode input[type="number"],
+body.night_mode input[type="search"] {
+  color: #e2e2e2 !important;
+}
+
+/* --- Chat / Messenger text --- */
+html:has(link#night-mode-css) .chat-textarea textarea,
+html.bc-dark-mode .chat-textarea textarea,
+body.night_mode .chat-textarea textarea {
+  color: #e2e2e2 !important;
+  background-color: rgba(255,255,255,0.08) !important;
+}
+html:has(link#night-mode-css) .record-chat-audio,
+html.bc-dark-mode .record-chat-audio,
+body.night_mode .record-chat-audio {
+  color: #e0e0e0 !important;
+}
+html:has(link#night-mode-css) .chat-recording-time,
+html.bc-dark-mode .chat-recording-time,
+body.night_mode .chat-recording-time {
+  color: #e0e0e0 !important;
+}
+html:has(link#night-mode-css) .message-details,
+html.bc-dark-mode .message-details,
+body.night_mode .message-details {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .chat-messages-wrapper .incoming p .hash,
+html:has(link#night-mode-css) .messages-container .incoming p .hash,
+html.bc-dark-mode .chat-messages-wrapper .incoming p .hash,
+html.bc-dark-mode .messages-container .incoming p .hash,
+body.night_mode .chat-messages-wrapper .incoming p .hash,
+body.night_mode .messages-container .incoming p .hash {
+  color: #fff !important;
+}
+
+/* --- Messages page sidebar text --- */
+html:has(link#night-mode-css) .wo_msg_right_prt,
+html.bc-dark-mode .wo_msg_right_prt,
+body.night_mode .wo_msg_right_prt {
+  color: #dcdcdc !important;
+}
+
+/* --- Post footer + comment interaction text --- */
+html:has(link#night-mode-css) .post .post-footer .input-group-addon a,
+html.bc-dark-mode .post .post-footer .input-group-addon a,
+body.night_mode .post .post-footer .input-group-addon a {
+  color: #aaa !important;
+}
+html:has(link#night-mode-css) #comment-likes,
+html:has(link#night-mode-css) #comment-wonders,
+html.bc-dark-mode #comment-likes,
+html.bc-dark-mode #comment-wonders,
+body.night_mode #comment-likes,
+body.night_mode #comment-wonders {
+  color: #aaa !important;
+}
+
+/* --- Blog/article text --- */
+html:has(link#night-mode-css) .blog-desc,
+html.bc-dark-mode .blog-desc,
+body.night_mode .blog-desc {
+  color: #bbb !important;
+}
+html:has(link#night-mode-css) .tag_pop_artis li .article-title,
+html.bc-dark-mode .tag_pop_artis li .article-title,
+body.night_mode .tag_pop_artis li .article-title {
+  color: #e0e0e0 !important;
+}
+html:has(link#night-mode-css) .tag_pop_artis li .article-info,
+html.bc-dark-mode .tag_pop_artis li .article-info,
+body.night_mode .tag_pop_artis li .article-info {
+  color: #999 !important;
+}
+html:has(link#night-mode-css) .wow_main_blogs,
+html.bc-dark-mode .wow_main_blogs,
+body.night_mode .wow_main_blogs {
+  background: #212121 !important;
+}
+
+/* --- Events / Groups / Nearby --- */
+html:has(link#night-mode-css) .events-tab-list,
+html:has(link#night-mode-css) .events-tab-content,
+html:has(link#night-mode-css) .event-descripton,
+html.bc-dark-mode .events-tab-list,
+html.bc-dark-mode .events-tab-content,
+html.bc-dark-mode .event-descripton,
+body.night_mode .events-tab-list,
+body.night_mode .events-tab-content,
+body.night_mode .event-descripton {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+html:has(link#night-mode-css) .group_tab_dropdown,
+html.bc-dark-mode .group_tab_dropdown,
+body.night_mode .group_tab_dropdown {
+  color: #ccc !important;
+}
+html:has(link#night-mode-css) .group_tab_dropdown span,
+html.bc-dark-mode .group_tab_dropdown span,
+body.night_mode .group_tab_dropdown span {
+  color: #bbb !important;
+}
+html:has(link#night-mode-css) .nearby-users-distance,
+html.bc-dark-mode .nearby-users-distance,
+body.night_mode .nearby-users-distance {
+  background: #212121 !important;
+  color: #ccc !important;
+}
+
+/* --- Tab container + general containers --- */
+html:has(link#night-mode-css) .tab-container,
+html.bc-dark-mode .tab-container,
+body.night_mode .tab-container {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+html:has(link#night-mode-css) .wowonder-well,
+html.bc-dark-mode .wowonder-well,
+body.night_mode .wowonder-well {
+  background: #212121 !important;
+  color: #dcdcdc !important;
+}
+html:has(link#night-mode-css) .cover-container,
+html.bc-dark-mode .cover-container,
+body.night_mode .cover-container {
+  background: #212121 !important;
+}
+
+/* --- List group items --- */
+html:has(link#night-mode-css) .list-group-item:first-child,
+html.bc-dark-mode .list-group-item:first-child,
+body.night_mode .list-group-item:first-child {
+  background: #2a2a2a !important;
+  color: #dcdcdc !important;
+}
+html:has(link#night-mode-css) .list-group-item.gray-list:hover,
+html.bc-dark-mode .list-group-item.gray-list:hover,
+body.night_mode .list-group-item.gray-list:hover {
+  color: #e0e0e0 !important;
+}
+html:has(link#night-mode-css) .list-group-item.gray-list a:hover,
+html.bc-dark-mode .list-group-item.gray-list a:hover,
+body.night_mode .list-group-item.gray-list a:hover {
+  color: #fff !important;
+}
+
+/* --- Emoji picker --- */
+html:has(link#night-mode-css) .wo_emoji_tab,
+html.bc-dark-mode .wo_emoji_tab,
+body.night_mode .wo_emoji_tab {
+  background: #2a2a2a !important;
+}
+html:has(link#night-mode-css) .wo_emoji_p,
+html.bc-dark-mode .wo_emoji_p,
+body.night_mode .wo_emoji_p {
+  color: #bbb !important;
+}
+html:has(link#night-mode-css) .emo-post-container,
+html.bc-dark-mode .emo-post-container,
+body.night_mode .emo-post-container {
+  background: #212121 !important;
+}
+
+/* --- Settings update alert --- */
+html:has(link#night-mode-css) .setting-saved-update-alert,
+html.bc-dark-mode .setting-saved-update-alert,
+body.night_mode .setting-saved-update-alert {
+  color: #bbb !important;
+}
+
+/* --- Page likes counter --- */
+html:has(link#night-mode-css) .page-likes,
+html.bc-dark-mode .page-likes,
+body.night_mode .page-likes {
+  color: #aaa !important;
+}
+
+/* --- Carousel (slick) controls --- */
+html:has(link#night-mode-css) .slick-next,
+html:has(link#night-mode-css) .slick-prev,
+html.bc-dark-mode .slick-next,
+html.bc-dark-mode .slick-prev,
+body.night_mode .slick-next,
+body.night_mode .slick-prev {
+  background: #333 !important;
+  color: #e0e0e0 !important;
+}
+
+/* --- Scroll-to-top button --- */
+html:has(link#night-mode-css) .scroll-top-wrapper,
+html.bc-dark-mode .scroll-top-wrapper,
+body.night_mode .scroll-top-wrapper {
+  background-color: #444 !important;
+  color: #e0e0e0 !important;
+}
+
+/* --- Search / Forum elements --- */
+html:has(link#night-mode-css) #search-forums,
+html.bc-dark-mode #search-forums,
+body.night_mode #search-forums {
+  background: #373737 !important;
+  color: #e2e2e2 !important;
+  border-color: #484848 !important;
+}
+
+/* --- Discover section (was body.night_mode only — now all 3) --- */
+html:has(link#night-mode-css) .bc-discover-section,
+html.bc-dark-mode .bc-discover-section {
+  background: #181818 !important;
+}
+html:has(link#night-mode-css) .bc-discover-card,
+html.bc-dark-mode .bc-discover-card {
+  background: #212121 !important;
+  border-color: #333 !important;
+}
+html:has(link#night-mode-css) .bc-discover-card-text,
+html.bc-dark-mode .bc-discover-card-text {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .bc-discover-card-thumb,
+html.bc-dark-mode .bc-discover-card-thumb {
+  background-color: #2a2a2a !important;
+}
+html:has(link#night-mode-css) .bc-discover-hashtag-pill,
+html.bc-dark-mode .bc-discover-hashtag-pill {
+  background: #1a2332 !important;
+  color: #5b9cf5 !important;
+}
+html:has(link#night-mode-css) .bc-discover-follow-btn.bc-followed,
+html.bc-dark-mode .bc-discover-follow-btn.bc-followed {
+  background: #333 !important;
+  color: #aaa !important;
+  border-color: #444 !important;
+}
+html:has(link#night-mode-css) .bc-discover-person-card,
+html.bc-dark-mode .bc-discover-person-card {
+  border-color: #333 !important;
+}
+html:has(link#night-mode-css) .bc-discover-empty,
+html.bc-dark-mode .bc-discover-empty {
+  color: #888 !important;
+}
+
+/* --- Welcome card (was body.night_mode only) --- */
+html:has(link#night-mode-css) .bc-welcome-card,
+html.bc-dark-mode .bc-welcome-card {
+  background: #212121 !important;
+}
+
+/* --- Badge unlock description --- */
+html:has(link#night-mode-css) .bc-badge-unlock-desc,
+html.bc-dark-mode .bc-badge-unlock-desc,
+body.night_mode .bc-badge-unlock-desc {
+  color: #b0b0b0 !important;
+}
+
+/* --- User discovery card links --- */
+html:has(link#night-mode-css) .nearby_user_wrapper .user_wrapper_link,
+html.bc-dark-mode .nearby_user_wrapper .user_wrapper_link,
+body.night_mode .nearby_user_wrapper .user_wrapper_link {
+  color: #e0e0e0 !important;
+}
+
+/* --- Developer apps text --- */
+html:has(link#night-mode-css) .wow_dev_apps .ap_name a,
+html.bc-dark-mode .wow_dev_apps .ap_name a,
+body.night_mode .wow_dev_apps .ap_name a {
+  color: #e0e0e0 !important;
+}
+
+/* --- Feelings selector --- */
+html:has(link#night-mode-css) .feelings-value,
+html.bc-dark-mode .feelings-value,
+body.night_mode .feelings-value {
+  background: #2a2a2a !important;
+}
+
+/* --- Job form --- */
+html:has(link#night-mode-css) .wo_create_job_qstn,
+html.bc-dark-mode .wo_create_job_qstn,
+body.night_mode .wo_create_job_qstn {
+  background: #373737 !important;
+  color: #e2e2e2 !important;
+}
+
+/* --- Search filter age --- */
+html:has(link#night-mode-css) .tag_srch_fltr_age .age_number,
+html.bc-dark-mode .tag_srch_fltr_age .age_number,
+body.night_mode .tag_srch_fltr_age .age_number {
+  background: #373737 !important;
+  color: #e2e2e2 !important;
+}
+
+/* --- Lightbox close button --- */
+html:has(link#night-mode-css) .tag_lbox_toolbar .close-lightbox,
+html.bc-dark-mode .tag_lbox_toolbar .close-lightbox,
+body.night_mode .tag_lbox_toolbar .close-lightbox {
+  background: #333 !important;
+  color: #e0e0e0 !important;
 }

@@ -110,8 +110,10 @@
         var nightCss = document.getElementById('night-mode-css');
         if (nightCss) {
             document.documentElement.classList.add('bc-dark-mode');
+            document.body.classList.add('night_mode');
         } else {
             document.documentElement.classList.remove('bc-dark-mode');
+            document.body.classList.remove('night_mode');
         }
     }
 
