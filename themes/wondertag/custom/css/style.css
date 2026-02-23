@@ -3993,7 +3993,9 @@ body, p, li, td {
 @media (min-width: 1151px) {
   .page-margin > .container,
   .tag_content > .container,
-  .tag_content .page-margin > .container {
+  .tag_content .page-margin > .container,
+  #contnet > .container,
+  .tag_content .container {
     max-width: min(1200px, calc(100% - 16px)) !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
@@ -4806,19 +4808,23 @@ html.bc-dark-mode .tag_pub_box_bg_text {
    ========================================================================== */
 
 /* --- 1) Ticker: stop before sidebars on desktop --- */
+/* margin-right: 90px = chat sidebar width; padding-right = right content sidebar */
 @media (min-width: 1151px) {
   #bc-market-strip {
     margin-left: 280px !important;
-    padding-right: 320px !important;
+    margin-right: 90px !important;
+    padding-right: 230px !important;
   }
 }
 @media (max-width: 1250px) and (min-width: 992px) {
   #bc-market-strip {
-    padding-right: 240px !important;
+    margin-right: 90px !important;
+    padding-right: 150px !important;
   }
 }
 @media (max-width: 991px) {
   #bc-market-strip {
+    margin-right: 0 !important;
     padding-right: 0 !important;
   }
 }
@@ -4949,8 +4955,8 @@ html.bc-dark-mode .tag_sidebar a.active {
 html:has(link#night-mode-css) .tag_sidebar_head,
 html.bc-dark-mode .tag_sidebar_head,
 body.night_mode .tag_sidebar_head {
-  color: #aaa !important;
-  opacity: 0.85 !important;
+  color: #555 !important;
+  opacity: 0.7 !important;
 }
 html:has(link#night-mode-css) .tag_sidebar_section_prnt,
 html.bc-dark-mode .tag_sidebar_section_prnt {
@@ -5724,21 +5730,21 @@ body {
    Core: .wow_mini_wallets h5 { font-size: 60px }, sup { font-size: 30px }
    -------------------------------------------------------------------------- */
 .wow_mini_wallets h5 {
-  font-size: clamp(24px, 4.5vw, 42px) !important;
+  font-size: clamp(18px, 3vw, 30px) !important;
   word-break: break-all !important;
   line-height: 1.1 !important;
 }
 .wow_mini_wallets h5 sup {
-  font-size: clamp(12px, 2vw, 20px) !important;
-  top: clamp(-6px, -1.2vw, -14px) !important;
+  font-size: clamp(10px, 1.4vw, 15px) !important;
+  top: clamp(-4px, -0.8vw, -10px) !important;
 }
 @media (max-width: 480px) {
   .wow_mini_wallets h5 {
-    font-size: 22px !important;
+    font-size: 18px !important;
   }
   .wow_mini_wallets h5 sup {
-    font-size: 11px !important;
-    top: -5px !important;
+    font-size: 10px !important;
+    top: -4px !important;
   }
   .wow_mini_wallets {
     padding: 12px !important;
@@ -5755,11 +5761,11 @@ body {
 }
 @media (max-width: 768px) {
   .wow_mini_wallets h5 {
-    font-size: 26px !important;
+    font-size: 20px !important;
   }
   .wow_mini_wallets h5 sup {
-    font-size: 13px !important;
-    top: -7px !important;
+    font-size: 11px !important;
+    top: -5px !important;
   }
 }
 
@@ -6004,10 +6010,15 @@ body {
    Ensure text colors, sizes, and borders are consistent in day & night views.
    ========================================================================== */
 
-/* Page title — bright white in dark mode */
+/* Page title — explicit colors for both modes */
+.tag_page_title,
+h2.tag_page_title {
+  color: #1a1a1a !important;
+}
 html:has(link#night-mode-css) .tag_page_title,
+html:has(link#night-mode-css) h2.tag_page_title,
 html.bc-dark-mode .tag_page_title,
-body.night_mode .tag_page_title {
+html.bc-dark-mode h2.tag_page_title {
   color: #ffffff !important;
 }
 
