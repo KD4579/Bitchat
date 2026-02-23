@@ -6359,7 +6359,67 @@ body.night_mode input[type="search"] {
   color: #e2e2e2 !important;
 }
 
-/* --- Chat / Messenger text --- */
+/* --- Chat / Messenger icons + text --- */
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w,
+html.bc-dark-mode .chat-textarea .chat-btns-w,
+body.night_mode .chat-textarea .chat-btns-w {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w .chat_optns,
+html.bc-dark-mode .chat-textarea .chat-btns-w .chat_optns,
+body.night_mode .chat-textarea .chat-btns-w .chat_optns {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w .btn-file,
+html.bc-dark-mode .chat-textarea .chat-btns-w .btn-file,
+body.night_mode .chat-textarea .chat-btns-w .btn-file {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w svg,
+html.bc-dark-mode .chat-textarea .chat-btns-w svg,
+body.night_mode .chat-textarea .chat-btns-w svg {
+  color: #b0b0b0 !important;
+  fill: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w .btn-file:hover,
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w .chat_optns:hover,
+html.bc-dark-mode .chat-textarea .chat-btns-w .btn-file:hover,
+html.bc-dark-mode .chat-textarea .chat-btns-w .chat_optns:hover,
+body.night_mode .chat-textarea .chat-btns-w .btn-file:hover,
+body.night_mode .chat-textarea .chat-btns-w .chat_optns:hover {
+  color: #e0e0e0 !important;
+}
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w .btn-file:hover svg,
+html:has(link#night-mode-css) .chat-textarea .chat-btns-w .chat_optns:hover svg,
+html.bc-dark-mode .chat-textarea .chat-btns-w .btn-file:hover svg,
+html.bc-dark-mode .chat-textarea .chat-btns-w .chat_optns:hover svg,
+body.night_mode .chat-textarea .chat-btns-w .btn-file:hover svg,
+body.night_mode .chat-textarea .chat-btns-w .chat_optns:hover svg {
+  color: #e0e0e0 !important;
+  fill: #e0e0e0 !important;
+}
+/* Also fix message option buttons in full messenger page */
+html:has(link#night-mode-css) .message-option-btns .btn,
+html.bc-dark-mode .message-option-btns .btn,
+body.night_mode .message-option-btns .btn {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .message-option-btns .btn svg,
+html.bc-dark-mode .message-option-btns .btn svg,
+body.night_mode .message-option-btns .btn svg {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .message-option-btns .btn:hover,
+html.bc-dark-mode .message-option-btns .btn:hover,
+body.night_mode .message-option-btns .btn:hover {
+  color: #e0e0e0 !important;
+}
+/* Chat select-color icon */
+html:has(link#night-mode-css) .select-color,
+html.bc-dark-mode .select-color,
+body.night_mode .select-color {
+  color: #b0b0b0 !important;
+}
 html:has(link#night-mode-css) .chat-textarea textarea,
 html.bc-dark-mode .chat-textarea textarea,
 body.night_mode .chat-textarea textarea {
@@ -6390,11 +6450,34 @@ body.night_mode .messages-container .incoming p .hash {
   color: #fff !important;
 }
 
-/* --- Messages page sidebar text --- */
+/* --- Messages page sidebar text + icons --- */
 html:has(link#night-mode-css) .wo_msg_right_prt,
 html.bc-dark-mode .wo_msg_right_prt,
 body.night_mode .wo_msg_right_prt {
   color: #dcdcdc !important;
+}
+/* Full-page messenger write area icons */
+html:has(link#night-mode-css) .tag_msg_write .btn-file,
+html:has(link#night-mode-css) .tag_msg_write svg,
+html.bc-dark-mode .tag_msg_write .btn-file,
+html.bc-dark-mode .tag_msg_write svg,
+body.night_mode .tag_msg_write .btn-file,
+body.night_mode .tag_msg_write svg {
+  color: #b0b0b0 !important;
+}
+html:has(link#night-mode-css) .tag_msg_write .btn-file:hover,
+html:has(link#night-mode-css) .tag_msg_write .btn-file:hover svg,
+html.bc-dark-mode .tag_msg_write .btn-file:hover,
+html.bc-dark-mode .tag_msg_write .btn-file:hover svg,
+body.night_mode .tag_msg_write .btn-file:hover,
+body.night_mode .tag_msg_write .btn-file:hover svg {
+  color: #e0e0e0 !important;
+}
+/* Full-page messenger textarea */
+html:has(link#night-mode-css) .tag_msg_write textarea,
+html.bc-dark-mode .tag_msg_write textarea,
+body.night_mode .tag_msg_write textarea {
+  color: #e2e2e2 !important;
 }
 
 /* --- Post footer + comment interaction text --- */
