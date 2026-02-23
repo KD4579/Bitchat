@@ -1776,6 +1776,20 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                 $(".content").getNiceScroll().resize();
             }
         },500);
+
+        // Global admin notification helper (used by all custom admin pages)
+        function Wo_ShowNotifications(type, message) {
+            if (typeof toastr !== 'undefined') {
+                toastr.options = {closeButton: true, progressBar: true, positionClass: 'toast-top-right', timeOut: 3000};
+                if (type === 'success') toastr.success(message);
+                else if (type === 'error') toastr.error(message);
+                else toastr.info(message);
+            } else if (typeof swal !== 'undefined') {
+                swal({title: message, type: type === 'error' ? 'error' : 'success', timer: 2500});
+            } else {
+                alert(message);
+            }
+        }
     </script>
 
 </body>
