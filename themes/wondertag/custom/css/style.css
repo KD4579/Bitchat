@@ -4806,17 +4806,17 @@ html.bc-dark-mode .tag_pub_box_bg_text {
 @media (min-width: 1151px) {
   #bc-market-strip {
     margin-left: 280px !important;
-    margin-right: 320px !important;
+    padding-right: 320px !important;
   }
 }
 @media (max-width: 1250px) and (min-width: 992px) {
   #bc-market-strip {
-    margin-right: 240px !important;
+    padding-right: 240px !important;
   }
 }
 @media (max-width: 991px) {
   #bc-market-strip {
-    margin-right: 0 !important;
+    padding-right: 0 !important;
   }
 }
 
@@ -5992,4 +5992,95 @@ body {
 }
 .bc-rank-badge svg {
   flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Wallet page — dark mode font/color uniformity
+   Ensure text colors, sizes, and borders are consistent in day & night views.
+   ========================================================================== */
+
+/* Page title */
+html:has(link#night-mode-css) .tag_page_title,
+html.bc-dark-mode .tag_page_title,
+body.night_mode .tag_page_title {
+  color: #e7e9ea !important;
+}
+
+/* "My Balance" label and balance amount */
+html:has(link#night-mode-css) .wow_mini_wallets p.bold,
+html.bc-dark-mode .wow_mini_wallets p.bold,
+body.night_mode .wow_mini_wallets p.bold {
+  color: #c8ccd0 !important;
+}
+html:has(link#night-mode-css) .wow_mini_wallets h5,
+html.bc-dark-mode .wow_mini_wallets h5,
+body.night_mode .wow_mini_wallets h5 {
+  color: #e7e9ea !important;
+}
+
+/* TRDC description line — overrides inline color:#64748b */
+html:has(link#night-mode-css) .wow_mini_wallets p[style*="color"],
+html.bc-dark-mode .wow_mini_wallets p[style*="color"],
+body.night_mode .wow_mini_wallets p[style*="color"] {
+  color: #8899a6 !important;
+}
+
+/* Wallet action buttons text */
+html:has(link#night-mode-css) .wow_mini_wallets_btns .btn,
+html.bc-dark-mode .wow_mini_wallets_btns .btn,
+body.night_mode .wow_mini_wallets_btns .btn {
+  color: #c8ccd0 !important;
+}
+html:has(link#night-mode-css) .wow_mini_wallets_btns .btn:hover,
+html.bc-dark-mode .wow_mini_wallets_btns .btn:hover,
+body.night_mode .wow_mini_wallets_btns .btn:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Transaction log heading */
+html:has(link#night-mode-css) .wallet_transactions > p.bold,
+html.bc-dark-mode .wallet_transactions > p.bold,
+body.night_mode .wallet_transactions > p.bold {
+  color: #e7e9ea !important;
+}
+
+/* Transaction table headers */
+html:has(link#night-mode-css) .wow_wallet_trans thead tr th,
+html.bc-dark-mode .wow_wallet_trans thead tr th,
+body.night_mode .wow_wallet_trans thead tr th {
+  color: #c8ccd0 !important;
+}
+
+/* Transaction table body text */
+html:has(link#night-mode-css) .wow_wallet_trans tbody tr td,
+html.bc-dark-mode .wow_wallet_trans tbody tr td,
+body.night_mode .wow_wallet_trans tbody tr td {
+  color: #b0b8c0 !important;
+}
+
+/* Transaction table borders */
+html:has(link#night-mode-css) .wow_wallet_trans thead,
+html:has(link#night-mode-css) .wow_wallet_trans tbody tr,
+html.bc-dark-mode .wow_wallet_trans thead,
+html.bc-dark-mode .wow_wallet_trans tbody tr,
+body.night_mode .wow_wallet_trans thead,
+body.night_mode .wow_wallet_trans tbody tr {
+  border-bottom-color: #3a3a3a !important;
+}
+
+/* "Add Funds" form text */
+html:has(link#night-mode-css) .wow_add_money_hid_form p.bold,
+html.bc-dark-mode .wow_add_money_hid_form p.bold,
+body.night_mode .wow_add_money_hid_form p.bold {
+  color: #c8ccd0 !important;
+}
+html:has(link#night-mode-css) .wow_add_money_hid_form .add-amount h5,
+html.bc-dark-mode .wow_add_money_hid_form .add-amount h5,
+body.night_mode .wow_add_money_hid_form .add-amount h5 {
+  color: #e7e9ea !important;
+}
+html:has(link#night-mode-css) .wow_add_money_hid_form .add-amount input,
+html.bc-dark-mode .wow_add_money_hid_form .add-amount input,
+body.night_mode .wow_add_money_hid_form .add-amount input {
+  color: #e7e9ea !important;
 }
