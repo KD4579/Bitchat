@@ -385,6 +385,60 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() { popup.style.display = 'none'; }, 300);
     }
 
+    /* Show styled install guide modal for non-PWA browsers */
+    function showInstallGuide() {
+        if (document.getElementById('bc-install-guide-modal')) return;
+
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        var isAndroid = /Android/.test(navigator.userAgent);
+        var stepIcon, step1, step2;
+
+        if (isIOS) {
+            stepIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+            step1 = 'Tap the <b>Share</b> button <span style="font-size:18px">&#9757;</span> at the bottom of Safari';
+            step2 = 'Scroll down and tap <b>"Add to Home Screen"</b>';
+        } else if (isAndroid) {
+            stepIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
+            step1 = 'Tap the <b>menu</b> button <b>&#8942;</b> in your browser\'s top-right corner';
+            step2 = 'Tap <b>"Add to Home Screen"</b> or <b>"Install App"</b>';
+        } else {
+            stepIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
+            step1 = 'Click the <b>browser menu</b> (&#8942; or &#8943;) in the top-right corner';
+            step2 = 'Select <b>"Install Bitchat"</b> or <b>"Add to Home Screen"</b>';
+        }
+
+        var overlay = document.createElement('div');
+        overlay.id = 'bc-install-guide-modal';
+        overlay.innerHTML =
+            '<div class="bc-ig-card">' +
+                '<button class="bc-ig-close" aria-label="Close">&times;</button>' +
+                '<div class="bc-ig-icon">' + stepIcon + '</div>' +
+                '<h3 class="bc-ig-title">Install Bitchat</h3>' +
+                '<p class="bc-ig-subtitle">Add Bitchat to your home screen for a faster, app-like experience.</p>' +
+                '<div class="bc-ig-steps">' +
+                    '<div class="bc-ig-step"><span class="bc-ig-num">1</span><span>' + step1 + '</span></div>' +
+                    '<div class="bc-ig-step"><span class="bc-ig-num">2</span><span>' + step2 + '</span></div>' +
+                '</div>' +
+                '<button class="bc-ig-done">Got it</button>' +
+            '</div>';
+
+        document.body.appendChild(overlay);
+
+        /* Close handlers */
+        function closeGuide() {
+            overlay.classList.add('bc-ig-out');
+            setTimeout(function() { overlay.remove(); }, 250);
+        }
+        overlay.querySelector('.bc-ig-close').addEventListener('click', closeGuide);
+        overlay.querySelector('.bc-ig-done').addEventListener('click', closeGuide);
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeGuide();
+        });
+
+        /* Entrance animation */
+        requestAnimationFrame(function() { overlay.classList.add('bc-ig-in'); });
+    }
+
     /* Install button — triggers PWA install + OneSignal push */
     document.getElementById('bc-install-btn').addEventListener('click', function() {
         dismiss();
@@ -392,6 +446,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (deferredPWAPrompt) {
             deferredPWAPrompt.prompt();
             deferredPWAPrompt.userChoice.then(function() { deferredPWAPrompt = null; });
+        } else {
+            /* Fallback: show styled install guide */
+            showInstallGuide();
         }
         /* Trigger OneSignal push notifications if available */
         if (window.OneSignal) {

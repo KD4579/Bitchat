@@ -1897,6 +1897,139 @@ html.bc-dark-mode #bc-market-strip {
   .bc-install-text { font-size: 12px; }
 }
 
+/* ---- Part 3b: Install Guide Modal (non-PWA fallback) ---- */
+#bc-install-guide-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0);
+  transition: background 0.25s ease;
+}
+#bc-install-guide-modal.bc-ig-in {
+  background: rgba(0,0,0,0.6);
+}
+#bc-install-guide-modal.bc-ig-out {
+  background: rgba(0,0,0,0);
+}
+.bc-ig-card {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  max-width: 360px;
+  width: calc(100% - 40px);
+  text-align: center;
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.bc-ig-in .bc-ig-card {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+.bc-ig-out .bc-ig-card {
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+}
+.bc-ig-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+.bc-ig-close:hover { color: #333; }
+.bc-ig-icon {
+  color: #6C5CFF;
+  margin-bottom: 12px;
+}
+.bc-ig-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #1a1a2e;
+}
+.bc-ig-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+.bc-ig-steps {
+  text-align: left;
+  margin-bottom: 22px;
+}
+.bc-ig-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+.bc-ig-step:last-child { margin-bottom: 0; }
+.bc-ig-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #6C5CFF;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bc-ig-done {
+  display: inline-block;
+  padding: 10px 36px;
+  border: none;
+  border-radius: 9999px;
+  background: #6C5CFF;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.bc-ig-done:hover { opacity: 0.85; }
+
+/* Dark mode */
+html:has(link#night-mode-css) .bc-ig-card,
+html.bc-dark-mode .bc-ig-card {
+  background: #1e1e2e;
+}
+html:has(link#night-mode-css) .bc-ig-title,
+html.bc-dark-mode .bc-ig-title {
+  color: #e7e9ea;
+}
+html:has(link#night-mode-css) .bc-ig-subtitle,
+html.bc-dark-mode .bc-ig-subtitle {
+  color: #8899a6;
+}
+html:has(link#night-mode-css) .bc-ig-step,
+html.bc-dark-mode .bc-ig-step {
+  color: #ccc;
+}
+html:has(link#night-mode-css) .bc-ig-close,
+html.bc-dark-mode .bc-ig-close {
+  color: #666;
+}
+html:has(link#night-mode-css) .bc-ig-close:hover,
+html.bc-dark-mode .bc-ig-close:hover {
+  color: #ccc;
+}
+
 /* ============================================================
    Part 4: Feed Tabs
    ============================================================ */
@@ -4669,10 +4802,21 @@ html.bc-dark-mode .tag_pub_box_bg_text {
    4) Dark mode: sidebar background, text, hover colors
    ========================================================================== */
 
-/* --- 1) Ticker: stop before sidebar on desktop --- */
+/* --- 1) Ticker: stop before sidebars on desktop --- */
 @media (min-width: 1151px) {
   #bc-market-strip {
     margin-left: 280px !important;
+    margin-right: 320px !important;
+  }
+}
+@media (max-width: 1250px) and (min-width: 992px) {
+  #bc-market-strip {
+    margin-right: 240px !important;
+  }
+}
+@media (max-width: 991px) {
+  #bc-market-strip {
+    margin-right: 0 !important;
   }
 }
 
@@ -4690,6 +4834,25 @@ html.bc-dark-mode .tag_pub_box_bg_text {
   .tag_hdr_right > .dropdown .dropdown-menu {
     max-width: 280px !important;
   }
+}
+
+/* --- 2b) Compact notifications in sidebar dropdown --- */
+.tag_hdr_right .notification-list {
+  padding: 6px;
+  margin: 4px 0;
+}
+.tag_hdr_right .notification-list .notification-user-avatar {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+.tag_hdr_right .notification-list .notification-text > span {
+  font-size: 13px;
+}
+.tag_hdr_right .notification-list .ajax-time {
+  font-size: 10px;
+  margin: 2px 0 0;
 }
 
 /* --- 3) Sidebar overflow containment --- */
