@@ -1805,8 +1805,16 @@ html.bc-dark-mode #bc-market-strip {
   line-height: 1;
 }
 .bc-ticker-loading { display: none; }
+@media (max-width: 768px) {
+  .bc-ticker-wrapper {
+    animation-duration: 30s;
+  }
+}
 @media (max-width: 500px) {
   #bc-market-strip { font-size: 14px; height: 36px; }
+  .bc-ticker-wrapper {
+    animation-duration: 35s;
+  }
   .bc-ticker-sep { margin-right: 12px; font-size: 16px; }
   .bc-ticker-change { margin-right: 12px; font-size: 13px; }
   .bc-ticker-label { font-size: 12px; }
