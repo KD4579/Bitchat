@@ -331,7 +331,7 @@ if (isset($provider) && in_array($provider, $types)) {
                     $headers    = "From: " . $config['siteName'] . " <" . $config['siteEmail'] . ">\r\n";
                     $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
                     @mail($re_data['email'], 'Thank you for your registration.', $body, $headers);
-                    header("Location: " . Wo_SeoLink('index.php?link1=start-up'));
+                    header("Location: " . $config['site_url'] . '/?cache=' . time());
                     exit();
                 }
             }

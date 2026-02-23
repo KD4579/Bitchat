@@ -101,7 +101,7 @@ if ($f == 'google_login') {
                     Wo_AutoGroupJoin($user_id);
                 }
                 $data['status']   = 200;
-                $data['location'] = Wo_SeoLink('index.php?link1=start-up');
+                $data['location'] = $wo['config']['site_url'] . '/?cache=' . time();
             } else {
                 $data['message'] = $error_icon . $wo['lang']['something_wrong'];
             }
