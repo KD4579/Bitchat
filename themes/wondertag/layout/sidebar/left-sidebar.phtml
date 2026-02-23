@@ -116,8 +116,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			</div>
 		</div>
 		<div class="tag_sidebar_section_prnt">
-			<div class="valign tag_sidebar_head" data-toggle="collapse" data-target="#collapseCommunity" aria-expanded="true" aria-controls="collapseCommunity"><?php echo $wo['lang']['community'];?> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"></path></svg></div>
-			<div class="collapse show" id="collapseCommunity">
+			<div class="valign tag_sidebar_head" data-toggle="collapse" data-target="#collapseCommunity" aria-expanded="false" aria-controls="collapseCommunity"><?php echo $wo['lang']['community'];?> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path></svg></div>
+			<div class="collapse" id="collapseCommunity">
 				<div class="tag_sidebar_section">
 					<?php if ($wo['config']['events'] == 1) { ?>
 						<a href="<?php echo Wo_SeoLink('index.php?link1=events'); ?>" data-ajax="?link1=events">
@@ -166,7 +166,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		</div>
 		<div class="tag_sidebar_section_prnt">
 			<div class="valign tag_sidebar_head" data-toggle="collapse" data-target="#collapseExplore" aria-expanded="false" aria-controls="collapseExplore"><?php echo $wo['lang']['explore'];?> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path></svg></div>
-			<div class="collapse <?php if ($wo['loggedin'] == true) { ?><?php } else { ?>show<?php } ?>" id="collapseExplore">
+			<div class="collapse" id="collapseExplore">
 				<div class="tag_sidebar_section">
 					<?php if ($wo['config']['website_mode'] == 'instagram') { ?>
 						<a href="<?php echo Wo_SeoLink('index.php?link1=explore');?>" data-ajax="?link1=explore">
