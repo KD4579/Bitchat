@@ -14,14 +14,26 @@ $wo['lb_top_inviters'] = array();
 $wo['lb_top_earners']  = array();
 
 // Top Creators — by total engagement (reactions + comments on their posts)
+// Use derived tables instead of correlated subqueries for performance
 $sql = "SELECT p.user_id,
-            (SELECT COUNT(*) FROM " . T_REACTIONS . " r2 JOIN " . T_POSTS . " p2 ON r2.post_id = p2.id WHERE p2.user_id = p.user_id) AS total_reactions,
-            (SELECT COUNT(*) FROM " . T_COMMENTS . " c2 JOIN " . T_POSTS . " p3 ON c2.post_id = p3.id WHERE p3.user_id = p.user_id) AS total_comments
-        FROM " . T_POSTS . " p
+            COALESCE(rc.cnt, 0) AS total_reactions,
+            COALESCE(cc.cnt, 0) AS total_comments
+        FROM (SELECT user_id FROM " . T_POSTS . " GROUP BY user_id) p
         JOIN " . T_USERS . " u ON p.user_id = u.user_id
+        LEFT JOIN (
+            SELECT p2.user_id, COUNT(*) AS cnt
+            FROM " . T_REACTIONS . " r2
+            JOIN " . T_POSTS . " p2 ON r2.post_id = p2.id
+            GROUP BY p2.user_id
+        ) rc ON p.user_id = rc.user_id
+        LEFT JOIN (
+            SELECT p3.user_id, COUNT(*) AS cnt
+            FROM " . T_COMMENTS . " c2
+            JOIN " . T_POSTS . " p3 ON c2.post_id = p3.id
+            GROUP BY p3.user_id
+        ) cc ON p.user_id = cc.user_id
         WHERE u.active = '1' AND u.admin = '0' AND u.src != 'Fake'
-        GROUP BY p.user_id
-        ORDER BY (total_reactions + total_comments) DESC
+        ORDER BY (COALESCE(rc.cnt, 0) + COALESCE(cc.cnt, 0)) DESC
         LIMIT 10";
 $q = mysqli_query($sqlConnect, $sql);
 if ($q) {
