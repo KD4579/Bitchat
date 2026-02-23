@@ -4497,12 +4497,6 @@ a[href*="link1=funding"],
 a[href*="link1=offers"],
 a[href*="link1=memories"] { display: none !important; }
 
-/* Hide COMMUNITY and EXPLORE section headers + their collapsed containers */
-[data-target="#collapseCommunity"],
-#collapseCommunity,
-[data-target="#collapseExplore"],
-#collapseExplore { display: none !important; }
-
 /* ── TG3: Composer — all buttons visible (LP-2 minimal mode removed) ───── */
 
 /* Composer idle state — compact 56px height */
