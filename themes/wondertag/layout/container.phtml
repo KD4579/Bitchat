@@ -377,6 +377,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 								}
 							}
 							$.post(Wo_Ajax_Requests_Filee() + url, {url:url}, function (data) {
+							  try {
 								$('.user-details').remove();
 								json_data = JSON.parse($(data).filter('#json-data').val());
 								if (json_data.welcome_page == 1 || json_data.redirect == 1) {
@@ -436,12 +437,20 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 								Wo_FinishBar();
 								$('#hidden-content').empty();
 								$('#users-reacted-modal').modal("hide");
+							  } catch(e) {
+								$('#ajax_loading').removeClass('opacity_start');
+								Wo_FinishBar();
+								console.error('AJAX navigation error:', e);
+							  }
 							}).fail(function() {
+								$('#ajax_loading').removeClass('opacity_start');
+								Wo_FinishBar();
 								<?php if ($wo['config']['membership_system'] == 1) { ?>
 									window.location.href = "<?php echo Wo_SeoLink('index.php?link1=go-pro'); ?>";
 								<?php } ?>
 							})
 							.always(function() {
+								$('#ajax_loading').removeClass('opacity_start');
 								Wo_FinishBar();
 							});
 							$('.user-details, .pac-container, .lightbox-container').remove();

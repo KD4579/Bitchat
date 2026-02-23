@@ -7269,3 +7269,100 @@ body.night_mode .bc-glass {
   background: rgba(30,41,59,0.6) !important;
   border-color: rgba(255,255,255,0.1) !important;
 }
+
+/* ==========================================================================
+   CRITICAL: Dark Mode BACKGROUND Fixes — Phase 4 (Feb 2026)
+   Ensures ALL content containers switch to dark backgrounds.
+   Previous fixes only changed TEXT colors but missed BACKGROUNDS.
+   ========================================================================== */
+
+/* --- Main content area: ensure dark bg propagates --- */
+html:has(link#night-mode-css) .tag_content,
+html.bc-dark-mode .tag_content,
+body.night_mode .tag_content {
+  background-color: var(--body-bg, #121212) !important;
+}
+
+/* --- Panel-white standalone (dark.css only covered .user-ad-container .panel-white) --- */
+html:has(link#night-mode-css) .panel-white,
+html.bc-dark-mode .panel-white,
+body.night_mode .panel-white {
+  background-color: #212121 !important;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.5), 0 1px 2px 0 rgba(0,0,0,0.46) !important;
+}
+
+/* --- Profile header card (tag_page_name_hdr has no bg defined anywhere) --- */
+html:has(link#night-mode-css) .tag_page_name_hdr,
+html.bc-dark-mode .tag_page_name_hdr,
+body.night_mode .tag_page_name_hdr {
+  background-color: #212121 !important;
+}
+
+/* --- Profile name text (light gray on white = invisible) --- */
+html:has(link#night-mode-css) .tag_page_name_hdr h3,
+html:has(link#night-mode-css) .tag_page_name_hdr h3 a,
+html:has(link#night-mode-css) .tag_page_name_hdr .user_name,
+html.bc-dark-mode .tag_page_name_hdr h3,
+html.bc-dark-mode .tag_page_name_hdr h3 a,
+html.bc-dark-mode .tag_page_name_hdr .user_name,
+body.night_mode .tag_page_name_hdr h3,
+body.night_mode .tag_page_name_hdr h3 a,
+body.night_mode .tag_page_name_hdr .user_name {
+  color: #e7e9ea !important;
+}
+
+/* --- wow_content: reinforce dark bg (already in dark.css but can be overridden) --- */
+html:has(link#night-mode-css) .wow_content,
+html.bc-dark-mode .wow_content,
+body.night_mode .wow_content {
+  background-color: #212121 !important;
+}
+
+/* --- Discover page header --- */
+html:has(link#night-mode-css) .bc-discover-header h2,
+html.bc-dark-mode .bc-discover-header h2,
+body.night_mode .bc-discover-header h2 {
+  color: #e0e0e0 !important;
+}
+html:has(link#night-mode-css) .bc-discover-header h2 svg,
+html.bc-dark-mode .bc-discover-header h2 svg,
+body.night_mode .bc-discover-header h2 svg {
+  color: #8899a6 !important;
+}
+
+/* --- Discover section backgrounds --- */
+html:has(link#night-mode-css) .bc-discover-section,
+html.bc-dark-mode .bc-discover-section,
+body.night_mode .bc-discover-section {
+  background-color: #212121 !important;
+}
+html:has(link#night-mode-css) .bc-discover-section-header h4,
+html.bc-dark-mode .bc-discover-section-header h4,
+body.night_mode .bc-discover-section-header h4 {
+  color: #e0e0e0 !important;
+}
+
+/* --- Settings page containers --- */
+html:has(link#night-mode-css) .tag_hdr_top_sett,
+html.bc-dark-mode .tag_hdr_top_sett,
+body.night_mode .tag_hdr_top_sett {
+  background-color: var(--body-bg, #121212) !important;
+}
+
+/* --- Settings sidebar: fix for affiliates/invite page visibility --- */
+@media (max-width: 1024px) {
+  .tag_sett_sidebar.bc-sidebar-visible {
+    display: block !important;
+  }
+}
+
+/* --- Creator dashboard wrapper --- */
+html:has(link#night-mode-css) .creator-dashboard-container,
+html:has(link#night-mode-css) .creator_dashboard,
+html.bc-dark-mode .creator-dashboard-container,
+html.bc-dark-mode .creator_dashboard,
+body.night_mode .creator-dashboard-container,
+body.night_mode .creator_dashboard {
+  background-color: #212121 !important;
+  color: #dcdcdc !important;
+}

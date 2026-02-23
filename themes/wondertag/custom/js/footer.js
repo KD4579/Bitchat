@@ -35,8 +35,9 @@
                         setTimeout(function() {
                             if (el.classList.contains('opacity_start')) {
                                 el.classList.remove('opacity_start');
+                                if (typeof Wo_FinishBar === 'function') Wo_FinishBar();
                             }
-                        }, 8000);
+                        }, 5000);
                     }
                 }
             });
