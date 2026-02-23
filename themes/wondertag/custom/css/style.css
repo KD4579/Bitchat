@@ -4843,6 +4843,11 @@ html.bc-dark-mode .tag_pub_box_bg_text {
   padding: 4px 8px !important;
   margin: 1px 0 !important;
 }
+/* Fix flex layout: avatar + text in a single row */
+.notification-list > .valign {
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
 .skel_avatar,
 .notification-list .notification-user-avatar,
 .user-request-list .avatar {
@@ -4850,14 +4855,20 @@ html.bc-dark-mode .tag_pub_box_bg_text {
   min-width: 36px !important;
   height: 36px !important;
   margin-right: 8px !important;
+  flex-shrink: 0 !important;
 }
-.notification-list .notification-text {
+/* Fix text area: use flex:1 instead of width:100% to prevent overflow */
+.notification-list .notification-text,
+.user-request-list .user-info {
+  width: auto !important;
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
   overflow: hidden !important;
+  padding-right: 28px !important;
 }
 .notification-list .notification-text > span {
   font-size: 13px !important;
-  line-height: 1.35 !important;
-  display: inline !important;
+  line-height: 1.3 !important;
 }
 .notification-list .notification-text > span a {
   font-size: 13px !important;
