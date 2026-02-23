@@ -237,7 +237,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
     <link rel="stylesheet" href="<?php echo(Wo_LoadAdminLink('vendors/dataTable/datatables.min.css')) ?>" type="text/css">
 
 <!-- App css -->
-    <link rel="stylesheet" href="<?php echo(Wo_LoadAdminLink('assets/css/app.css')) ?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo(Wo_LoadAdminLink('assets/css/app.css')) ?>?v=<?php echo @filemtime(dirname(__FILE__) . '/assets/css/app.css') ?: time(); ?>" type="text/css">
     <!-- Main scripts -->
 <script src="<?php echo(Wo_LoadAdminLink('vendors/bundle.js')) ?>"></script>
 
