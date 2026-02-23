@@ -7349,9 +7349,13 @@ body.night_mode .tag_hdr_top_sett {
   background-color: var(--body-bg, #121212) !important;
 }
 
-/* --- Settings sidebar: fix for affiliates/invite page visibility --- */
-@media (max-width: 1024px) {
-  .tag_sett_sidebar.bc-sidebar-visible {
+/* --- Settings sidebar: fix for mobile back button visibility --- */
+/* When JS sets inline display:block via fadeIn or setProperty, ensure it wins */
+@media (max-width: 992px) {
+  .tag_sett_sidebar[style*="display: block"] {
+    display: block !important;
+  }
+  .tag_sett_sidebar[style*="display:block"] {
     display: block !important;
   }
 }

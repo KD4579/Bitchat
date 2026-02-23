@@ -509,6 +509,21 @@ document.addEventListener('click', function(e) {
     }
 }, { passive: true });
 
+/* ---- Part 9: Settings Sidebar Toggle Fix ---- */
+/* The mobile back button (.setting_navigation) in settings pages calls
+   fadeIn(50) on .tag_sett_sidebar. On screens ≤992px, the CSS sets
+   display: none which should lose to jQuery's inline display: block,
+   but in practice it can fail. This handler reinforces with !important. */
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.setting_navigation')) {
+        var sidebar = document.querySelector('.tag_sett_sidebar');
+        if (sidebar) {
+            sidebar.style.setProperty('display', 'block', 'important');
+            sidebar.style.setProperty('opacity', '1', 'important');
+        }
+    }
+}, false);
+
 /* ---- Part 11: Mobile Bottom Nav — REMOVED ---- */
 /* #bc-mobile-nav is hidden (display:none). Using WoWonder native bottom bar instead. */
 

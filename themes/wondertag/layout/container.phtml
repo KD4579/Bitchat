@@ -376,7 +376,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 									}
 								}
 							}
-							$.post(Wo_Ajax_Requests_Filee() + url, {url:url}, function (data) {
+							$.ajax({url: Wo_Ajax_Requests_Filee() + url, type: 'POST', data: {url:url}, timeout: 15000, success: function (data) {
 							  try {
 								$('.user-details').remove();
 								json_data = JSON.parse($(data).filter('#json-data').val());
@@ -442,7 +442,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 								Wo_FinishBar();
 								console.error('AJAX navigation error:', e);
 							  }
-							}).fail(function() {
+							}}).fail(function() {
 								$('#ajax_loading').removeClass('opacity_start');
 								Wo_FinishBar();
 								<?php if ($wo['config']['membership_system'] == 1) { ?>
