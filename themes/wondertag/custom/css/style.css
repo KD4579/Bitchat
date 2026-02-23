@@ -6084,3 +6084,51 @@ html.bc-dark-mode .wow_add_money_hid_form .add-amount input,
 body.night_mode .wow_add_money_hid_form .add-amount input {
   color: #e7e9ea !important;
 }
+
+/* ==========================================================================
+   Wallet transaction table — fit within content area
+   Base theme sets .table-responsive { white-space: nowrap } which forces
+   the table wider than available space. The parent .container has
+   overflow-x: hidden, clipping the Amount column.
+   Fix: allow text to wrap so the table fits within available width.
+   ========================================================================== */
+.wallet_transactions .table-responsive {
+  white-space: normal !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+.wow_wallet_trans {
+  table-layout: auto !important;
+  width: 100% !important;
+}
+.wow_wallet_trans td,
+.wow_wallet_trans th {
+  white-space: normal !important;
+  word-break: break-word !important;
+  padding: 10px 8px !important;
+  font-size: 13px !important;
+  vertical-align: middle !important;
+}
+/* Status column: constrain instead of fixed width="300" */
+.wow_wallet_trans th:nth-child(2),
+.wow_wallet_trans td:nth-child(2) {
+  max-width: 280px !important;
+  width: auto !important;
+}
+/* Amount column: prevent wrapping for currency values */
+.wow_wallet_trans th:last-child,
+.wow_wallet_trans td:last-child {
+  white-space: nowrap !important;
+  text-align: right !important;
+}
+/* Date column: prevent wrapping */
+.wow_wallet_trans th:nth-child(3),
+.wow_wallet_trans td:nth-child(3) {
+  white-space: nowrap !important;
+}
+/* Type column: compact */
+.wow_wallet_trans th:first-child,
+.wow_wallet_trans td:first-child {
+  white-space: nowrap !important;
+  font-weight: 600 !important;
+}
