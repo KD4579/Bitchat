@@ -4193,20 +4193,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* ── LP-2: Composer Minimal Mode ────────────────────────────────────────────
-   Primary: Photo/Video, Poll, Text
-   Secondary (hidden by default): Schedule, AI, Sell Product, Location, Audio
-   ──────────────────────────────────────────────────────────────────────────── */
-/* Hide secondary composer buttons */
-.tag_pub_box_btns[onclick*="openScheduleModal"],
-.tag_pub_box_btns[onclick*="openAIModel"],
-.tag_pub_box_btns[onclick*="OpenLinkedinJob"],
-.tag_pub_box_btns[data-target*="create-product"],
-.tag_pub_box_btns[onclick*="map-form"],
-.tag_pub_box_btns[id*="recordPostAudio"] {
-  display: none !important;
-}
-/* Keep: photo/video upload, poll, GIF/emoji (primary UX) */
+/* ── LP-2: Composer — all buttons visible in 2-column grid on desktop ───── */
 
 /* ── LP-3: Offline Chat Panel ───────────────────────────────────────────────
    Hide "You are currently offline" banner — shown before WS connects
@@ -4355,23 +4342,7 @@ a[href*="link1=memories"] { display: none !important; }
 [data-target="#collapseExplore"],
 #collapseExplore { display: none !important; }
 
-/* ── TG3: Composer — strip secondary tools, show only core 4 ────────────────
-   KEEP: Avatar prompt · Textarea · Photo/Video · Poll · Emoji
-   HIDE: Schedule · AI Generate · Sell Product · Location · Audio · File
-   ──────────────────────────────────────────────────────────────────────────── */
-/* Already hidden: Schedule, AI, LinkedinJob, create-product, map-form, recordPostAudio */
-/* Additional: file uploader, advanced privacy, link preview buttons */
-.tag_pub_box_btns[onclick*="openFileUploader"],
-.tag_pub_box_btns[onclick*="Wo_OpenLinkPreview"],
-.tag_pub_box_btns[data-target*="privacy"],
-.tag_pub_box_btns[onclick*="privacy"],
-.tag_pub_box_btns[title*="Privacy"],
-.tag_pub_box_btns[title*="Schedule"],
-.tag_pub_box_btns[title*="AI"],
-.tag_pub_box_btns[title*="Location"],
-.tag_pub_box_btns[title*="Sell"],
-.tag_pub_box_btns[title*="Product"],
-.tag_pub_box_btns[title*="Audio"] { display: none !important; }
+/* ── TG3: Composer — all buttons visible (LP-2 minimal mode removed) ───── */
 
 /* Composer idle state — compact 56px height */
 #tagPostBoxInput:not(:focus),
