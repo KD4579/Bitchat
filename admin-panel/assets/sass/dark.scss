@@ -1393,3 +1393,213 @@ body.dark.hidden-navigation {
         background-color: $dark-mode-color-light;
     }
 }
+
+/* ==========================================================================
+   DARK MODE FIXES — Audit-driven (Feb 2026)
+   Covers 26 SCSS selectors + 3 template inline style overrides
+   that were missing from the original dark.scss
+   ========================================================================== */
+
+body.dark {
+
+    /* --- CRITICAL: icon-block (bg #e1e1e1, color black) --- */
+    .icon-block {
+        background-color: lighten($body-bg-color, 8%);
+        color: $default-dark-text-color;
+
+        i {
+            color: $default-dark-text-color;
+        }
+    }
+
+    /* --- CRITICAL: error page (bg white, text-shadow white) --- */
+    .error-page {
+        background-color: $body-bg-color;
+
+        .error-page-item {
+            text-shadow: -5px 1px 0px $body-bg-color;
+        }
+    }
+
+    /* --- CRITICAL: sidebar header (bg #ebebeb) --- */
+    .sidebar-group .sidebar > header {
+        background-color: darken($dark-mode-color-light, 3%);
+    }
+
+    /* --- HIGH: dropdown borders --- */
+    .dropdown-header {
+        border-bottom-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .dropdown-menu ul li.dropdown-menu-title {
+        border-bottom-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* --- HIGH: card header/footer borders --- */
+    .card .card-header {
+        border-bottom-color: $dark-mode-color-light;
+    }
+
+    .card .card-footer {
+        border-top-color: $dark-mode-color-light;
+    }
+
+    /* --- HIGH: accordion open header bg --- */
+    .accordion.custom-accordion .accordion-row.open a.accordion-header {
+        background: lighten($body-bg-color, 5%);
+    }
+
+    /* --- HIGH: collapse card border --- */
+    .collapse .card {
+        border-color: $dark-mode-color-light;
+    }
+
+    /* --- HIGH: navigation header bg --- */
+    .navigation .navigation-header {
+        background-color: $dark-mode-color-light;
+    }
+
+    /* --- HIGH: avatar-group border --- */
+    .avatar-group .avatar {
+        border-color: lighten($body-bg-color, 5%);
+    }
+
+    /* --- MEDIUM: calendar --- */
+    .fc .fc-center h2 {
+        color: $default-dark-text-color;
+    }
+
+    .fc .fc-event-dot {
+        background: $default-dark-text-color !important;
+    }
+
+    /* --- MEDIUM: tour step --- */
+    .tourStep .popover-navigation {
+        border-top-color: $dark-mode-color-light;
+
+        span {
+            color: rgba(white, .5);
+        }
+    }
+
+    /* --- MEDIUM: file manager items border --- */
+    .file-manager-items .file-manager-item span {
+        border-color: $dark-mode-color-light;
+    }
+
+    /* --- MEDIUM: tagsinput focus border --- */
+    .bootstrap-tagsinput.focus {
+        border-color: lighten($dark-mode-color-light, 15%);
+    }
+
+    /* --- MEDIUM: analytics nav active color --- */
+    .nav-analiytics-style .nav-link.active {
+        color: $default-dark-text-color;
+        border-color: lighten($color-primary, 5%);
+    }
+
+    /* --- MEDIUM: small-nav open arrow --- */
+    &.small-navigation .navigation .navigation-menu-body > ul > li.open > a:before {
+        border-right-color: $body-bg-color !important;
+    }
+
+    /* --- MEDIUM: alert-dark --- */
+    .alert.alert-dark {
+        color: $default-dark-text-color !important;
+        background: rgba(#293134, .5) !important;
+    }
+
+    /* --- LOW: webapp file list hover border --- */
+    .app-file-list:hover {
+        border-color: lighten($dark-mode-color-light, 5%);
+    }
+
+    /* --- LOW: toast close button hover --- */
+    .toast-close-button:hover,
+    .toast-close-button:focus {
+        color: rgba(white, .7);
+    }
+
+    /* --- LOW: todo checked label --- */
+    .todo-item input[type="checkbox"]:checked + label {
+        color: lighten(#00961f, 15%);
+    }
+
+    /* --- LOW: responsive table border (mobile) --- */
+    @media (max-width: 768px) {
+        .table-responsive-stack tr {
+            border-bottom-color: $dark-mode-color-light;
+        }
+    }
+
+    /* --- LOW: disabled navigation link (mobile) --- */
+    @media (max-width: 1200px) {
+        .navigation .navigation-menu-body ul li a.disabled {
+            color: rgba(white, .3) !important;
+        }
+    }
+
+    /* --- TEMPLATE INLINE STYLE OVERRIDES --- */
+    /* Growth Intelligence page: bg #f8f9fc, color #666/#999/#5a5c69 */
+    [style*="background:#f8f9fc"],
+    [style*="background: #f8f9fc"] {
+        background: $dark-mode-color-light !important;
+    }
+
+    [style*="color:#666"],
+    [style*="color: #666"],
+    [style*="color:#999"],
+    [style*="color: #999"],
+    [style*="color:#5a5c69"],
+    [style*="color: #5a5c69"] {
+        color: $default-dark-text-color !important;
+    }
+
+    /* Invitation Keys & Creator Mode: color #64748b, #94a3b8 */
+    [style*="color:#64748b"],
+    [style*="color: #64748b"],
+    [style*="color:#94a3b8"],
+    [style*="color: #94a3b8"] {
+        color: darken($default-dark-text-color, 5%) !important;
+    }
+}
+
+/* --- CRITICAL: hidden-navigation open links (color black) --- */
+body.dark.hidden-navigation {
+    .navigation.open {
+        ul li a {
+            color: $default-dark-text-color !important;
+
+            &.active {
+                color: lighten($color-primary, 5%) !important;
+            }
+
+            &:hover {
+                color: white !important;
+            }
+        }
+    }
+}
+
+/* --- MEDIUM: RTL small-nav hover --- */
+body.dark.rtl.small-navigation {
+    .navigation:hover {
+        background-color: $body-bg-color;
+
+        .navigation-menu-body ul li a {
+            color: $default-dark-text-color;
+
+            .nav-link-icon {
+                color: $default-dark-text-color;
+            }
+
+            &.active {
+                color: lighten($color-primary, 5%);
+
+                .nav-link-icon {
+                    color: lighten($color-primary, 15%);
+                }
+            }
+        }
+    }
+}

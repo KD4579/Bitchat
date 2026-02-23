@@ -7127,3 +7127,145 @@ html.bc-dark-mode .wo_ad_header_format,
 body.night_mode .wo_ad_header_format {
   background: #212121 !important;
 }
+
+/* ==========================================================================
+   DEEP AUDIT FIXES — Phase 3 (Feb 2026)
+   Remaining 17 user-side dark mode gaps (4 MEDIUM, 13 LOW)
+   ========================================================================== */
+
+/* --- MEDIUM: Password validation text invisible (#000 on dark) --- */
+html:has(link#night-mode-css) .helper-text li.valid,
+html.bc-dark-mode .helper-text li.valid,
+body.night_mode .helper-text li.valid {
+  color: #b0b0b0 !important;
+  text-decoration-color: #666 !important;
+}
+
+/* --- MEDIUM: Generic .panel bg not overridden --- */
+html:has(link#night-mode-css) .panel,
+html.bc-dark-mode .panel,
+body.night_mode .panel {
+  background-color: #212121 !important;
+}
+
+/* --- MEDIUM: Active job nav tab stays white --- */
+html:has(link#night-mode-css) .tag_job_jumbo_nav li.active a,
+html.bc-dark-mode .tag_job_jumbo_nav li.active a,
+body.night_mode .tag_job_jumbo_nav li.active a {
+  background-color: #212121 !important;
+  color: #fff !important;
+}
+
+/* --- MEDIUM: Share modal search input keeps light bg --- */
+html:has(link#night-mode-css) .shar_modl_chose_pgrp input,
+html.bc-dark-mode .shar_modl_chose_pgrp input,
+body.night_mode .shar_modl_chose_pgrp input {
+  background-color: #373737 !important;
+  border-bottom-color: rgba(255,255,255,0.42) !important;
+  color: #e2e2e2 !important;
+}
+
+/* --- LOW: User-fetch popover name container --- */
+html:has(link#night-mode-css) .user-fetch .user-name,
+html.bc-dark-mode .user-fetch .user-name,
+body.night_mode .user-fetch .user-name {
+  color: #e0e0e0 !important;
+}
+
+/* --- LOW: Earn points tip icon --- */
+html:has(link#night-mode-css) .earn_points .points_tip svg,
+html.bc-dark-mode .earn_points .points_tip svg,
+body.night_mode .earn_points .points_tip svg {
+  color: #aaa !important;
+}
+
+/* --- LOW: Confirmation code label --- */
+html:has(link#night-mode-css) .tag_confrm_code > span,
+html.bc-dark-mode .tag_confrm_code > span,
+body.night_mode .tag_confrm_code > span {
+  color: #888 !important;
+}
+
+/* --- LOW: Group chat member list border --- */
+html:has(link#night-mode-css) .group_chat_mbr_part,
+html.bc-dark-mode .group_chat_mbr_part,
+body.night_mode .group_chat_mbr_part {
+  border-bottom-color: #3d3d3d !important;
+}
+
+/* --- LOW: Group info paragraph text --- */
+html:has(link#night-mode-css) .wow_my_groups_info p,
+html.bc-dark-mode .wow_my_groups_info p,
+body.night_mode .wow_my_groups_info p {
+  color: #aaa !important;
+}
+
+/* --- LOW: Modal footer border --- */
+html:has(link#night-mode-css) .modal .modal-footer,
+html.bc-dark-mode .modal .modal-footer,
+body.night_mode .modal .modal-footer {
+  border-top-color: #3f3f3f !important;
+}
+
+/* --- LOW: Flickity carousel buttons --- */
+html:has(link#night-mode-css) .flickity-button,
+html.bc-dark-mode .flickity-button,
+body.night_mode .flickity-button {
+  background: rgba(255,255,255,0.15) !important;
+  color: #e0e0e0 !important;
+}
+
+/* --- LOW: Job question block close button --- */
+html:has(link#night-mode-css) .wo_create_job_qstn_block button.close,
+html.bc-dark-mode .wo_create_job_qstn_block button.close,
+body.night_mode .wo_create_job_qstn_block button.close {
+  color: #e0e0e0 !important;
+  background-color: #555 !important;
+}
+
+/* --- LOW: Upload bank receipts icon --- */
+html:has(link#night-mode-css) .upload_bank_receipts svg,
+html.bc-dark-mode .upload_bank_receipts svg,
+body.night_mode .upload_bank_receipts svg {
+  color: #ccc !important;
+  background-color: #555 !important;
+}
+
+/* --- LOW: Greeting alert paragraph --- */
+html:has(link#night-mode-css) .greetalert p,
+html.bc-dark-mode .greetalert p,
+body.night_mode .greetalert p {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+/* --- LOW: Search result badge bg --- */
+html:has(link#night-mode-css) .search-dropdown-result .search_result_badge,
+html.bc-dark-mode .search-dropdown-result .search_result_badge,
+body.night_mode .search-dropdown-result .search_result_badge {
+  background: #2E2E2E !important;
+}
+
+/* --- LOW: Bitchat card flat border invisible --- */
+html:has(link#night-mode-css) .bc-card-flat,
+html.bc-dark-mode .bc-card-flat,
+body.night_mode .bc-card-flat {
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* --- LOW: Thumbnail placeholder backgrounds --- */
+html:has(link#night-mode-css) .bc-trending-thumb,
+html:has(link#night-mode-css) .bc-discover-card-thumb,
+html.bc-dark-mode .bc-trending-thumb,
+html.bc-dark-mode .bc-discover-card-thumb,
+body.night_mode .bc-trending-thumb,
+body.night_mode .bc-discover-card-thumb {
+  background-color: #2a2a2a !important;
+}
+
+/* --- LOW: Glass morphism dark mode --- */
+html:has(link#night-mode-css) .bc-glass,
+html.bc-dark-mode .bc-glass,
+body.night_mode .bc-glass {
+  background: rgba(30,41,59,0.6) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
