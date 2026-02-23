@@ -322,9 +322,15 @@ if ($f == 'register') {
                 if ($login === true) {
                     $session             = Wo_CreateLoginSession(Wo_UserIdFromUsername($_POST['username']));
                     $_SESSION['user_id'] = $session;
-                    setcookie("user_id", $session, time() + (10 * 365 * 24 * 60 * 60));
+                    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+                    setcookie("user_id", $session, [
+                        'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+                        'path'     => '/',
+                        'secure'   => $isSecure,
+                        'samesite' => 'Lax'
+                    ]);
                 }
-                $data['location'] = Wo_SeoLink('index.php?link1=start-up');
+                $data['location'] = $wo['config']['site_url'] . '/?cache=' . time();
                 if ($wo['config']['membership_system'] == 1) {
                     $data['location'] = Wo_SeoLink('index.php?link1=go-pro');
                 }

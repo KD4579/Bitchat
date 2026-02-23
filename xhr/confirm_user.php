@@ -30,7 +30,13 @@ if ($f == 'confirm_user') {
                 'status' => 200
             );
             $_SESSION['user_id'] = $session;
-            setcookie("user_id", $session, time() + (10 * 365 * 24 * 60 * 60));
+            $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+            setcookie("user_id", $session, [
+                'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+                'path'     => '/',
+                'secure'   => $isSecure,
+                'samesite' => 'Lax'
+            ]);
             if (!empty($_POST['last_url'])) {
                 $data['location'] = $_POST['last_url'];
             } else {

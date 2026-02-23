@@ -312,11 +312,17 @@ function Wo_SetLoginWithSession($user_email) {
     }
     $user_email          = Wo_Secure($user_email);
     $_SESSION['user_id'] = Wo_CreateLoginSession(Wo_UserIdFromEmail($user_email));
-    setcookie("user_id", $_SESSION['user_id'], time() + (10 * 365 * 24 * 60 * 60));
+    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    setcookie("user_id", $_SESSION['user_id'], [
+        'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+        'path'     => '/',
+        'secure'   => $isSecure,
+        'samesite' => 'Lax'
+    ]);
     setcookie('ad-con', htmlentities(json_encode(array(
         'date' => date('Y-m-d'),
         'ads' => array()
-    ))), time() + (10 * 365 * 24 * 60 * 60));
+    ))), time() + (10 * 365 * 24 * 60 * 60), '/');
 }
 function Wo_UserActive($username) {
     global $sqlConnect;

@@ -86,11 +86,17 @@ if ($f == 'login') {
             Wo_DeleteBadLogins();
             // Always set persistent cookie so users stay logged in (like Facebook/X)
             // Cookie expires in 10 years; session only ends when user clicks Logout
-            setcookie("user_id", $session, time() + (10 * 365 * 24 * 60 * 60), "/");
+            $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+            setcookie("user_id", $session, [
+                'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+                'path'     => '/',
+                'secure'   => $isSecure,
+                'samesite' => 'Lax'
+            ]);
             setcookie('ad-con', htmlentities(json_encode(array(
                 'date' => date('Y-m-d'),
                 'ads' => array()
-            ))), time() + (10 * 365 * 24 * 60 * 60));
+            ))), time() + (10 * 365 * 24 * 60 * 60), '/');
             $data = array(
                 'status' => 200
             );
