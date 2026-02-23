@@ -3960,8 +3960,11 @@ body, p, li, td {
    ──────────────────────────────────────────────────────────────────────── */
 .tag_sidebar { max-width: 280px !important; }
 .tag_content  { margin-left: 280px !important; }
+/* Ensure chat sidebar doesn't overlap content */
+.tag_content.tag_chat_content { margin-right: 90px !important; }
 @media (max-width: 1150px) {
   .tag_content { margin-left: 0 !important; }
+  .tag_content.tag_chat_content { margin-right: 0 !important; }
   /* Nuclear: hide sidebar completely on mobile/tablet */
   .tag_sidebar {
     display: none !important;
@@ -4944,8 +4947,10 @@ html.bc-dark-mode .tag_sidebar a.active {
 
 /* --- 4d) NIGHT/DARK MODE: sidebar section headers + items --- */
 html:has(link#night-mode-css) .tag_sidebar_head,
-html.bc-dark-mode .tag_sidebar_head {
-  color: #777 !important;
+html.bc-dark-mode .tag_sidebar_head,
+body.night_mode .tag_sidebar_head {
+  color: #aaa !important;
+  opacity: 0.85 !important;
 }
 html:has(link#night-mode-css) .tag_sidebar_section_prnt,
 html.bc-dark-mode .tag_sidebar_section_prnt {
@@ -5719,21 +5724,21 @@ body {
    Core: .wow_mini_wallets h5 { font-size: 60px }, sup { font-size: 30px }
    -------------------------------------------------------------------------- */
 .wow_mini_wallets h5 {
-  font-size: clamp(28px, 6vw, 60px) !important;
+  font-size: clamp(24px, 4.5vw, 42px) !important;
   word-break: break-all !important;
   line-height: 1.1 !important;
 }
 .wow_mini_wallets h5 sup {
-  font-size: clamp(14px, 3vw, 30px) !important;
-  top: clamp(-10px, -2vw, -25px) !important;
+  font-size: clamp(12px, 2vw, 20px) !important;
+  top: clamp(-6px, -1.2vw, -14px) !important;
 }
 @media (max-width: 480px) {
   .wow_mini_wallets h5 {
-    font-size: 28px !important;
+    font-size: 22px !important;
   }
   .wow_mini_wallets h5 sup {
-    font-size: 14px !important;
-    top: -8px !important;
+    font-size: 11px !important;
+    top: -5px !important;
   }
   .wow_mini_wallets {
     padding: 12px !important;
@@ -5750,11 +5755,11 @@ body {
 }
 @media (max-width: 768px) {
   .wow_mini_wallets h5 {
-    font-size: 32px !important;
+    font-size: 26px !important;
   }
   .wow_mini_wallets h5 sup {
-    font-size: 16px !important;
-    top: -10px !important;
+    font-size: 13px !important;
+    top: -7px !important;
   }
 }
 
@@ -5999,11 +6004,11 @@ body {
    Ensure text colors, sizes, and borders are consistent in day & night views.
    ========================================================================== */
 
-/* Page title */
+/* Page title — bright white in dark mode */
 html:has(link#night-mode-css) .tag_page_title,
 html.bc-dark-mode .tag_page_title,
 body.night_mode .tag_page_title {
-  color: #e7e9ea !important;
+  color: #ffffff !important;
 }
 
 /* "My Balance" label and balance amount */
@@ -6083,6 +6088,90 @@ html:has(link#night-mode-css) .wow_add_money_hid_form .add-amount input,
 html.bc-dark-mode .wow_add_money_hid_form .add-amount input,
 body.night_mode .wow_add_money_hid_form .add-amount input {
   color: #e7e9ea !important;
+}
+
+/* ==========================================================================
+   Send Money modal — fix Amount/TRDC/input alignment & sizing
+   Base: h5 is 60px, sup is 30px, input inherits nothing (browser default).
+   Fix: scale down h5, match input font-size to h5, center-align everything.
+   ========================================================================== */
+.wow_snd_money_form .add-amount h5 {
+  font-size: 36px !important;
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  margin: 0 auto !important;
+  padding: 8px 0 !important;
+}
+.wow_snd_money_form .add-amount h5 sup {
+  font-size: 18px !important;
+  top: 0 !important;
+  position: relative !important;
+  align-self: center !important;
+  margin-right: 4px !important;
+}
+.wow_snd_money_form .add-amount h5 input {
+  font-size: 36px !important;
+  font-family: 'Readex Pro', sans-serif !important;
+  font-weight: 300 !important;
+  border: 0 !important;
+  border-bottom: 2px solid rgba(255,255,255,0.15) !important;
+  background: transparent !important;
+  min-width: 60px !important;
+  max-width: 200px !important;
+  text-align: center !important;
+  padding: 0 4px !important;
+  outline: none !important;
+}
+/* Light mode border */
+.wow_snd_money_form .add-amount h5 input {
+  border-bottom-color: rgba(0,0,0,0.12) !important;
+}
+html:has(link#night-mode-css) .wow_snd_money_form .add-amount h5 input,
+html.bc-dark-mode .wow_snd_money_form .add-amount h5 input,
+body.night_mode .wow_snd_money_form .add-amount h5 input {
+  border-bottom-color: rgba(255,255,255,0.2) !important;
+  color: #e7e9ea !important;
+}
+/* Dark mode for Amount label */
+html:has(link#night-mode-css) .wow_snd_money_form p.bold,
+html.bc-dark-mode .wow_snd_money_form p.bold,
+body.night_mode .wow_snd_money_form p.bold {
+  color: #c8ccd0 !important;
+}
+html:has(link#night-mode-css) .wow_snd_money_form .add-amount h5,
+html.bc-dark-mode .wow_snd_money_form .add-amount h5,
+body.night_mode .wow_snd_money_form .add-amount h5 {
+  color: #e7e9ea !important;
+}
+html:has(link#night-mode-css) .wow_snd_money_form .add-amount h5 sup,
+html.bc-dark-mode .wow_snd_money_form .add-amount h5 sup,
+body.night_mode .wow_snd_money_form .add-amount h5 sup {
+  color: #aab !important;
+}
+
+/* Also fix Add Funds form same way */
+.wow_add_money_hid_form .add-amount h5 {
+  font-size: 36px !important;
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+.wow_add_money_hid_form .add-amount h5 sup {
+  font-size: 18px !important;
+  top: 0 !important;
+  position: relative !important;
+  margin-right: 4px !important;
+}
+.wow_add_money_hid_form .add-amount h5 input {
+  font-size: 36px !important;
+  font-family: 'Readex Pro', sans-serif !important;
+  font-weight: 300 !important;
+  min-width: 60px !important;
+  max-width: 200px !important;
+  text-align: center !important;
 }
 
 /* ==========================================================================
