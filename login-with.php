@@ -79,17 +79,17 @@ if (isset($provider) && in_array($provider, $types)) {
                         }
                     }
                     else{
-                        echo " <b><a href='" . Wo_SeoLink('index.php?link1=welcome') . "'>Try again<a></b>";
+                        header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
                         exit();
                     }
                 }
                 else{
-                    echo " <b><a href='" . Wo_SeoLink('index.php?link1=welcome') . "'>Try again<a></b>";
+                    header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
                     exit();
                 }
             }
             else{
-                echo " <b><a href='" . Wo_SeoLink('index.php?link1=welcome') . "'>Try again<a></b>";
+                header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
                 exit();
             }
         }
@@ -114,8 +114,8 @@ if (isset($provider) && in_array($provider, $types)) {
                     //$videos = $_TK->getUserVideoPages();
                     // Your logic to manage the Video info
                 } catch (Exception $e) {
-                    echo "Error: ".$e->getMessage();
-                    echo '<br /><a href="'.$_TK->getRedirect().'">Retry</a>';
+                    error_log('[Bitchat Social Login] TikTok error: ' . $e->getMessage());
+                    header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
                     exit();
                 }
             } else {
@@ -178,7 +178,9 @@ if (isset($provider) && in_array($provider, $types)) {
             if (!empty($user_profile->email)) {
                 $user_email = $user_profile->email;
                 if(empty($user_profile->emailVerified) && $provider == 'Discord') {
-                    exit("Your E-mail is not verfied on Discord.");
+                    error_log('[Bitchat Social Login] Discord: unverified email');
+                    header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
+                    exit();
                 }
             }
             if (Wo_EmailExists($user_email) === true) {
@@ -336,8 +338,15 @@ if (isset($provider) && in_array($provider, $types)) {
         }
     }
     catch (Exception $e) {
-        echo $e->getMessage();
-        echo " <b><a href='" . Wo_SeoLink('index.php?link1=welcome') . "'>Try again<a></b>";
+        // Log the error for debugging
+        error_log('[Bitchat Social Login] ' . $provider . ' error: ' . $e->getMessage());
+        // Show a styled error page instead of raw text
+        $loginUrl = Wo_SeoLink('index.php?link1=welcome');
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Login Error - ' . htmlspecialchars($wo['config']['siteName']) . '</title>';
+        echo '<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f5f5f5;color:#333}.card{background:#fff;border-radius:12px;padding:40px;max-width:400px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.1)}.card h2{margin:0 0 12px;font-size:22px}.card p{color:#666;margin:0 0 24px;font-size:15px}.btn{display:inline-block;padding:12px 32px;background:#4a90d9;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px}.btn:hover{background:#3a7bc8}</style></head><body>';
+        echo '<div class="card"><h2>Login Failed</h2><p>Something went wrong with ' . htmlspecialchars($provider) . ' login. Please try again or use a different login method.</p>';
+        echo '<a href="' . htmlspecialchars($loginUrl) . '" class="btn">Back to Login</a></div></body></html>';
+        exit();
     }
 } else {
     header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
