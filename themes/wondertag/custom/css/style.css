@@ -4955,8 +4955,8 @@ html.bc-dark-mode .tag_sidebar a.active {
 html:has(link#night-mode-css) .tag_sidebar_head,
 html.bc-dark-mode .tag_sidebar_head,
 body.night_mode .tag_sidebar_head {
-  color: #555 !important;
-  opacity: 0.7 !important;
+  color: #999 !important;
+  opacity: 0.85 !important;
 }
 html:has(link#night-mode-css) .tag_sidebar_section_prnt,
 html.bc-dark-mode .tag_sidebar_section_prnt {
@@ -6010,11 +6010,16 @@ body {
    Ensure text colors, sizes, and borders are consistent in day & night views.
    ========================================================================== */
 
-/* Page title — uses dark.css --header-color (#e8e8e8) in dark mode,
-   falls back to inherit (dark body text) in light mode */
+/* Page title — explicit colors to avoid admin --header-color bleed */
 .tag_page_title,
 h2.tag_page_title {
-  color: var(--header-color, inherit) !important;
+  color: #1a1a1a !important;
+}
+html:has(link#night-mode-css) .tag_page_title,
+html:has(link#night-mode-css) h2.tag_page_title,
+html.bc-dark-mode .tag_page_title,
+html.bc-dark-mode h2.tag_page_title {
+  color: #e0e0e0 !important;
 }
 
 /* "My Balance" label and balance amount */
