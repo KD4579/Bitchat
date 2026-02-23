@@ -1927,17 +1927,12 @@ html.bc-dark-mode #bc-market-strip {
 }
 
 /* ============================================================
-   Part 5: Composer — hide secondary toolbar items (4+) by default
+   Part 5: Composer — hide secondary toolbar items on mobile only.
+   Desktop shows full 2-column grid with text labels.
    ============================================================ */
-.pub-footer-upper .tag_pub_box_btns:nth-child(n+4) {
-  display: none !important;
-}
-.pub-footer-upper.bc-composer-expanded .tag_pub_box_btns:nth-child(n+4) {
-  display: inline-flex !important;
-}
-/* "More Options" toggle button added by JS */
+/* "More Options" toggle button — hidden on desktop, visible on mobile */
 .bc-composer-more-btn {
-  display: inline-flex;
+  display: none;
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
@@ -1954,6 +1949,17 @@ html.bc-dark-mode #bc-market-strip {
   margin-left: 2px;
 }
 .bc-composer-more-btn:hover { background: var(--bc-surface-hover); color: var(--bc-text-primary); }
+
+/* Mobile only: collapse icons 4+ behind More/Less toggle */
+@media (max-width: 600px) {
+  .bc-composer-more-btn { display: inline-flex; }
+  .pub-footer-upper .tag_pub_box_btns:nth-child(n+4) {
+    display: none !important;
+  }
+  .pub-footer-upper.bc-composer-expanded .tag_pub_box_btns:nth-child(n+4) {
+    display: block !important;
+  }
+}
 
 /* ============================================================
    Part 6: TRDC Sidebar Card
