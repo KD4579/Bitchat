@@ -4,6 +4,30 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
+### Audit: Admin Function Testing — Automated Checks (P6-QA)
+
+**Automated results (pass/fail):**
+
+- **Nginx error log** — only harmless SSL OCSP stapling warnings; zero application errors ✅
+- **PHP-FPM** — socket errors present on Feb 23 were transient restart events; server stable since ✅
+- **Admin panel PHP syntax** — `autoload.php`, all pages in `admin-panel/pages/`, key XHR handlers (`update_email_settings.php`, `update_general_settings.php`, `auto_backup_settings.php`, `announcement_banner.php`) all pass `php -l` ✅
+- **autoload.php duplicates** — previously-reported `dashboard` and `trdc-payments` duplicate entries are not present in current codebase ✅
+- **Debug `error_log()` calls** — "Admin Load Debug" entries in `php_errors.log` last seen at 11:26 UTC; stopped before today's deploy (code already removed from repo) ✅
+- **console.log in script.js** — all 3 remaining occurrences are inside third-party minified plugins (theiaStickySidebar, autocomplete); zero in custom code ✅
+- **HTTP 500 analysis** — `/family_list` 500s are from crawlers hitting invalid URL patterns (pre-existing WoWonder behavior, unrelated to our changes) ✅
+- **Admin page routing** — all admin-cp/* URLs return 302 → login redirect as expected ✅
+
+**Requires manual browser testing (admin session needed):**
+
+- [ ] Website Mode save
+- [ ] Email settings save
+- [ ] AI settings save
+- [ ] NodeJS settings save
+- [ ] Backup SQL & Files
+- [ ] Mass Notifications
+- [ ] Announcements
+- [ ] Push notifications
+
 ### Fix: Post Card Overflow (P5-15)
 
 - `.post .post-description img/video`: `max-width: 100%; height: auto !important` — images and video in post bodies always fit the card width

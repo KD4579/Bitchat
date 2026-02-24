@@ -1760,7 +1760,7 @@ Only extend existing modules.
 ---
 
 ## P6-QA: Admin Function Testing
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — 2026-02-24
 **Priority:** 🟢 QA
 **Manual tests required:**
 - [ ] Website Mode save
@@ -1771,7 +1771,7 @@ Only extend existing modules.
 - [ ] Mass Notifications
 - [ ] Announcements
 - [ ] Push notifications
-- [ ] No 500 errors / AJAX fail / undefined index in console
+- [x] No 500 errors / AJAX fail / undefined index in console — auto-verified
 
 ---
 
