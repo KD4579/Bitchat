@@ -2,11 +2,281 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
+
+### Fix: Admin AJAX Navigation — Growth Pages Showing Same Content (BUG-FIX)
+
+- **Root cause:** `admin_load.php` response started with `\n<!-- DEBUG: ... -->` — the PHP `?>` closing tag emitted a trailing newline before the HTML comment. jQuery 3.4.1 only treats a string as HTML if `selector[0] === '<'`. With `\n` as the first character, jQuery treated the entire AJAX response as a CSS selector, returned an empty collection, so `.filter('#json-data').val()` returned `undefined`, `JSON.parse(undefined)` threw, and `$('.content').html(data)` never executed — leaving the previously-loaded page visible while the URL changed.
+- Removed debug HTML comment and all `error_log()` calls from `admin_load.php`
+- Output `<input id="json-data">` inline with the PHP closing tag so response always starts with `<`
+- Added try-catch around `JSON.parse` in AJAX success handler so content updates even if JSON extraction fails
+- Removed leftover `console.log('Popstate: Full reload')` from popstate handler
+- **Commit:** `8ee76ef1`
+- **Files:** `admin_load.php`, `admin-panel/autoload.php`
+
+### Fix: Bitchat Growth Sidebar Position (P2-6)
+
+- Moved "Bitchat Growth" admin sidebar section above the "Tools" section
+- Previously appeared near the very bottom of the nav (after System Status, before Changelogs)
+- Now appears in a more prominent, discoverable position just before Tools
+- No logic changes — purely a reorder of the `<li>` block in the sidebar
+- **File:** `admin-panel/autoload.php`
+
+### Fix: Admin Panel Debug Logs Removed (P2-5)
+
+- Removed 8 debug `console.log`/`console.error` calls from admin panel AJAX navigation handler exposing page names, full URLs, and response sizes in production browser console
+- Accordion behavior verified correct — no logic changes needed
+- **File:** `admin-panel/autoload.php`
+
+### Audit: Security Token Validation (P1-4)
+
+- Audited CSRF/security token system — no vulnerabilities found
+- Token is per-session random hash (`Wo_CreateMainSession()`), not static
+- Embedded on every page via `container.phtml`, sent with all AJAX requests
+- Admin XHR handlers enforce `Wo_IsAdmin()` session check; `requireCsrfToken()` used on sensitive handlers
+- No code changes required
+
+### Fix: TRDC Rewards Stability (P1-3)
+
+- **Bug:** `DATE(created_at)` in growth-intelligence dashboard queried a UNIX timestamp column with MySQL `DATE()` — returns wrong/null result. Fixed to integer range comparison (`created_at >= today_start AND < today_end`)
+- **Indexes added:** `idx_user_created (user_id, created_at)` and `idx_created_at` on `Wo_TRDC_Rewards` — speeds up cron cooldown/daily-cap queries. Applied directly to live DB.
+- **File:** `admin-panel/pages/growth-intelligence/content.phtml`
+
+### Fix: Online Users Counter Too Low (P1-2)
+
+- **Problem:** Admin dashboard and sidebar showed near-zero online users despite active users on the site
+- **Root Cause:** `Wo_CountOnlineData()` and `Wo_GetAllOnlineData()` used a 60-second `lastseen` window — any user idle for >1 minute was immediately dropped from the count
+- **Fix:** Raised both functions to a 300-second (5-minute) window — the standard for active session presence
+- **File:** `assets/includes/functions_two.php`
+
+### Fix: Dashboard Chart Duplicate Month Labels (P1-1)
+
+- **Problem:** Admin dashboard chart showed `JanJan FebFeb…` — months duplicated on AJAX re-navigation
+- **Root Cause:** ApexCharts rendered a second instance into `#admin-chart-container` without destroying the first when user navigated away and back
+- **Fix:** Track chart instance as `window._dashboardChart`; destroy before re-render
+- **File:** `admin-panel/pages/dashboard/content.phtml`
+
+---
+
+## 2026-02-24 — Sidebar Restructure + Dark Mode Deep Audit
+
+### Sidebar Settings Restructure
+- Replaced Settings nav link with a collapsible dropdown in the sidebar — all settings sub-pages accessible inline
+- Removed the Settings sub-sidebar panel entirely — cleaner navigation flow
+- Made Invite & Earn a standalone sidebar-accessible page
+- Added Settings section directly to the main sidebar
+- Community and Explore sidebar sections: unhidden, then set to collapsed by default
+- **Files:** `themes/wondertag/layout/sidebar/left-sidebar.phtml`, related sidebar templates
+
+### Fix: Language Dropdown Not Scrolling
+- Added `max-height` and `overflow-y: auto` to language dropdown so it scrolls when list is long
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Dark Mode Deep Audit (Multi-Pass)
+- Comprehensive dark mode audit across admin panel (26 selectors fixed) and user-side (17 selectors fixed)
+- Fixed decimal RGB values in compiled admin `app.min.css` for browser compatibility
+- Fixed CSS cache delivery: regenerated `app.min.css` with cache buster
+- Phase 2 site-wide dark mode fixes — audit-driven, all pages covered
+- Fixed chat/messenger icon colors invisible in dark mode
+- **Files:** `themes/wondertag/custom/css/style.css`, `admin-panel/vendors/compiled/app.min.css`
+
+### Fix: AJAX Navigation + Mobile
+- Fixed AJAX navigation timeout that left pages stuck on load
+- Fixed settings sidebar toggle not working on mobile
+- Fixed dark mode white backgrounds and AJAX navigation stuck state
+- Fixed affiliates sidebar display issue
+- **Files:** `themes/wondertag/javascript/script.js`, `themes/wondertag/custom/js/footer.js`
+
+### Fix: Leaderboard 504 Timeout
+- **Root cause:** Correlated subqueries in leaderboard SQL caused full-table scans on large datasets
+- **Fix:** Replaced correlated subqueries with derived tables — query now executes in milliseconds
+- **Files:** `sources/leaderboard.php`
+
+---
+
+## 2026-02-23 — Wallet UI, Dark Mode, Reward Engine Fixes, Post Composer
+
+### Wallet UI Overhaul
+- Fixed wallet page title color, balance font size, and ME sidebar label readability
+- Fixed Amount column in transaction table being cut off by chat sidebar
+- Fixed send money modal layout
+- Fixed ticker background gap and wallet dark mode font uniformity
+- Fixed wallet title and ME label dark mode color mismatch (multiple passes)
+- **Files:** `themes/wondertag/layout/ads/wallet.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Fix: Header Logo Size
+- Increased header logo size by 20% for better brand visibility
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Dark Mode Multi-Phase Fixes
+- Comprehensive dark mode text readability fix across all pages
+- Fixed chat/messenger icon colors in dark mode
+- Site-wide dark mode Phase 2 (audit-driven) applied
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Notification Compact Layout
+- Redesigned sidebar notification items to 50% height
+- Fixed avatar overlap and text wrapping in notifications/activities list
+- Fixed global CSS selectors to correctly override WoWonder base theme
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Ticker / Chat Sidebar Overlap
+- Fixed market ticker overlapping the chat sidebar on some layouts
+- Added `overflow: hidden` + z-index fix on ticker container
+- Added fallback install prompt modal for unsupported browsers
+- Slowed down market ticker scroll speed on mobile devices
+- **Files:** `themes/wondertag/custom/css/style.css`, `themes/wondertag/custom/js/footer.js`
+
+### Fix: Post Composer (Desktop + Mobile)
+- Removed CSS rules that hid composer buttons (LP-2, TG3 minimal mode overrides)
+- Fixed post composer showing mobile-style icons on desktop
+- Added visible border to post composer textarea for clarity
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Post-Login Redirect Chain
+- Fixed redirect loop: `.htaccess` welcome rule was catching `welcome-setup` URL
+- Fixed post-login redirect to skip the start-up bounce for Google/social OAuth logins
+- Fixed cross-browser cookie + redirect issues for Safari, iOS, and mobile browsers
+- Added PHP error logging for post-login failures
+- **Files:** `.htaccess`, `index.php`, `login-with.php`
+
+### Fix: Cron Concurrent Execution
+- Added `flock()` file lock to `cron-job.php` to prevent concurrent cron runs overlapping
+- Fixed session timing issues: self-scheduling + DB session cleanup
+- **Files:** `cron-job.php`
+
+### Fix: TRDC Reward User-Side Audit
+- Fixed `member_since` → `joined` column name mismatch in reward engine guards (5 occurrences)
+- Fixed reward protection layer bugs found in deep audit
+- **Files:** `assets/includes/functions_trdc_rewards.php`, `assets/includes/functions_growth.php`
+
+### Fix: Duplicate Post Popup
+- **Root cause:** Multiple event paths (data-toggle + JS + fallback) all firing on AJAX navigation, each opening the modal
+- **Fix:** Nuclear approach — removed `data-toggle`, single JS open path, global lock flag
+- Admin TRDC rewards page now auto-reloads after saving changes
+- Defined `Wo_ShowNotifications()` in admin panel autoload to fix fatal error
+- **Files:** `themes/wondertag/javascript/script.js`, `themes/wondertag/custom/js/footer.js`, `admin-panel/autoload.php`
+
+### Feature: Reward Toast Punchlines
+- Added motivational punchline text to all TRDC reward toasts for higher dopamine impact
+- **Files:** `themes/wondertag/custom/js/bc-rewards.js`
+
+---
+
+## 2026-02-22 — TRDC Reward Engine, Mobile Responsive Reset, Creator Rank Badges
+
+### Feature: Unified TRDC Reward Engine
+- Centralized all TRDC rewards into one admin-controlled system with a single configuration panel
+- Added TRDC reward protection layer to prevent duplicate awards; instant rewards activated
+- Expanded first-time creation rewards to cover: album, article, event, funding, group, page
+- **Files:** `assets/includes/functions_trdc_rewards.php`, `xhr/trdc_rewards.php`, `admin-panel/pages/trdc-rewards/content.phtml`
+
+### Feature: /my-points Standalone Page
+- Moved the Earn & Rewards page out of Settings into its own route at `/my-points`
+- Fixed header link to use direct navigation instead of AJAX (avoids SPA nav issue)
+- **Files:** `sources/my_points.php` (NEW), `themes/wondertag/layout/my_points/content.phtml` (NEW), `index.php`, `ajax_loading.php`
+
+### Feature: Creator Rank Badges on Posts
+- Creator rank badge (Rising Star / Contributor / Influencer / Champion) now displays next to author name on every post
+- **Files:** `themes/wondertag/layout/story/includes/header.phtml`, `themes/wondertag/custom/css/style.css`
+
+### Feature: Market Ticker Expansion
+- Added XRP, Solana (SOL), and TRX to the live market price strip
+- **Files:** `themes/wondertag/custom/js/footer.js`
+
+### Mobile Responsive Reset (RR-1 to RR-34)
+- 34 targeted CSS overrides covering all mobile breakpoints (≤768px, ≤520px)
+- Zero-gap flush post cards with thin separators; post spacing 1px on mobile
+- Hero banner height reduced by ~30%
+- Logo now visible on mobile (override WoWonder core `display:none` at ≤520px)
+- FAB restored to native WoWonder create dropdown (removed custom `bc-fab`)
+- Native WoWonder bottom nav bar used on mobile; user profile accessible via avatar in header
+- Composer modal textarea fills space above toolbar on mobile
+- Right sidebar widened to 320px; gutters equalized to 12px; spacing between columns reduced 80%
+- **Files:** `themes/wondertag/custom/css/style.css`, `themes/wondertag/custom/js/footer.js`, `themes/wondertag/layout/container.phtml`
+
+### Feature: Install Popup Rebuilt
+- Rebuilt install popup: 5s flash, 5-minute re-show interval, max 5 shows, random gradient colors
+- Removed old PWA install button, merged into custom install popup flow
+- **Files:** `themes/wondertag/custom/js/footer.js`, `themes/wondertag/custom/css/style.css`
+
+### Performance Improvements
+- Added `defer` attribute to non-critical scripts: Flickity, audio player, flatpickr
+- `BC_CONFIG` now uses `json_encode()` to prevent XSS injection
+- Forced CSS/JS cache invalidation via `time()` in container.phtml
+- **Files:** `themes/wondertag/layout/container.phtml`
+
+### Fix: Action Prompt Post Count
+- Action prompt now counts all post types (photo, video, article, etc.), not just text-only posts
+- **Files:** `assets/includes/functions_growth.php`
+
+### Fix: Profile Avatar Overlap
+- Fixed profile page avatar overlap caused by MC-1 global border/radius override
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+---
+
+## 2026-02-21 — Dark Mode Foundation, Modal DOM Reduction, Layout Fixes
+
+### Fix: Dark Mode Root Cause
+- Added CSS variable overrides (`--bc-bg`, `--bc-text`, etc.) as the root-level dark mode fix
+- Fixed sidebar background color, header element colors (icons, search, profile) inside sidebar
+- Fixed ticker, header overflow, and sidebar dark mode comprehensively
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Per-Post Modals → Global Single Instance (DOM Reduction)
+- Moved per-post modal HTML (edit, delete, report, etc.) out of each post card into a single shared modal
+- Structural DOM reduction — significantly smaller HTML payload on feed pages
+- **Files:** `themes/wondertag/layout/story/`, `themes/wondertag/custom/js/bc-modal.js`
+
+### Fix: Post Composer Modal
+- Fixed post composer modal stuck on dark overlay when opened
+- Fixed modal positioning and z-index conflicts with sidebar on mobile
+- Moved `#tagPostBox` to body for correct stacking context
+- Fixed `bc-modal.js` syntax error and socket.io error handling
+- **Files:** `themes/wondertag/javascript/script.js`, `themes/wondertag/custom/js/bc-modal.js`, `themes/wondertag/layout/container.phtml`
+
+### Fix: Mobile Layout
+- Nuclear sidebar hide on mobile using `display:none` instead of transform (more reliable)
+- Hero banner height reduced in multiple passes (~40% total)
+- All vertical section spacing reduced ~30%
+- Fixed welcome/login page layout for all device sizes
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Creators Sidebar Section
+- Made Creators section match Pro Members layout style in sidebar
+- Restored WoWonder core icon sizing for like/reaction buttons (was broken by UI override)
+- **Files:** `themes/wondertag/layout/sidebar/content.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
 ## 2026-02-20
 
 - Verified auto-deploy webhook operational
 - All 11 UI improvements confirmed live
 - Fixed webhook deploy log path (private/ dir, within open_basedir)
+
+### Feature: Landing Page Final Refactor (TG1/TG3/TG4/TG6/TG7/TG8)
+- Hero section, feed layout, and landing page unified across all devices
+- Market ticker currency changed from INR to USD for BTC/ETH/BNB/TRDC display
+- Facebook-matched layout audit (MC v2) — all component sizes corrected to match reference
+
+### Fix: Action Bar CSS
+- Definitive action bar fix — rebuilt as flex thirds with correct DOM structure
+- Fixed grandchild selector bug and grandparent overflow causing misalignment
+- Corrected action bar CSS selectors and SVG overflow
+
+### Fix: Comment Toggle Restored
+- Removed `display:none` override that was blocking `Wo_ShowComments()` from rendering comment sections
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Admin Panel Link
+- Removed EP-12 `href*=admin` hide rule that was hiding the admin panel link from logged-in admins
+- **Files:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Duplicate Header Icons on Mobile
+- Removed MC-7 duplicate header icon set on mobile (deduplication)
+- **Files:** `themes/wondertag/custom/css/style.css`
 
 ---
 

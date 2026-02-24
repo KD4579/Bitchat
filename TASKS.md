@@ -1650,7 +1650,7 @@ Only extend existing modules.
 ---
 
 ## BUG-FIX: Admin AJAX Nav — Growth Pages Show Same Content
-**Status:** [~] In Progress
+**Status:** [x] Completed
 **Priority:** 🔴 Critical
 **Root Cause:** `admin_load.php` response starts with `\n<!-- DEBUG: ... -->` (PHP `?>` emits trailing newline before the comment). jQuery 3.4.1 only treats a string as HTML if `selector[0] === "<"`. Since the first char is `\n`, jQuery treats the whole response as a CSS selector, returns empty collection, `.val()` → `undefined`, `JSON.parse(undefined)` throws, and `$('.content').html(data)` never executes — content stays as previously-loaded page.
 **Fix Applied:**
