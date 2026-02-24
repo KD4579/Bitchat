@@ -4,6 +4,16 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
+### Fix: Wallet & My-Points Page (P3-12)
+
+- `xhr/wallet.php`: added `s=get-balance` handler — queries T_USERS directly for fresh wallet/points and returns `{ status, balance, points }` as JSON
+- `wallet.phtml`: added spinning refresh icon button next to the TRDC balance; `Wo_RefreshWalletBalance()` fetches the latest balance via AJAX and updates `#wallet-balance-amount` without a page reload
+- `my_points/content.phtml`: TRDC balance now uses `number_format(..., 4)` so small amounts (e.g. 0.0012) display correctly instead of "0.00"
+- `my_points/content.phtml`: removed `margin-left:110%` from "Buy TRDC Now" dropdown button — this pushed the button entirely off-screen
+- Note: real-time balance update on transfer was already live (Task 1 via WebSocket in `container.phtml`)
+- **Commit:** `a9bd28a3`
+- **Files:** `xhr/wallet.php`, `themes/wondertag/layout/ads/wallet.phtml`, `themes/wondertag/layout/my_points/content.phtml`
+
 ### Fix: Post Composer — Emoji Z-Index, Upload Overlay, Button Align (P3-9)
 
 - `.emo-post-container`: raised z-index from 2 → 1000 so the emoji dropdown renders above lightbox/modal overlay layers (base stylesheet's z-index:2 was too low to clear the lightbox stacking context)
