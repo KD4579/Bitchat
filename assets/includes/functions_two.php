@@ -3314,7 +3314,7 @@ function Wo_CountOnlineData($type = "") {
     $data       = array();
     $type_table = T_USERS;
     $type_id    = Wo_Secure("user_id");
-    $time       = time() - 60;
+    $time       = time() - 300; // 5-minute online window
     $query_one  = mysqli_query($sqlConnect, "SELECT COUNT(`{$type_id}`) as count FROM {$type_table} WHERE `lastseen` > {$time}");
     if (mysqli_num_rows($query_one)) {
         $fetched_data = mysqli_fetch_assoc($query_one);
@@ -3327,7 +3327,7 @@ function Wo_GetAllOnlineData() {
     $data       = array();
     $type_table = T_USERS;
     $type_id    = Wo_Secure("user_id");
-    $time       = time() - 60;
+    $time       = time() - 300; // 5-minute online window
     $query_one  = mysqli_query($sqlConnect, "SELECT `user_id` FROM {$type_table} WHERE `lastseen` > {$time}");
     if (mysqli_num_rows($query_one)) {
         while ($fetched_data = mysqli_fetch_assoc($query_one)) {
