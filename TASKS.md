@@ -1715,7 +1715,7 @@ Only extend existing modules.
 ---
 
 ## P3-12: Wallet & My-Points Page
-**Status:** [ ] Not Started
+**Status:** [~] In Progress
 **Priority:** 🟡 Medium
 **Tasks:**
 - Verify balance updates live

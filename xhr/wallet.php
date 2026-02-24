@@ -418,4 +418,16 @@ if ($f == 'wallet') {
         echo json_encode($data);
         exit();
     }
+    if ($s == 'get-balance' && $wo['loggedin'] === true) {
+        $uid = intval($wo['user']['user_id']);
+        $q   = mysqli_query($sqlConnect, "SELECT `wallet`, `points` FROM " . T_USERS . " WHERE `user_id` = '{$uid}'");
+        $row = mysqli_fetch_assoc($q);
+        header("Content-type: application/json");
+        echo json_encode([
+            'status'  => 200,
+            'balance' => $row ? number_format(floatval($row['wallet']), 2) : '0.00',
+            'points'  => $row ? intval($row['points']) : 0,
+        ]);
+        exit();
+    }
 }

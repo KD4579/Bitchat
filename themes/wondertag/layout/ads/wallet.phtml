@@ -20,7 +20,11 @@
 			<div class="my_wallet valign wow_mini_wallets">
 				<div>
 					<p class="bold"><?php echo $wo['lang']['my_balance'];?></p>
-					<h5 id="wallet-balance-display"><sup><?php echo Wo_GetCurrency($wo['config']['ads_currency']); ?></sup><span id="wallet-balance-amount"><?php echo number_format($wo['user']['wallet'],2);?></span></h5>
+					<h5 id="wallet-balance-display"><sup><?php echo Wo_GetCurrency($wo['config']['ads_currency']); ?></sup><span id="wallet-balance-amount"><?php echo number_format($wo['user']['wallet'],2);?></span>
+					<button type="button" id="wallet-refresh-btn" onclick="Wo_RefreshWalletBalance();" title="Refresh balance" style="background:none;border:none;padding:0 0 0 5px;cursor:pointer;opacity:0.55;vertical-align:middle;line-height:1;">
+						<svg id="wallet-refresh-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+					</button>
+				</h5>
 					<p style="font-size:12px;color:#64748b;margin-top:4px;">Use TRDC to boost posts, promote content &amp; grow faster</p>
 				</div>
 				<div class="wow_mini_wallets_btns">
@@ -1242,3 +1246,24 @@ function securionpay_pay(){
         </div>
     </div>
 </div>
+
+<style>
+@keyframes bc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+#wallet-refresh-icon.spinning { animation: bc-spin 0.8s linear infinite; }
+</style>
+<script>
+function Wo_RefreshWalletBalance() {
+    var btn  = document.getElementById('wallet-refresh-btn');
+    var icon = document.getElementById('wallet-refresh-icon');
+    if (btn)  btn.disabled = true;
+    if (icon) icon.classList.add('spinning');
+    $.getJSON(Wo_Ajax_Requests_File() + '?f=wallet&s=get-balance', function(data) {
+        if (data && data.status === 200) {
+            $('#wallet-balance-amount').text(data.balance);
+        }
+    }).always(function() {
+        if (btn)  btn.disabled = false;
+        if (icon) icon.classList.remove('spinning');
+    });
+}
+</script>
