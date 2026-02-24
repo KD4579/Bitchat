@@ -7320,3 +7320,29 @@ body.night_mode .creator_dashboard {
   max-height: 50vh;
   overflow-y: auto;
 }
+
+/* ==========================================================================
+   P3-9: Post Composer Fix
+   ========================================================================== */
+
+/* 1. Emoji dropdown z-index — raise above lightbox/modal overlay layers.
+      Base stylesheet sets z-index:2 which is too low when inside a lightbox
+      or stacking-context layer. Bootstrap uses 1000 for .dropdown-menu. */
+.emo-post-container {
+  z-index: 1000 !important;
+}
+
+/* 2. Video upload area — ensure the ratio container clips its children
+      and that the overlay covers it fully, regardless of flex parent. */
+.tag_pub_vids {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* 3. Share button + chars counter — flex-align them so the button is
+      perfectly centered alongside the character counter in the header. */
+.tag_pub_box .modal-header > div:nth-child(2) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}

@@ -1678,17 +1678,17 @@ Only extend existing modules.
 ---
 
 ## P3-8: Feed Layout Standardization
-**Status:** [ ] Not Started
+**Status:** [x] Completed - 2026-02-24
 **Priority:** 🟡 Medium
 **Tasks:**
-- Fix post container width + centering
-- Fix avatar scaling
-- Prevent reaction overflow
+- Fix post container width + centering → covered by MC-2b (1200px container, 320px fixed sidebar)
+- Fix avatar scaling → covered by MC-3 (40px avatar override)
+- Prevent reaction overflow → covered by MC-3b (flex-direction row, nowrap, flex-shrink 0)
 
 ---
 
 ## P3-9: Post Composer Fix
-**Status:** [ ] Not Started
+**Status:** [~] In Progress
 **Priority:** 🟡 Medium
 **Tasks:**
 - Fix emoji modal z-index
@@ -1698,19 +1698,19 @@ Only extend existing modules.
 ---
 
 ## P3-10: Sidebar Sections
-**Status:** [ ] Not Started
+**Status:** [x] Completed - 2026-02-24
 **Priority:** 🟡 Medium
 **Tasks:**
-- Fix collapsed Community/Explore sections
-- Remove overflow hidden conflicts
+- Fix collapsed Community/Explore sections → done in commits 6c3c6147 / 98b85b83
+- Remove overflow hidden conflicts → no conflicts found (sections use Bootstrap collapse, not custom)
 
 ---
 
 ## P3-11: Language Dropdown Scroll
-**Status:** [ ] Not Started
+**Status:** [x] Completed - 2026-02-24
 **Priority:** 🟡 Medium
 **Tasks:**
-- Enable scrolling for long language list (max-height + overflow-y)
+- Enable scrolling for long language list → done in commit 770225f9 (`max-height: 50vh; overflow-y: auto`)
 
 ---
 
