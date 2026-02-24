@@ -7346,3 +7346,101 @@ body.night_mode .creator_dashboard {
   align-items: center !important;
   gap: 6px !important;
 }
+
+/* ==========================================================================
+   P4-DM: Dark Mode Complete Fix
+   Targets gaps not covered by dark.css or earlier style.css overrides.
+   ========================================================================== */
+
+/* 1. Alert variants — wallet.css overrides Bootstrap alerts with solid
+      light-mode colors (#f8d7da, #d4edda). These need dark overrides so
+      alerts are readable on the dark #121212 background. */
+body.night_mode .alert-success {
+  background-color: rgba(76, 175, 80, 0.12) !important;
+  color: #81c784 !important;
+  border-color: rgba(76, 175, 80, 0.25) !important;
+}
+body.night_mode .alert-danger {
+  background-color: rgba(244, 67, 54, 0.12) !important;
+  color: #e57373 !important;
+  border-color: rgba(244, 67, 54, 0.25) !important;
+}
+body.night_mode .alert-warning {
+  background-color: rgba(243, 148, 64, 0.12) !important;
+  color: #ffb74d !important;
+  border-color: rgba(243, 148, 64, 0.25) !important;
+}
+body.night_mode .alert-info {
+  background-color: rgba(33, 150, 243, 0.12) !important;
+  color: #64b5f6 !important;
+  border-color: rgba(33, 150, 243, 0.25) !important;
+}
+
+/* 2. Add Funds form container — wallet.css sets background:#ffffff.
+      Override to match the dark surface palette. */
+body.night_mode .wow_add_money_hid_form {
+  background: #1e1e2e !important;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 3. Earn-points section divider — base style uses rgba(0,0,0,0.08) which
+      is invisible on the #121212 dark background. */
+body.night_mode .earn_points .ep_illus {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 4. Wallet subtitle text — wallet.phtml contains an inline color:#64748b
+      on the "Use TRDC to boost posts…" subtitle. Override via structural
+      selector so inline !important is not needed in the PHP. */
+body.night_mode .wow_mini_wallets > div > p:not(.bold) {
+  color: #9ca3af !important;
+}
+
+/* 5. .form-control inputs — wallet.css sets background:#ffffff and a light
+      border. Covers the bank-transfer Transaction ID field and any other
+      .form-control outside of .tag_field wrappers. */
+body.night_mode .form-control {
+  background-color: #373737 !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #e2e2e2 !important;
+}
+body.night_mode .form-control:focus {
+  background-color: #434343 !important;
+  border-color: rgba(255, 255, 255, 0.38) !important;
+}
+body.night_mode .form-control[readonly],
+body.night_mode .form-control:disabled {
+  background-color: #2a2a2a !important;
+  color: #9ca3af !important;
+}
+body.night_mode .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.38) !important;
+}
+
+/* 6. .file-upload border — wallet.css sets a light-grey border #e1e8ed.
+      On dark backgrounds this is still slightly visible but looks washed
+      out; align with the dark border palette. */
+body.night_mode .file-upload {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 7. form-group labels — Bootstrap's .form-group uses a plain <label>
+      which inherits body color. wallet.css also defines .form-label
+      with color:#2c3e50 (dark on light). Override for dark mode. */
+body.night_mode .form-group label,
+body.night_mode .form-label {
+  color: #c8ccd0 !important;
+}
+
+/* 8. .counter on My Points page (inside .earn_points) — ensure TRDC
+      counter heading and sub-text are readable. The .counter box
+      itself is covered in dark.css (line 288) but the inline SVG coin
+      and p.point-text text color need explicit dark treatment. */
+body.night_mode .earn_points .counter h2,
+body.night_mode .earn_points .counter h5 {
+  color: #e7e9ea !important;
+}
+body.night_mode .earn_points .counter .point-text,
+body.night_mode .earn_points .counter .count-text {
+  color: #9ca3af !important;
+}
