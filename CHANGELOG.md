@@ -2,6 +2,20 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-25 — Admin Panel Cleanup
+
+### Remove WoWonder Branding from Admin Sidebar
+
+Removed three WoWonder stock items that appeared permanently at the bottom of every admin sidebar page:
+
+- **Changelogs** — linked to WoWonder's own changelog page; irrelevant to Bitchat
+- **FAQs** — linked to `docs.wowonder.com/#faq`; external WoWonder documentation
+- **Powered by WoWonder v4.2.1** — third-party branding block with logo and version badge
+
+**File:** `admin-panel/autoload.php` (lines 1543–1567 removed)
+
+---
+
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
 ### QA-CLS: Sidebar Avatar Layout Shift Fix

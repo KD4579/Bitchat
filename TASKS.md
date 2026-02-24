@@ -1775,6 +1775,15 @@ Only extend existing modules.
 
 ---
 
+## Task: Remove Admin Sidebar — Changelogs, FAQs, Powered-by
+**Status:** [x] Completed — 2026-02-25
+**Priority:** 🟡 Medium
+**Issue:** Admin sidebar permanently shows "Changelogs", "FAQs" (external WoWonder docs link), and "Powered by WoWonder v4.2.1" branding. All are WoWonder stock items not relevant to Bitchat.
+**Fix:** Remove the three blocks from `admin-panel/autoload.php` (lines 1543–1567).
+**Files:** `admin-panel/autoload.php`
+
+---
+
 ## FINAL QA CHECKLIST
 
 - [x] Feed loads without layout shift — CLS fix applied: `.sidebar-listed-user-avatar` now has explicit 38×38px + object-fit (QA-CLS, 2026-02-24)

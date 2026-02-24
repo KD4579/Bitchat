@@ -1540,31 +1540,6 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             <span>System Status</span>
                         </a>
                     </li>
-                    <?php if ($is_admin || ($is_moderoter && ($wo['user']['permission']['changelog'] == 1))) { ?>
-                    <li>
-                        <a <?php echo ($page == 'changelog') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('changelog'); ?>" data-ajax="?path=changelog">
-                            <span class="nav-link-icon">
-                                <i class="material-icons">update</i>
-                            </span>
-                            <span>Changelogs</span>
-                        </a>
-                    </li>
-                    <?php } ?>
-                    <?php if ($is_admin == true) { ?>
-                    <li>
-                        <a href="http://docs.wowonder.com/#faq" target="_blank">
-                            <span class="nav-link-icon">
-                                <i class="material-icons">more_vert</i>
-                            </span>
-                            <span>FAQs</span>
-                        </a>
-                    </li>
-                    <?php } ?>
-                    <a class="pow_link" href="https://bit.ly/2R2jrcz" target="_blank">
-                        <p>Powered by</p>
-                        <img src="https://demo.wowonder.com/themes/default/img/logo.png">
-                        <b class="badge">v<?php echo $wo['config']['version'];?></b>
-                    </a>
                 </ul>
             </div>
         </div>
