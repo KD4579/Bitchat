@@ -43,16 +43,18 @@
          <?php echo Wo_Time_Elapsed_String($wo['report']['time']);?>
       </div>
    </td>
-   <td>
+   <td style="min-width:260px;">
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
       <button class="btn bg-success admn_table_btn" onclick="Wo_MarkSafeReportedPost(<?php echo $wo['report']['id']?>,'hide');">Delete Report</button>
-      <button class="btn bg-danger admn_table_btn" onclick="Wo_DeleteReportedContent(<?php echo $wo['report']['user']['id']?>,<?php echo $wo['report']['id']?>,'user','hide');">Delete User</button>
+      <button class="btn bg-danger admn_table_btn" onclick="Wo_DeleteReportedContent(<?php echo intval($wo['report']['user']['id'])?>,<?php echo $wo['report']['id']?>,'user','hide');">Delete User</button>
       <button class="btn bg-info admn_table_btn" onclick="$('#read_report').modal().find('.report_text').text('<?php echo htmlspecialchars($wo['report']['text']); ?>')">View Report</button>
-      <?php if ($wo['report']['user']['id'] != $wo['user']['user_id']) { ?>
+      <?php if (!empty($wo['report']['user']['id']) && $wo['report']['user']['id'] != $wo['user']['user_id']) { ?>
       <?php if ($wo['report']['user']['banned'] == 1) { ?>
          <button class="btn bg-secondary admn_table_btn" onclick="Wo_UnBanUser(<?php echo $wo['report']['user']['id'] ?>,'hide');">Unban User</button>
       <?php }else{ ?>
       <button class="btn bg-secondary admn_table_btn" onclick="Wo_BanUser(<?php echo $wo['report']['user']['id'] ?>,'hide');">Ban User</button>
       <?php } ?>
       <?php } ?>
+      </div>
    </td>
 </tr>

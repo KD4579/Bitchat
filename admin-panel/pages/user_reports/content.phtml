@@ -204,7 +204,7 @@ $db->where('recipient_id',0)->where('admin',1)->where('seen',0)->where('type','u
         <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="card-body">
-					<div id="dashboard-daterangepicker" class="btn btn-outline-light pull-right">
+					<div id="dashboard-daterangepicker" class="btn btn-outline-secondary pull-right">
                             <?php 
                             if (!empty($_GET['range']) && in_array($_GET['range'], array('Today','Yesterday','This Week','This Month','Last Month','This Year'))) {
                                 echo $_GET['range'];
@@ -215,16 +215,8 @@ $db->where('recipient_id',0)->where('admin',1)->where('seen',0)->where('type','u
                             } ?>
                         </div>
                   <h6 class="card-title">Manage Users Reports</h6>
-                  <div class="row">
-                      <div class="col-md-9" style="margin-bottom:0;">
-                      </div>
-                      <div class="col-md-3" style="margin-bottom:0;">
-                        
-                       </div>
-                    </div>
                     <div class="clearfix"></div>
-                    <br>
-                   <div class="table-responsive1">
+                   <div class="table-responsive">
                         <table class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr>
@@ -276,6 +268,10 @@ $db->where('recipient_id',0)->where('admin',1)->where('seen',0)->where('type','u
                               $fetched_data['reporter'] = Wo_UserData($fetched_data['user_id']);
                               $fetched_data['comment']  = Wo_GetPostComment($fetched_data['comment_id']);
                               $fetched_data['type']     = 'comment';
+                          }
+                          // Ensure user data is always available (profile_id always set per WHERE clause)
+                          if (empty($fetched_data['user']) && !empty($fetched_data['profile_id'])) {
+                              $fetched_data['user'] = Wo_UserData($fetched_data['profile_id']);
                           }
                           $wo['report'] = $fetched_data;
 				                    echo Wo_LoadAdminPage('user_reports/list');

@@ -4,6 +4,18 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-25 — Admin Panel Cleanup
 
+### Fix user_reports Admin Page Layout (5 issues)
+
+**Files:** `admin-panel/pages/user_reports/content.phtml`, `admin-panel/pages/user_reports/list.phtml`
+
+1. **`btn-outline-light` → `btn-outline-secondary`** — date range picker button was invisible on light backgrounds
+2. **`table-responsive1` → `table-responsive`** — typo prevented horizontal scroll on small screens
+3. **Removed empty two-column row** — dead whitespace with no content
+4. **Fixed missing user data for non-profile report types** — Delete User / Ban buttons emitted broken JS for post/page/group/comment reports; now loads user via `profile_id` (always present per WHERE clause)
+5. **Action column flex wrap** — 4 buttons now wrap gracefully with `flex-wrap:wrap;gap:4px` and `min-width:260px`; added `intval()` on user ID output, `!empty()` guard on ban/unban condition
+
+---
+
 ### Remove WoWonder Branding from Admin Sidebar
 
 Removed three WoWonder stock items that appeared permanently at the bottom of every admin sidebar page:

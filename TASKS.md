@@ -1784,6 +1784,19 @@ Only extend existing modules.
 
 ---
 
+## Task: Fix user_reports Admin Page Layout
+**Status:** [x] Completed — 2026-02-25
+**Priority:** 🟠 High
+**Issues:**
+1. `table-responsive1` typo → table won't scroll on small screens
+2. `btn-outline-light` on date picker button → invisible on light background
+3. Empty two-column row (col-md-9 / col-md-3) — dead whitespace
+4. `$fetched_data['user']` not set for post/page/group/comment report types → Delete User / Ban buttons get undefined user ID, causing broken JS
+5. Action column: up to 4 buttons with no flex wrap → overflow on narrow screens
+**Files:** `admin-panel/pages/user_reports/content.phtml`, `admin-panel/pages/user_reports/list.phtml`
+
+---
+
 ## FINAL QA CHECKLIST
 
 - [x] Feed loads without layout shift — CLS fix applied: `.sidebar-listed-user-avatar` now has explicit 38×38px + object-fit (QA-CLS, 2026-02-24)
