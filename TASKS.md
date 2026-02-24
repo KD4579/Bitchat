@@ -1743,7 +1743,7 @@ Only extend existing modules.
 ---
 
 ## P5-14: Hero Banner Responsive Height
-**Status:** [ ] Not Started
+**Status:** [x] Completed — 2026-02-24
 **Priority:** 📱 Medium
 **Tasks:**
 - Replace fixed height with min-height responsive value

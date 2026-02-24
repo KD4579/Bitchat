@@ -4,6 +4,13 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
+### Fix: Hero Banner Responsive Height (P5-14)
+
+- `#bc-hero-banner`: added `min-height: 110px` on desktop — ensures visual weight even when content is minimal; released to `min-height: auto` at ≤768px so mobile height is purely content-driven
+- `.bc-hero-chart`: replaced fixed `height: 52px` with `min-height: 44px` + `height: clamp(44px, 5.5vw, 64px)` so the chart strip scales with viewport width
+- **Commit:** `607d484b`
+- **File:** `themes/wondertag/custom/css/style.css`
+
 ### Fix: Bottom Navigation Overlap (P5-13)
 
 - Audit confirmed `body { padding-bottom: calc(45px + env(safe-area-inset-bottom, 0px)) !important }` (RR-12) was already in place — the primary fix
