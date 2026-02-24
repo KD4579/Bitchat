@@ -1,4 +1,4 @@
-<tr class="setting-userlist <?php echo ($wo['report']['seen'] == 0) ? ' report-not-seen' : '';?> " id="ReportID_<?php echo $wo['report']['id']?>" data_selected="<?php echo($wo['report']['id']) ?>">
+<tr class="setting-userlist <?php echo ($wo['report']['seen'] == 0) ? ' report-not-seen' : '';?> " id="ReportID_<?php echo $wo['report']['id']?>" data_selected="<?php echo($wo['report']['id']) ?>" style="vertical-align:middle;">
    <td><input type="checkbox" id="check-data-<?php echo($wo['report']['id']) ?>" class="delete-checkbox filled-in"><label for="check-data-<?php echo($wo['report']['id']) ?>"></label></td>
    <td><?php echo $wo['report']['id']?></td>
    <td class="pointer">
@@ -9,11 +9,10 @@
       } ?>
    </td>
    <td>
-      <a href="<?php echo $wo['report']['reporter']['url']; ?>">
-      <img src="<?php echo $wo['report']['reporter']['avatar'];?>" class="setting-avatar" alt="<?php echo $wo['report']['reporter']['avatar'];?> Profile Picture">
-      <?php echo $wo['report']['reporter']['name']; ?>
+      <a href="<?php echo $wo['report']['reporter']['url']; ?>" style="display:flex;align-items:center;gap:8px;">
+      <img src="<?php echo $wo['report']['reporter']['avatar'];?>" class="setting-avatar" style="width:36px;height:36px;object-fit:cover;border-radius:50%;flex-shrink:0;" alt="Reporter avatar">
+      <span><?php echo $wo['report']['reporter']['name']; ?></span>
       </a>
- 
    </td>
    <td>
       <?php if ($wo['report']['type'] == 'post'): ?>
