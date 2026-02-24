@@ -8,7 +8,6 @@ $pages = array(
     'general-settings',
     'dashboard',
     'site-settings',
-    'dashboard',
     'site-features',
     'amazon-settings',
     'email-settings',
@@ -94,7 +93,6 @@ $pages = array(
     'groups-categories',
     'blogs-categories',
     'products-categories',
-    'trdc-payments',
     'trdc-payments',
     'manage-currencies',
     'manage-colored-posts',
@@ -319,7 +317,6 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
 
             // Cancel any pending AJAX request
             if (currentAjaxRequest) {
-                console.log('Cancelling previous request');
                 currentAjaxRequest.abort();
                 currentAjaxRequest = null;
             }
@@ -343,23 +340,11 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                 var timestamp = new Date().getTime();
                 var fullUrl = Wo_Ajax_Requests_File_load() + url + '&_t=' + timestamp;
 
-                // Debug logging
-                console.log('=== Admin Page Load ===');
-                console.log('Page:', pageName);
-                console.log('URL param:', url);
-                console.log('Full URL:', fullUrl);
-                console.log('Timestamp:', timestamp);
-
                 currentAjaxRequest = $.ajax({
                     url: fullUrl,
                     type: 'GET',
                     cache: false,
                     success: function(data) {
-                        var loadedPage = $(data).filter('#loaded-page-debug').val();
-                        console.log('SUCCESS - Loaded page:', loadedPage);
-                        console.log('Content length:', data.length, 'bytes');
-                        console.log('=======================');
-
                         $(".barloading").css("display","none");
 
                         // Reset data-sent for all navigation links
@@ -389,16 +374,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                         $(".content").animate({ scrollTop: 0 }, "slow");
                     },
                     error: function(xhr, status, error) {
-                        // Don't log errors for aborted requests
-                        if (status === 'abort') {
-                            console.log('Request aborted');
-                            return;
-                        }
-                        console.error('ERROR loading page');
-                        console.error('Status:', status);
-                        console.error('Error:', error);
-                        console.error('Response:', xhr.responseText);
-                        console.error('=======================');
+                        if (status === 'abort') return;
                         $(".barloading").css("display","none");
                     },
                     complete: function() {
@@ -411,13 +387,10 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
         // Better popstate handler - use AJAX for back/forward if state was from AJAX navigation
         $(window).on("popstate", function (e) {
             if (e.originalEvent.state && e.originalEvent.state.ajax && e.originalEvent.state.page) {
-                console.log('Popstate: Loading page via AJAX:', e.originalEvent.state.page);
-                // Find and trigger the link for this page
                 var link = $('a[data-ajax="?path=' + e.originalEvent.state.page + '"]');
                 if (link.length) {
                     link.trigger('click');
                 } else {
-                    console.log('Popstate: Link not found, reloading');
                     location.reload();
                 }
             } else {
