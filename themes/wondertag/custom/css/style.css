@@ -7451,3 +7451,43 @@ body.night_mode .earn_points .counter .point-text,
 body.night_mode .earn_points .counter .count-text {
   color: #9ca3af !important;
 }
+
+/* ==========================================================================
+   P5-15: Post Card — media fit + overflow containment
+   Ensure all embedded media in post bodies fits within the card width.
+   body { overflow-x: hidden } (RR-28) clips overflow at the page level,
+   but that just clips — the content below handles actual fit.
+   ========================================================================== */
+
+/* 1. Images and video in post body always fit their container */
+.post .post-description img,
+.post .post-description video {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* 2. Iframes embedded directly in post text (non-wrapped, e.g. user HTML) */
+.post .post-description iframe {
+  max-width: 100% !important;
+}
+
+/* 3. Tables in post text get inner horizontal scroll instead of overflowing */
+.post .post-description table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 4. Pre/code blocks in post text */
+.post .post-description pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 5. Mobile: post panel clips any residual overflow */
+@media (max-width: 768px) {
+  .post .panel.panel-white {
+    overflow: hidden;
+  }
+}
