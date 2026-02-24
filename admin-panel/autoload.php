@@ -353,7 +353,11 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             $('#redirect_link').removeAttr('data-sent');
                         }
 
-                        json_data = JSON.parse($(data).filter('#json-data').val());
+                        try {
+                            json_data = JSON.parse($(data).filter('#json-data').val());
+                        } catch (e) {
+                            json_data = {};
+                        }
 
                         // Replace content
                         $('.content').html(data);
@@ -394,7 +398,6 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     location.reload();
                 }
             } else {
-                console.log('Popstate: Full reload');
                 location.reload();
             }
         });

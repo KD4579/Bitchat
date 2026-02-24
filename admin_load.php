@@ -48,16 +48,9 @@ unset($files[1]);
 unset($files[2]);
 $page = 'dashboard';
 
-// Debug logging
-error_log("Admin Load Debug - GET path: " . ($_GET['path'] ?? 'NOT SET'));
-error_log("Admin Load Debug - Parsed page: " . ($path['page'] ?? 'NULL'));
-
 if (!empty($path['page']) && in_array($path['page'], $files) && file_exists('admin-panel/pages/' . $path['page'] . '/content.phtml')) {
     $page = $path['page'];
-    error_log("Admin Load Debug - Loading page: " . $page);
 } else {
-    error_log("Admin Load Debug - Page not found, using dashboard. Path: " . print_r($path, true) . ", GET: " . print_r($_GET, true));
-    // Default to dashboard if page not found
     $page = 'dashboard';
 }
 $wo['user']['permission'] = !empty($wo['user']['permission']) ? json_decode($wo['user']['permission'], true) : [];
@@ -81,12 +74,5 @@ $wo['decode_windwos_value']  = base64_decode('I2RkZA==');
 $data = array();
 $wo['script_root'] = dirname(__FILE__);
 $text = Wo_LoadAdminPage($page . '/content');
-?>
-<!-- DEBUG: Loaded page: <?php echo htmlspecialchars($page); ?> -->
-<input type="hidden" id="json-data" value='<?php
-echo htmlspecialchars(json_encode($data));
-?>'>
-<input type="hidden" id="loaded-page-debug" value='<?php echo htmlspecialchars($page); ?>'>
-<?php
+?><input type="hidden" id="json-data" value='<?php echo htmlspecialchars(json_encode($data)); ?>'><?php
 echo $text;
-?>

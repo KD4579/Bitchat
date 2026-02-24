@@ -86,7 +86,7 @@
 ## 🔴 PHASE 1: SPEED MODE (Foundation — Must Be Done First)
 
 ### Task SM-1: Feed-First Rendering (Largest Speed Gain)
-**Status:** [ ] Not Started
+**Status:** [x] Completed - 2026-02-19
 **Priority:** Critical
 **Impact:** Page load feels 2-3x faster
 
@@ -101,7 +101,7 @@
 ---
 
 ### Task SM-2: Remove Duplicate Markets Loader ✓ Quick Win
-**Status:** [ ] Not Started
+**Status:** [x] Completed - 2026-02-19
 **Priority:** High
 **Impact:** Removes one redundant API call and DOM render
 
@@ -166,7 +166,7 @@ BC_MODAL.confirm({
 ---
 
 ### Task SM-5: Hidden Input Elimination ✓ Quick Win
-**Status:** [ ] Not Started
+**Status:** [x] Completed - 2026-02-19
 **Priority:** Medium
 **Impact:** Cleaner DOM, faster parsing
 
@@ -209,7 +209,7 @@ BC_MODAL.confirm({
 ---
 
 ### Task SM-7: Chat False Offline Fix ✓ High Priority UX
-**Status:** [ ] Not Started
+**Status:** [x] Completed - 2026-02-19
 **Priority:** High
 **Impact:** Fixes user confusion ("Why am I offline while browsing?")
 
@@ -1562,3 +1562,219 @@ Only extend existing modules.
 - Only rendered when `$wo['loggedin'] == true`
 **Files:** `themes/wondertag/layout/container.phtml`, `themes/wondertag/custom/css/style.css`, `themes/wondertag/custom/js/footer.js`
 **Verified:** Nav HTML at container.phtml line 1661, all 5 items confirmed. CSS at style.css with 900px breakpoint. Active state JS in footer.js.
+
+---
+
+---
+
+# DEVELOPER RULES (Always Active)
+
+**Rule 1:** Always update TASKS.md before starting any task (paste to-do list here).
+**Rule 2:** Always update CHANGELOG.md after completing a task (only after completion + Rule 4 fulfilled).
+**Rule 3:** Never start a task until explicitly instructed or task is approved.
+**Rule 4:** Always recheck on live URL (bitchat.live + admin panel) after pushing commit and confirming deployment on live server.
+**Rule 5:** Always re-add these rules whenever conversation is compacted.
+
+---
+
+# SPRINT 1 — Approved Task Queue
+
+*(User Panel + Admin Panel + Mobile + Dark Mode)*
+
+---
+
+## P1-1: Fix Dashboard Chart Label Bug
+**Status:** [x] Completed - 2026-02-24
+**Priority:** 🔴 Critical
+**Problem:** Months showing `JanJan FebFeb…` — duplicate labels in dashboard chart.
+**Root Cause:** ApexCharts rendered a second instance into `#admin-chart-container` without destroying the first when user navigated away and back via AJAX navigation.
+**Fix Applied:** Track chart as `window._dashboardChart`; destroy existing instance before re-rendering.
+**File:** `admin-panel/pages/dashboard/content.phtml`
+
+---
+
+## P1-2: Fix Online Users Counter
+**Status:** [x] Completed - 2026-02-24
+**Priority:** 🔴 Critical
+**Problem:** Very low online count despite active users.
+**Root Cause:** `Wo_CountOnlineData()` and `Wo_GetAllOnlineData()` used a 60-second `lastseen` window — users idle for >1 min were instantly dropped from the count.
+**Fix:** Raised both functions to 300-second window (5 minutes) in `assets/includes/functions_two.php`
+**Commit:** `aa973a2a`
+
+---
+
+## P1-3: TRDC Rewards System Stability
+**Status:** [x] Completed - 2026-02-24
+**Priority:** 🔴 Critical
+**Findings:**
+- Admin save/update form: correct — POST to `xhr/trdc_rewards.php`, saves master switch + per-reward configs
+- Reward engine: `Wo_TriggerReward()` → cooldown → daily cap → guard → `Wo_AwardTRDC()` — all intact
+- Cron: `cron-job.php` calls `Wo_ProcessMilestoneRewards()` when master switch is ON
+- **Bug found + fixed:** `DATE(created_at)` in `growth-intelligence/content.phtml` — `created_at` is UNIX int, `DATE()` gave wrong results. Fixed to `created_at >= today_start AND < today_end`
+- **Indexes added:** `idx_user_created (user_id, created_at)` and `idx_created_at` added directly to `Wo_TRDC_Rewards` on live DB (via `sql/005_trdc_rewards_indexes.sql`)
+**Commit:** `d3795faf`
+
+---
+
+## P1-4: Security Token Validation
+**Status:** [x] Completed - 2026-02-24 (Audit Only — No Code Change Needed)
+**Priority:** 🔴 Critical
+**Audit Findings:**
+- Token IS per-session: `Wo_CreateMainSession()` generates random `$_SESSION['main_hash_id']` (not static, not hardcoded)
+- Token embedded globally: `container.phtml:871` injects `.main_session` hidden input on every page
+- Token sent with AJAX: JS reads `.main_session` and includes in all requests
+- Admin XHR handlers all check `Wo_IsAdmin()` — sufficient admin-side protection
+- `requests.php` checks `X-Requested-With: XMLHttpRequest` for all non-whitelisted endpoints
+- `BitchatSecurity::requireCsrfToken()` exists and used in 7 sensitive handlers
+- **Verdict: System is correctly implemented. No action required.**
+
+---
+
+## P2-5: Admin Sidebar Navigation (Accordion)
+**Status:** [x] Completed - 2026-02-24
+**Priority:** 🟠 High
+**Findings:** Accordion was already correctly implemented (PHP sets `class="open"` on active section only; app.js toggles and closes siblings on click). Main fix: removed 8 debug `console.log`/`console.error` calls from admin panel AJAX handler in `autoload.php` that were exposing page names, URLs, and response data in production browser console.
+**Commit:** `97d520ab`
+
+---
+
+## P2-6: Move Growth Tools Higher in Admin Sidebar
+**Status:** [x] Completed
+**Priority:** 🟠 High
+**Tasks:**
+- Reorder sidebar: move Growth Dashboard, Feed Algorithm, Ghost Activity, Creator Mode above Tools section
+**Root Cause:** "Bitchat Growth" `<li>` block was placed near the very bottom of the sidebar (after System Status, before Changelogs), making it hard to find.
+**Fix Applied:** Moved the entire `<?php if ($is_admin) ?>` Bitchat Growth block to appear directly above the Tools section (was line ~1508, now line ~1325 in `autoload.php`).
+**Commit:** `55f81093`
+
+---
+
+## BUG-FIX: Admin AJAX Nav — Growth Pages Show Same Content
+**Status:** [~] In Progress
+**Priority:** 🔴 Critical
+**Root Cause:** `admin_load.php` response starts with `\n<!-- DEBUG: ... -->` (PHP `?>` emits trailing newline before the comment). jQuery 3.4.1 only treats a string as HTML if `selector[0] === "<"`. Since the first char is `\n`, jQuery treats the whole response as a CSS selector, returns empty collection, `.val()` → `undefined`, `JSON.parse(undefined)` throws, and `$('.content').html(data)` never executes — content stays as previously-loaded page.
+**Fix Applied:**
+- `admin_load.php`: Remove debug HTML comment and all `error_log()` calls; close PHP tag inline so response starts with `<input id="json-data">` immediately
+- `admin-panel/autoload.php`: Wrap `JSON.parse(...)` in try-catch so content always updates even if JSON parse fails; remove leftover `console.log('Popstate: Full reload')`
+**Files Modified:** `admin_load.php`, `admin-panel/autoload.php`
+
+---
+
+## P2-7: Fix Admin Header Layout
+
+**Status:** [ ] Not Started
+**Priority:** 🟠 High
+**Tasks:**
+
+- Remove duplicate avatar image
+- Add search placeholder text
+- Remove empty button element
+
+---
+
+## P3-8: Feed Layout Standardization
+**Status:** [ ] Not Started
+**Priority:** 🟡 Medium
+**Tasks:**
+- Fix post container width + centering
+- Fix avatar scaling
+- Prevent reaction overflow
+
+---
+
+## P3-9: Post Composer Fix
+**Status:** [ ] Not Started
+**Priority:** 🟡 Medium
+**Tasks:**
+- Fix emoji modal z-index
+- Fix upload overlay alignment
+- Align post button vertically
+
+---
+
+## P3-10: Sidebar Sections
+**Status:** [ ] Not Started
+**Priority:** 🟡 Medium
+**Tasks:**
+- Fix collapsed Community/Explore sections
+- Remove overflow hidden conflicts
+
+---
+
+## P3-11: Language Dropdown Scroll
+**Status:** [ ] Not Started
+**Priority:** 🟡 Medium
+**Tasks:**
+- Enable scrolling for long language list (max-height + overflow-y)
+
+---
+
+## P3-12: Wallet & My-Points Page
+**Status:** [ ] Not Started
+**Priority:** 🟡 Medium
+**Tasks:**
+- Verify balance updates live
+- Fix rounding issues
+- Refresh balance without logout
+- Check TRDC conversion display
+
+---
+
+## P4-DM: Dark Mode Complete Fix
+**Status:** [ ] Not Started
+**Priority:** 🌙 High
+**Tasks:**
+- Apply dark mode styling to: cards, modals, dropdowns, inputs, charts, wallet panels
+- Test ALL pages in dark mode: feed, wallet, admin, settings, modals
+
+---
+
+## P5-13: Bottom Navigation Overlap
+**Status:** [ ] Not Started
+**Priority:** 📱 Medium
+**Tasks:**
+- Ensure content not hidden behind bottom nav (padding-bottom fix)
+
+---
+
+## P5-14: Hero Banner Responsive Height
+**Status:** [ ] Not Started
+**Priority:** 📱 Medium
+**Tasks:**
+- Replace fixed height with min-height responsive value
+
+---
+
+## P5-15: Post Card Overflow
+**Status:** [ ] Not Started
+**Priority:** 📱 Medium
+**Tasks:**
+- Remove horizontal scroll
+- Ensure media fits container
+
+---
+
+## P6-QA: Admin Function Testing
+**Status:** [ ] Not Started
+**Priority:** 🟢 QA
+**Manual tests required:**
+- [ ] Website Mode save
+- [ ] Email settings save
+- [ ] AI settings save
+- [ ] NodeJS settings save
+- [ ] Backup SQL & Files
+- [ ] Mass Notifications
+- [ ] Announcements
+- [ ] Push notifications
+- [ ] No 500 errors / AJAX fail / undefined index in console
+
+---
+
+## FINAL QA CHECKLIST
+- [ ] Feed loads without layout shift
+- [ ] Dark mode works everywhere
+- [ ] Mobile feed usable one-hand
+- [ ] Rewards calculate correctly
+- [ ] Leaderboard loads under 2s
+- [ ] No console red errors
+- [ ] Admin navigation easy to use
