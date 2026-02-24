@@ -1322,6 +1322,45 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                         </ul>
                     </li>
                     <?php } ?>
+                    <?php if ($is_admin) { ?>
+                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','creator-mode']) ? 'class="open"' : ''; ?>>
+                        <a href="#">
+                            <span class="nav-link-icon">
+                                <i class="material-icons">trending_up</i>
+                            </span>
+                            <span>Bitchat Growth</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a <?php echo ($page == 'growth-intelligence') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('growth-intelligence'); ?>" data-ajax="?path=growth-intelligence"><strong>Growth Dashboard</strong></a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'growth-presets') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('growth-presets'); ?>" data-ajax="?path=growth-presets"><strong>Growth Presets</strong></a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'feed-algorithm') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('feed-algorithm'); ?>" data-ajax="?path=feed-algorithm">Feed Algorithm</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'scheduled-posts') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('scheduled-posts'); ?>" data-ajax="?path=scheduled-posts">Scheduled Posts</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'ghost-activity') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('ghost-activity'); ?>" data-ajax="?path=ghost-activity">Ghost Activity</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'announcement-banner') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('announcement-banner'); ?>" data-ajax="?path=announcement-banner">Announcement Banner</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'trdc-rewards') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('trdc-rewards'); ?>" data-ajax="?path=trdc-rewards">TRDC Rewards</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'creator-mode') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('creator-mode'); ?>" data-ajax="?path=creator-mode">Creator Mode</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'admin-activity-log') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('admin-activity-log'); ?>" data-ajax="?path=admin-activity-log"><strong>Admin Activity Log</strong></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <?php } ?>
                     <?php if ($is_admin || ($is_moderoter && ($wo['user']['permission']['manage-announcements'] == 1 || $wo['user']['permission']['mass-notifications'] == 1 || $wo['user']['permission']['ban-users'] == 1 || $wo['user']['permission']['generate-sitemap'] == 1 || $wo['user']['permission']['manage-invitation-keys'] == 1 || $wo['user']['permission']['backups'] == 1 || $wo['user']['permission']['auto-delete'] == 1 || $wo['user']['permission']['auto-friend'] == 1 || $wo['user']['permission']['fake-users'] == 1 || $wo['user']['permission']['auto-like'] == 1 || $wo['user']['permission']['auto-join'] == 1 || $wo['user']['permission']['send_email'] == 1 || $wo['user']['permission']['manage-invitation'] == 1))) { ?>
                     <li <?php echo ($page == 'manage-announcements' || $page == 'mass-notifications' || $page == 'ban-users' || $page == 'generate-sitemap' || $page == 'manage-invitation-keys' || $page == 'backups' || $page == 'auto-delete' || $page == 'auto-friend' || $page == 'fake-users' || $page == 'auto-like' || $page == 'auto-join' || $page == 'send_email' || $page == 'manage-invitation') ? 'class="open"' : ''; ?>>
                         <a href="#">
@@ -1505,45 +1544,6 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             <span>System Status</span>
                         </a>
                     </li>
-                    <?php if ($is_admin) { ?>
-                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','creator-mode']) ? 'class="open"' : ''; ?>>
-                        <a href="#">
-                            <span class="nav-link-icon">
-                                <i class="material-icons">trending_up</i>
-                            </span>
-                            <span>Bitchat Growth</span>
-                        </a>
-                        <ul class="ml-menu">
-                            <li>
-                                <a <?php echo ($page == 'growth-intelligence') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('growth-intelligence'); ?>" data-ajax="?path=growth-intelligence"><strong>Growth Dashboard</strong></a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'growth-presets') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('growth-presets'); ?>" data-ajax="?path=growth-presets"><strong>Growth Presets</strong></a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'feed-algorithm') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('feed-algorithm'); ?>" data-ajax="?path=feed-algorithm">Feed Algorithm</a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'scheduled-posts') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('scheduled-posts'); ?>" data-ajax="?path=scheduled-posts">Scheduled Posts</a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'ghost-activity') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('ghost-activity'); ?>" data-ajax="?path=ghost-activity">Ghost Activity</a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'announcement-banner') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('announcement-banner'); ?>" data-ajax="?path=announcement-banner">Announcement Banner</a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'trdc-rewards') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('trdc-rewards'); ?>" data-ajax="?path=trdc-rewards">TRDC Rewards</a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'creator-mode') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('creator-mode'); ?>" data-ajax="?path=creator-mode">Creator Mode</a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'admin-activity-log') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('admin-activity-log'); ?>" data-ajax="?path=admin-activity-log"><strong>Admin Activity Log</strong></a>
-                            </li>
-                        </ul>
-                    </li>
-                    <?php } ?>
                     <?php if ($is_admin || ($is_moderoter && ($wo['user']['permission']['changelog'] == 1))) { ?>
                     <li>
                         <a <?php echo ($page == 'changelog') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('changelog'); ?>" data-ajax="?path=changelog">
