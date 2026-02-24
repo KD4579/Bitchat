@@ -41,7 +41,9 @@ $trdc_total = ($r = mysqli_fetch_assoc($q)) ? floatval($r['total']) : 0;
 $trdc_issued_today = 0;
 $q_check = mysqli_query($sqlConnect, "SHOW TABLES LIKE 'Wo_TRDC_Rewards'");
 if (mysqli_num_rows($q_check) > 0) {
-    $q = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(`amount`), 0) as total FROM Wo_TRDC_Rewards WHERE DATE(`created_at`) = '{$today}'");
+    $today_start = strtotime('today midnight');
+    $today_end   = $today_start + 86400;
+    $q = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(`amount`), 0) as total FROM Wo_TRDC_Rewards WHERE `created_at` >= {$today_start} AND `created_at` < {$today_end}");
     $trdc_issued_today = ($r = mysqli_fetch_assoc($q)) ? floatval($r['total']) : 0;
 }
 
