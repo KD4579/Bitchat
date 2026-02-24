@@ -4,6 +4,25 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
+### Fix: Post Composer — Emoji Z-Index, Upload Overlay, Button Align (P3-9)
+
+- `.emo-post-container`: raised z-index from 2 → 1000 so the emoji dropdown renders above lightbox/modal overlay layers (base stylesheet's z-index:2 was too low to clear the lightbox stacking context)
+- `.tag_pub_vids`: added `position: relative !important; overflow: hidden !important` to properly contain the video thumbnail overlay within the aspect-ratio container in all flex/modal contexts
+- `.tag_pub_box .modal-header > div:nth-child(2)`: set `display: flex; align-items: center; gap: 6px` so the Share button and chars-left counter are flush-vertically in the composer header
+- **Commit:** `ba459363`
+- **File:** `themes/wondertag/custom/css/style.css`
+
+### Fix: Admin Header Layout + Code Cleanup (P2-7)
+
+- Changed search icon `<button class="btn">` to `<span class="input-group-text">` — matches Bootstrap 4 input-group pattern; the button had no click handler and `.input-group-text` is the correct non-interactive slot
+- Removed permanently-hidden `<ul class="navbar-nav ml-auto">` (`.header-toggler` is `display:none` in `app.css` — dead HTML that never rendered)
+- Removed 7 debug `console.log` statements from `script.js` (production noise)
+- Removed dead `.bc-fab` hover/active/media-query CSS — FAB is `display:none !important` globally so these rules could never fire
+- Removed dead `#bc-mobile-nav` CSS blocks — replaced by WoWonder native `.tag_bottom_nav`; the element is permanently hidden
+- Deleted orphaned `logged-out.phtml` modal template — superseded by the BC_MODAL system (SM-6); no longer included anywhere
+- **Commit:** `42b9b17a`
+- **Files:** `admin-panel/autoload.php`, `themes/wondertag/javascript/script.js`, `themes/wondertag/custom/css/style.css`, `themes/wondertag/layout/modals/logged-out.phtml` (deleted)
+
 ### Fix: Growth Intelligence 500 Error — Wo_Reactions Missing time Column (BUG-FIX follow-up)
 
 - `growth-intelligence` returned HTTP 500 on every load (both AJAX and direct)

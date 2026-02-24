@@ -1688,12 +1688,12 @@ Only extend existing modules.
 ---
 
 ## P3-9: Post Composer Fix
-**Status:** [~] In Progress
+**Status:** [x] Completed - 2026-02-24
 **Priority:** 🟡 Medium
 **Tasks:**
-- Fix emoji modal z-index
-- Fix upload overlay alignment
-- Align post button vertically
+- Fix emoji modal z-index → `.emo-post-container { z-index: 1000 !important }` (was 2)
+- Fix upload overlay alignment → `.tag_pub_vids { position: relative !important; overflow: hidden !important }`
+- Align post button vertically → modal header right div gets `display: flex; align-items: center; gap: 6px`
 
 ---
 
