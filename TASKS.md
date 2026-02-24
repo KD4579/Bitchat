@@ -1715,18 +1715,18 @@ Only extend existing modules.
 ---
 
 ## P3-12: Wallet & My-Points Page
-**Status:** [~] In Progress
+**Status:** [x] Completed - 2026-02-24
 **Priority:** 🟡 Medium
 **Tasks:**
-- Verify balance updates live
-- Fix rounding issues
-- Refresh balance without logout
-- Check TRDC conversion display
+- Verify balance updates live → already done via WebSocket in container.phtml (Task 1)
+- Fix rounding issues → TRDC balance now uses number_format(..., 4) — tiny amounts like 0.0012 show correctly
+- Refresh balance without logout → added `s=get-balance` AJAX handler + refresh icon button in wallet.phtml
+- Check TRDC conversion display → fixed `margin-left:110%` bug that pushed "Buy TRDC Now" button off-screen
 
 ---
 
 ## P4-DM: Dark Mode Complete Fix
-**Status:** [ ] Not Started
+**Status:** [x] Completed — 2026-02-24
 **Priority:** 🌙 High
 **Tasks:**
 - Apply dark mode styling to: cards, modals, dropdowns, inputs, charts, wallet panels

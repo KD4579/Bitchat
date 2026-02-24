@@ -4,6 +4,19 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
+### Fix: Dark Mode Complete Fix (P4-DM)
+
+- `alert-success/danger/warning/info`: `wallet.css` overrides Bootstrap alerts with solid light colors (`#f8d7da`, `#d4edda`); added `body.night_mode` overrides using semi-transparent rgba backgrounds and softened text (e.g. `#81c784`, `#e57373`)
+- `.wow_add_money_hid_form`: `wallet.css` sets `background: #ffffff`; overridden to `#1e1e2e` in dark mode
+- `.earn_points .ep_illus` divider: base style uses `rgba(0,0,0,0.08)` which is invisible on `#121212`; changed to `rgba(255,255,255,0.1)` in dark mode
+- `.wow_mini_wallets > div > p:not(.bold)`: wallet.phtml has inline `color:#64748b` subtitle; CSS structural selector sets `#9ca3af` in dark mode
+- `.form-control`: `wallet.css` hardcodes white background; dark mode now sets `#373737` with proper focus/disabled/placeholder states
+- `.file-upload` border: aligned to dark border palette (`rgba(255,255,255,0.15)`)
+- `.form-group label` / `.form-label`: `wallet.css` sets `color:#2c3e50`; overridden to `#c8ccd0` in dark mode
+- `.earn_points .counter h2/h5/point-text/count-text`: TRDC counter text ensured readable on dark surface
+- **Commit:** `0899f99e`
+- **File:** `themes/wondertag/custom/css/style.css`
+
 ### Fix: Wallet & My-Points Page (P3-12)
 
 - `xhr/wallet.php`: added `s=get-balance` handler — queries T_USERS directly for fresh wallet/points and returns `{ status, balance, points }` as JSON
