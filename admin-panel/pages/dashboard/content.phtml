@@ -550,6 +550,13 @@ jQuery(document).ready(function($) {
 
 
 function users() {
+    var container = document.querySelector('#admin-chart-container');
+    if (!container) return;
+    // Destroy previous chart instance (prevents duplicate labels on AJAX re-navigation)
+    if (window._dashboardChart) {
+        window._dashboardChart.destroy();
+        window._dashboardChart = null;
+    }
     if ($('#admin-chart-container').length) {
         var options = {
             chart: {
@@ -654,12 +661,12 @@ function users() {
             }
         };
 
-        var chart = new ApexCharts(
+        window._dashboardChart = new ApexCharts(
             document.querySelector("#admin-chart-container"),
             options
         );
 
-        chart.render();
+        window._dashboardChart.render();
     }
 }
 
