@@ -7491,3 +7491,20 @@ body.night_mode .earn_points .counter .count-text {
     overflow: hidden;
   }
 }
+
+/* ==========================================================================
+   QA-CLS: Sidebar avatar containers — reserve space before image loads
+   Prevents layout shift (CLS) on sidebar user/group/page lists
+   ========================================================================== */
+.sidebar-listed-user-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.sidebar-listed-user-avatar img {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  display: block;
+}
