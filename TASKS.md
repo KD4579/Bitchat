@@ -1666,13 +1666,14 @@ Only extend existing modules.
 
 ## P2-7: Fix Admin Header Layout
 
-**Status:** [ ] Not Started
+**Status:** [x] Completed
 **Priority:** 🟠 High
 **Tasks:**
 
-- Remove duplicate avatar image
-- Add search placeholder text
-- Remove empty button element
+- Remove duplicate avatar image — both instances are intentional (small in toggle, large in dropdown panel = standard pattern)
+- Add search placeholder text — already present; confirmed
+- Remove empty button element — changed `<button class="btn">` to `<span class="input-group-text">` for search icon
+- Remove dead `<ul class="navbar-nav ml-auto">` (`.header-toggler`, permanently hidden by CSS)
 
 ---
 

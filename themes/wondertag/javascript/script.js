@@ -798,7 +798,6 @@ function Wo_LoadStory(type, user_id, element) {
     Wo_progressIconLoader(filter_by_progress_icon);
   })
   .fail(function() {
-    console.log("error");
   })
   
 }
@@ -2842,7 +2841,6 @@ function Wo_DeleteStatus(id){
     }
   })
   .fail(function() {
-    console.log("error");
   })
 }
 
@@ -2881,7 +2879,6 @@ function Wo_UpdatCommReply(id,event,self){
       }
     })
     .fail(function() {
-      console.log("error");
     })
     
   }
@@ -2909,7 +2906,6 @@ function Wo_HidePost(post_id){
 		}
 	})
 	.fail(function() {
-		console.log("error");
 	})
 }
 
@@ -2995,7 +2991,6 @@ function Wo_AddGroupUserAdmin(member_id, group_id, self){
     }
   })
   .fail(function() {
-    console.log("error");
   })
   
 }
@@ -3376,9 +3371,7 @@ $(window).on('load', function() {
 
         $('#shortcut_helper').show();
         
-        console.log(post);
         if( $( '.post-container' ).eq( window.post ).hasClass( 'user-ad-container' ) ){
-          console.log('ad');
           $("html, body").animate({ scrollTop: $(document).height() }, "slow");
         }
 

@@ -3500,34 +3500,8 @@ body.night-mode #post-textarea .wo_pub_txtara_combo {
 .bc-fab {
   display: none !important;
 }
-.bc-fab:hover {
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 14px 36px rgba(108,92,255,.55);
-}
-.bc-fab:active { transform: scale(.96); }
-/* Hide FAB on mobile (mobile has bottom nav create button) */
-@media (max-width: 768px) {
-  .bc-fab { display: none; }
-}
 
 /* ---- UI-10: Mobile Bottom Navigation ---- */
-#bc-mobile-nav {
-  display: none; /* default hidden; shown via media query below */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1040;
-  background: rgba(255,255,255,.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0,0,0,.07);
-  padding: 0 8px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  height: 64px;
-  align-items: center;
-  justify-content: space-around;
-}
 /* #bc-mobile-nav disabled — using WoWonder native bottom bar instead */
 .bc-mob-nav-item {
   display: flex;
@@ -3597,11 +3571,6 @@ body.night-mode #post-textarea .wo_pub_txtara_combo {
 .bc-mob-profile-item:hover .bc-mob-nav-avatar,
 .bc-mob-profile-item.active .bc-mob-nav-avatar {
   border-color: var(--bc-primary, #6C5CFF);
-}
-/* Night mode nav */
-body.night-mode #bc-mobile-nav {
-  background: rgba(30,30,45,.95);
-  border-top-color: rgba(255,255,255,.08);
 }
 body.night-mode .bc-mob-nav-item { color: #667788; }
 
@@ -4219,7 +4188,7 @@ h1, h2, h3, h4, h5, h6 {
 /* ── MC-10: Speed-Safe ───────────────────────────────────────────────────
    Remove costly will-change, respect prefers-reduced-motion.
    ──────────────────────────────────────────────────────────────────────── */
-#bc-mobile-nav, #bc-market-strip, .tag_sidebar { will-change: auto !important; }
+#bc-market-strip, .tag_sidebar { will-change: auto !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -4641,12 +4610,6 @@ html.bc-dark-mode .post .panel {
   box-shadow: none !important;
 }
 
-/* --- Mobile bottom nav --- */
-html:has(link#night-mode-css) #bc-mobile-nav,
-html.bc-dark-mode #bc-mobile-nav {
-  background: rgba(33,33,33,.95) !important;
-  border-top-color: rgba(255,255,255,.08) !important;
-}
 html:has(link#night-mode-css) .bc-mob-nav-item,
 html.bc-dark-mode .bc-mob-nav-item {
   color: #8899a6 !important;
@@ -5401,15 +5364,6 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
 }
 
 /* --------------------------------------------------------------------------
-   RR-13: FAB button — hide when mobile nav visible (prevent overlap)
-   -------------------------------------------------------------------------- */
-@media (max-width: 900px) {
-  .bc-fab {
-    display: none !important;
-  }
-}
-
-/* --------------------------------------------------------------------------
    RR-14: Hover effects — disable on touch devices (prevent sticky hover)
    -------------------------------------------------------------------------- */
 @media (hover: none) {
@@ -5677,10 +5631,6 @@ body {
    RR-32: Landscape phone specific fixes
    -------------------------------------------------------------------------- */
 @media (max-height: 450px) and (orientation: landscape) {
-  #bc-mobile-nav {
-    height: 48px !important;
-    padding-bottom: 0 !important;
-  }
   .bc-mob-nav-item span {
     display: none !important;
   }

@@ -461,11 +461,11 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             <div class="header-search-form">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <button class="btn">
+                                        <span class="input-group-text">
                                             <i data-feather="search"></i>
-                                        </button>
+                                        </span>
                                     </div>
-                                    <input type="text" class="form-control" placeholder="Search"  onkeyup="searchInFiles($(this).val())">
+                                    <input type="text" class="form-control" placeholder="Search" onkeyup="searchInFiles($(this).val())">
                                     <div class="pt_admin_hdr_srch_reslts" id="search_for_bar"></div>
                                 </div>
                             </div>
@@ -664,13 +664,6 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                 </div>
             </div>
 
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item header-toggler">
-                    <a href="#" class="nav-link">
-                        <i data-feather="arrow-down"></i>
-                    </a>
-                </li>
-            </ul>
         </div>
     </div>
     <!-- ./ Header -->
