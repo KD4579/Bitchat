@@ -4,6 +4,15 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
+### Fix: Growth Intelligence 500 Error — Wo_Reactions Missing time Column (BUG-FIX follow-up)
+
+- `growth-intelligence` returned HTTP 500 on every load (both AJAX and direct)
+- `Wo_Reactions` is a state table with no `time` column — `WHERE time > {day_ago}` failed with MySQL 1054, `mysqli_fetch_assoc(false)` threw `TypeError` in PHP 8.2
+- Changed query to count total reactions (no time filter); label updated to "Total Reactions"
+- Added `$q !== false` guards on all engagement health queries
+- **Commit:** `65f223a2`
+- **File:** `admin-panel/pages/growth-intelligence/content.phtml`
+
 ### Fix: Admin AJAX Navigation — Growth Pages Showing Same Content (BUG-FIX)
 
 - **Root cause:** `admin_load.php` response started with `\n<!-- DEBUG: ... -->` — the PHP `?>` closing tag emitted a trailing newline before the HTML comment. jQuery 3.4.1 only treats a string as HTML if `selector[0] === '<'`. With `\n` as the first character, jQuery treated the entire AJAX response as a CSS selector, returned an empty collection, so `.filter('#json-data').val()` returned `undefined`, `JSON.parse(undefined)` threw, and `$('.content').html(data)` never executed — leaving the previously-loaded page visible while the URL changed.

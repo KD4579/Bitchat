@@ -1657,6 +1657,10 @@ Only extend existing modules.
 - `admin_load.php`: Remove debug HTML comment and all `error_log()` calls; close PHP tag inline so response starts with `<input id="json-data">` immediately
 - `admin-panel/autoload.php`: Wrap `JSON.parse(...)` in try-catch so content always updates even if JSON parse fails; remove leftover `console.log('Popstate: Full reload')`
 **Files Modified:** `admin_load.php`, `admin-panel/autoload.php`
+**Commit:** `8ee76ef1`
+
+**Follow-up (commit `65f223a2`):** `growth-intelligence` returned 500 — `Wo_Reactions` has no `time` column (state table, not event log). `WHERE time > {day_ago}` failed → `mysqli_fetch_assoc(false)` → `TypeError` in PHP 8.2. Fixed by counting total reactions instead and adding `$q !== false` guards.
+**File:** `admin-panel/pages/growth-intelligence/content.phtml`
 
 ---
 
