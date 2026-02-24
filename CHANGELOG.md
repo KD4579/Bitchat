@@ -4,6 +4,15 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 
 ## 2026-02-24 — Sprint 1 Fixes + Sidebar Restructure + Dark Mode Deep Audit
 
+### Fix: Bottom Navigation Overlap (P5-13)
+
+- Audit confirmed `body { padding-bottom: calc(45px + env(safe-area-inset-bottom, 0px)) !important }` (RR-12) was already in place — the primary fix
+- `#bc-install-popup` already had `bottom: 76px !important` at ≤900px — no overlap with 45px native bottom nav
+- Gap found: `.snackbar` and `.tag_pop_noti` were both at `bottom: 15px` (z-index 9999) — they rendered within the 45px WoWonder native bottom nav area on mobile
+- Fixed: added `bottom: 60px !important` override for both at `@media (max-width: 768px)` — clears 45px nav + 15px gap
+- **Commit:** `9b62e68a`
+- **File:** `themes/wondertag/custom/css/style.css`
+
 ### Fix: Dark Mode Complete Fix (P4-DM)
 
 - `alert-success/danger/warning/info`: `wallet.css` overrides Bootstrap alerts with solid light colors (`#f8d7da`, `#d4edda`); added `body.night_mode` overrides using semi-transparent rgba backgrounds and softened text (e.g. `#81c784`, `#e57373`)
