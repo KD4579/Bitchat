@@ -53,14 +53,15 @@ $q = mysqli_query($sqlConnect, "SELECT `user_id`, `username`, `wallet`, `avatar`
 while ($r = mysqli_fetch_assoc($q)) { $top_earners[] = $r; }
 
 // === ENGAGEMENT HEALTH ===
-$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_Reactions WHERE `time` > {$day_ago}");
-$reactions_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+// Wo_Reactions has no timestamp column — show total count
+$q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_Reactions");
+$reactions_today = ($q !== false && ($r = mysqli_fetch_assoc($q))) ? (int)$r['c'] : 0;
 
 $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_Comments WHERE `time` > {$day_ago}");
-$comments_today = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+$comments_today = ($q !== false && ($r = mysqli_fetch_assoc($q))) ? (int)$r['c'] : 0;
 
 $q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM Wo_UserStory WHERE `expire` > UNIX_TIMESTAMP()");
-$stories_active = ($r = mysqli_fetch_assoc($q)) ? (int)$r['c'] : 0;
+$stories_active = ($q !== false && ($r = mysqli_fetch_assoc($q))) ? (int)$r['c'] : 0;
 
 // === REFERRAL CHART (7d) ===
 $daily_refs = array();
@@ -213,7 +214,7 @@ if (mysqli_num_rows($q_check) > 0) {
             <div class="row">
                 <div class="col-xs-4" style="text-align:center;">
                     <h3 style="font-weight:700;color:#e74a3b;margin:0;"><?php echo number_format($reactions_today); ?></h3>
-                    <small class="text-muted">Reactions</small>
+                    <small class="text-muted">Total Reactions</small>
                 </div>
                 <div class="col-xs-4" style="text-align:center;">
                     <h3 style="font-weight:700;color:#4e73df;margin:0;"><?php echo number_format($comments_today); ?></h3>
