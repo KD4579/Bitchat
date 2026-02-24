@@ -5355,11 +5355,17 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
 }
 
 /* --------------------------------------------------------------------------
-   RR-12: Mobile bottom nav — safe area (native WoWonder bar)
+   RR-12: Mobile bottom nav — safe area + floating element clearance
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
   body {
     padding-bottom: calc(45px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  /* Snackbar and push-notification popups sit at bottom:15px by default;
+     lift them above the 45px native bottom nav */
+  .snackbar,
+  .tag_pop_noti {
+    bottom: 60px !important;
   }
 }
 
