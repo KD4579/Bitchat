@@ -1751,7 +1751,7 @@ Only extend existing modules.
 ---
 
 ## P5-15: Post Card Overflow
-**Status:** [ ] Not Started
+**Status:** [x] Completed — 2026-02-24
 **Priority:** 📱 Medium
 **Tasks:**
 - Remove horizontal scroll
