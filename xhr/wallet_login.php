@@ -83,6 +83,8 @@ if ($f == 'wallet_login') {
                         if ($existing['active'] == 2) {
                             $data['error'] = 'This account has been disabled.';
                         } else {
+                            // Mark onboarding complete so user lands on feed, not setup wizard
+                            mysqli_query($sqlConnect, "UPDATE `" . T_USERS . "` SET `onboarding_completed` = 1 WHERE `user_id` = '" . $existing['user_id'] . "' AND (`onboarding_completed` IS NULL OR `onboarding_completed` = '')");
                             Wo_SetLoginWithSession($existing['email']);
                             $data['status']   = 200;
                             $data['location'] = $wo['config']['site_url'] . '/?cache=' . time();
@@ -102,18 +104,19 @@ if ($f == 'wallet_login') {
                         }
 
                         $re_data = array(
-                            'username'       => Wo_Secure($user_uniq_id, 0),
-                            'email'          => Wo_Secure($gen_email, 0),
-                            'password'       => Wo_Secure(password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT), 0),
-                            'email_code'     => Wo_Secure(md5(time()), 0),
-                            'first_name'     => Wo_Secure('Bitchat', 0),
-                            'last_name'      => Wo_Secure('User', 0),
-                            'wallet_address' => Wo_Secure($wallet_address, 0),
-                            'wallet_verified' => 1,
-                            'lastseen'       => time(),
-                            'src'            => 'wallet',
-                            'social_login'   => 1,
-                            'active'         => '1',
+                            'username'            => Wo_Secure($user_uniq_id, 0),
+                            'email'               => Wo_Secure($gen_email, 0),
+                            'password'            => Wo_Secure(password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT), 0),
+                            'email_code'          => Wo_Secure(md5(time()), 0),
+                            'first_name'          => Wo_Secure('Bitchat', 0),
+                            'last_name'           => Wo_Secure('User', 0),
+                            'wallet_address'      => Wo_Secure($wallet_address, 0),
+                            'wallet_verified'     => 1,
+                            'lastseen'            => time(),
+                            'src'                 => 'wallet',
+                            'social_login'        => 1,
+                            'active'              => '1',
+                            'onboarding_completed' => 1,
                         );
 
                         if (Wo_RegisterUser($re_data) === true) {
