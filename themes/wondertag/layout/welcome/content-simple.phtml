@@ -312,8 +312,6 @@ window.onload = function () {
             });
 
             if (loginRes && loginRes.status === 200) {
-                console.log('[Wallet] cookies:', document.cookie);
-                console.log('[Wallet] response:', JSON.stringify(loginRes));
                 $login_anim.removeClass('d-none');
                 btn.querySelector('span').textContent = 'Welcome!';
                 setTimeout(function() { window.location.href = loginRes.location; }, 800);
