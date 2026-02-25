@@ -1,12 +1,20 @@
 <?php
 // Invitation analytics
-$_inv_total = 0; $_inv_used = 0;
-$_inv_q = @mysqli_query($sqlConnect, "SELECT COUNT(*) as total, SUM(CASE WHEN `status` = 'used' THEN 1 ELSE 0 END) as used_count FROM " . T_ADMIN_INVITATIONS);
+$_inv_total = 0;
+$_inv_q = mysqli_query($sqlConnect, "SELECT COUNT(*) as total FROM " . T_INVITATIONS);
 if ($_inv_q && $_inv_r = mysqli_fetch_assoc($_inv_q)) {
     $_inv_total = (int)$_inv_r['total'];
-    $_inv_used = (int)$_inv_r['used_count'];
 }
-$_inv_unused = $_inv_total - $_inv_used;
+
+// Total referral links ever generated
+$_inv_links = 0;
+$_il_q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM `Wo_Invitation_Links`");
+if ($_il_q && $_il_r = mysqli_fetch_assoc($_il_q)) { $_inv_links = (int)$_il_r['c']; }
+
+// Total users who joined via referral
+$_ref_total = 0;
+$_rt_q = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_USERS . " WHERE referrer > 0 AND src != 'Fake'");
+if ($_rt_q && $_rt_r = mysqli_fetch_assoc($_rt_q)) { $_ref_total = (int)$_rt_r['c']; }
 
 // Top referrers
 $_top_referrers = array();
@@ -45,19 +53,19 @@ if ($_rj_q && $_rj_r = mysqli_fetch_assoc($_rj_q)) { $_recent_joins = (int)$_rj_
         <div class="col-md-3">
             <div class="card" style="text-align:center;padding:20px;">
                 <h4 style="margin:0;color:#3b82f6;"><?php echo $_inv_total; ?></h4>
-                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Total Codes</p>
+                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Invitation Codes</p>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card" style="text-align:center;padding:20px;">
-                <h4 style="margin:0;color:#22c55e;"><?php echo $_inv_used; ?></h4>
-                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Used Codes</p>
+                <h4 style="margin:0;color:#22c55e;"><?php echo $_inv_links; ?></h4>
+                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Referral Links Shared</p>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card" style="text-align:center;padding:20px;">
-                <h4 style="margin:0;color:#f59e0b;"><?php echo $_inv_unused; ?></h4>
-                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Available Codes</p>
+                <h4 style="margin:0;color:#f59e0b;"><?php echo $_ref_total; ?></h4>
+                <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Joined via Referral</p>
             </div>
         </div>
         <div class="col-md-3">
