@@ -219,7 +219,6 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 <svg viewBox="0 0 426 474" version="1.1" class="tag_auth_effect_bottom"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-388.000000, -381.000000)" fill="currentColor"><path d="M860,593.437773 C859.701866,623.190759 854.01417,647.43429 843.154019,670.755769 C835.205601,687.828885 825.163406,703.502 813.182105,717.814975 C800.906695,732.472251 787.047984,745.753829 772.03906,757.76087 C750.242228,775.197984 727.029635,790.417393 702.212602,803.333163 C674.616456,817.697686 645.581032,827.632183 614.714333,831.474542 C603.380661,832.884952 591.76881,833.81003 580.214183,831.985022 C571.47474,830.604015 562.415871,830.578238 553.942993,828.315225 C541.615712,825.024967 529.36,821.000299 517.649374,815.967491 C494.095111,805.852786 474.801247,789.965248 459.436002,769.62324 C451.026851,758.495492 442.506364,747.287914 435.644682,735.212933 C428.529553,722.686405 423.21254,709.13569 417.381761,695.91096 C412.440889,684.713717 407.688794,673.427264 403.227584,662.033107 C396.705691,645.373491 389.465919,628.889411 384.444813,611.774218 C378.049538,589.980074 371.703899,567.946234 372.010694,544.854827 C372.304719,522.470146 376.864757,500.89125 388.307451,481.514782 C398.325615,464.551152 412.604948,451.530522 430.084638,441.755974 C449.393384,430.95415 470.307088,427.074211 491.846728,427 C507.582237,426.9463 523.319571,429.1654 538.780809,432.715123 C551.519781,435.636433 564.267893,438.812771 577.190075,440.53256 C590.795953,442.344157 604.488365,444.324704 618.346374,443.398399 C638.00253,442.087913 657.658722,440.712901 677.333257,439.734255 C694.619246,438.879821 711.773953,440.425228 728.87232,443.138286 C742.898737,445.361393 756.265003,449.652778 768.87532,455.81277 C792.583457,467.399208 813.71259,482.213376 828.977802,504.402122 C838.057174,517.59435 846.61669,530.937424 851.372704,546.292112 C853.692037,553.772837 855.695707,561.41044 857.015592,569.116017 C858.625367,578.496049 859.362587,588.020975 860,593.437773" transform="translate(616.000000, 630.000000) rotate(-78.000000) translate(-616.000000, -630.000000) "></path></g></g></svg>
 <?php } ?>
 
-<script src="<?php echo $wo['config']['theme_url']; ?>/javascript/ethers.umd.min.js?v=5.7.2" type="application/javascript"></script>
 <script>
 var working = false;
 var $this = $('#login');
@@ -246,28 +245,30 @@ function handleCredentialResponse(response) {
    });
 }
 window.onload = function () {
-  google.accounts.id.initialize({
-    client_id: "<?php echo $wo['config']['googleAppId']?>",
-    callback: handleCredentialResponse
-  });
-  google.accounts.id.renderButton(
-    document.getElementById("buttonDiv"),
-    { theme: "outline", size: "large" }  // customization attributes
-  );
-  google.accounts.id.prompt(); // also display the One Tap dialog
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.initialize({
+      client_id: "<?php echo $wo['config']['googleAppId']?>",
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+      document.getElementById("buttonDiv"),
+      { theme: "outline", size: "large" }
+    );
+    google.accounts.id.prompt();
+  }
 }
 <?php endif; ?>
 
-// Wallet login
+// Wallet login — uses raw window.ethereum (EIP-1193), no library needed
 (function() {
     var btn = document.getElementById('bc-wallet-btn');
     if (!btn) return;
 
     btn.addEventListener('click', async function() {
-        var $state = $('#login').find('.errors');
+        var $errors = $('#login').find('.errors');
 
-        if (!window.ethereum) {
-            $state.html('No wallet detected. Please install MetaMask or Trust Wallet.');
+        if (typeof window.ethereum === 'undefined') {
+            $errors.html('No wallet detected. Please install MetaMask or Trust Wallet.');
             return;
         }
 
@@ -275,15 +276,20 @@ window.onload = function () {
         btn.querySelector('span').textContent = 'Connecting...';
 
         try {
-            var provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send('eth_requestAccounts', []);
-            var signer   = provider.getSigner();
-            var address  = await signer.getAddress();
+            // Request accounts — triggers MetaMask/Trust Wallet popup
+            var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            if (!accounts || !accounts[0]) {
+                $errors.html('No accounts found. Please unlock your wallet.');
+                btn.disabled = false;
+                btn.querySelector('span').textContent = 'Connect Wallet';
+                return;
+            }
+            var address = accounts[0].toLowerCase();
 
             // Step 1: get server-generated nonce
             var nonceRes = await $.post(Wo_Ajax_Requests_File() + '?f=wallet_nonce', { wallet_address: address });
             if (!nonceRes || !nonceRes.nonce) {
-                $state.html('Failed to get login challenge. Please try again.');
+                $errors.html('Failed to get login challenge. Please try again.');
                 btn.disabled = false;
                 btn.querySelector('span').textContent = 'Connect Wallet';
                 return;
@@ -291,11 +297,14 @@ window.onload = function () {
 
             btn.querySelector('span').textContent = 'Sign in wallet...';
 
-            // Step 2: sign the nonce message (no gas fee)
+            // Step 2: personal_sign — EIP-191, no gas fee
             var message   = 'Login to Bitchat\nNonce: ' + nonceRes.nonce;
-            var signature = await signer.signMessage(message);
+            var signature = await window.ethereum.request({
+                method: 'personal_sign',
+                params: [message, address]
+            });
 
-            // Step 3: verify signature on server and create session
+            // Step 3: verify on server and create session
             btn.querySelector('span').textContent = 'Verifying...';
             var loginRes = await $.post(Wo_Ajax_Requests_File() + '?f=wallet_login', {
                 wallet_address: address,
@@ -307,15 +316,15 @@ window.onload = function () {
                 btn.querySelector('span').textContent = 'Welcome!';
                 setTimeout(function() { window.location.href = loginRes.location; }, 800);
             } else {
-                $state.html(loginRes.error || 'Wallet login failed. Please try again.');
+                $errors.html(loginRes.error || 'Wallet login failed. Please try again.');
                 btn.disabled = false;
                 btn.querySelector('span').textContent = 'Connect Wallet';
             }
         } catch (err) {
-            var msg = (err.code === 4001)
+            var msg = (err.code === 4001 || err.code === -32603)
                 ? 'You rejected the wallet connection.'
                 : 'Wallet error: ' + (err.message || 'Unknown error');
-            $state.html(msg);
+            $errors.html(msg);
             btn.disabled = false;
             btn.querySelector('span').textContent = 'Connect Wallet';
         }
