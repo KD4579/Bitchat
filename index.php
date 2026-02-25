@@ -48,6 +48,7 @@ if ($wo['loggedin'] == true) {
     if (empty($wo['user']['onboarding_completed'])
         && strpos($wo['user']['avatar'], 'd-avatar') !== false
         && $currentLink !== 'welcome-setup'
+        && $currentLink !== 'logout'
         && empty($_POST)
         && !isset($_GET['f'])
     ) {
