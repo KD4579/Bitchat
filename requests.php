@@ -100,6 +100,8 @@ $non_login_array = array(
     'pay_with_bitcoin',
     'pay_with_trdc',
     'resend_two_factor',
+    'wallet_nonce',
+    'wallet_login',
     'cashfree',
     'busd_bep20', // Add your payment method handlers here
     'usdt_bep20',

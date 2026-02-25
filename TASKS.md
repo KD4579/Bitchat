@@ -1806,3 +1806,31 @@ Only extend existing modules.
 - [x] Leaderboard loads under 2s — Wo_Users: wallet/referrer BTREE; Wo_Posts: 4× user_id BTREE; all queries indexed (2026-02-24)
 - [x] No console red errors — auto-verified P6-QA; 0 deprecated jQuery, 3 console.log in third-party only (2026-02-24)
 - [~] Admin navigation easy to use — PHP syntax passes, 302 redirects confirmed; manual browser test pending
+
+---
+
+## Task: Login with Wallet (Web3 Identity)
+
+**Status:** [x] Completed
+**Requested:** 2026-02-26
+**Completed:** 2026-02-26
+**Description:** Add "Connect Wallet" as a new login method alongside email/Google/social. Uses EIP-191 message signing (no gas fee, no private key). Wallet address becomes the user's verified identity and TRDC payout destination.
+
+**Approach:** Follows existing social-login pattern (`login-with.php` / `xhr/google_login.php`). Uses `web3p/ethereum-util` PHP library (vendored) for signature verification. Session-based nonces (single-use, 5-min expiry). `Wo_RegisterUser()` + `Wo_SetLoginWithSession()` reused unchanged.
+
+**Files to Create:**
+- `xhr/wallet_nonce.php` — Generate nonce, store in session
+- `xhr/wallet_login.php` — Verify signature, find/create user, create session
+- `assets/libraries/ethereum/` — `web3p/ethereum-util` vendored library
+
+**Files to Modify:**
+- `requests.php` — Add `wallet_nonce`, `wallet_login` to `$non_login_array`
+- `themes/wondertag/layout/welcome/content-simple.phtml` — Add wallet button + ethers.js
+
+**DB Migration (one-time):**
+```sql
+ALTER TABLE Wo_Users
+  ADD COLUMN wallet_address VARCHAR(80) DEFAULT NULL,
+  ADD COLUMN wallet_verified TINYINT(1) DEFAULT 0,
+  ADD UNIQUE INDEX idx_wallet_address (wallet_address);
+```

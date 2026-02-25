@@ -2,6 +2,39 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-26 — Login with Wallet (Web3 Identity)
+
+### Add "Connect Wallet" login method
+
+**Files Created:**
+- `xhr/wallet_nonce.php` — Generates single-use session nonce for EIP-191 challenge
+- `xhr/wallet_login.php` — Verifies EIP-191 signature, finds or creates user, creates session
+- `assets/libraries/ethereum/` — `web3p/ethereum-util` v0.1.4 vendored library (+ 6 pure-PHP dependencies)
+
+**Files Modified:**
+- `requests.php` — Added `wallet_nonce` and `wallet_login` to `$non_login_array`
+- `themes/wondertag/layout/welcome/content-simple.phtml` — "Connect Wallet" button + ethers.js v5 + wallet login JS
+
+**How it works:**
+1. User clicks "Connect Wallet" — ethers.js connects MetaMask/Trust Wallet
+2. Browser POSTs wallet address to `wallet_nonce` → server stores random nonce in session (5-min expiry, single-use)
+3. ethers.js prompts wallet to sign `"Login to Bitchat\nNonce: {nonce}"` (no gas fee)
+4. Browser POSTs wallet address + signature to `wallet_login` → PHP verifies via EIP-191 ecrecover
+5. Existing wallet → session created; new wallet → account auto-created, then session created
+6. Uses `Wo_RegisterUser()` + `Wo_SetLoginWithSession()` unchanged — identical to Google/social login
+
+**DB migration required (one-time, run on live server):**
+```sql
+ALTER TABLE Wo_Users
+  ADD COLUMN wallet_address VARCHAR(80) DEFAULT NULL,
+  ADD COLUMN wallet_verified TINYINT(1) DEFAULT 0,
+  ADD UNIQUE INDEX idx_wallet_address (wallet_address);
+```
+
+**Security:** Nonce is server-generated, session-stored, single-use, 5-min TTL. Signature recovery via secp256k1 ECDSA. Private key never leaves the wallet. No gas fee.
+
+---
+
 ## 2026-02-25 — Admin Panel Cleanup
 
 ### Fix user_reports Admin Page Layout (5 issues)

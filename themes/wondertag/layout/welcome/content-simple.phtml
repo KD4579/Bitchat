@@ -189,6 +189,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 						<?php if($wo['config']['googleLogin'] != 0): ?>
 							<div id="buttonDiv"></div>
 						<?php endif; ?>
+						<div class="bc-wallet-login" style="margin-top:12px;">
+							<button id="bc-wallet-btn" type="button" class="btn btn-dark w-100" style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+								<span>Connect Wallet</span>
+							</button>
+							<p style="text-align:center;font-size:11px;color:#888;margin-top:4px;">Connect wallet to receive TRDC rewards instantly.</p>
+						</div>
 					</div>
 					 <!--<a href="<?php echo Wo_SeoLink('index.php?link1=forgot-password'); ?>"-->
       <!--                 title="<?php echo $wo['lang']['forget_password']; ?>"-->
@@ -212,6 +219,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 <svg viewBox="0 0 426 474" version="1.1" class="tag_auth_effect_bottom"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-388.000000, -381.000000)" fill="currentColor"><path d="M860,593.437773 C859.701866,623.190759 854.01417,647.43429 843.154019,670.755769 C835.205601,687.828885 825.163406,703.502 813.182105,717.814975 C800.906695,732.472251 787.047984,745.753829 772.03906,757.76087 C750.242228,775.197984 727.029635,790.417393 702.212602,803.333163 C674.616456,817.697686 645.581032,827.632183 614.714333,831.474542 C603.380661,832.884952 591.76881,833.81003 580.214183,831.985022 C571.47474,830.604015 562.415871,830.578238 553.942993,828.315225 C541.615712,825.024967 529.36,821.000299 517.649374,815.967491 C494.095111,805.852786 474.801247,789.965248 459.436002,769.62324 C451.026851,758.495492 442.506364,747.287914 435.644682,735.212933 C428.529553,722.686405 423.21254,709.13569 417.381761,695.91096 C412.440889,684.713717 407.688794,673.427264 403.227584,662.033107 C396.705691,645.373491 389.465919,628.889411 384.444813,611.774218 C378.049538,589.980074 371.703899,567.946234 372.010694,544.854827 C372.304719,522.470146 376.864757,500.89125 388.307451,481.514782 C398.325615,464.551152 412.604948,451.530522 430.084638,441.755974 C449.393384,430.95415 470.307088,427.074211 491.846728,427 C507.582237,426.9463 523.319571,429.1654 538.780809,432.715123 C551.519781,435.636433 564.267893,438.812771 577.190075,440.53256 C590.795953,442.344157 604.488365,444.324704 618.346374,443.398399 C638.00253,442.087913 657.658722,440.712901 677.333257,439.734255 C694.619246,438.879821 711.773953,440.425228 728.87232,443.138286 C742.898737,445.361393 756.265003,449.652778 768.87532,455.81277 C792.583457,467.399208 813.71259,482.213376 828.977802,504.402122 C838.057174,517.59435 846.61669,530.937424 851.372704,546.292112 C853.692037,553.772837 855.695707,561.41044 857.015592,569.116017 C858.625367,578.496049 859.362587,588.020975 860,593.437773" transform="translate(616.000000, 630.000000) rotate(-78.000000) translate(-616.000000, -630.000000) "></path></g></g></svg>
 <?php } ?>
 
+<script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
 <script>
 var working = false;
 var $this = $('#login');
@@ -249,6 +257,70 @@ window.onload = function () {
   google.accounts.id.prompt(); // also display the One Tap dialog
 }
 <?php endif; ?>
+
+// Wallet login
+(function() {
+    var btn = document.getElementById('bc-wallet-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', async function() {
+        var $state = $('#login').find('.errors');
+
+        if (!window.ethereum) {
+            $state.html('No wallet detected. Please install MetaMask or Trust Wallet.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.querySelector('span').textContent = 'Connecting...';
+
+        try {
+            var provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send('eth_requestAccounts', []);
+            var signer   = provider.getSigner();
+            var address  = await signer.getAddress();
+
+            // Step 1: get server-generated nonce
+            var nonceRes = await $.post(Wo_Ajax_Requests_File() + '?f=wallet_nonce', { wallet_address: address });
+            if (!nonceRes || !nonceRes.nonce) {
+                $state.html('Failed to get login challenge. Please try again.');
+                btn.disabled = false;
+                btn.querySelector('span').textContent = 'Connect Wallet';
+                return;
+            }
+
+            btn.querySelector('span').textContent = 'Sign in wallet...';
+
+            // Step 2: sign the nonce message (no gas fee)
+            var message   = 'Login to Bitchat\nNonce: ' + nonceRes.nonce;
+            var signature = await signer.signMessage(message);
+
+            // Step 3: verify signature on server and create session
+            btn.querySelector('span').textContent = 'Verifying...';
+            var loginRes = await $.post(Wo_Ajax_Requests_File() + '?f=wallet_login', {
+                wallet_address: address,
+                signature:      signature
+            });
+
+            if (loginRes && loginRes.status === 200) {
+                $login_anim.removeClass('d-none');
+                btn.querySelector('span').textContent = 'Welcome!';
+                setTimeout(function() { window.location.href = loginRes.location; }, 800);
+            } else {
+                $state.html(loginRes.error || 'Wallet login failed. Please try again.');
+                btn.disabled = false;
+                btn.querySelector('span').textContent = 'Connect Wallet';
+            }
+        } catch (err) {
+            var msg = (err.code === 4001)
+                ? 'You rejected the wallet connection.'
+                : 'Wallet error: ' + (err.message || 'Unknown error');
+            $state.html(msg);
+            btn.disabled = false;
+            btn.querySelector('span').textContent = 'Connect Wallet';
+        }
+    });
+})();
 
 $(function() {
   $('#login').ajaxForm({

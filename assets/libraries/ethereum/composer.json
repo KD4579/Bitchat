@@ -1,0 +1,10 @@
+{
+    "require": {
+        "web3p/ethereum-util": "^0.1"
+    },
+    "config": {
+        "platform": {
+            "php": "7.1"
+        }
+    }
+}
