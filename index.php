@@ -292,6 +292,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'contact-us':
                         include('sources/contact.php');
                         break;
+                    case 'support':
+                        include('sources/support.php');
+                        break;
                     case 'user-activation':
                         include('sources/user_activation.php');
                         break;
@@ -643,6 +646,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'contact-us':
                         include('sources/contact.php');
                         break;
+                    case 'support':
+                        include('sources/support.php');
+                        break;
                     case 'user-activation':
                         include('sources/user_activation.php');
                         break;
@@ -721,6 +727,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     break;
                 case 'contact-us':
                     include('sources/contact.php');
+                    break;
+                case 'support':
+                    include('sources/support.php');
                     break;
                 case 'user-activation':
                     include('sources/user_activation.php');
@@ -899,6 +908,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                 break;
             case 'contact-us':
                 include('sources/contact.php');
+                break;
+            case 'support':
+                include('sources/support.php');
                 break;
             case 'user-activation':
                 include('sources/user_activation.php');
@@ -1224,6 +1236,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
             break;
         case 'contact-us':
             include('sources/contact.php');
+            break;
+        case 'support':
+            include('sources/support.php');
             break;
         case 'user-activation':
             include('sources/user_activation.php');
