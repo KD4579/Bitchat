@@ -84,5 +84,5 @@ if ($stmt->execute([$user_id, $_FILES['file']['name'], $new_file_size])) {
     echo "Upload recorded!";
 } else {
     print_r($stmt->errorInfo());
-?>
+}
 
