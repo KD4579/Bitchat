@@ -1809,6 +1809,19 @@ Only extend existing modules.
 
 ---
 
+## Task: Fix admin-cp/manage-invitation-keys HTTP 500
+
+**Status:** [x] Completed — 2026-02-26
+**Reported:** Admin panel page `https://bitchat.live/admin-cp/manage-invitation-keys` returning HTTP 500 (and later 200 with 0 bytes).
+**Root Cause (1):** `Wo_LoadAdminPage()` in `functions_general.php` only declared `global $wo, $db` — missing `$sqlConnect`. Content inside `require()` (which runs in the function's local scope) used `mysqli_query($sqlConnect, ...)` but `$sqlConnect` was null.
+**Root Cause (2):** The "Top Referrers" JOIN query in `content.phtml` used `u1.name` — a column that does not exist in `Wo_Users` (which has `first_name` + `last_name`). MySQL `ERROR 1054: Unknown column 'u1.name'` caused PHP to crash silently inside `ob_start()`, leaving a 0-byte response.
+**Fix Applied:**
+- `assets/includes/functions_general.php`: Added `$sqlConnect` to `global` declaration in `Wo_LoadAdminPage()` (commit `a843836e`)
+- `admin-panel/pages/manage-invitation-keys/content.phtml`: Changed `u1.name` → `CONCAT(u1.first_name, ' ', u1.last_name) AS name` in the self-JOIN query (commit `4f5fc38f`)
+**Files Modified:** `assets/includes/functions_general.php`, `admin-panel/pages/manage-invitation-keys/content.phtml`
+
+---
+
 ## Task: Login with Wallet (Web3 Identity)
 
 **Status:** [x] Completed

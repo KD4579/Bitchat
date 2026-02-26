@@ -2,6 +2,20 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-26 — Fix admin-cp/manage-invitation-keys HTTP 500
+
+### Fix invitation keys admin page crash
+
+**Root Cause:** Two compounding bugs:
+1. `Wo_LoadAdminPage()` (`functions_general.php`) didn't declare `global $sqlConnect`, so `$sqlConnect` was null inside the function scope — every `mysqli_query($sqlConnect, ...)` call in the template failed.
+2. The "Top Referrers" JOIN query in `content.phtml` selected `u1.name`, which doesn't exist in `Wo_Users` (the table has `first_name` + `last_name`). MySQL `ERROR 1054` caused PHP to terminate silently inside `ob_start()`, discarding the output buffer and returning 0 bytes.
+
+**Files Modified:**
+- `assets/includes/functions_general.php` — Added `$sqlConnect` to global declaration in `Wo_LoadAdminPage()` (commit `a843836e`)
+- `admin-panel/pages/manage-invitation-keys/content.phtml` — Fixed `u1.name` → `CONCAT(u1.first_name, ' ', u1.last_name) AS name` (commit `4f5fc38f`)
+
+---
+
 ## 2026-02-26 — Login with Wallet (Web3 Identity)
 
 ### Add "Connect Wallet" login method
