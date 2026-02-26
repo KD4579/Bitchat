@@ -73,7 +73,7 @@ button, input, optgroup, select, textarea {color: inherit;}
 .tag_auth_effect_bottom {position: fixed;left: -320px;bottom: -60px;height: 500px;width: 500px;opacity: 0.04;z-index: -1;}
 .tag_welcome {width: 100%;height: 100vh;height: calc(var(--vh, 1vh) * 100);position: relative;flex-direction: column;}
 .tag_wel_upper {width: 100%;position: relative;z-index: 1;}
-.tag_wel_middle {width: 100%;position: relative;margin: 100px 0 0;z-index: 1;}
+.tag_wel_middle {width: 100%;position: relative;margin: 20px 0 0;z-index: 1;}
 .tag_wel_bottom {width: 100%;position: relative;margin-top: auto;z-index: 1;}
 .tag_wel_row {align-items: normal;}
 .tag_wel_title {font-family: 'Readex Pro', sans-serif;font-size: 29px;letter-spacing: -0.5px;margin: 40px 0 30px;line-height: 42px;}
@@ -195,7 +195,7 @@ button, input, optgroup, select, textarea {color: inherit;}
 }
 
 @media (max-width:850px) {
-.tag_wel_row {position: relative;padding: 0 0 200px;}
+.tag_wel_row {position: relative;padding: 0 0 40px;}
 .tag_wel_row > .col-sm-5 {position: static;}
 .tag_pro_widget {position: absolute;left: 5px;right: 5px;text-align: center;bottom: 0;}
 .tag_pro_users > div {width: calc((100% / 11) - 8px);}
@@ -203,8 +203,8 @@ button, input, optgroup, select, textarea {color: inherit;}
 }
 
 @media (max-width:768px) {
-.tag_wel_middle {margin: 70px 0 0;}
-.tag_wel_row {flex-direction: column;padding: 120px 0 150px;}
+.tag_wel_middle {margin: 20px 0 0;}
+.tag_wel_row {flex-direction: column;padding: 120px 0 40px;}
 .tag_wel_row > div {-ms-flex: 0 0 100%;flex: 0 0 100%;max-width: 100%;}
 .tag_wel_row > .col-sm-5 {order: 1;}
 .tag_auth_box, .tag_wel_register {margin-left: auto;margin-right: auto;}
@@ -220,7 +220,7 @@ button, input, optgroup, select, textarea {color: inherit;}
 }
 
 @media (max-width:550px) {
-.tag_wel_row {padding: 120px 0 160px;}
+.tag_wel_row {padding: 120px 0 40px;}
 .tag_pro_users > div {width: calc((100% / 9) - 8px);}
 }
 
@@ -231,12 +231,12 @@ button, input, optgroup, select, textarea {color: inherit;}
 }
 
 @media (max-width:500px) {
-.tag_wel_row {padding: 100px 0 160px;}
+.tag_wel_row {padding: 100px 0 40px;}
 .tag_wel_title {font-size: 32px;line-height: 35px;min-height: auto;}
 }
 
 @media (max-width:450px) {
-.tag_wel_row {padding: 100px 0 120px;}
+.tag_wel_row {padding: 100px 0 40px;}
 .tag_wel_title {font-size: 25px;}
 .tag_auth_box {padding: 15px;}
 }
