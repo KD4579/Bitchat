@@ -89,7 +89,7 @@ function Wo_CustomCode($a = false, $code = array()) {
     return $result;
 }
 function Wo_LoadAdminPage($page_url = '') {
-    global $wo, $db;
+    global $wo, $db, $sqlConnect;
     $page         = './admin-panel/pages/' . $page_url . '.phtml';
     $page_content = '';
     ob_start();
