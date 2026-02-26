@@ -2,6 +2,21 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-27 — Fix login page white gap
+
+### Reduce excessive margins and padding in welcome.css
+
+**Root Cause:** `welcome.css` had very large spacing values that created a massive white gap between the background image and the login form:
+
+- `.tag_wel_middle { margin: 100px 0 0 }` (desktop) / `{ margin: 70px 0 0 }` (tablet)
+- `.tag_wel_row { padding: 0 0 200px }` (≤850px) and up to 160px bottom padding on mobile breakpoints
+
+**Files Modified:**
+
+- `themes/wondertag/stylesheet/welcome.css` — 7 rules updated: `.tag_wel_middle` margin 100px→20px (desktop), 70px→20px (tablet); `.tag_wel_row` bottom padding 200/150/160/120px→40px across all breakpoints (commit `d303c975`)
+
+---
+
 ## 2026-02-26 — Fix admin-cp/manage-invitation-keys HTTP 500
 
 ### Fix invitation keys admin page crash

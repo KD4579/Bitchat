@@ -1822,6 +1822,18 @@ Only extend existing modules.
 
 ---
 
+## Task: Fix Login Page White Gap
+
+**Status:** [x] Completed
+**Requested:** 2026-02-27
+**Completed:** 2026-02-27
+**Description:** Login page at 33% zoom showed a large white gap — background image at top, huge empty space, form at bottom.
+**Root Cause:** `welcome.css` had excessive margins/padding: `.tag_wel_middle { margin: 100px 0 0 }` (desktop) and `.tag_wel_row { padding: 0 0 200px }` at ≤850px, plus 150–160px bottom padding in mobile breakpoints.
+**Fix Applied:** Reduced all offending values to 20px margin and 40px bottom padding across all breakpoints.
+**Files Modified:** `themes/wondertag/stylesheet/welcome.css` (commit `d303c975`)
+
+---
+
 ## Task: Login with Wallet (Web3 Identity)
 
 **Status:** [x] Completed
