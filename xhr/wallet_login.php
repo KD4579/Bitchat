@@ -84,7 +84,7 @@ if ($f == 'wallet_login') {
                             $data['error'] = 'This account has been disabled.';
                         } else {
                             // Mark onboarding complete so user lands on feed, not setup wizard
-                            mysqli_query($sqlConnect, "UPDATE `" . T_USERS . "` SET `onboarding_completed` = 1 WHERE `user_id` = '" . $existing['user_id'] . "' AND (`onboarding_completed` IS NULL OR `onboarding_completed` = '')");
+                            mysqli_query($sqlConnect, "UPDATE `" . T_USERS . "` SET `onboarding_completed` = 1 WHERE `user_id` = '" . $existing['user_id'] . "' AND (`onboarding_completed` IS NULL OR `onboarding_completed` = '' OR `onboarding_completed` = 0)");
                             Wo_SetLoginWithSession($existing['email']);
                             $data['status']   = 200;
                             $data['location'] = $wo['config']['site_url'] . '/?cache=' . time();
