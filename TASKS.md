@@ -1822,6 +1822,19 @@ Only extend existing modules.
 
 ---
 
+## Task: Fix Admin Scheduled-Posts View Post Link and Redirect Target
+
+**Status:** [x] Completed
+**Requested:** 2026-02-27
+**Completed:** 2026-02-27
+**Description:** Two admin panel issues: (1) "View Post" on scheduled-posts page redirected to admin dashboard instead of the actual post. (2) Permission-denied redirect in `admin_load.php` sent users to the user panel dashboard instead of staying in admin.
+**Root Cause 1:** `scheduled-posts/content.phtml` used a relative URL `index.php?link1=post&id=...` which resolved to `/admin-cp/index.php?...` from the admin context — routing into `admincp.php` instead of `index.php`.
+**Root Cause 2:** `admin_load.php` line 59 redirected to `Wo_SeoLink('index.php?link1=welcome')` (user dashboard) on permission failure.
+**Fix:** (1) Wrapped URL with `Wo_SeoLink()` for absolute URL, matching pattern used by all other admin pages. (2) Changed redirect target to `Wo_LoadAdminLinkSettings('')` (admin dashboard).
+**Files Modified:** `admin-panel/pages/scheduled-posts/content.phtml`, `admin_load.php` (commit `5690be37`)
+
+---
+
 ## Task: Fix Login Page White Gap
 
 **Status:** [x] Completed

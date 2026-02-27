@@ -2,6 +2,27 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-27 — Fix admin scheduled-posts View Post link and redirect target
+
+### Scheduled-posts "View Post" redirected to admin dashboard instead of actual post
+
+**Root Cause:** The "View Post" link in `admin-panel/pages/scheduled-posts/content.phtml` used a relative URL (`index.php?link1=post&id=...`). Since the browser was at `/admin-cp/scheduled-posts`, the relative URL resolved to `/admin-cp/index.php?...` which routed into `admincp.php` and showed the admin dashboard instead of the post.
+
+**Fix:** Wrapped the URL with `Wo_SeoLink()` to generate the correct absolute URL, matching the pattern used by all other admin pages (`manage-posts`, `manage-users`, etc.).
+
+### Admin permission-denied redirect sent users to user dashboard
+
+**Root Cause:** `admin_load.php` line 59 redirected to `index.php?link1=welcome` (user panel) when a permission check failed, instead of keeping the user in the admin panel.
+
+**Fix:** Changed redirect target to `Wo_LoadAdminLinkSettings('')` (admin dashboard).
+
+**Files Modified:**
+
+- `admin-panel/pages/scheduled-posts/content.phtml` — View Post link: `index.php?...` → `Wo_SeoLink(...)` (commit `5690be37`)
+- `admin_load.php` — Permission-denied redirect: `index.php?link1=welcome` → `Wo_LoadAdminLinkSettings('')` (commit `5690be37`)
+
+---
+
 ## 2026-02-27 — Fix login page white gap
 
 ### Reduce excessive margins and padding in welcome.css
