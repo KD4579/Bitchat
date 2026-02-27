@@ -86,7 +86,7 @@
                                     <?php if ($sp['status'] == 'pending'): ?>
                                         <button class="btn btn-xs btn-danger cancel-scheduled" data-id="<?php echo $sp['id']; ?>">Cancel</button>
                                     <?php elseif ($sp['status'] == 'published' && !empty($sp['published_post_id'])): ?>
-                                        <a href="index.php?link1=post&id=<?php echo $sp['published_post_id']; ?>" target="_blank" class="btn btn-xs btn-default">View Post</a>
+                                        <a href="<?php echo Wo_SeoLink('index.php?link1=post&id=' . $sp['published_post_id']); ?>" target="_blank" class="btn btn-xs btn-default">View Post</a>
                                     <?php else: ?>
                                         —
                                     <?php endif; ?>
