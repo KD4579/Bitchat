@@ -380,6 +380,18 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     error: function(xhr, status, error) {
                         if (status === 'abort') return;
                         $(".barloading").css("display","none");
+                        if (xhr.status === 401) {
+                            $('.content').html(xhr.responseText);
+                        } else {
+                            $('.content').html(
+                                '<div style="text-align:center;padding:60px 20px;">' +
+                                '<i class="material-icons" style="font-size:48px;color:#ff9800;display:block;margin-bottom:15px;">warning</i>' +
+                                '<h4 style="margin:0 0 10px;">Failed to load page</h4>' +
+                                '<p style="color:#666;margin:0 0 20px;">Something went wrong. Please try again.</p>' +
+                                '<a href="javascript:location.reload()" class="btn btn-primary">Reload</a>' +
+                                '</div>'
+                            );
+                        }
                     },
                     complete: function() {
                         currentAjaxRequest = null;

@@ -8,19 +8,26 @@ header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
 require_once('assets/init.php');
 $is_admin     = Wo_IsAdmin();
 $is_moderoter = Wo_IsModerator();
+$login_url = Wo_SeoLink('index.php?link1=welcome');
 if ($wo['config']['maintenance_mode'] == 1) {
     if ($wo['loggedin'] == false) {
-        header("Location: " . Wo_SeoLink('index.php?link1=welcome') . $wo['marker'] . 'm=true');
+        header("Location: " . $login_url . $wo['marker'] . 'm=true');
         exit();
     } else {
         if ($is_admin === false) {
-            header("Location: " . Wo_SeoLink('index.php?link1=welcome') . $wo['marker'] . 'm=true');
+            header("Location: " . $login_url . $wo['marker'] . 'm=true');
             exit();
         }
     }
 }
 if ($is_admin == false && $is_moderoter == false) {
-    header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
+    http_response_code(401);
+    echo '<div style="text-align:center;padding:60px 20px;">';
+    echo '<i class="material-icons" style="font-size:48px;color:#f44336;display:block;margin-bottom:15px;">lock</i>';
+    echo '<h4 style="margin:0 0 10px;">Session Expired</h4>';
+    echo '<p style="color:#666;margin:0 0 20px;">Your admin session has expired. Please log in again.</p>';
+    echo '<a href="' . htmlspecialchars($login_url) . '" class="btn btn-primary">Log In</a>';
+    echo '</div>';
     exit();
 }
 if (!empty($_GET)) {
