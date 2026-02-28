@@ -98,19 +98,31 @@ var $login_anim = $('.tag_auth_animation');
 $(function() {
 	$this.ajaxForm({
 		url: Wo_Ajax_Requests_File() + '?f=confirm_user_unusal_login',
+		dataType: 'json',
 		beforeSend: function() {
-			working = true;$this.find('button').attr("disabled", true);
+			working = true;
+			$state.html('');
+			$this.find('button').attr("disabled", true);
 		},
 		success: function(data) {
-			if (data.status == 200) {
+			if (data && data.status == 200) {
 				$login_anim.removeClass('d-none');
 				setTimeout(function () {
 					window.location.href = data.location;
 				}, 1000);
 			} else {
 				$this.find('button').attr("disabled", false);
-				$state.html(data.errors);
+				if (data && data.errors) {
+					$state.html(data.errors);
+				} else {
+					$state.html('<div class="alert alert-danger">Session expired. Please <a href="<?php echo Wo_SeoLink("index.php?link1=welcome");?>">login again</a>.</div>');
+				}
 			}
+			working = false;
+		},
+		error: function() {
+			$this.find('button').attr("disabled", false);
+			$state.html('<div class="alert alert-danger">Connection error. Please try again.</div>');
 			working = false;
 		}
 	});

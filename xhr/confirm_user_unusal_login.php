@@ -9,19 +9,20 @@ if ($f == 'confirm_user_unusal_login') {
             exit();
         }
     }
-    if (!empty($_POST['confirm_code']) && !empty($_COOKIE['two_factor_username'])) {
-        $confirm_code = $_POST['confirm_code'];
-        if (empty($_POST['confirm_code'])) {
-            $errors = $error_icon . $wo['lang']['please_check_details'];
-        } else if (empty($_COOKIE['two_factor_username'])) {
-            $errors = $error_icon . $wo['lang']['error_while_activating'];
-        }
+    if (empty($_POST['confirm_code'])) {
+        $errors = $error_icon . $wo['lang']['please_check_details'];
+    }
+    if (empty($_COOKIE['two_factor_username'])) {
+        $errors = $error_icon . 'Session expired. Please <a href="' . Wo_SeoLink('index.php?link1=welcome') . '">login again</a>.';
+    }
+    if (empty($errors) && !empty($_POST['confirm_code']) && !empty($_COOKIE['two_factor_username'])) {
         $user = $db->where("username", Wo_Secure($_COOKIE['two_factor_username']))->getOne(T_USERS);
         if (empty($user)) {
             $errors = $error_icon . $wo['lang']['error_while_activating'];
         }
+    }
+    if (empty($errors) && !empty($user)) {
         $user_id = $user->user_id;
-
         $confirm_code = 0;
         if ($user->two_factor_method == 'google' || $user->two_factor_method == 'authy') {
             $codes = $db->where('user_id',$user_id)->getOne(T_BACKUP_CODES);
@@ -108,8 +109,12 @@ if ($f == 'confirm_user_unusal_login') {
         echo json_encode(array(
             'errors' => $errors
         ));
-    } else {
+    } else if (!empty($data)) {
         echo json_encode($data);
+    } else {
+        echo json_encode(array(
+            'errors' => $error_icon . 'Session expired. Please <a href="' . Wo_SeoLink('index.php?link1=welcome') . '">login again</a>.'
+        ));
     }
     exit();
 }
