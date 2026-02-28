@@ -15,7 +15,8 @@ if (!empty($_GET['url'])) {
 			<img src="<?php echo (empty($wo['page_profile']['avatar'])) ? $wo['user']['avatar'] : $wo['page_profile']['avatar'];?>">
 		</a>
 	<?php } ?>
-	<button type="button" class="btn btn-default btn-mat tag_pub_box_bg_text" data-toggle="modal" data-target="#tagPostBox"><?php echo TextForMode('publisher_box_placeholder'); ?></button>
+	<?php $dynamic_placeholder = Wo_GetDynamicPlaceholder(); ?>
+	<button type="button" class="btn btn-default btn-mat tag_pub_box_bg_text" data-toggle="modal" data-target="#tagPostBox"><?php echo $dynamic_placeholder; ?></button>
 	<div id="posting-cooldown-notice"></div>
 	<?php if ($wo['config']['live_video'] == 1 && ($wo['config']['millicast_live_video'] == 1 || $wo['config']['agora_live_video'] == 1) && $wo['config']['can_use_live']) { ?>
 		<a class="btn btn-mat tag_pub_box_bg_camlve live" href="<?php echo($wo['config']['site_url']) ?>/live" title="<?php echo $wo['lang']['live']; ?>">
@@ -56,7 +57,7 @@ if (!empty($_GET['url'])) {
 				</div>
 				<div id="post-textarea" onclick="$('.postText').attr('opened', '1');">
 					<div class="wo_pub_txtara_combo">
-						<textarea name="postText" class="auto-resize postText" rows="1" spellcheck="false" placeholder="<?php echo $wo['lang']['whats_happening']; ?>?" dir="auto"><?php echo $url; ?></textarea>
+						<textarea name="postText" class="auto-resize postText" rows="1" spellcheck="false" placeholder="<?php echo $dynamic_placeholder; ?>" dir="auto"><?php echo $url; ?></textarea>
 					
 
 					</div>

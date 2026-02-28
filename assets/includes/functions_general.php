@@ -2198,3 +2198,60 @@ function full_url( $s, $use_forwarded_host = false )
 {
     return url_origin( $s, $use_forwarded_host ) . $s['REQUEST_URI'];
 }
+
+function Wo_GetDynamicPlaceholder() {
+    global $wo, $sqlConnect;
+
+    $placeholders = array(
+        "Share your insight\u{2026} earn TRDC rewards.",
+        "What's moving the markets today?",
+        "Got an idea, signal, or update? Share it.",
+        "Post something valuable \u{2014} your audience is watching.",
+        "What's your next move?",
+        "Share news, analysis, or your opinion\u{2026}",
+        "Start a conversation. Insights earn visibility.",
+        "What did you learn today?",
+        "Drop your market thoughts or daily update.",
+        "Your insight could trend today \xF0\x9F\x9A\x80",
+    );
+
+    $contextual = array(
+        'had_media' => "Now share your analysis or insight\u{2026}",
+        'had_text'  => "Add a chart, image, or link to your next post.",
+        'new_user'  => "Welcome! Share your first insight and earn TRDC.",
+    );
+
+    if (empty($wo['user']['user_id'])) {
+        return $placeholders[array_rand($placeholders)];
+    }
+
+    $user_id = (int) $wo['user']['user_id'];
+    $is_recent = (!empty($wo['user']['joined']) && $wo['user']['joined'] > (time() - 604800));
+
+    $last_post = null;
+    $query = mysqli_query($sqlConnect,
+        "SELECT `postFile`, `postYoutube`, `postSticker`
+         FROM " . T_POSTS . "
+         WHERE `user_id` = {$user_id}
+           AND `active` = '1'
+           AND `postType` NOT IN ('profile_picture','profile_cover_picture')
+         ORDER BY `id` DESC
+         LIMIT 1"
+    );
+    if ($query && mysqli_num_rows($query) > 0) {
+        $last_post = mysqli_fetch_assoc($query);
+    }
+
+    if ($last_post === null && $is_recent) {
+        return $contextual['new_user'];
+    }
+
+    if ($last_post !== null) {
+        $had_media = (!empty($last_post['postFile'])
+                   || !empty($last_post['postYoutube'])
+                   || !empty($last_post['postSticker']));
+        return $had_media ? $contextual['had_media'] : $contextual['had_text'];
+    }
+
+    return $placeholders[array_rand($placeholders)];
+}
