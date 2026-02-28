@@ -70,6 +70,18 @@
 **Files Modified:** `themes/wondertag/layout/extra_js/content.phtml`
 
 ---
+
+## Task 5: Auto-Backup Producing Empty .gz Files
+**Status:** [x] Completed
+**Issue:** Automated daily DB backups (`script_backups/auto_db_*.sql.gz`) were all 20 bytes — empty gzip headers. mysqldump was failing silently.
+**Root Cause:** `cron-job.php` backup code read DB credentials from `$wo['config']['db_host']` etc. (not in Wo_Config table) and fell back to undefined `DB_HOST`/`DB_NAME` constants. The actual credentials are `$sql_db_host`/`$sql_db_name`/`$sql_db_user`/`$sql_db_pass` from `config.php`. Errors were hidden by `2>/dev/null`.
+**Fix Applied:**
+1. Changed credential source to `$sql_db_*` variables from `config.php` (already in scope via `init.php`)
+2. Added file size validation — deletes empty backups and logs failure
+**Result:** Backup now produces valid 28 MB compressed dump
+**Files Modified:** `cron-job.php`
+
+---
 ---
 
 # 🚀 BITCHAT — SPEED MODE + GROWTH ENGINE (PHASE 2026-02)

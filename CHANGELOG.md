@@ -24,7 +24,23 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 - Removed `themes/wowonder/` (42MB) and `themes/sunshine/` (48MB) — unused, active theme is `wondertag`
 - Vacuumed systemd journal to 50MB cap
 
-**Note:** `script_backups/` auto backup .gz files are each only 20 bytes (corrupt/empty) — mysqldump likely failing silently. Separate issue to investigate.
+**Note:** `script_backups/` auto backup .gz files were each only 20 bytes (corrupt/empty) — fixed in next entry.
+
+---
+
+## 2026-02-28 — Fix auto-backup producing empty .gz files
+
+### Root cause
+`cron-job.php` backup code read DB credentials from `$wo['config']['db_host']` etc. (not in `Wo_Config` table) and fell back to undefined `DB_HOST`/`DB_NAME` constants. Result: mysqldump ran with empty credentials, failed silently (`2>/dev/null`), and gzip wrote an empty 20-byte header.
+
+### Fix
+- Changed credential source to `$sql_db_host`/`$sql_db_name`/`$sql_db_user`/`$sql_db_pass` from `config.php` (already in scope via `init.php`)
+- Added file size validation — deletes empty backups (<100 bytes) and logs failure to `cron.log`
+
+### Result
+Backup now produces a valid **28 MB** compressed dump (`auto_db_2026-02-28_130736.sql.gz`).
+
+**Files modified:** `cron-job.php`
 
 ---
 
