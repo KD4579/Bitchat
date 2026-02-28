@@ -287,10 +287,10 @@ if (!empty($wo['config']['auto_backup_enabled']) && $wo['config']['auto_backup_e
 
         // Empty gzip = ~20 bytes (header only), real dump is at least hundreds of KB
         if (!file_exists($backupFile) || filesize($backupFile) < 100) {
-            _cron_log('auto_backup FAILED — backup file is empty or missing (check DB credentials)');
+            @file_put_contents(__DIR__ . '/assets/logs/cron.log',
+                date('Y-m-d H:i:s') . " | auto_backup FAILED — file empty or missing\n",
+                FILE_APPEND | LOCK_EX);
             if (file_exists($backupFile)) @unlink($backupFile);
-        } else {
-            _cron_log('auto_backup OK — ' . basename($backupFile) . ' (' . round(filesize($backupFile) / 1024 / 1024, 1) . ' MB)');
         }
 
         // Cleanup old auto backups (keep last 7)
