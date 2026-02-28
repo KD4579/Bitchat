@@ -9,5 +9,5 @@ if (!isset($_GET['hash']) || empty($_GET['hash'])) {
 $wo['description'] = $wo['config']['siteDesc'];
 $wo['keywords']    = '';
 $wo['page']        = 'hashtag';
-$wo['title']       = '#' . $_GET['hash'] . ' | ' . $wo['config']['siteTitle'];
+$wo['title']       = '#' . htmlspecialchars($_GET['hash'], ENT_QUOTES, 'UTF-8') . ' | ' . $wo['config']['siteTitle'];
 $wo['content'] = Wo_LoadPage('hashtags/content');

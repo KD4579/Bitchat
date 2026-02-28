@@ -7,7 +7,17 @@
  */
 
 // Must match the secret set in GitHub webhook settings
-define('WEBHOOK_SECRET', 'bitchat_webhook_secret_8e296a067a37563370ded05f5a3bf3ec');
+// Read from environment variable; fall back to file outside webroot
+$_wh_secret = getenv('GITHUB_WEBHOOK_SECRET');
+if (!$_wh_secret && file_exists(__DIR__ . '/../private/webhook_secret.txt')) {
+    $_wh_secret = trim(file_get_contents(__DIR__ . '/../private/webhook_secret.txt'));
+}
+if (!$_wh_secret) {
+    http_response_code(500);
+    exit('Webhook secret not configured');
+}
+define('WEBHOOK_SECRET', $_wh_secret);
+unset($_wh_secret);
 
 // Path to the shell script that does the actual git pull
 define('DEPLOY_SCRIPT', __DIR__ . '/webhook-deploy.sh');
