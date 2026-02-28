@@ -1847,6 +1847,31 @@ Only extend existing modules.
 
 ---
 
+## Task: Server Cleanup — Delete Unnecessary Files and Cache
+
+**Status:** [x] Completed
+**Requested:** 2026-02-28
+**Completed:** 2026-02-28
+**Description:** Audit and clean up unnecessary files, cache, stale sessions, old logs, and unused assets from the live server.
+
+**Cleanup Summary (~4.1 GB freed):**
+
+| Target | Before | After | Freed |
+|--------|--------|-------|-------|
+| `.git/` (shallow re-clone) | 2.0 GB | 81 MB | ~1.9 GB |
+| PHP sessions (`/home/KamalDave/tmp/`) | 2.2 GB (518K files) | 251 MB | ~1.95 GB |
+| Apache logs (`/var/log/apache2/`) | 827 MB | 13 MB | ~814 MB |
+| `cache/` (.tmp + .tpl files) | 151 MB | 2 MB | ~149 MB |
+| Unused themes (wowonder + sunshine) | 90 MB | 0 | 90 MB |
+| systemd journal | 217 MB | 46 MB | ~171 MB |
+
+**Notes:**
+- `.git/` was bloated because uploaded videos/photos (60MB+) were committed before `.gitignore` was updated. Replaced with `--depth=1` shallow clone.
+- `script_backups/` auto backups are each 20 bytes (corrupt/empty) — mysqldump likely failing. Separate bug to investigate.
+- `assets/libraries/fake-users/` (12MB) kept — actively used by admin panel.
+
+---
+
 ## Task: Dynamic Rotating Placeholder Text for Post Publisher
 
 **Status:** [x] Completed

@@ -2,6 +2,32 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-28 — Server cleanup: delete unnecessary files and cache
+
+### Audit and clean up ~4.1 GB of unnecessary files from the live server
+
+| Target | Before | After | Freed |
+| ------ | ------ | ----- | ----- |
+| `.git/` (shallow re-clone) | 2.0 GB | 81 MB | ~1.9 GB |
+| PHP sessions (`/home/KamalDave/tmp/`) | 2.2 GB (518K files) | 251 MB | ~1.95 GB |
+| Apache logs (`/var/log/apache2/`) | 827 MB | 13 MB | ~814 MB |
+| `cache/` (.tmp + .tpl files) | 151 MB | 2 MB | ~149 MB |
+| Unused themes (wowonder + sunshine) | 90 MB | 0 | 90 MB |
+| systemd journal | 217 MB | 46 MB | ~171 MB |
+
+**Key actions:**
+
+- Replaced full git history with `--depth=1` shallow clone (old history had 60MB+ uploaded videos/photos committed before `.gitignore` was updated)
+- Purged 518K stale PHP session files (bots/crawlers creating sessions faster than GC cleans)
+- Removed rotated Apache access/error logs and truncated current 288MB access log
+- Cleared all WoWonder file-based cache (.tmp and .tpl files — regenerated automatically)
+- Removed `themes/wowonder/` (42MB) and `themes/sunshine/` (48MB) — unused, active theme is `wondertag`
+- Vacuumed systemd journal to 50MB cap
+
+**Note:** `script_backups/` auto backup .gz files are each only 20 bytes (corrupt/empty) — mysqldump likely failing silently. Separate issue to investigate.
+
+---
+
 ## 2026-02-28 — Dynamic rotating placeholder text for post publisher
 
 ### Replace static placeholder with action-oriented rotating prompts
