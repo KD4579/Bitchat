@@ -2453,6 +2453,7 @@ table.wow_pymnt_table .label-danger {color: #F44336;background-color: rgba(244, 
 .tag_pub_prod_progress {position: relative;margin: 10px 0 0;}
 .wo_pub_txtara_combo {position: relative;}
 .publisher-box textarea.postText {padding: 15px 20px 1px;min-height: 130px;color: inherit;resize: none;width: 100%;font-size: 15px;line-height: 1.5;max-height: calc(100vh - 220px);background: transparent;}
+.publisher-box textarea.postText:placeholder-shown {text-align: center;}
 .publisher-box.wo_pub_change_color .wo_pub_txtara_combo {min-height: 350px;display: -webkit-box;display: -webkit-flex;display: -ms-flexbox;display: flex;-webkit-box-align: center;-webkit-align-items: center;-ms-flex-align: center;align-items: center;justify-content: center;}
 .publisher-box.wo_pub_change_color textarea.postText {max-height: 370px;padding: 20px;text-align: center;font-size: 26px;font-weight: 600;font-family: 'Readex Pro', sans-serif;min-height: 80px;line-height: normal;}
 .publisher-box.wo_pub_change_color textarea.postText::placeholder {color: currentColor;opacity: 0.5;}
