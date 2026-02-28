@@ -44,6 +44,19 @@ Backup now produces a valid **28 MB** compressed dump (`auto_db_2026-02-28_13073
 
 ---
 
+## 2026-02-28 — Fix unusual-login confirm button not working
+
+### Problem
+Clicking Confirm after entering the code did nothing — button froze permanently. On PHP 8.3, missing `two_factor_username` cookie caused null object access crash (`$user->user_id` on null). Even without the crash, the handler returned `null` JSON which the JS couldn't parse — no error callback existed to re-enable the button.
+
+### Fix
+- `xhr/confirm_user_unusal_login.php`: Early input validation, null-safe user lookup, proper "session expired" error for all edge cases
+- `themes/wondertag/layout/welcome/unusual-login.phtml`: Added `dataType: 'json'`, error callback, null-safe response checks, session-expired fallback
+
+**Files modified:** `xhr/confirm_user_unusal_login.php`, `themes/wondertag/layout/welcome/unusual-login.phtml`
+
+---
+
 ## 2026-02-28 — Fix unusual-login confirmation code resend
 
 ### Problem

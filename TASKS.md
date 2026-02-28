@@ -93,6 +93,19 @@
 **Files Modified:** `xhr/resend_two_factor.php`
 
 ---
+
+## Task 7: Unusual Login — Confirm Button Not Working
+**Status:** [x] Completed
+**Issue:** After entering the correct confirmation code on `/unusual-login`, clicking Confirm did nothing — button froze/disabled permanently.
+**Root Cause:** Two issues:
+1. PHP 8.3 null access crash: When `two_factor_username` cookie was missing, handler skipped the main `if` block but still fell through to `echo json_encode($data)` with undefined `$data`, returning `null`. Also, `$user->user_id` (line 23) would crash with TypeError on null `$user` if user lookup failed.
+2. JS had no `dataType: 'json'`, no error callback, and no null-safety on the response — button stayed disabled permanently on any failure.
+**Fix Applied:**
+1. `xhr/confirm_user_unusal_login.php`: Early validation of inputs, safe null checks, proper "session expired" error messages for all edge cases
+2. `themes/wondertag/layout/welcome/unusual-login.phtml`: Added `dataType: 'json'`, error callback, null-safe response handling, and "session expired" fallback message
+**Files Modified:** `xhr/confirm_user_unusal_login.php`, `themes/wondertag/layout/welcome/unusual-login.phtml`
+
+---
 ---
 
 # 🚀 BITCHAT — SPEED MODE + GROWTH ENGINE (PHASE 2026-02)
