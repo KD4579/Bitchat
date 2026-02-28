@@ -82,6 +82,17 @@
 **Files Modified:** `cron-job.php`
 
 ---
+
+## Task 6: Unusual Login — Confirmation Code Not Received
+**Status:** [x] Completed
+**Issue:** Users stuck on `/unusual-login` page with no confirmation code received. Clicking "Send Again" returned "something wrong" error.
+**Root Cause:** The "Send Again" button called `Wo_TwoFactor()` which checks `$getuser['two_factor'] == 0` and returns `true` (skips) for users without 2FA enabled — 32,616 of 32,697 users. The initial email IS sent by `Wo_VerfiyIP()`, but if it's missed (slow delivery, spam, etc.), the resend was completely broken.
+**Fix Applied:**
+1. Added fallback in `xhr/resend_two_factor.php`: when `Wo_TwoFactor()` skips, generate a new code and send the unusual-login email template directly
+2. The fallback uses the same email template and SMTP path as the initial send
+**Files Modified:** `xhr/resend_two_factor.php`
+
+---
 ---
 
 # 🚀 BITCHAT — SPEED MODE + GROWTH ENGINE (PHASE 2026-02)

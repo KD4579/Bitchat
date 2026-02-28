@@ -44,6 +44,18 @@ Backup now produces a valid **28 MB** compressed dump (`auto_db_2026-02-28_13073
 
 ---
 
+## 2026-02-28 — Fix unusual-login confirmation code resend
+
+### Problem
+Users stuck on `/unusual-login` page couldn't receive a new code. The "Send Again" button called `Wo_TwoFactor()` which returns `true` (skips) for users with `two_factor=0` — 32,616 of 32,697 users. The initial email is sent by `Wo_VerfiyIP()`, but if missed (spam, delay), users had no way to get a new code.
+
+### Fix
+Added fallback in `xhr/resend_two_factor.php`: when `Wo_TwoFactor()` skips, generate a new 6-digit code, update `email_code` in DB, and send the unusual-login email template directly via SMTP.
+
+**Files modified:** `xhr/resend_two_factor.php`
+
+---
+
 ## 2026-02-28 — Dynamic rotating placeholder text for post publisher
 
 ### Replace static placeholder with action-oriented rotating prompts
