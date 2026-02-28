@@ -2435,7 +2435,7 @@ table.wow_pymnt_table .label-danger {color: #F44336;background-color: rgba(244, 
 .tag_pub_box_bg {margin-bottom: 20px;padding: 12px;}
 .tag_pub_box_avatar {display: block;margin-right: 12px;width: 42px;min-width: 42px;height: 42px;border-radius: 50%;}
 .tag_pub_box_avatar img {width: 100%;height: 100%;border-radius: 50%;}
-.tag_pub_box_bg_text {border-radius: 10px;flex: 1 1 auto;line-height: 42px;height: 42px;}
+.tag_pub_box_bg_text {border-radius: 10px;flex: 1 1 auto;line-height: 42px;height: 42px;text-align: center;}
 .tag_pub_box_bg_camlve {margin-left: 12px;border-radius: 50%;min-width: 42px;line-height: 42px;height: 42px;padding: 0 2px;background: transparent;}
 .tag_pub_box_bg_camlve:before {opacity: 0.1;}
 .tag_pub_box_bg_camlve svg, .tag_pub_box .modal-header .btn-default svg {width: 24px;height: 24px;margin: -2px 0 0;}
