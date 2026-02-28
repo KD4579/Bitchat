@@ -4998,7 +4998,14 @@ function Wo_ShareFile($data = array(), $type = 0, $crop = true) {
         if (Wo_IsAdmin()) {
             $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json,application/octet-stream,image/svg+xml'));
         }
-        if (!in_array($data['type'], $mime_types)) {
+        // Server-side MIME validation (don't trust client-provided type)
+        if (isset($data['file']) && is_uploaded_file($data['file'])) {
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $real_mime = $finfo->file($data['file']);
+            if ($real_mime !== false && !in_array($real_mime, $mime_types)) {
+                return false;
+            }
+        } elseif (!in_array($data['type'], $mime_types)) {
             return false;
         }
     }
@@ -5006,6 +5013,12 @@ function Wo_ShareFile($data = array(), $type = 0, $crop = true) {
     $filename    = $dir . '/' . Wo_GenerateKey() . '_' . date('d') . '_' . md5(time()) . "_{$fileType}.{$file_extension}";
     $second_file = pathinfo($filename, PATHINFO_EXTENSION);
     if (move_uploaded_file($data['file'], $filename)) {
+        // Security: scan uploaded file for embedded PHP code (up to 64KB)
+        $scan_content = @file_get_contents($filename, false, null, 0, 65536);
+        if ($scan_content !== false && preg_match('/<\?php|<\?=|<\?[[:space:]]/i', $scan_content)) {
+            @unlink($filename);
+            return false;
+        }
         if ($second_file == 'jpg' || $second_file == 'jpeg' || $second_file == 'png' || $second_file == 'gif') {
             $check_file = getimagesize($filename);
             if (!$check_file) {

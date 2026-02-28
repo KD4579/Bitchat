@@ -146,9 +146,9 @@ class BitchatSecurity {
             return ['valid' => false, 'error' => 'Invalid file type'];
         }
 
-        // Check for PHP code in file
-        $content = file_get_contents($file['tmp_name'], false, null, 0, 1024);
-        if (preg_match('/<\?php|<\?=/i', $content)) {
+        // Check for PHP code in file (scan up to 64KB for polyglot attacks)
+        $content = file_get_contents($file['tmp_name'], false, null, 0, 65536);
+        if (preg_match('/<\?php|<\?=|<\?[[:space:]]/i', $content)) {
             return ['valid' => false, 'error' => 'Invalid file content'];
         }
 

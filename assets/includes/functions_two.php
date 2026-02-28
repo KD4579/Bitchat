@@ -7115,12 +7115,27 @@ function IsSaveUrl($url) {
             "status" => 400
         );
     }
+    // SSRF protection: only allow http/https protocols
+    $parsed = parse_url($url);
+    if (!$parsed || !isset($parsed['scheme']) || !in_array(strtolower($parsed['scheme']), ['http', 'https'])) {
+        return array("status" => 400);
+    }
+    // Block requests to internal/private IP ranges
+    $host = $parsed['host'] ?? '';
+    if (empty($host)) {
+        return array("status" => 400);
+    }
+    $ip = gethostbyname($host);
+    if ($ip !== false && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+        return array("status" => 400);
+    }
     $headers = array();
     $ch      = curl_init();
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_URL, $url);
-    //curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 20);
+    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
     // Only calling the head
     curl_setopt($ch, CURLOPT_HEADER, true); // header will be at output
