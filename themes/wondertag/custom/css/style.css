@@ -2074,12 +2074,12 @@ html.bc-dark-mode .bc-ig-close:hover {
 }
 
 /* ============================================================
-   Part 5: Composer — hide secondary toolbar items on mobile only.
-   Desktop shows full 2-column grid with text labels.
+   Part 5: Composer — lazy-load advanced tools via AJAX.
+   Only 3 core buttons render initially; rest load on "More" click.
    ============================================================ */
-/* "More Options" toggle button — hidden on desktop, visible on mobile */
+/* "More Options" toggle button — always visible */
 .bc-composer-more-btn {
-  display: none;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
@@ -2096,17 +2096,11 @@ html.bc-dark-mode .bc-ig-close:hover {
   margin-left: 2px;
 }
 .bc-composer-more-btn:hover { background: var(--bc-surface-hover); color: var(--bc-text-primary); }
+.bc-composer-more-btn.loading { pointer-events: none; opacity: 0.6; }
 
-/* Mobile only: collapse icons 4+ behind More/Less toggle */
-@media (max-width: 600px) {
-  .bc-composer-more-btn { display: inline-flex; }
-  .pub-footer-upper .tag_pub_box_btns:nth-child(n+4) {
-    display: none !important;
-  }
-  .pub-footer-upper.bc-composer-expanded .tag_pub_box_btns:nth-child(n+4) {
-    display: block !important;
-  }
-}
+/* Lazy-loaded buttons: hidden until expanded */
+.pub-footer-upper .bc-lazy-injected-btn { display: none !important; }
+.pub-footer-upper.bc-composer-expanded .bc-lazy-injected-btn { display: inline-flex !important; }
 
 /* ============================================================
    Part 6: TRDC Sidebar Card

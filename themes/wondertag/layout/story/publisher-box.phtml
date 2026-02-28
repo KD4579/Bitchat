@@ -90,93 +90,7 @@ if (!empty($_GET['url'])) {
 					</div>
 				<?php } ?>
 				<?php } ?>
-				<?php if ($wo['config']['stickers'] == 1): ?>
-					<div class="tag_pub_hide gif-form">
-						<input type="text" placeholder="<?php echo $wo['lang']['search'] ?> GIFs" onkeyup="Wo_GetPostStickers(this.value)">
-						<div class="tag_scroll tag_pub_gifs" id="publisher-box-stickers-cont" onscroll="GifScrolled(this)" oldWord="" loadOffset="0"></div>
-					</div>
-				<?php endif ?>
-				<div class="tag_pub_hide emo-form">
-					<div class="valign tag_pub_feels">
-						<div class="feelings-type-to pointer" onclick="Wo_RestFeelings();"></div>
-						<div class="tag_pub_feels_innr">
-							<input name="feeling" id="feelings-text" type="text" placeholder="<?php echo html_entity_decode($wo["lang"]["feel_d"])?>" onclick="Wo_ShowFeelings();" autocomplete="no">
-							<span class="feelings-value"></span>
-						</div>
-						<input name="feeling_type" type="hidden" id="feeling-type" value="">
-						<div class="clear"></div>
-					</div>
-					<ul class="tag_create_menu dropdown-menu feeling-type feeling-types">
-						<button type="button" class="btn" onclick="Wo_ShowFeelings();"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H6.83l2.88-2.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L3.71 11.3c-.39.39-.39 1.02 0 1.41L8.3 17.3c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L6.83 13H20c.55 0 1-.45 1-1s-.45-1-1-1z"></path></svg></button>
-						<li>
-							<a class="pointer" onclick='Wo_ShowFeelingType("feelings", "<?php echo $wo['lang']['feeling'];?>", "<?php echo $wo['lang']['feeling_q'];?>");'>
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" class="hover_path" d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-4-9a4 4 0 1 0 8 0H8zm0-2a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm8 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"></path><path fill="currentColor" d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-4-7h8a4 4 0 1 1-8 0zm0-2a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm8 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path></svg> <?php echo $wo['lang']['feeling'];?>
-							</a>
-						</li>
-						<li>
-							<a class="pointer" onclick='Wo_ShowFeelingType("traveling", "<?php echo $wo['lang']['traveling'];?>" , "<?php echo $wo['lang']['traveling_q'];?>");'>
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" class="hover_path" d="M17 20H7v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9H2V8h1V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3h1v4h-1v9a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1zM5 5v7h14V5H5zm2.5 13a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm9 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"></path><path fill="currentColor" d="M17 20H7v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9H2V8h1V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3h1v4h-1v9a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1zM5 5v6h14V5H5zm14 8H5v5h14v-5zM7.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm9 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"></path></svg> <?php echo $wo['lang']['traveling'];?>
-							</a>
-						</li>
-						<li>
-							<a class="pointer" onclick='Wo_ShowFeelingType("watching", "<?php echo $wo['lang']['watching'];?>", "<?php echo $wo['lang']['watching_q'];?>");'>
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" class="hover_path" d="M15.414 5h5.594c.548 0 .992.445.992 1v14c0 .552-.455 1-.992 1H2.992A.994.994 0 0 1 2 20V6c0-.552.455-1 .992-1h5.594L6.05 2.464 7.464 1.05 11.414 5h1.172l3.95-3.95 1.414 1.414L15.414 5z"></path><path fill="currentColor" d="M15.414 5h5.594c.548 0 .992.445.992 1v14c0 .552-.455 1-.992 1H2.992A.994.994 0 0 1 2 20V6c0-.552.455-1 .992-1h5.594L6.05 2.464 7.464 1.05 11.414 5h1.172l3.95-3.95 1.414 1.414L15.414 5zM4 7v12h16V7H4z"></path></svg> <?php echo $wo['lang']['watching'];?>
-							</a>
-						</li>
-						<li>
-							<a class="pointer" onclick='Wo_ShowFeelingType("playing", "<?php echo $wo['lang']['playing'];?>", "<?php echo $wo['lang']['playing_q'];?>");'>
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" class="hover_path" d="M17 4a6 6 0 0 1 6 6v4a6 6 0 0 1-6 6H7a6 6 0 0 1-6-6v-4a6 6 0 0 1 6-6h10zm-7 5H8v2H6v2h1.999L8 15h2l-.001-2H12v-2h-2V9zm8 4h-2v2h2v-2zm-2-4h-2v2h2V9z"></path><path fill="currentColor" d="M17 4a6 6 0 0 1 6 6v4a6 6 0 0 1-6 6H7a6 6 0 0 1-6-6v-4a6 6 0 0 1 6-6h10zm0 2H7a4 4 0 0 0-3.995 3.8L3 10v4a4 4 0 0 0 3.8 3.995L7 18h10a4 4 0 0 0 3.995-3.8L21 14v-4a4 4 0 0 0-3.8-3.995L17 6zm-7 3v2h2v2H9.999L10 15H8l-.001-2H6v-2h2V9h2zm8 4v2h-2v-2h2zm-2-4v2h-2V9h2z"></path></svg> <?php echo $wo['lang']['playing'];?>
-							</a>
-						</li>
-						<li>
-							<a class="pointer" onclick='Wo_ShowFeelingType("listening", "<?php echo addslashes($wo['lang']['listening']);?>", "<?php echo addslashes($wo['lang']['listening_q']);?>");'>
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" class="hover_path" d="M4 12h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7C2 6.477 6.477 2 12 2s10 4.477 10 10v7a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h3a8 8 0 1 0-16 0z"></path><path fill="currentColor" d="M12 4a8 8 0 0 0-8 8h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7C2 6.477 6.477 2 12 2s10 4.477 10 10v7a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h3a8 8 0 0 0-8-8zM4 14v5h3v-5H4zm13 0v5h3v-5h-3z"></path></svg> <?php echo $wo['lang']['listening'];?>
-							</a>
-						</li>
-					</ul>
-					<ul class="tag_create_menu dropdown-menu feeling-type feelings">
-						<button type="button" class="btn" onclick="Wo_RestFeelings();"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H6.83l2.88-2.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L3.71 11.3c-.39.39-.39 1.02 0 1.41L8.3 17.3c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L6.83 13H20c.55 0 1-.45 1-1s-.45-1-1-1z"></path></svg></button>
-						<?php foreach ($wo['feelingIcons'] as $icon_name => $icon_code) { ?>
-							<li>
-								<a class="pointer" onclick="Wo_AddFeeling('<?php echo $icon_name;?>', '<?php echo $wo['lang'][$icon_name]; ?>', '<?php echo $icon_code;?>');">
-									<i class="twa-lg twa twa-<?php echo $icon_code; ?>"></i> <?php echo $wo['lang'][$icon_name]; ?>
-								</a>
-							</li>
-						<?php } ?>
-					</ul>
-				</div>
-				<div class="tag_pub_hide file-form">
-					<div class="valign">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path fill="currentColor" d="M20 22H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1zM8 7v2h8V7H8zm0 4v2h8v-2H8zm0 4v2h5v-2H8z"/></svg>
-						<div class="full_width">
-							<input name="filename" type="text" readonly>
-							<p></p>
-						</div>
-					</div>
-				</div>
-				<div class="tag_pub_hide poll-form">
-					<div class="answers">
-						<input name="answer[]" type="text" placeholder="<?php echo $wo['lang']['answer'] ?> 1">
-						<input name="answer[]" type="text" placeholder="<?php echo $wo['lang']['answer'] ?> 2">
-					</div>
-					<div class="btn btn-main-rev btn-mat create-poll" onclick="Wo_AddAnswer();" id="add_answer"><?php echo $wo['lang']['add_answer'] ?></div>
-				</div>
-				<div class="tag_pub_hide map-form">
-					<input name="postMap" id="searchTextField" type="text" placeholder="<?php echo $wo['lang']['maps_placeholder']?>">
-					<?php if ($wo['config']['yandex_map'] == 1) { ?>
-						<div class="yandex_search_publisher"></div>
-					<?php } ?>
-				</div>
-				<?php if ($wo['config']['audio_upload'] == 1) { ?>
-					<div class="tag_pub_hide music-form">
-						<div class="valign">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path fill="currentColor" d="M20 3v14a4 4 0 1 1-2-3.465V6H9v11a4 4 0 1 1-2-3.465V3h13z"/></svg>
-							<div class="full_width">
-								<input name="musiccount" type="text" readonly>
-							</div>
-						</div>
-					</div>
-				<?php } ?>
+				<div id="bc-lazy-tools-container"></div>
 
 				<div id="results"></div>
 		
@@ -375,70 +289,6 @@ if (!empty($_GET['url'])) {
 								</span>
 							<?php } ?>
 						<?php } ?>
-						<?php if ($wo['config']['website_mode'] == 'linkedin' && empty($wo['page_profile']) && ($wo['page'] == 'timeline' || $wo['page'] == 'home')) { ?>
-							<span class="btn btn-file tag_pub_box_btns btngif" onclick="OpenLinkedinJobModal()">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path fill="none" d="M0 0h24v24H0z"/><path d="M7 5V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4zM4 16v3h16v-3H4zm0-2h16V7H4v7zM9 3v2h6V3H9zm2 8h2v2h-2v-2z"/></svg> <span><?php echo $wo['lang']['create_job']; ?></span>
-							</span>
-						<?php } else { ?>
-							<?php if ($wo['config']['ai_image_system'] == 1 && time() < 1691331060) { ?>
-								<span class="btn btn-file tag_pub_box_btns" onclick="openAIModel()">
-									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19,10a1,1,0,0,0-1,1v3.38L16.52,12.9a2.79,2.79,0,0,0-3.93,0l-.7.71L9.41,11.12a2.79,2.79,0,0,0-3.93,0L4,12.61V7A1,1,0,0,1,5,6h8a1,1,0,0,0,0-2H5A3,3,0,0,0,2,7V19.22A2.79,2.79,0,0,0,4.78,22H17.22a2.88,2.88,0,0,0,.8-.12h0a2.74,2.74,0,0,0,2-2.65V11A1,1,0,0,0,19,10ZM5,20a1,1,0,0,1-1-1V15.43l2.89-2.89a.78.78,0,0,1,1.1,0L15.46,20Zm13-1a1,1,0,0,1-.18.54L13.3,15l.71-.7a.77.77,0,0,1,1.1,0L18,17.21ZM21,4H20V3a1,1,0,0,0-2,0V4H17a1,1,0,0,0,0,2h1V7a1,1,0,0,0,2,0V6h1a1,1,0,0,0,0-2Z"/></svg> <span><?php echo $wo['lang']['generate_ai_image']; ?></span>
-								</span>
-							<?php } ?>
-							<?php if ($wo['config']['ai_image_system'] == 1 && time() > 1691331060) { ?>
-								<span class="btn btn-file tag_pub_box_btns" onclick="openAIModel()">
-									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19,10a1,1,0,0,0-1,1v3.38L16.52,12.9a2.79,2.79,0,0,0-3.93,0l-.7.71L9.41,11.12a2.79,2.79,0,0,0-3.93,0L4,12.61V7A1,1,0,0,1,5,6h8a1,1,0,0,0,0-2H5A3,3,0,0,0,2,7V19.22A2.79,2.79,0,0,0,4.78,22H17.22a2.88,2.88,0,0,0,.8-.12h0a2.74,2.74,0,0,0,2-2.65V11A1,1,0,0,0,19,10ZM5,20a1,1,0,0,1-1-1V15.43l2.89-2.89a.78.78,0,0,1,1.1,0L15.46,20Zm13-1a1,1,0,0,1-.18.54L13.3,15l.71-.7a.77.77,0,0,1,1.1,0L18,17.21ZM21,4H20V3a1,1,0,0,0-2,0V4H17a1,1,0,0,0,0,2h1V7a1,1,0,0,0,2,0V6h1a1,1,0,0,0,0-2Z"/></svg> <span><?php echo $wo['lang']['generate_ai_image']; ?></span>
-								</span>
-							<?php } ?>
-						<?php } ?>
-						<?php if ($wo['config']['stickers'] == 1): ?>
-							<span class="btn btn-file tag_pub_box_btns btngif" onclick="$('.pub-footer-upper').toggleClass('tag_pub_btns_col_smal');$('.gif-form').slideToggle(200);Tag_GetTrendStickers()">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M11,8H13V16H11V8M7.67,8H4.33C3.53,8 3,8.67 3,9.33V14.67C3,15.33 3.53,16 4.33,16H7.67C8.47,16 9,15.33 9,14.67V12H7V14H5V10H9V9.33C9,8.67 8.47,8 7.67,8M21,10V8H15V16H17V14H19.5V12H17V10H21Z"></path></svg> <span><?php echo $wo['lang']['gif']; ?></span>
-							</span>
-						<?php endif ?>
-						<?php if ($wo['config']['audio_upload'] == 1) { ?>
-							<span class="tag_pubbox_record">
-								<span class="btn btn-file tag_pub_box_btns" id="recordPostAudio" data-record="0">
-									<b><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15a4,4,0,0,0,4-4V5A4,4,0,0,0,8,5v6A4,4,0,0,0,12,15ZM10,5a2,2,0,0,1,4,0v6a2,2,0,0,1-4,0Zm10,6a1,1,0,0,0-2,0A6,6,0,0,1,6,11a1,1,0,0,0-2,0,8,8,0,0,0,7,7.93V21H9a1,1,0,0,0,0,2h6a1,1,0,0,0,0-2H13V18.93A8,8,0,0,0,20,11Z"/></svg></b> <span><?php echo $wo['lang']['record_voice']; ?></span>
-								</span>
-								<span id="postRecordingTime" class="tag_pub_rectime hidden">00:00</span>
-							</span>
-						<?php } ?>
-						<?php if ($wo['config']['post_feelings'] == 1) { ?>   
-							<span class="btn btn-file tag_pub_box_btns" onclick="$('.emo-form').slideToggle(200);Wo_RestFeelings();">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M9,11a1,1,0,1,0-1-1A1,1,0,0,0,9,11Zm3-9A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Zm3-7H9a1,1,0,0,0-1,1,4,4,0,0,0,8,0A1,1,0,0,0,15,13Zm-3,3a2,2,0,0,1-1.73-1h3.46A2,2,0,0,1,12,16Zm3-7a1,1,0,1,0,1,1A1,1,0,0,0,15,9Z"/></svg> <span><?php echo $wo['lang']['feelings']; ?></span>
-							</span>
-						<?php } ?>
-						<?php if($wo['config']['fileSharing'] == 1) { ?>
-							<span class="btn btn-file tag_pub_box_btns">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M13,20H6a1,1,0,0,1-1-1V5A1,1,0,0,1,6,4h5V7a3,3,0,0,0,3,3h3v2a1,1,0,0,0,2,0V9s0,0,0-.06a1.31,1.31,0,0,0-.06-.27l0-.09a1.07,1.07,0,0,0-.19-.28h0l-6-6h0a1.07,1.07,0,0,0-.28-.19.32.32,0,0,0-.09,0A.88.88,0,0,0,12.05,2H6A3,3,0,0,0,3,5V19a3,3,0,0,0,3,3h7a1,1,0,0,0,0-2ZM13,5.41,15.59,8H14a1,1,0,0,1-1-1ZM8,8a1,1,0,0,0,0,2H9A1,1,0,0,0,9,8Zm6,4H8a1,1,0,0,0,0,2h6a1,1,0,0,0,0-2Zm6.71,5.29-2-2a1,1,0,0,0-.33-.21,1,1,0,0,0-.76,0,1,1,0,0,0-.33.21l-2,2a1,1,0,0,0,1.42,1.42l.29-.3V21a1,1,0,0,0,2,0V18.41l.29.3a1,1,0,0,0,1.42,0A1,1,0,0,0,20.71,17.29ZM12,18a1,1,0,0,0,0-2H8a1,1,0,0,0,0,2Z"/></svg> <span><?php echo $wo['lang']['upload_files']; ?></span>
-								<input type="file" id="publisher-file" name="postFile">
-							</span>
-						<?php } ?>
-						<?php if ($wo['page'] != 'group' && $wo['config']['classified'] == 1 && $wo['config']['can_use_market']) { ?>
-							<a href="#" data-toggle="modal" data-target="#create-product-modal" data-backdrop="static" data-keyboard="false" class="btn btn-file tag_pub_box_btns">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M22,7.82a1.25,1.25,0,0,0,0-.19v0h0l-2-5A1,1,0,0,0,19,2H5a1,1,0,0,0-.93.63l-2,5h0v0a1.25,1.25,0,0,0,0,.19A.58.58,0,0,0,2,8H2V8a4,4,0,0,0,2,3.4V21a1,1,0,0,0,1,1H19a1,1,0,0,0,1-1V11.44A4,4,0,0,0,22,8V8h0A.58.58,0,0,0,22,7.82ZM13,20H11V16h2Zm5,0H15V15a1,1,0,0,0-1-1H10a1,1,0,0,0-1,1v5H6V12a4,4,0,0,0,3-1.38,4,4,0,0,0,6,0A4,4,0,0,0,18,12Zm0-10a2,2,0,0,1-2-2,1,1,0,0,0-2,0,2,2,0,0,1-4,0A1,1,0,0,0,8,8a2,2,0,0,1-4,.15L5.68,4H18.32L20,8.15A2,2,0,0,1,18,10Z"/></svg> <span><?php echo $wo['lang']['sell_product']; ?></span>
-							</a>
-						<?php } ?>
-						<?php if ($wo['config']['post_poll'] == 1) { ?>
-							<span class="btn btn-file tag_pub_box_btns poll-form-open">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M18,10H14V3a1,1,0,0,0-1-1H8A1,1,0,0,0,7,3V8H3A1,1,0,0,0,2,9V21a1,1,0,0,0,1,1H18a1,1,0,0,0,1-1V11A1,1,0,0,0,18,10ZM7,20H4V10H7Zm5,0H9V4h3Zm5,0H14V12h3ZM21,4H20V3a1,1,0,0,0-2,0V4H17a1,1,0,0,0,0,2h1V7a1,1,0,0,0,2,0V6h1a1,1,0,0,0,0-2Z"/></svg> <span><?php echo $wo['lang']['create_poll']; ?></span>
-							</span>
-						<?php } ?>
-						<span class="btn btn-file tag_pub_box_btns" onclick="$('.map-form').slideToggle(200);$('.map-form input').focus();">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M21.15,2.86a2.89,2.89,0,0,0-3-.71L4,6.88a2.9,2.9,0,0,0-.12,5.47l5.24,2h0a.93.93,0,0,1,.53.52l2,5.25A2.87,2.87,0,0,0,14.36,22h.07a2.88,2.88,0,0,0,2.69-2L21.85,5.83A2.89,2.89,0,0,0,21.15,2.86ZM20,5.2,15.22,19.38a.88.88,0,0,1-.84.62.92.92,0,0,1-.87-.58l-2-5.25a2.91,2.91,0,0,0-1.67-1.68l-5.25-2A.9.9,0,0,1,4,9.62a.88.88,0,0,1,.62-.84L18.8,4.05A.91.91,0,0,1,20,5.2Z"/></svg> <span><?php echo $wo['lang']['location']; ?></span>
-						</span>
-						<?php if ($wo['config']['audio_upload'] == 1) { ?>
-							<span class="btn btn-file tag_pub_box_btns">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M21.65,2.24a1,1,0,0,0-.8-.23l-13,2A1,1,0,0,0,7,5V15.35A3.45,3.45,0,0,0,5.5,15,3.5,3.5,0,1,0,9,18.5V10.86L20,9.17v4.18A3.45,3.45,0,0,0,18.5,13,3.5,3.5,0,1,0,22,16.5V3A1,1,0,0,0,21.65,2.24ZM5.5,20A1.5,1.5,0,1,1,7,18.5,1.5,1.5,0,0,1,5.5,20Zm13-2A1.5,1.5,0,1,1,20,16.5,1.5,1.5,0,0,1,18.5,18ZM20,7.14,9,8.83v-3L20,4.17Z"/></svg> <span><?php echo $wo['lang']['audio_upload']; ?></span>
-								<input type="file" id="publisher-music" name="postMusic" accept="audio/*">
-							</span>
-						<?php } ?>
-						<?php if ($wo['config']['scheduled_posts_enabled'] == '1') { ?>
-							<span class="btn btn-file tag_pub_box_btns" onclick="openScheduleModal()">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg> <span><?php echo $wo['lang']['schedule_post'] ?? 'Schedule Post'; ?></span>
-							</span>
-						<?php } ?>
 					</div>
 
 					<div class="w_search_for" style="display: none;">
@@ -475,42 +325,6 @@ if (!empty($_GET['url'])) {
 </div>
 
 <div id="hidden_inputbox"></div>
-<?php echo Wo_LoadPage('products/create'); ?>
-
-<?php if ($wo['config']['ai_post_system'] == 1) { echo Wo_LoadPage('modals/ai_post');} ?>
-<?php if ($wo['config']['ai_image_system'] == 1) { echo Wo_LoadPage('modals/ai_images');} ?>
-
-<!-- Schedule Post Modal -->
-<?php if ($wo['config']['scheduled_posts_enabled'] == '1') { ?>
-<div class="modal fade" id="schedulePostModal" tabindex="-1" role="dialog" aria-labelledby="schedulePostModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-md wow_mat_mdl" role="document">
-		<div class="modal-content tag_pub_box">
-			<div class="modal-header valign">
-				<h5 class="modal-title" id="schedulePostModalLabel">Schedule Post</h5>
-				<button type="button" class="btn btn-default btn-mat" data-dismiss="modal" aria-label="Close">
-					<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path fill="currentColor" d="M18.3 5.71c-.39-.39-1.02-.39-1.41 0L12 10.59 7.11 5.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"/></svg>
-				</button>
-			</div>
-			<div class="modal-body" style="padding: 20px;">
-				<div class="form-group">
-					<label for="scheduleDate">Date</label>
-					<input type="date" class="form-control" id="scheduleDate" min="" required>
-				</div>
-				<div class="form-group">
-					<label for="scheduleTime">Time</label>
-					<input type="time" class="form-control" id="scheduleTime" required>
-				</div>
-				<div id="scheduleError" class="alert alert-danger" style="display:none;"></div>
-			</div>
-			<div class="modal-footer valign">
-				<button type="button" class="btn btn-default btn-mat" data-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-main btn-mat" onclick="setScheduledTime()">Set Schedule</button>
-			</div>
-		</div>
-	</div>
-</div>
-<?php } ?>
-<!-- /Schedule Post Modal -->
 
 <script type="text/javascript">
 var imgArray = [];
@@ -693,38 +507,6 @@ $(function () {
 		$('.postText').limit("<?php echo $wo['config']['maxCharacters'] - 10;?>", '#charsLeft');
 	<?php } ?>
 
-	$('.poll-form-open').click(function () {
-		$('.poll-form').slideToggle(200);
-		$('.answers').find('input').each(function (index_id) {
-			$(this).val('');
-		});
-	});
-	$("#publisher-file").change(function () {
-		var filename = $(this).val().replace(/C:\\fakepath\\/i, '');
-		$(".file-form input").val(filename);
-		if(window.ActiveXObject){
-			var fso = new ActiveXObject("Scripting.FileSystemObject");
-			var filepath = document.getElementById('publisher-file').value;
-			var thefile = fso.getFile(filepath);
-			var sizeinbytes = thefile.size;
-		}else{
-			var sizeinbytes = document.getElementById('publisher-file').files[0].size;
-		}
-		var fSExt = new Array('Bytes', 'KB', 'MB', 'GB');
-		fSize = sizeinbytes; i=0;while(fSize>900){fSize/=1024;i++;}
-		$(".file-form p").html((Math.round(fSize*100)/100)+' '+fSExt[i]);
-		$(".file-form").slideDown(200);
-		if (Wo_IsFileAllowedToUpload(filename, allowed) == false) {
-			$("body").snackbar({
-				message: "<?php echo $wo['lang']['file_not_supported']; ?>"
-			});
-			$("#publisher-file").val('');
-			$(".file-form input").val('');
-			$(".file-form p").html('');
-			$(".file-form").slideUp(200);
-			return false;
-		}
-	});
 
 	$("#publisher-video").change(function () {
 		var filename = $(this).val().replace(/C:\\fakepath\\/i, '');
@@ -744,20 +526,6 @@ $(function () {
 		}
 	});
 
-	$("#publisher-music").change(function () {
-		var filename = $(this).val().replace(/C:\\fakepath\\/i, '');
-		$(".music-form input").val(filename);
-		$(".music-form").slideDown(200);
-		if (Wo_IsFileAllowedToUpload(filename, allowed) == false) {
-			$("body").snackbar({
-				message: "<?php echo $wo['lang']['file_not_supported']; ?>"
-			});
-			$("#publisher-music").val('');
-			$(".music-form input").val('');
-			$(".music-form").slideUp(200);
-			return false;
-		}
-	});
 
 	$(document).on("click",".read-ads-description",function(event) {
 		var self = $(this);
@@ -1099,63 +867,6 @@ $(function () {
 		}
 	});
 
-	<?php if ($wo['config']['google_map']) { ?>
-		var pac_input = document.getElementById('searchTextField');
-		(function pacSelectFirst(input) {
-			var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
-			function addEventListenerWrapper(type, listener) {
-				if(type == "keydown") {
-					var orig_listener = listener;
-					listener = function (event) {
-						var suggestion_selected = $(".pac-item-selected").length > 0;
-						if(event.which == 13 && !suggestion_selected) {
-							var simulated_downarrow = $.Event("keydown", {
-								keyCode: 40,
-								which: 40
-							});
-							orig_listener.apply(input, [simulated_downarrow]);
-						}
-						orig_listener.apply(input, [event]);
-					};
-				}
-				_addEventListener.apply(input, [type, listener]);
-			}
-			if(input.addEventListener)
-				input.addEventListener = addEventListenerWrapper;
-			else if(input.attachEvent)
-				input.attachEvent = addEventListenerWrapper;
-		})(pac_input);
-
-		$(function () {
-			var autocomplete = new google.maps.places.Autocomplete(pac_input);
-		});
-	<?php } ?>
-	
-	<?php if ($wo['config']['yandex_map'] == 1) { ?>
-	  $(function() {
-		$('#searchTextField').on( "keydown", function() {
-		  let self = this;
-		  var myGeocoder = ymaps.geocode($(this).val());
-		  myGeocoder.then(
-			  function (res) {
-				if (res.geoObjects.getLength() == 0) {
-				  $('.yandex_search_publisher').html('');
-				}
-				else{
-				  let html = '';
-				  for (var i = 0; i < res.geoObjects.getLength(); i++) {
-					html += '<p class="pointer" onclick="AddYandexResult(\'#searchTextField\',this,\'.yandex_search_publisher\')">'+res.geoObjects.get(i).properties.get('name')+'</p>';
-				  }
-				  $('.yandex_search_publisher').html(html);
-				}
-			  },
-			  function (err) {
-				  $('.yandex_search_publisher').html('');
-			  }
-		  );
-		});
-	  });
-	<?php } ?>
 
 	var getUrl  = $('.postText');
 	var sent = 0;
@@ -1239,78 +950,10 @@ function Wo_RemoveFetchedUrl() {
 	});
 }
 
-function Wo_ShowFeelings() {
-	if ($('.feelings-type-to').is(':empty')) {
-		$('.feeling-types').slideToggle(200);
-	}
-}
-
-var pac_input2 = document.getElementById('feelings-text');
-function Wo_ShowFeelingType(type, text, placeholder, icon) {
-	$('.feeling-types').slideUp(200, function () {
-		$('.feelings-type-to').html(text);
-		$('#feelings-text').attr('placeholder', decodeHtml(placeholder)).focus();
-		$('#feeling-type').val(type);
-		if (type != 'feelings') {
-			$('#feelings-text').attr('readonly', false);
-		}
-		<?php if ($wo['config']['google_map']) { ?>
-			if (type == 'traveling') {
-				var autocomplete = new google.maps.places.Autocomplete(pac_input2);
-			} else {
-				google.maps.event.clearInstanceListeners(pac_input2);
-			}
-		<?php } ?>
-		$('.' + type).slideToggle(200);
-	});
-}
-
-function Wo_RestFeelings() {
-	$('.feelings-type-to, .feelings-value').empty();
-	$('#feelings-text').val('');
-	$('#feelings-text').attr('readonly', true);
-	$('#feelings-text').attr('placeholder', decodeHtml("<?php echo $wo["lang"]["feel_d"]?>"));
-	$('.feeling-type, .feelings-type').slideUp(200);
-	<?php if ($wo['config']['google_map']) { ?>
-		google.maps.event.clearInstanceListeners(pac_input2);
-	<?php } ?>
-	Wo_ShowFeelings();
-}
-
-function Wo_AddFeeling(type, text, icon) {
-	$('#feelings-text').val(type);
-	$('.feelings-value').html('<i class="twa-lg twa twa-' + icon + '"></i> ' + text + '')
-	Wo_ShowFeelingType('feelings', 'Feeling', 'What are you feeling ?', 'smile-o');
-}
 function smokeTheAt(str) {
 	var n = str.search("@");
 	if(n != "-1"){
 		alert('sd');
-	}
-}
-function CloseAnswer(id,self) {
-	$('#answer_'+id).remove();
-	$(self).remove();
-	answer_id = 0;
-	$('.answers').find('input').each(function (index_id) {
-	    answer_id = Number(index_id) + 1;
-	    $(this).attr('placeholder', "<?php echo $wo['lang']['answer'] ?> "+answer_id);
-	});
-}
-function Wo_AddAnswer() {
-	answer_id = 0;
-	$('.answers').find('input').each(function (index_id) {
-		answer_id = Number(index_id) + 1;
-	});
-	var last_answer_id = (Number(answer_id) + 1);
-	if (last_answer_id < 9) {
-		$('.answers').append('<span><input name="answer[]" type="text" placeholder="<?php echo $wo['lang']['answer'] ?> ' + last_answer_id + '" id="answer_' + last_answer_id + '"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="pointer" onclick="CloseAnswer(' + last_answer_id + ',this);"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"></path></svg></span>');
-		if (last_answer_id == 8) {
-			$('#add_answer').hide();
-		}
-		$('.answers').find('input:last').focus();
-	} else {
-		$('#add_answer').hide();
 	}
 }
 
@@ -1339,228 +982,42 @@ function tag_closePubBox() {
 	$(".all_colors_display").removeClass('selected');
 }
 
-function Wo_ResetAnswers() {
-	$('.answers').find('input').each(function (index_id) {
-		$(this).val('');
-	});
-	$('.poll-form').slideUp(200);
-}
-function DeleteGif() {
-	var image_holder = $("#image-holder");
-	$('#postSticker').val('');
-    image_holder.empty();
-}
-function Wo_PostSticker(self){
-	if (!self) {
-		return false;
-	}
-	var image_holder = $("#image-holder");
-	image_holder.empty();
-	image_holder.append('<span class="thumb-image-delete" id="image_to_gif"><span onclick="DeleteGif()" class="btn btn-mat thumb-image-delete-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"></path></svg></span><img src="'+$(self).attr('data-gif')+'" class="thumb-image"></span>')
-	image_holder.show();
-	$('.create-album').css('display', 'none');
-	$(".gif-photo-form").slideDown(200);
-	$('#postSticker').val($(self).attr('data-gif'));
-}
-function GifScrolled(self) {
-	if ((($(self).prop("scrollHeight") - $(self).height()) - $(self).scrollTop()) < 300) {
-		Wo_GetPostStickers($('#publisher-box-stickers').attr('oldWord'),$('#publisher-box-stickers').attr('loadOffset'));
-	}
-}
-function Wo_GetPostStickers(keyword,offset = 0){
-	if (!keyword) {
-		//return false;
-	}
-	if ($('#publisher-box-stickers').attr('oldWord') != keyword) {
-		$('#publisher-box-stickers-cont').empty();
-		$('#publisher-box-stickers').attr('loadOffset', 0);
-		$('#publisher-box-stickers').attr('oldWord', keyword);
-	}
-	else{
-		$('#publisher-box-stickers').attr('loadOffset', parseInt($('#publisher-box-stickers').attr('loadOffset')) + 20);
-	}
-	$('.msg_progress').fadeIn(100);
-	Wo_Delay(function(){
-		$.ajax({
-			url: 'https://api.giphy.com/v1/gifs/search?',
-			type: 'GET',
-			dataType: 'json',
-			data: {q:keyword,api_key:'<?php echo $wo['config']['giphy_api'];?>', limit: 20,offset:offset},
-		})
-		.done(function(data) {
-			if (data.meta.status == 200 && data.data.length > 0) {
-				//$('#publisher-box-stickers-cont').empty();
-				var appended = false;
-				for (var i = 0; i < data.data.length; i++) {
-					appended = true;
-					if (appended == true) {
-						appended = false;
-						$('#publisher-box-stickers-cont').append($('<div><span><img alt="gif" src="'+data.data[i].images.fixed_height_small.url+'" data-gif="' + data.data[i].images.downsized_large.url + '" onclick="Wo_PostSticker(this)" autoplay loop></span></div>'));
-						appended = true;
-					}
-				}
-				var images = 0;
-				Wo_ElementLoad($('img[alt=gif]'), function(){
-					images++;
+
+function bcLoadAdvancedTools() {
+	if (window._bcToolsLoaded || window._bcToolsLoading) return;
+	window._bcToolsLoading = true;
+	var $btn = $('.bc-composer-more-btn');
+	$btn.addClass('loading').text('Loading...');
+	$.ajax({
+		url: Wo_Ajax_Requests_File() + '?f=composer_tools',
+		type: 'GET', dataType: 'json',
+		success: function(data) {
+			if (data && data.status === 200 && data.html) {
+				var $tmp = $('<div>').html(data.html);
+				var scripts = [];
+				$tmp.find('script').each(function() {
+					scripts.push(this.textContent);
+					$(this).remove();
 				});
-				$('.msg_progress').fadeOut(100);
+				var $forms = $tmp.find('.bc-lazy-form-sections').children();
+				$('#bc-lazy-tools-container').append($forms);
+				var $btns = $tmp.find('.bc-lazy-tool-btns').children();
+				$btns.addClass('bc-lazy-injected-btn');
+				$btns.insertBefore('.bc-composer-more-btn');
+				var $modals = $tmp.find('.bc-lazy-modals').children();
+				$('body').append($modals);
+				scripts.forEach(function(s) { try { $.globalEval(s); } catch(e) { console.error(e); } });
+				window._bcToolsLoaded = true;
+				document.querySelector('.pub-footer-upper').classList.add('bc-composer-expanded');
+				$btn.removeClass('loading').text('‹ Less');
 			}
-			else{
-				$('.msg_progress').fadeOut(100);
-				$('#publisher-box-stickers-cont').html('<div class="empty_state"><svg height="512pt" viewBox="0 0 512 512" width="512pt" xmlns="http://www.w3.org/2000/svg"><path d="m416 512h-320c-53.023438 0-96-42.976562-96-96v-320c0-53.023438 42.976562-96 96-96h320c53.023438 0 96 42.976562 96 96v320c0 53.023438-42.976562 96-96 96zm0 0" fill="#f5e6fe"/><path d="m229.425781 303.902344c0-39.359375 30.652344-71.644532 69.328125-74.398438v-69.601562c0-17.644532-14.355468-32-32-32h-106.675781c-17.644531 0-32 14.355468-32 32v149.328125c0 17.648437 14.355469 32 32 32h79.441406c-6.382812-10.992188-10.09375-23.710938-10.09375-37.328125zm-50.769531-46.078125c-7.039062-7.039063-19.425781-7.039063-26.464844 0l-2.765625 2.769531v-100.691406c0-5.886719 4.78125-10.671875 10.671875-10.671875h106.671875c5.886719 0 10.671875 4.785156 10.671875 10.671875v68.691406l-8.113281-8.113281c-7.296875-7.296875-19.167969-7.296875-26.464844 0l-50.765625 50.765625zm0 0" fill="#be63f9"/><path d="m381.328125 365.34375-28.625-28.625c6.351563-9.375 10.050781-20.65625 10.050781-32.796875 0-32.335937-26.320312-58.675781-58.675781-58.675781-32.351563 0-58.671875 26.320312-58.671875 58.675781 0 32.351563 26.320312 58.671875 58.671875 58.671875 12.515625 0 24.097656-3.96875 33.632813-10.671875l28.511718 28.511719c2.082032 2.078125 4.816406 3.117187 7.539063 3.117187 2.71875 0 5.453125-1.039062 7.535156-3.117187 4.191406-4.175782 4.191406-10.929688.03125-15.089844zm-77.230469-24.097656c-20.578125 0-37.328125-16.75-37.328125-37.324219 0-20.578125 16.75-37.328125 37.328125-37.328125 20.574219 0 37.328125 16.75 37.328125 37.328125 0 20.574219-16.753906 37.324219-37.328125 37.324219zm0 0" fill="#d9a4fc"/><path d="m202.753906 202.574219c0 11.78125-9.550781 21.328125-21.328125 21.328125-11.78125 0-21.328125-9.546875-21.328125-21.328125 0-11.777344 9.546875-21.328125 21.328125-21.328125 11.777344 0 21.328125 9.550781 21.328125 21.328125zm0 0" fill="#be63f9"/></svg><?php echo $wo['lang']['no_result']; ?></div>');
-			}
-		})
-		.fail(function() {
-			console.log("error");
-		})
-	},100);
-}
-
-function Tag_GetTrendStickers() {
-	$('.msg_progress').fadeIn(100);
-	Wo_Delay(function(){
-		$.ajax({
-			url: 'https://api.giphy.com/v1/gifs/trending?',
-			type: 'GET',
-			dataType: 'json',
-			data: {api_key:'<?php echo $wo['config']['giphy_api'];?>', limit: 8},
-		})
-		.done(function(data) {
-			if (data.meta.status == 200 && data.data.length > 0) {
-				$('#publisher-box-stickers-cont').empty();
-				var appended = false;
-				for (var i = 0; i < data.data.length; i++) {
-					appended = true;
-					if (appended == true) {
-						appended = false;
-						$('#publisher-box-stickers-cont').append($('<div><span><img alt="gif" src="'+data.data[i].images.fixed_height_still.url+'" data-gif="' + data.data[i].images.downsized_large.url + '" onclick="Wo_PostSticker(this)" autoplay loop></span></div>'));
-						appended = true;
-					}
-				}
-				var images = 0;
-				Wo_ElementLoad($('img[alt=gif]'), function(){
-					images++;
-				});
-				$('.msg_progress').fadeOut(100);
-			}
-			else{
-				// no trending
-			}
-		})
-		.fail(function() {
-			console.log("error");
-		})
-	},100);
-}
-
-<?php if ($wo['config']['scheduled_posts_enabled'] == '1') { ?>
-// Schedule Post Functions
-function openScheduleModal() {
-	// Set minimum date to tomorrow
-	var tomorrow = new Date();
-	tomorrow.setDate(tomorrow.getDate() + 1);
-	var minDate = tomorrow.toISOString().split('T')[0];
-	$('#scheduleDate').attr('min', minDate);
-	$('#scheduleDate').val('');
-	$('#scheduleTime').val('');
-	$('#scheduleError').hide();
-	$('#schedulePostModal').modal('show');
-}
-
-function setScheduledTime() {
-	var date = $('#scheduleDate').val();
-	var time = $('#scheduleTime').val();
-
-	if (!date || !time) {
-		$('#scheduleError').text('Please select both date and time').show();
-		return;
-	}
-
-	// Combine date and time
-	var scheduledDateTime = new Date(date + 'T' + time);
-	var now = new Date();
-
-	// Must be at least 1 hour in the future
-	var minTime = new Date(now.getTime() + 60 * 60 * 1000);
-
-	if (scheduledDateTime <= minTime) {
-		$('#scheduleError').text('Scheduled time must be at least 1 hour in the future').show();
-		return;
-	}
-
-	// Convert to Unix timestamp
-	var timestamp = Math.floor(scheduledDateTime.getTime() / 1000);
-
-	// Set the hidden input
-	$('#scheduledTime').val(timestamp);
-
-	// Update the publisher button text
-	$('#publisher-button').text('Schedule Post');
-
-	// Show confirmation in the post box
-	var formattedDate = scheduledDateTime.toLocaleString();
-	if ($('#schedule-indicator').length == 0) {
-		$('#post-textarea').before('<div id="schedule-indicator" class="alert alert-info" style="margin: 10px;"><strong>Scheduled for:</strong> ' + formattedDate + ' <a href="#" onclick="clearSchedule(); return false;" style="margin-left:10px;">Clear</a></div>');
-	} else {
-		$('#schedule-indicator').html('<strong>Scheduled for:</strong> ' + formattedDate + ' <a href="#" onclick="clearSchedule(); return false;" style="margin-left:10px;">Clear</a>');
-	}
-
-	$('#schedulePostModal').modal('hide');
-}
-
-function clearSchedule() {
-	$('#scheduledTime').val('');
-	$('#publisher-button').text('<?php echo TextForMode('share'); ?>');
-	$('#schedule-indicator').remove();
-}
-
-// Handle scheduled post form submission
-$(document).ready(function() {
-	var originalFormSubmit = $('form.publisher-box').data('jqxhr');
-
-	$('form.publisher-box').on('submit', function(e) {
-		var scheduledTime = $('#scheduledTime').val();
-
-		if (scheduledTime) {
-			// Prevent default if scheduled
-			var formData = new FormData(this);
-
-			// Check if this is an AJAX submit (has scheduled_time in FormData)
-			if (formData.get('scheduled_time')) {
-				// Will be handled by AJAX success callback below
-			}
+			window._bcToolsLoading = false;
+		},
+		error: function() {
+			window._bcToolsLoading = false;
+			$btn.removeClass('loading').text('••• More');
+			$('body').snackbar({ message: 'Could not load tools. Please try again.' });
 		}
 	});
-
-	// Override success callback to handle scheduled posts
-	$(document).ajaxSuccess(function(event, xhr, settings) {
-		if (settings.url && settings.url.indexOf('f=posts') !== -1) {
-			try {
-				var response = xhr.responseJSON || JSON.parse(xhr.responseText);
-
-				if (response.scheduled === true && response.status == 200) {
-					// Scheduled post success
-					Wo_ShowNotifications('success', response.message || 'Post scheduled successfully');
-
-					// Close the modal
-					$('#tagPostBox').modal('hide');
-
-					// Clear the form
-					tag_closePubBox();
-					$('.postText').val('');
-					clearSchedule();
-
-					// Reset publisher button
-					$('#publisher-button').attr('disabled', false);
-
-					// Don't let the regular post success handler run
-					return false;
-				}
-			} catch(e) {
-				// Not JSON or not our response, ignore
-			}
-		}
-	});
-});
-<?php } ?>
+}
 </script>

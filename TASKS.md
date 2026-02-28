@@ -187,17 +187,25 @@ BC_MODAL.confirm({
 
 ---
 
-### Task SM-4: Composer Lightweight Mode ✓ Already Partially Done
-**Status:** [~] Partially Completed (Part 5 of UI Plan)
+### Task SM-4: Composer Lightweight Mode — Lazy-Load Advanced Tools via AJAX
+**Status:** [x] Completed - 2026-03-01
 **Priority:** Medium
-**Impact:** Faster composer open time
+**Impact:** Faster composer open time — initial render drops from 1566 to 1023 lines
 
-**Current State:** Part 5 hides advanced tools behind "More" button via CSS.
+**What was done:**
+- Only 3 essential tools render initially (Upload Images, AI Post, Video Upload) + "More" button
+- Remaining 10+ tools (AI Image, GIF, Voice, Feelings, File, Product, Poll, Location, Audio, Schedule) load via AJAX on first "More" click
+- Form sections, modals, and ~270 lines of JS also deferred to AJAX load
+- More button now visible on all viewports (desktop + mobile), not just mobile
 
-**Remaining Work:**
-- Load hidden tools via AJAX on "More" click instead of rendering all upfront
-- Create `/xhr/ajax/load-composer-tools.php`
-- **Files:** `themes/wondertag/layout/post/post-box.phtml`, `xhr/ajax/load-composer-tools.php` (NEW)
+**Files Created:**
+- `xhr/composer_tools.php` — XHR handler returning lazy template as JSON
+- `themes/wondertag/layout/story/publisher-box-tools.phtml` — Lazy-loaded template with form sections, tool buttons, modals, and self-initializing JS
+
+**Files Modified:**
+- `themes/wondertag/layout/story/publisher-box.phtml` — Removed lazy sections, added `#bc-lazy-tools-container` placeholder and `bcLoadAdvancedTools()` AJAX function
+- `themes/wondertag/custom/css/style.css` — More button always visible, added loading state and lazy-injected-btn expand/collapse rules
+- `themes/wondertag/custom/js/footer.js` — More button click triggers AJAX load on first click, CSS toggle on subsequent clicks
 
 ---
 

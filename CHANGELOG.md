@@ -2,6 +2,28 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-01 — Composer lazy-load: AJAX-deferred advanced tools (SM-4)
+
+### What changed
+The post composer (`publisher-box.phtml`) previously rendered all 16 tool buttons, their form sections, modals, and ~270 lines of JS on every page load — even though most users only use image/video upload. Now only 3 essential tools (Upload Images, AI Post, Video Upload) render initially. The remaining 10+ tools load via AJAX when the user clicks "More Options".
+
+### Impact
+- Initial composer template drops from 1566 → 1023 lines
+- Faster page load for home, events, hashtags, groups, pages, and timelines
+- "More" button now visible on all viewports (was mobile-only)
+- Graceful degradation: if AJAX fails, basic posting (text/image/video) still works
+
+### Files created
+- `xhr/composer_tools.php` — XHR handler returning lazy template as JSON
+- `themes/wondertag/layout/story/publisher-box-tools.phtml` — Extracted form sections, tool buttons, modals, and self-initializing JS
+
+### Files modified
+- `themes/wondertag/layout/story/publisher-box.phtml` — Removed lazy sections, added `#bc-lazy-tools-container` and `bcLoadAdvancedTools()` AJAX function
+- `themes/wondertag/custom/css/style.css` — More button always visible, loading state, lazy-injected-btn rules
+- `themes/wondertag/custom/js/footer.js` — More button triggers AJAX on first click, CSS toggle on subsequent
+
+---
+
 ## 2026-02-28 — Server cleanup: delete unnecessary files and cache
 
 ### Audit and clean up ~4.1 GB of unnecessary files from the live server

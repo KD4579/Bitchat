@@ -476,8 +476,12 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.className = 'bc-composer-more-btn';
         btn.innerHTML = '••• More';
         btn.onclick = function() {
-            footer.classList.toggle('bc-composer-expanded');
-            btn.innerHTML = footer.classList.contains('bc-composer-expanded') ? '‹ Less' : '••• More';
+            if (!window._bcToolsLoaded && !window._bcToolsLoading) {
+                bcLoadAdvancedTools();
+            } else if (window._bcToolsLoaded) {
+                footer.classList.toggle('bc-composer-expanded');
+                btn.innerHTML = footer.classList.contains('bc-composer-expanded') ? '\u2039 Less' : '\u2022\u2022\u2022 More';
+            }
         };
         footer.appendChild(btn);
     }
