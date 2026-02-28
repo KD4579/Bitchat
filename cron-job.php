@@ -269,27 +269,29 @@ if (!empty($wo['config']['auto_backup_enabled']) && $wo['config']['auto_backup_e
         $backupDir = __DIR__ . '/script_backups/';
         if (!is_dir($backupDir)) @mkdir($backupDir, 0755, true);
 
-        // DB-only backup
-        $dbHost = $wo['config']['db_host'] ?? 'localhost';
-        $dbName = $wo['config']['db_name'] ?? '';
-        $dbUser = $wo['config']['db_user'] ?? '';
-        $dbPass = $wo['config']['db_password'] ?? '';
-
-        // Use config constants if available
-        if (defined('DB_HOST')) $dbHost = DB_HOST;
-        if (defined('DB_NAME')) $dbName = DB_NAME;
-        if (defined('DB_USER')) $dbUser = DB_USER;
-        if (defined('DB_PASS')) $dbPass = DB_PASS;
+        // DB credentials from config.php (loaded via init.php)
+        $dbHost = $sql_db_host;
+        $dbName = $sql_db_name;
+        $dbUser = $sql_db_user;
+        $dbPass = $sql_db_pass;
 
         $backupFile = $backupDir . 'auto_db_' . date('Y-m-d_His') . '.sql.gz';
-        $cmd = sprintf('mysqldump --single-transaction -h %s -u %s -p%s %s | gzip > %s 2>/dev/null',
+        $cmd = sprintf('mysqldump --single-transaction -h %s -u %s -p%s %s 2>/dev/null | gzip > %s',
             escapeshellarg($dbHost),
             escapeshellarg($dbUser),
             escapeshellarg($dbPass),
             escapeshellarg($dbName),
             escapeshellarg($backupFile)
         );
-        @exec($cmd);
+        exec($cmd);
+
+        // Empty gzip = ~20 bytes (header only), real dump is at least hundreds of KB
+        if (!file_exists($backupFile) || filesize($backupFile) < 100) {
+            _cron_log('auto_backup FAILED — backup file is empty or missing (check DB credentials)');
+            if (file_exists($backupFile)) @unlink($backupFile);
+        } else {
+            _cron_log('auto_backup OK — ' . basename($backupFile) . ' (' . round(filesize($backupFile) / 1024 / 1024, 1) . ' MB)');
+        }
 
         // Cleanup old auto backups (keep last 7)
         $autoBackups = glob($backupDir . 'auto_db_*.sql.gz');
