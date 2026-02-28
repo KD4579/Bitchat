@@ -2246,7 +2246,8 @@ function Wo_GetDynamicPlaceholder() {
         return $contextual['new_user'];
     }
 
-    if ($last_post !== null) {
+    // 30% chance to show contextual prompt based on last post, 70% random rotation
+    if ($last_post !== null && mt_rand(1, 10) <= 3) {
         $had_media = (!empty($last_post['postFile'])
                    || !empty($last_post['postYoutube'])
                    || !empty($last_post['postSticker']));
