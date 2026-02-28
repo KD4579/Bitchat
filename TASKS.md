@@ -1847,6 +1847,40 @@ Only extend existing modules.
 
 ---
 
+## Task: Dynamic Rotating Placeholder Text for Post Publisher
+
+**Status:** [x] Completed
+**Requested:** 2026-02-28
+**Completed:** 2026-02-28
+**Description:** Replace the static "What's going on?" placeholder in the post publisher box with dynamic, rotating text that pushes action, earning, and trading identity. Shows contextual prompts based on user's last post behavior (30% of the time) and randomly rotates through 10 action-oriented prompts (70% of the time). New users (joined < 7 days, zero posts) see a welcome message.
+**Fix Applied:** Created `Wo_GetDynamicPlaceholder()` function with 10-item random pool, contextual prompts based on last post type (1 indexed DB query), and 30/70 weighted split using `mt_rand()`. Applied to both the feed button and the modal textarea.
+**Files Modified:** `assets/includes/functions_general.php` (new function), `themes/wondertag/layout/story/publisher-box.phtml` (commits `d97eeea2`, `42bdd9e7`)
+
+---
+
+## Task: Center Post Publisher Placeholder Text
+
+**Status:** [x] Completed
+**Requested:** 2026-02-28
+**Completed:** 2026-02-28
+**Description:** Center-align the "What's going on?" text in the post publisher feed button and the textarea placeholder when empty.
+**Fix Applied:** Added `text-align: center` to `.tag_pub_box_bg_text` and `.publisher-box textarea.postText:placeholder-shown` in the theme stylesheet.
+**Files Modified:** `themes/wondertag/stylesheet/style.css` (commit `8bf89667`)
+
+---
+
+## Task: Fix Admin Sidebar Session Expiry Redirect
+
+**Status:** [x] Completed
+**Requested:** 2026-02-27
+**Completed:** 2026-02-27
+**Description:** When admin session expires during AJAX sidebar navigation, browser transparently follows 302 redirect, injecting the welcome page HTML into the admin content area — making it look like the user was redirected to the user panel.
+**Root Cause:** `admin_load.php` sent a 302 redirect to the welcome page for unauthenticated requests. Browsers follow 302 redirects transparently for XMLHttpRequest, so JS couldn't intercept it. The welcome page HTML was injected into the admin `.content` div.
+**Fix Applied:** (1) `admin_load.php` now returns HTTP 401 with an inline "Session Expired" message instead of a 302 redirect. (2) `admin-panel/autoload.php` AJAX handler now has a proper `error` callback that renders 401 responses and generic error messages in the content area.
+**Files Modified:** `admin_load.php`, `admin-panel/autoload.php` (commit `aea17ffe`)
+
+---
+
 ## Task: Login with Wallet (Web3 Identity)
 
 **Status:** [x] Completed

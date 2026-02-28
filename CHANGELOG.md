@@ -2,6 +2,53 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-02-28 — Dynamic rotating placeholder text for post publisher
+
+### Replace static placeholder with action-oriented rotating prompts
+
+The static "What's going on?" placeholder in the post publisher box has been replaced with dynamic, context-aware text that rotates on each page load.
+
+**Implementation:** New `Wo_GetDynamicPlaceholder()` function in `functions_general.php` with:
+
+- 10-item random rotation pool with action/earning/trading-themed prompts
+- Contextual prompts based on user's last post type (30% chance): suggests media if last post was text-only, suggests analysis if last post had media
+- Welcome message for new users (joined < 7 days, zero posts)
+- 70% of the time shows a random pick from the pool to ensure variety
+
+**Files Modified:**
+
+- `assets/includes/functions_general.php` — New `Wo_GetDynamicPlaceholder()` function (commits `d97eeea2`, `42bdd9e7`)
+- `themes/wondertag/layout/story/publisher-box.phtml` — Feed button and modal textarea use `$dynamic_placeholder` (commit `d97eeea2`)
+
+---
+
+## 2026-02-28 — Center post publisher placeholder text
+
+### Center-align placeholder text in feed button and textarea
+
+**Fix:** Added `text-align: center` to `.tag_pub_box_bg_text` (feed button) and `.publisher-box textarea.postText:placeholder-shown` (textarea when empty).
+
+**Files Modified:**
+
+- `themes/wondertag/stylesheet/style.css` (commit `8bf89667`)
+
+---
+
+## 2026-02-27 — Fix admin sidebar session expiry redirect
+
+### Admin AJAX navigation now handles session expiry gracefully
+
+**Root Cause:** When an admin's session expired mid-navigation, `admin_load.php` sent a 302 redirect to the welcome page. Browsers follow 302 redirects transparently for XMLHttpRequest, so the welcome page HTML was silently injected into the admin content area — making it look like the user was redirected to the user panel dashboard.
+
+**Fix:** (1) `admin_load.php` returns HTTP 401 with an inline "Session Expired" message and login button instead of a 302 redirect. (2) `admin-panel/autoload.php` AJAX handler now has a proper `error` callback that renders 401 session-expired messages and generic error fallbacks in the content area.
+
+**Files Modified:**
+
+- `admin_load.php` — 302 redirect → 401 with inline HTML (commit `aea17ffe`)
+- `admin-panel/autoload.php` — Added AJAX error handler (commit `aea17ffe`)
+
+---
+
 ## 2026-02-27 — Fix admin scheduled-posts View Post link and redirect target
 
 ### Scheduled-posts "View Post" redirected to admin dashboard instead of actual post
