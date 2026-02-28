@@ -2,6 +2,28 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-01 — Security hardening: critical exposure fixes
+
+### Server-level fixes (applied directly on live server)
+- **CRITICAL**: Blocked public access to `nodejs/config.json` (DB credentials were exposed) via Nginx `^~` location override
+- **CRITICAL**: Changed MySQL database password (old one was publicly cached with `expires: 2037`)
+- Blocked public access to: `nodejs/main.js`, `deploy.sh`, `CLAUDE.md`, `TASKS.md`, `CHANGELOG.md`, `webhook-deploy.php`
+- Added HTTP security headers: `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy`
+- Fixed session cookie: `secure=1`, `samesite=Strict`, `gc_maxlifetime` reduced from 30 days to 7 days
+- Added `.htaccess` to upload directories (`upload/`, `photos/`, `files/`, `videos/`, `sounds/`) blocking PHP execution
+
+### Code fixes (committed to repo)
+- Fixed reflected XSS in `sources/hashtag.php` — `$_GET['hash']` now escaped with `htmlspecialchars()`
+- Moved webhook secret out of source code into `private/webhook_secret.txt` (outside webroot)
+
+### Files on server
+- `/home/KamalDave/conf/web/bitchat.live/nginx.ssl.conf_security` — Nginx deny rules + security headers
+- `/home/KamalDave/web/bitchat.live/private/webhook_secret.txt` — webhook secret (chmod 600)
+- Updated: `config.php`, `nodejs/config.json` (new DB password), `.user.ini` (cookie settings)
+- Created: `.htaccess` in 5 upload directories
+
+---
+
 ## 2026-03-01 — Composer lazy-load: AJAX-deferred advanced tools (SM-4)
 
 ### What changed

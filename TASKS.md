@@ -1975,3 +1975,37 @@ ALTER TABLE Wo_Users
   ADD COLUMN wallet_verified TINYINT(1) DEFAULT 0,
   ADD UNIQUE INDEX idx_wallet_address (wallet_address);
 ```
+
+---
+
+## Task: Security Hardening — Critical Exposure Fixes
+**Status:** [x] Completed — 2026-03-01
+**Priority:** Critical
+**Impact:** Database credentials were publicly exposed; multiple server hardening gaps
+
+**Vulnerabilities Found & Fixed:**
+- [x] **CRITICAL**: `nodejs/config.json` publicly accessible (DB credentials exposed) — blocked via Nginx `^~` location
+- [x] **CRITICAL**: MySQL password changed (old one was cached publicly until 2037)
+- [x] Node.js source code, deploy script, documentation files blocked from public access
+- [x] HTTP security headers added (X-Content-Type-Options, X-Frame-Options, CSP-related, Referrer-Policy, Permissions-Policy)
+- [x] Session cookie: `secure=1`, `samesite=Strict`, lifetime reduced 30d→7d
+- [x] Upload directories: `.htaccess` added blocking PHP execution
+- [x] Reflected XSS in `sources/hashtag.php` fixed (htmlspecialchars on `$_GET['hash']`)
+- [x] Webhook secret moved from hardcoded source to `private/webhook_secret.txt`
+
+**Remaining (backlog — codebase-wide, not yet fixed):**
+- [ ] SQL injection: 30+ instances of unparameterized `$_GET`/`$_POST` in `xhr/` payment handlers
+- [ ] Stored XSS: post text, comment text, user bios, map locations rendered without escaping
+- [ ] SSRF: `IsSaveUrl()` in `functions_two.php` accepts `file://` and other dangerous protocols
+- [ ] CSRF: only ~10 of 270+ XHR handlers use `BitchatSecurity::requireCsrfToken()`
+- [ ] File upload: PHP detection only scans first 1024 bytes; MIME validation uses client-spoofable `$_FILES['type']`
+- [ ] Cookie expiration in `Wo_SetLoginWithSession()` is 10 years (should be 7 days)
+- [ ] SSL verification disabled globally (`CURLOPT_SSL_VERIFYPEER = 0`)
+
+**Files on server:**
+- `/home/KamalDave/conf/web/bitchat.live/nginx.ssl.conf_security`
+- `/home/KamalDave/web/bitchat.live/private/webhook_secret.txt`
+- Updated: `config.php`, `nodejs/config.json`, `.user.ini`, upload `.htaccess` files
+
+**Files in repo:**
+- `sources/hashtag.php`, `webhook-deploy.php`
