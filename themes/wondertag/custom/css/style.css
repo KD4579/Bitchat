@@ -143,9 +143,13 @@ body.night_mode {
   background: var(--bc-surface-primary);
   max-width: 520px;
   width: 100%;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 .tag_wel_register {
   max-width: 520px;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* Login form title */
@@ -4248,22 +4252,10 @@ h1, h2, h3, h4, h5, h6 {
   flex: 1 !important;
 }
 
-/* Widen container on welcome page to fill the screen */
-.tag_welcome .tag_wel_middle > .container {
-  max-width: 90% !important;
-  width: 90% !important;
-}
-@media (min-width: 1400px) {
-  .tag_welcome .tag_wel_middle > .container {
-    max-width: 85% !important;
-    width: 85% !important;
-  }
-}
-@media (min-width: 1800px) {
-  .tag_welcome .tag_wel_middle > .container {
-    max-width: 80% !important;
-    width: 80% !important;
-  }
+/* Widen ALL containers on welcome page (header, content, footer) */
+.tag_welcome .container {
+  max-width: 92% !important;
+  width: 92% !important;
 }
 
 /* Welcome page row spacing */
