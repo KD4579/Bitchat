@@ -854,7 +854,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		</script>
 	</head>
    
-	<body <?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { ?> class="tag_header_top_p"<?php } ?><?php if ($wo['config']['chatSystem'] == 0) { ?> chat-off="true" <?php } ?>>
+	<body class="<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { echo 'tag_header_top_p '; } if ($wo['page'] == 'welcome') { echo 'bc-welcome'; } ?>"<?php if ($wo['config']['chatSystem'] == 0) { ?> chat-off="true" <?php } ?>>
 		<?php if ($wo['loggedin'] == true && $wo['page'] != 'welcome' && $wo['page'] != 'maintenance'): ?>
 		<!-- Part 2: Market Strip Ticker -->
 		<div id="bc-market-strip">

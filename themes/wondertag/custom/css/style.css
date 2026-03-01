@@ -4233,6 +4233,14 @@ h1, h2, h3, h4, h5, h6 {
    ──────────────────────────────────────────────────────────────────────── */
 
 /* === Base: All screen sizes === */
+
+/* Override WoWonder's forced min-width:992px!important on body & .container */
+body.bc-welcome {
+  min-width: 0 !important;
+}
+.tag_welcome .container {
+  min-width: 0 !important;
+}
 .tag_welcome {
   min-height: 100vh !important;
   min-height: calc(var(--vh, 1vh) * 100) !important;
