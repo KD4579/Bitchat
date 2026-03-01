@@ -212,11 +212,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php } ?>
 
 		<link rel="shortcut icon" type="image/png" href="<?php echo $wo['config']['theme_url'];?>/img/icon.png"/>
-		<?php if ($wo['page'] == 'welcome') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/general-style-plugins.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>" media="print" onload="this.media='all'">
-		<?php } else { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/general-style-plugins.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
-		<?php } ?>
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/general-style-plugins.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
 		
 		<?php if ($wo['page'] == 'create_blog' || $wo['page'] == 'edit-blog' || $wo['page'] == 'create-ai-blog') { ?>
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/tinymce/js/tinymce/tinymce.min.js"></script>
