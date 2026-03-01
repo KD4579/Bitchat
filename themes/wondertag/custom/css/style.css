@@ -4244,7 +4244,7 @@ html:has(link#night-mode-css) .tag_welcome .bc-hero-compact {
    Covers: phones (<576px), tablets (576-991px), desktops (992px+)
    ──────────────────────────────────────────────────────────────────────── */
 
-/* === Base: All screen sizes — centered single-column layout === */
+/* === Base: Two-column centered layout === */
 
 /* Override WoWonder's forced min-width:992px!important on body & .container
    AND override MC-2 logged-in layout that leaks via .tag_content wrapper */
@@ -4257,8 +4257,8 @@ body.bc-welcome .tag_content {
 }
 body.bc-welcome .tag_content .container {
   min-width: 0 !important;
-  max-width: 600px !important;
-  width: 90% !important;
+  max-width: 1200px !important;
+  width: 92% !important;
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 15px !important;
@@ -4277,29 +4277,35 @@ body.bc-welcome .tag_content .container {
   flex: 1 !important;
   margin: 20px 0 0 !important;
 }
-/* Stack columns vertically and center everything */
+/* Two-column row: hero left, auth right — centered */
 .tag_welcome .tag_wel_row {
-  flex-direction: column !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
+  justify-content: center !important;
+  gap: 48px !important;
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
 }
+/* Both columns equal width, no Bootstrap padding/flex override */
 .tag_welcome .tag_wel_row > [class*="col-"] {
-  flex: 0 0 100% !important;
-  max-width: 100% !important;
-  width: 100% !important;
+  flex: 1 1 0 !important;
+  max-width: 50% !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
-/* Hide the left hero column on welcome — keep focus on login */
+/* Left column: hero content, left-aligned text */
 .tag_welcome .tag_wel_row > .col-xl-6:first-child {
-  display: none !important;
+  display: block !important;
 }
 .tag_welcome .tag_wel_title {
   display: none !important;
 }
-/* Auth box — centered, comfortable width */
+.tag_welcome .tag_pro_widget {
+  position: static !important;
+}
+/* Right column: auth box fills its column */
 .tag_welcome .tag_auth_box {
   max-width: 100% !important;
   width: 100% !important;
@@ -4307,19 +4313,36 @@ body.bc-welcome .tag_content .container {
   margin-right: auto !important;
 }
 .tag_welcome .tag_wel_register {
-  max-width: 100% !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
   text-align: center !important;
+}
+
+/* === Phones (< 768px): stack vertically === */
+@media (max-width: 767.98px) {
+  body.bc-welcome .tag_content .container {
+    width: 95% !important;
+    max-width: 520px !important;
+  }
+  .tag_welcome .tag_wel_row {
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+  }
+  .tag_welcome .tag_wel_row > [class*="col-"] {
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+  .tag_welcome .tag_wel_row > .col-xl-6:first-child {
+    text-align: center !important;
+  }
+  .tag_welcome .tag_auth_box {
+    padding: 20px !important;
+  }
 }
 
 /* === Small phones (< 500px) === */
 @media (max-width: 499.98px) {
-  body.bc-welcome .tag_content .container {
-    width: 95% !important;
-  }
-  .tag_welcome .tag_auth_box {
-    padding: 20px !important;
+  .tag_welcome .tag_wel_widget.tag_pro_widget {
+    display: none !important;
   }
 }
 
