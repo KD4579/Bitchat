@@ -328,13 +328,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 </div>
 
 <script>
-$(document).ready(function() {
-	<?php if ($wo['page'] == 'home') { ?>
-	$('.sidebar_fixed').theiaStickySidebar({additionalMarginTop: 66});
-	<?php } else { ?>
-	$('.sidebar_fixed').theiaStickySidebar({additionalMarginTop: 30});
-	<?php } ?>
-});
+/* Sidebar uses CSS position:sticky instead of theiaStickySidebar JS plugin.
+   See FIX-SB in custom/css/style.css for the sticky rules. */
 function addZero(i) {
     if (i < 10) {
         i = "0" + i;

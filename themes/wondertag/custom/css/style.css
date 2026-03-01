@@ -7510,11 +7510,52 @@ body.night_mode .earn_points .counter .count-text {
 }
 
 /* ==========================================================================
-   FIX-SB: Right sidebar sticky — ensure theiaStickySidebar wrapper stays
-   visible when the plugin switches to position:fixed / position:absolute.
-   Without a z-index the wrapper can render behind the main content area
-   or the header depending on stacking context.
+   FIX-SB: Right sidebar — native CSS sticky instead of theiaStickySidebar JS.
+   The JS plugin miscalculates container boundaries in flex layouts, causing
+   the sidebar to vanish on scroll.  CSS position:sticky is reliable, native,
+   and simpler.
+   - align-self:flex-start prevents the flex child from stretching to the
+     full row height (which would defeat sticky).
+   - max-height + overflow-y:auto gives the sidebar its own scroll when the
+     widget stack is taller than the viewport.
    ========================================================================== */
-.tag_main_right_side .theiaStickySidebar {
-  z-index: 10;
+.tag_main_right_side {
+  position: sticky !important;
+  top: 66px;
+  align-self: flex-start;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.tag_main_right_side::-webkit-scrollbar {
+  width: 4px;
+}
+.tag_main_right_side::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,.15);
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   REG-PW: Password visibility toggle on registration & login forms
+   ========================================================================== */
+.bc-pw-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: rgba(0,0,0,.45);
+  z-index: 1;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+.bc-pw-toggle:hover {
+  color: rgba(0,0,0,.7);
+}
+.tag_field:has(.bc-pw-toggle) > input {
+  padding-right: 44px !important;
 }
