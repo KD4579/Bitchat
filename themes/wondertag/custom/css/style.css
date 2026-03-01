@@ -4270,17 +4270,25 @@ body.bc-welcome .tag_content .container {
   display: flex !important;
   flex-direction: column !important;
 }
+/* Compact header — remove excess padding */
+.tag_welcome .tag_wel_upper {
+  padding: 0 !important;
+}
+.tag_welcome .navbar-default {
+  padding: 10px 0 !important;
+}
 /* 5x bigger logo on welcome/login page */
 .tag_welcome .navbar-default .logo img {
   max-width: 700px !important;
   max-height: 250px !important;
 }
+/* Main content area — vertically centered, no top margin */
 .tag_welcome .tag_wel_middle {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   flex: 1 !important;
-  margin: 20px 0 0 !important;
+  margin: 0 !important;
 }
 /* Two-column row: hero left, auth right — centered */
 .tag_welcome .tag_wel_row {
@@ -4293,22 +4301,30 @@ body.bc-welcome .tag_content .container {
   padding: 0 !important;
   width: 100% !important;
 }
-/* Both columns equal width, no Bootstrap padding/flex override */
+/* Both columns equal width */
 .tag_welcome .tag_wel_row > [class*="col-"] {
   flex: 1 1 0 !important;
   max-width: 50% !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
-/* Left column: hero content, left-aligned text */
+/* Left column: hero content */
 .tag_welcome .tag_wel_row > .col-xl-6:first-child {
   display: block !important;
+}
+/* Remove empty space from .bc-hero wrapper and hidden title */
+.tag_welcome .bc-hero {
+  margin: 0 !important;
 }
 .tag_welcome .tag_wel_title {
   display: none !important;
 }
 .tag_welcome .tag_pro_widget {
   position: static !important;
+  margin-top: 16px !important;
+}
+.tag_welcome .tag_wel_widget {
+  margin: 16px 0 0 !important;
 }
 /* Right column: auth box fills its column */
 .tag_welcome .tag_auth_box {
