@@ -2,11 +2,14 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
-## 2026-03-01 — Page load performance + Welcome page desktop layout
+## 2026-03-01 — Major welcome page performance (345KB → 65KB, 40s → 5s)
 
-- **Performance**: Fixed `style.css` cache buster from `time()` to `filemtime()` — was generating a new URL every request, preventing browser caching entirely
-- **Performance**: Removed 18 duplicate `DESCRIBE wondertage_settings` + SELECT queries from template files — the query is already run once in `container.phtml` which wraps all templates. Was executing 20+ identical DB queries per page load
-- **UX**: Widened welcome page container from 1050px to 1320px and auth box from 400px to 460px — login/register now fills more of the desktop screen instead of being cramped in a narrow center strip
+- **Performance**: Removed 239KB of inline CSS (`styles_cc`) from HTML — `style.css` was being loaded TWICE (inline via `file_get_contents` + external `<link>` tag). Also removed duplicate inline `footer_cc`
+- **Performance**: Gated 15+ heavy JS files behind `page != welcome` check — agora.js (1.1MB), hls.js, socket.io, html2pdf, qrcode, wavesurfer, plyr, flickity, flatpickr, green-audio-player, bootstrap-select, etc. were loading on the guest login page where none are needed
+- **Performance**: Made Google Fonts non-render-blocking on welcome page via `media="print" onload` technique
+- **Performance**: Fixed `style.css` cache buster from `time()` to `filemtime()` — was preventing browser caching entirely
+- **Performance**: Removed 18 duplicate `DESCRIBE wondertage_settings` + SELECT queries from template files — was executing 20+ identical DB queries per page load
+- **UX**: Widened welcome page layout to responsive 90%/85%/80% width (was fixed 1050px), auth box to 520px (was 400px), added gap between columns
 
 ---
 
