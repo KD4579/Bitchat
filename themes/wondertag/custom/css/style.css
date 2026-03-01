@@ -4270,6 +4270,11 @@ body.bc-welcome .tag_content .container {
   display: flex !important;
   flex-direction: column !important;
 }
+/* 5x bigger logo on welcome/login page */
+.tag_welcome .navbar-default .logo img {
+  max-width: 700px !important;
+  max-height: 250px !important;
+}
 .tag_welcome .tag_wel_middle {
   display: flex !important;
   align-items: center !important;
