@@ -6,15 +6,6 @@ if ($wo['loggedin'] && $IsOwnerUser) {
    $wo['pr_complition'] = Wo_ProfileCompletion();
 }
 ?>
-<?php 
-$wondertage_settings = array();
-if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
-	$settings = $db->get('wondertage_settings');
-	foreach ($settings as $key => $value) {
-		$wondertage_settings[$value->name] = $value->value;
-	}
-}
-?>
 
 <div class="page-margin profile wo_user_profile" data-page="timeline" data-id="<?php echo $wo['user_profile']['user_id'];?>">
 	<div class="container-fluid tag_cont_fluid">

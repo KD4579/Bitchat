@@ -134,13 +134,17 @@ body.night_mode {
   letter-spacing: 0.2px;
 }
 
-/* Login card — cleaner shadow, more spacious */
+/* Login card — cleaner shadow, more spacious, wider on desktop */
 .tag_auth_box {
   border-radius: var(--bc-radius-lg);
   padding: 32px;
   box-shadow: var(--bc-shadow-lg);
   border: var(--bc-border-light);
   background: var(--bc-surface-primary);
+  max-width: 460px;
+}
+.tag_wel_register {
+  max-width: 460px;
 }
 
 /* Login form title */
@@ -4241,6 +4245,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex !important;
   align-items: center !important;
   flex: 1 !important;
+}
+
+/* Widen container on welcome page to fill more of the screen */
+.tag_welcome .tag_wel_middle > .container {
+  max-width: 1320px !important;
 }
 
 /* Ensure welcome container fills viewport and centers content */

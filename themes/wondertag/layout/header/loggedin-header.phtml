@@ -26,15 +26,6 @@ if ($followers_alert == 0) {
     $unread_update_followers = '';
 }
 ?>
-<?php 
-$wondertage_settings = array();
-if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
-	$settings = $db->get('wondertage_settings');
-	foreach ($settings as $key => $value) {
-		$wondertage_settings[$value->name] = $value->value;
-	}
-}
-?>
 
 <div class="valign tag_hdr_right">
 	<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { ?>

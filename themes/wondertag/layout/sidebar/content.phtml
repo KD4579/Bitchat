@@ -14,16 +14,6 @@ if (!empty($user_stories)) {
     }
 }
 ?>
-<?php 
-$wondertage_settings = array();
-if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
-	$settings = $db->get('wondertage_settings');
-	foreach ($settings as $key => $value) {
-		$wondertage_settings[$value->name] = $value->value;
-	}
-}
-?>
-
 <?php if (Wo_IsMobile() == false) { ?>
 <div class="col-lg-3 sidebar rightcol sidebar_fixed tag_main_right_side">
 	<?php if ($wo['config']['pro'] == 1) { ?>

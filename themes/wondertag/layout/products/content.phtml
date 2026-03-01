@@ -11,16 +11,6 @@
 		return $data;
 	}
 ?>
-<?php 
-$wondertage_settings = array();
-if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
-	$settings = $db->get('wondertage_settings');
-	foreach ($settings as $key => $value) {
-		$wondertage_settings[$value->name] = $value->value;
-	}
-}
-?>
-
 <div class="page-margin">
 	<div class="container">
 		<div class="valign tag_market_title">
