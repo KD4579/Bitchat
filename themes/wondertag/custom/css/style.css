@@ -4269,27 +4269,29 @@ body.bc-welcome .tag_content .container {
   min-height: calc(var(--vh, 1vh) * 100) !important;
   display: flex !important;
   flex-direction: column !important;
-}
-/* Compact header — remove excess padding */
-.tag_welcome .tag_wel_upper {
   padding: 0 !important;
 }
+/* Compact header — zero padding */
+.tag_welcome .tag_wel_upper {
+  padding: 0 !important;
+  margin: 0 !important;
+}
 .tag_welcome .navbar-default {
-  padding: 10px 0 !important;
+  padding: 8px 0 !important;
 }
 /* 5x bigger logo on welcome/login page */
 .tag_welcome .navbar-default .logo img {
   max-width: 700px !important;
   max-height: 250px !important;
 }
-/* Main content area — starts right below header, no vertical centering */
+/* Main content area — flush below header, no gaps */
 .tag_welcome .tag_wel_middle {
   display: flex !important;
   align-items: flex-start !important;
   justify-content: center !important;
   flex: 1 !important;
   margin: 0 !important;
-  padding-top: 24px !important;
+  padding: 0 !important;
 }
 /* Two-column row: hero left, auth right — top aligned */
 .tag_welcome .tag_wel_row {
