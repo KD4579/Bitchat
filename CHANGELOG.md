@@ -2,11 +2,14 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
-## 2026-03-01 — Sidebar sticky fix + Registration password eye toggle
+## 2026-03-01 — Sidebar sticky fix + Password eye toggle on all auth forms
 
 - **Bug fix**: Replaced `theiaStickySidebar` JS plugin with native CSS `position: sticky` for the right sidebar — the JS plugin miscalculated container boundaries in flex layouts, causing widgets to vanish on scroll. CSS sticky is reliable, native, and simpler.
 - **Bug fix**: Changed `overflow-x: hidden` to `overflow-x: clip` on body/`.tag_content`/`.container` — prevents scroll containers from interfering with sticky positioning
-- **New**: Added password visibility eye toggle (show/hide) to registration form password + confirm password fields
+- **New**: Added password visibility eye toggle (show/hide) to all password fields:
+  - Registration form (password + confirm password)
+  - Login form (simple + startup layouts) — replaced forgot-password question mark icon with eye toggle (forgot link already exists as text below the form)
+  - Reset password form — also fixed field from `type="text"` to `type="password"`
 - Added thin auto-scrollbar to right sidebar for when widget stack exceeds viewport height
 
 ---
