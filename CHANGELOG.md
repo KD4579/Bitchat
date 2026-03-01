@@ -2,6 +2,14 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-01 — Fix sidebar widgets disappearing on scroll
+
+- **Bug fix**: Changed `overflow-x: hidden` to `overflow-x: clip` on `body`, `.tag_content`, `.container` — `hidden` creates a scroll container that traps `position:fixed` elements (theiaStickySidebar wrapper), `clip` prevents horizontal overflow without creating a scroll container
+- **Bug fix**: Added `z-index: 10` to `.tag_main_right_side .theiaStickySidebar` so the sticky sidebar wrapper stays above the main content stacking context
+- Fallback: `overflow-x: hidden` kept before `clip` for Safari < 16
+
+---
+
 ## 2026-03-01 — Nearby Users & Recommendations improvements
 
 - **Bug fix**: Moved `share_my_location` filter from PHP to SQL in `Wo_GetNearbyUsers()` — previously users with sharing off consumed LIMIT slots, causing fewer results
