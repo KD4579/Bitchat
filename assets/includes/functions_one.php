@@ -1966,7 +1966,7 @@ function Wo_UserSug($limit = 20) {
     }
     $data      = array();
     $user_id   = Wo_Secure(!empty($wo['user']['user_id']) ? $wo['user']['user_id'] : 0);
-    $query_one = " SELECT `user_id` FROM " . T_USERS . " WHERE `active` = '1' AND `user_id` NOT IN (SELECT `blocked` FROM " . T_BLOCKS . " WHERE `blocker` = '{$user_id}') AND `user_id` NOT IN (SELECT `blocker` FROM " . T_BLOCKS . " WHERE `blocked` = '{$user_id}') AND `user_id` NOT IN (SELECT `following_id` FROM " . T_FOLLOWERS . " WHERE `follower_id` = {$user_id}) AND `user_id` <> {$user_id}";
+    $query_one = " SELECT `user_id` FROM " . T_USERS . " WHERE `active` = '1' AND `src` != 'Fake' AND `user_id` NOT IN (SELECT `blocked` FROM " . T_BLOCKS . " WHERE `blocker` = '{$user_id}') AND `user_id` NOT IN (SELECT `blocker` FROM " . T_BLOCKS . " WHERE `blocked` = '{$user_id}') AND `user_id` NOT IN (SELECT `following_id` FROM " . T_FOLLOWERS . " WHERE `follower_id` = {$user_id}) AND `user_id` <> {$user_id}";
     if (isset($limit)) {
         $query_one .= " ORDER BY RAND() LIMIT {$limit}";
     }

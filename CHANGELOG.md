@@ -2,6 +2,17 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-01 — Nearby Users & Recommendations improvements
+
+- **Bug fix**: Moved `share_my_location` filter from PHP to SQL in `Wo_GetNearbyUsers()` — previously users with sharing off consumed LIMIT slots, causing fewer results
+- **Bug fix**: Added `share_my_location = 1` to `Wo_GetNearbyUsersCount()` for consistent count
+- **Bug fix**: Excluded fake users (`src != 'Fake'`) from `Wo_UserSug()` (People You May Know)
+- **UX**: Increased default nearby radius from 25km to 100km for better coverage across Indian cities
+- **UX**: Updated privacy toggle label from "Share my location with public?" to "Show me in Nearby Users?"
+- **New**: Added "Nearby Users" sidebar widget after Creators section — shows 6 nearby users with "See All" link
+
+---
+
 ## 2026-03-01 — Security hardening: critical exposure fixes
 
 ### Server-level fixes (applied directly on live server)

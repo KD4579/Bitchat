@@ -6284,7 +6284,7 @@ function Wo_GetNearbyUsers($args = array()) {
     $user         = $wo['user']['id'];
     $t_users      = T_USERS;
     $t_followers  = T_FOLLOWERS;
-    $distance     = 25;
+    $distance     = 100;
     $data         = array();
     $sub_sql      = "";
     if ($loc_distance && is_numeric($loc_distance) && $loc_distance > 0) {
@@ -6320,16 +6320,15 @@ function Wo_GetNearbyUsers($args = array()) {
     AND `user_id` NOT IN (SELECT `follower_id` FROM $t_followers WHERE `follower_id` <> {$user} AND `following_id` = {$user} AND `active` = '1')
     AND `user_id` NOT IN (SELECT `following_id` FROM $t_followers WHERE `follower_id` = {$user} AND `following_id` <> {$user} AND `active` = '1')
     AND `lat` <> 0 AND `lng` <> 0
+    AND `share_my_location` = 1
     HAVING distance < '$distance' ORDER BY `user_id` DESC LIMIT 0, $limit ";
     $query = mysqli_query($sqlConnect, $sql);
-    if (mysqli_num_rows($query)) {
+    if ($query && mysqli_num_rows($query)) {
         while ($fetched_data = mysqli_fetch_assoc($query)) {
             $fetched_data['user_data']        = Wo_UserData($fetched_data['user_id']);
             $fetched_data['user_data']['age'] = Wo_GetUserCountryName($fetched_data['user_data']);
             $fetched_data['user_geoinfo']     = $fetched_data['user_data']['lat'] . ',' . $fetched_data['user_data']['lng'];
-            if ($fetched_data['user_data']['share_my_location'] == 1) {
-                $data[] = $fetched_data;
-            }
+            $data[] = $fetched_data;
         }
     }
     return $data;
@@ -6362,7 +6361,7 @@ function Wo_GetNearbyUsersCount($args = array()) {
     $user         = $wo['user']['id'];
     $t_users      = T_USERS;
     $t_followers  = T_FOLLOWERS;
-    $distance     = 25;
+    $distance     = 100;
     $data         = array();
     $sub_sql      = "";
     if ($loc_distance && is_numeric($loc_distance) && $loc_distance > 0) {
@@ -6397,10 +6396,11 @@ function Wo_GetNearbyUsersCount($args = array()) {
     FROM $t_users WHERE `user_id` <> '$user'   {$sub_sql}
     AND `user_id` NOT IN (SELECT `follower_id` FROM $t_followers WHERE `follower_id` <> {$user} AND `following_id` = {$user} AND `active` = '1')
     AND `user_id` NOT IN (SELECT `following_id` FROM $t_followers WHERE `follower_id` = {$user} AND `following_id` <> {$user} AND `active` = '1')
-    AND `lat` <> 0 AND `lng` <> 0 GROUP BY user_id
+    AND `lat` <> 0 AND `lng` <> 0
+    AND `share_my_location` = 1 GROUP BY user_id
     HAVING distance < '$distance' ORDER BY `user_id` DESC ";
     $query = mysqli_query($sqlConnect, $sql);
-    return mysqli_num_rows($query);
+    return $query ? mysqli_num_rows($query) : 0;
 }
 function Wo_CountStories($user_id = 0) {
     global $wo, $sqlConnect;

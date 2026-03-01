@@ -76,6 +76,25 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		</div>
 	<?php } } ?>
 
+	<?php if ($wo['config']['find_friends'] == 1 && !empty($wo['user']['lat']) && $wo['user']['lat'] != '0' && !empty($wo['user']['lng']) && $wo['user']['lng'] != '0') {
+		$_nearby_users = Wo_GetNearbyUsers(array('limit' => 6, 'distance' => 100));
+		if (!empty($_nearby_users) && count($_nearby_users) > 0) { ?>
+		<div class="wow_content mb-15 tag_sidebar_widget featured-users bc-nearby-widget">
+			<div class="valign wo_page_hdng">
+				<span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span> Nearby Users
+				<a href="<?php echo Wo_SeoLink('index.php?link1=friends_nearby');?>" style="color: #0073CE; text-decoration: underline; margin-left: auto;">See All</a>
+			</div>
+			<div class="featured-users-innr">
+				<div class="valign tag_pro_users">
+					<?php foreach ($_nearby_users as $wo['user-list']) {
+						$wo['user-list'] = $wo['user-list']['user_data'];
+						echo Wo_LoadPage('home/user-list');
+					} ?>
+				</div>
+			</div>
+		</div>
+	<?php } } ?>
+
 	<?php if (!empty($wo['config']['affiliate_type']) && $wo['config']['affiliate_type'] != 0) { ?>
 	<div class="wow_content mb-15 tag_sidebar_widget bc-invite-widget">
 		<div class="bc-invite-widget-inner">

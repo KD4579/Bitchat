@@ -2009,3 +2009,35 @@ ALTER TABLE Wo_Users
 
 **Files in repo:**
 - `sources/hashtag.php`, `webhook-deploy.php`
+
+---
+
+## Task: Nearby Users & Recommendations Improvements
+**Status:** [x] Completed — 2026-03-01
+**Priority:** Medium
+**Impact:** Better discovery, cleaner suggestions, improved nearby accuracy
+
+**Issues Found & Fixed:**
+
+1. **Bug: `share_my_location` filtered in PHP, not SQL** — `Wo_GetNearbyUsers()` fetched 20 users from DB (LIMIT), then filtered in PHP loop. Users with `share_my_location=0` consumed LIMIT slots, causing fewer results than expected.
+   - **Fix:** Added `AND share_my_location = 1` to both `Wo_GetNearbyUsers()` and `Wo_GetNearbyUsersCount()` SQL queries. Removed redundant PHP filter.
+
+2. **Bug: Fake users in suggestions** — `Wo_UserSug()` (People You May Know) had no `src != 'Fake'` filter. 215 fake users could appear in suggestions.
+   - **Fix:** Added `AND src != 'Fake'` to the query.
+
+3. **UX: Default nearby radius too small** — Default 25km missed users in neighboring cities across India.
+   - **Fix:** Increased default radius from 25km to 100km in both `Wo_GetNearbyUsers()` and `Wo_GetNearbyUsersCount()`.
+
+4. **UX: Privacy toggle label unclear** — "Share my location with public?" didn't mention Nearby Users.
+   - **Fix:** Updated to "Show me in Nearby Users? (Others can find you based on your location)" in `Wo_Langs` table.
+
+5. **Missing: No Nearby Users sidebar widget** — No sidebar box for nearby users like "Pages You May Like" or "Creators".
+   - **Fix:** Added "Nearby Users" widget in right sidebar after Creators section. Shows 6 nearby users with "See All" link to `/find-friends`. Only renders when user has location data and nearby users exist.
+
+**Files Modified:**
+- `assets/includes/functions_three.php` — SQL filter fix + radius increase in both functions
+- `assets/includes/functions_one.php` — Fake user exclusion in `Wo_UserSug()`
+- `themes/wondertag/layout/sidebar/content.phtml` — New Nearby Users sidebar widget
+
+**DB change (live server only):**
+- Updated `Wo_Langs.english` for `share_my_location` key
