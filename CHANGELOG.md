@@ -2,11 +2,12 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
-## 2026-03-01 — Fix sidebar widgets disappearing on scroll
+## 2026-03-01 — Sidebar sticky fix + Registration password eye toggle
 
-- **Bug fix**: Changed `overflow-x: hidden` to `overflow-x: clip` on `body`, `.tag_content`, `.container` — `hidden` creates a scroll container that traps `position:fixed` elements (theiaStickySidebar wrapper), `clip` prevents horizontal overflow without creating a scroll container
-- **Bug fix**: Added `z-index: 10` to `.tag_main_right_side .theiaStickySidebar` so the sticky sidebar wrapper stays above the main content stacking context
-- Fallback: `overflow-x: hidden` kept before `clip` for Safari < 16
+- **Bug fix**: Replaced `theiaStickySidebar` JS plugin with native CSS `position: sticky` for the right sidebar — the JS plugin miscalculated container boundaries in flex layouts, causing widgets to vanish on scroll. CSS sticky is reliable, native, and simpler.
+- **Bug fix**: Changed `overflow-x: hidden` to `overflow-x: clip` on body/`.tag_content`/`.container` — prevents scroll containers from interfering with sticky positioning
+- **New**: Added password visibility eye toggle (show/hide) to registration form password + confirm password fields
+- Added thin auto-scrollbar to right sidebar for when widget stack exceeds viewport height
 
 ---
 
