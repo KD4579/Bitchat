@@ -4282,19 +4282,20 @@ body.bc-welcome .tag_content .container {
   max-width: 700px !important;
   max-height: 250px !important;
 }
-/* Main content area — vertically centered, no top margin */
+/* Main content area — starts right below header, no vertical centering */
 .tag_welcome .tag_wel_middle {
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   justify-content: center !important;
   flex: 1 !important;
   margin: 0 !important;
+  padding-top: 24px !important;
 }
-/* Two-column row: hero left, auth right — centered */
+/* Two-column row: hero left, auth right — top aligned */
 .tag_welcome .tag_wel_row {
   flex-direction: row !important;
   flex-wrap: nowrap !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   justify-content: center !important;
   gap: 48px !important;
   margin: 0 !important;
