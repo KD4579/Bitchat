@@ -2,6 +2,14 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-01 — Page load performance + Welcome page desktop layout
+
+- **Performance**: Fixed `style.css` cache buster from `time()` to `filemtime()` — was generating a new URL every request, preventing browser caching entirely
+- **Performance**: Removed 18 duplicate `DESCRIBE wondertage_settings` + SELECT queries from template files — the query is already run once in `container.phtml` which wraps all templates. Was executing 20+ identical DB queries per page load
+- **UX**: Widened welcome page container from 1050px to 1320px and auth box from 400px to 460px — login/register now fills more of the desktop screen instead of being cramped in a narrow center strip
+
+---
+
 ## 2026-03-01 — Sidebar sticky fix + Password eye toggle on all auth forms
 
 - **Bug fix**: Replaced `theiaStickySidebar` JS plugin with native CSS `position: sticky` for the right sidebar — the JS plugin miscalculated container boundaries in flex layouts, causing widgets to vanish on scroll. CSS sticky is reliable, native, and simpler.
