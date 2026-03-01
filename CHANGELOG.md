@@ -2,6 +2,12 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-02 — Fix login on welcome page
+
+- **Bug fix**: Login form was broken — `ajaxForm()` (jQuery Form Plugin) was unavailable because `script.js` (372KB) was gated behind `page != welcome` during the performance optimization. Extracted the jQuery Form Plugin (~15KB) into `jquery.form.min.js` and load it on the welcome page only — login works again while keeping the performance gain.
+
+---
+
 ## 2026-03-01 — Major welcome page performance (345KB → 65KB, 40s → 5s)
 
 - **Performance**: Removed 239KB of inline CSS (`styles_cc`) from HTML — `style.css` was being loaded TWICE (inline via `file_get_contents` + external `<link>` tag). Also removed duplicate inline `footer_cc`
