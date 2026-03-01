@@ -137,14 +137,15 @@ body.night_mode {
 /* Login card — cleaner shadow, more spacious, wider on desktop */
 .tag_auth_box {
   border-radius: var(--bc-radius-lg);
-  padding: 32px;
+  padding: 32px 40px;
   box-shadow: var(--bc-shadow-lg);
   border: var(--bc-border-light);
   background: var(--bc-surface-primary);
-  max-width: 460px;
+  max-width: 520px;
+  width: 100%;
 }
 .tag_wel_register {
-  max-width: 460px;
+  max-width: 520px;
 }
 
 /* Login form title */
@@ -4247,9 +4248,41 @@ h1, h2, h3, h4, h5, h6 {
   flex: 1 !important;
 }
 
-/* Widen container on welcome page to fill more of the screen */
+/* Widen container on welcome page to fill the screen */
 .tag_welcome .tag_wel_middle > .container {
-  max-width: 1320px !important;
+  max-width: 90% !important;
+  width: 90% !important;
+}
+@media (min-width: 1400px) {
+  .tag_welcome .tag_wel_middle > .container {
+    max-width: 85% !important;
+    width: 85% !important;
+  }
+}
+@media (min-width: 1800px) {
+  .tag_welcome .tag_wel_middle > .container {
+    max-width: 80% !important;
+    width: 80% !important;
+  }
+}
+
+/* Welcome page row spacing */
+.tag_welcome .tag_wel_row {
+  gap: 40px !important;
+}
+@media (min-width: 1200px) {
+  .tag_welcome .tag_wel_row {
+    gap: 60px !important;
+  }
+  .tag_welcome .bc-hero-compact {
+    padding: 24px 28px !important;
+  }
+  .tag_welcome .bc-hero-line {
+    font-size: 18px !important;
+  }
+  .tag_welcome .tag_wel_widget > p {
+    font-size: 17px !important;
+  }
 }
 
 /* Ensure welcome container fills viewport and centers content */
