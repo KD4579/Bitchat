@@ -305,7 +305,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			</script>
 		<?php } ?>
 		
-		<style><?php echo $wo['config']['styles_cc']; ?></style>
+		<?php /* styles_cc removed: style.css already loaded via <link> tag — was duplicating 239KB inline */ ?>
 		
 		<?php if ($wo['config']['classified'] == 1 && $wo['page'] != 'welcome') { ?>
 		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/html2pdf.bundle.js"></script>
@@ -1232,7 +1232,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 					jQuery('.remove_combo_on_click').removeClass('comment-toggle');
 				}
 			});
-			<?php echo $wo['config']['footer_cc']; ?>
+			<?php /* footer_cc removed: footer.js already loaded via <script src> tag */ ?>
 		</script>
 		
 		<?php if ($wo['page'] != 'get_news_feed' && $wo['page'] != 'maintenance') { ?>
