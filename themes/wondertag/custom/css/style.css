@@ -5573,12 +5573,18 @@ img, video, iframe, embed, object {
 
 /* --------------------------------------------------------------------------
    RR-28: Text overflow protection — prevent horizontal scroll
+   Use `clip` instead of `hidden` so positioned descendants (especially
+   theiaStickySidebar's position:fixed wrapper) aren't trapped in a scroll
+   container.  `clip` clips visual overflow identically but does NOT create
+   a scroll container, so fixed-position children escape correctly.
    -------------------------------------------------------------------------- */
 body {
   overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 .tag_content, .page-margin, .container {
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* --------------------------------------------------------------------------
@@ -7501,4 +7507,14 @@ body.night_mode .earn_points .counter .count-text {
   height: 38px;
   object-fit: cover;
   display: block;
+}
+
+/* ==========================================================================
+   FIX-SB: Right sidebar sticky — ensure theiaStickySidebar wrapper stays
+   visible when the plugin switches to position:fixed / position:absolute.
+   Without a z-index the wrapper can render behind the main content area
+   or the header depending on stacking context.
+   ========================================================================== */
+.tag_main_right_side .theiaStickySidebar {
+  z-index: 10;
 }
