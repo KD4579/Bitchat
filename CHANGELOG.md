@@ -9,7 +9,8 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 - **Performance**: Made Google Fonts non-render-blocking on welcome page via `media="print" onload` technique
 - **Performance**: Fixed `style.css` cache buster from `time()` to `filemtime()` — was preventing browser caching entirely
 - **Performance**: Removed 18 duplicate `DESCRIBE wondertage_settings` + SELECT queries from template files — was executing 20+ identical DB queries per page load
-- **UX**: Widened welcome page layout to responsive 90%/85%/80% width (was fixed 1050px), auth box to 520px (was 400px), added gap between columns
+- **Layout**: Comprehensive responsive rewrite for welcome/login page — container widened to 1400px/92% (was fixed 1050px), auth box centered at 520px, proper breakpoints for phones (<768px), tablets (768-991px), small desktops (992-1199px), large desktops (1200px+), and extra-large (1600px+)
+- **Bug fix**: Reverted `general-style-plugins.css` to render-blocking on welcome page — deferring it broke Bootstrap grid layout (`col-xl-6`, `.row`, flex rules unavailable on initial render)
 
 ---
 
