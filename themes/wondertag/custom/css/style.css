@@ -4234,12 +4234,22 @@ h1, h2, h3, h4, h5, h6 {
 
 /* === Base: All screen sizes === */
 
-/* Override WoWonder's forced min-width:992px!important on body & .container */
+/* Override WoWonder's forced min-width:992px!important on body & .container
+   AND override MC-2 logged-in layout (margin-left:280px, max-width:1200px)
+   that leaks into the welcome page via .tag_content wrapper */
 body.bc-welcome {
   min-width: 0 !important;
 }
-.tag_welcome .container {
+body.bc-welcome .tag_content {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+body.bc-welcome .tag_content .container {
   min-width: 0 !important;
+  max-width: 1400px !important;
+  width: 92% !important;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
 }
 .tag_welcome {
   min-height: 100vh !important;
@@ -4253,12 +4263,14 @@ body.bc-welcome {
   flex: 1 !important;
   margin: 20px 0 0 !important;
 }
-.tag_welcome .container {
-  max-width: 1400px !important;
-  width: 92% !important;
-}
 .tag_welcome .tag_wel_row {
   align-items: center !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.tag_welcome .tag_wel_row > [class*="col-"] {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
 }
 .tag_welcome .tag_wel_title {
   display: none !important;
@@ -4366,7 +4378,7 @@ body.bc-welcome {
 
 /* === Extra-large desktops (1600px+) === */
 @media (min-width: 1600px) {
-  .tag_welcome .container {
+  body.bc-welcome .tag_content .container {
     max-width: 1500px !important;
   }
 }
