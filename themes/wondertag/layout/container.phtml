@@ -1049,6 +1049,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		
 		<?php if ($wo['page'] != 'welcome') { ?>
 			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/script.js?v=<?php echo @filemtime(__DIR__ . '/../javascript/script.js') ?: time(); ?>"></script>
+		<?php } else { ?>
+			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery.form.min.js?v=<?php echo @filemtime(__DIR__ . '/../javascript/jquery.form.min.js') ?: time(); ?>"></script>
 		<?php } ?>
 		
 		<?php if ($wo['loggedin'] == true) {?>
