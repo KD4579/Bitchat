@@ -2,6 +2,33 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-03 — Full project cleanup: unnecessary files & cache
+
+### Live Server (~3.8 GB freed)
+- Deleted stale `/var/www/html/bitchat/` copy (2.4 GB old deployment directory)
+- Purged 56K+ PHP session files older than 1 day (~500 MB)
+- Rotated and deleted Apache access log (587 MB)
+- Cleared file-based cache `cache/users/` (140 MB → 2 MB)
+- Removed 2 redundant Feb 28 DB backups (56 MB)
+- Vacuumed systemd journal (52 MB)
+
+### Repository (624 files removed, 35.2 MB freed from tracking)
+- **Security**: Untracked `nodejs/config.json` (contained DB credentials)
+- Removed test videos `admin-panel/videos/test*.mp4` (5.4 MB)
+- Removed CKEditor source map `ckeditor.js.map` (4 MB)
+- Removed FFmpeg manpages + VMAF models (7.3 MB)
+- Removed vendored `composer.phar` binary (2.7 MB)
+- Removed 169 unminified JS/CSS files that had `.min` counterparts (admin-panel/vendors/)
+- Removed 25 CodeMirror test files
+- Removed 12+ vendored test/example directories across PHP libraries
+- Untracked 54 user-uploaded files from `themes/upload/files/`
+
+### `.gitignore` hardened
+- Added: `themes/upload/files/`, `script_backups/`, `*.js.map`, `ffmpeg/manpages/`, `ffmpeg/model/`, `admin-panel/videos/test*.mp4`, `composer.phar`
+- Added exceptions `!sql/*.sql` and `!database/*.sql` so migration scripts remain tracked
+
+---
+
 ## 2026-03-02 — Hide CTA prompt card
 
 - **UI**: Hidden the CTA action prompt card ("Hey Bitchat, what's on your mind?") from the home feed. Code commented out (not deleted) for potential future re-enablement. Both the HTML in `content.phtml` and the `bc-prompts.js` script load in `container.phtml` are commented out.

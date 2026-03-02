@@ -2052,3 +2052,36 @@ ALTER TABLE Wo_Users
 - Commented out the `bc-prompts.js` script load in `container.phtml`
 - JS file (`bc-prompts.js`) and CSS styles (`.bc-prompt-card`) left intact for easy re-enablement
 **Files Modified:** `themes/wondertag/layout/home/content.phtml`, `themes/wondertag/layout/container.phtml`
+
+---
+
+## Task 9: Full Project Cleanup — Delete Unnecessary Files & Cache
+**Status:** [x] Completed
+**Reported:** Audit entire project for unnecessary files and cache, delete everything not needed.
+
+**Live Server Cleanup (~3.8 GB freed):**
+- Deleted stale `/var/www/html/bitchat/` copy (2.4 GB) — old deployment directory
+- Purged 56K+ PHP session files older than 1 day (~500 MB)
+- Rotated+deleted Apache access log (587 MB)
+- Cleared file-based cache `cache/users/` (140 MB → 2 MB)
+- Removed 2 redundant Feb 28 DB backups (56 MB)
+- Vacuumed systemd journal (52 MB freed)
+
+**Repository Cleanup (624 files, 35.2 MB removed from tracking):**
+- Untracked `nodejs/config.json` (DB credentials — SECURITY)
+- Removed test videos from `admin-panel/videos/` (5.4 MB)
+- Removed CKEditor source map (4 MB)
+- Removed FFmpeg manpages + VMAF models (7.3 MB)
+- Removed `composer.phar` binary (2.7 MB)
+- Removed 88 unminified JS + 81 unminified CSS files with .min counterparts (~14 MB)
+- Removed 25 CodeMirror test.js files
+- Removed 12+ vendored test/example directories across libraries
+- Untracked 54 user-uploaded files in `themes/upload/files/`
+
+**`.gitignore` improvements:**
+- Added `themes/upload/files/` to prevent tracking user uploads
+- Added `script_backups/` to prevent tracking DB dumps
+- Added `!sql/*.sql` and `!database/*.sql` exceptions for migration scripts
+- Added `*.js.map`, `ffmpeg/manpages/`, `ffmpeg/model/`, `admin-panel/videos/test*.mp4`, `composer.phar`
+
+**Files Modified:** `.gitignore`, plus 624 files removed from git tracking
