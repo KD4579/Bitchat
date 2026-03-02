@@ -4340,23 +4340,32 @@ body.bc-welcome .tag_content .container {
   text-align: center !important;
 }
 
-/* === Phones (< 768px): stack vertically === */
+/* === Phones (< 768px): stack vertically, auth first === */
 @media (max-width: 767.98px) {
   body.bc-welcome .tag_content .container {
     width: 95% !important;
     max-width: 520px !important;
   }
+  .tag_welcome .navbar-default .logo img {
+    max-width: 200px !important;
+    max-height: 80px !important;
+  }
   .tag_welcome .tag_wel_row {
     flex-direction: column !important;
     flex-wrap: wrap !important;
-    gap: 20px !important;
+    gap: 16px !important;
   }
   .tag_welcome .tag_wel_row > [class*="col-"] {
     max-width: 100% !important;
     flex: 0 0 100% !important;
   }
+  /* Auth box (2nd col) comes first on mobile */
+  .tag_welcome .tag_wel_row > .col-xl-6:last-child {
+    order: -1 !important;
+  }
+  /* Hide hero content on mobile — login is priority */
   .tag_welcome .tag_wel_row > .col-xl-6:first-child {
-    text-align: center !important;
+    display: none !important;
   }
   .tag_welcome .tag_auth_box {
     padding: 20px !important;
