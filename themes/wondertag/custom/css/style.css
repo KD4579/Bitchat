@@ -3273,14 +3273,21 @@ div[class*="timeline"] {
 }
 /* Mobile hero — scoped to home banner */
 @media (max-width: 768px) {
-  #bc-hero-banner { padding: 12px 16px 0; min-height: auto; } /* P5-14: release min-height floor on mobile */
-  .bc-hero-headline { font-size: 20px !important; }
-  .bc-hero-sub { font-size: 13px !important; }
-  .bc-btn-primary, .bc-btn-ghost { width: 100%; justify-content: center; padding: 10px 16px; font-size: 13px; }
-  #bc-hero-banner .bc-hero-stats { margin: 0 -16px; padding: 12px 16px; }
-  .bc-hero-stat-value { font-size: 14px; }
-  .bc-hero-stat-label { font-size: 10px; }
+  #bc-hero-banner { padding: 4px 12px 0; min-height: auto; margin-bottom: 8px !important; } /* 30% reduced */
+  .bc-hero-headline { font-size: 16px !important; }
+  .bc-hero-sub { font-size: 11px !important; margin-bottom: 6px !important; }
+  .bc-hero-eyebrow { font-size: 10px !important; margin-bottom: 2px !important; }
+  .bc-btn-primary, .bc-btn-ghost { width: 100%; justify-content: center; padding: 6px 12px; font-size: 12px; }
+  .bc-hero-ctas { gap: 6px !important; }
+  #bc-hero-banner .bc-hero-stats { margin: 0 -12px; padding: 4px 12px; }
+  .bc-hero-stat-value { font-size: 12px; }
+  .bc-hero-stat-label { font-size: 9px; }
   #bc-hero-banner .bc-hero-stats { gap: 0; overflow-x: auto; flex-wrap: nowrap; }
+  /* Composer box — 30% reduced on mobile */
+  .tag_pub_box_bg { padding: 8px 12px !important; margin-bottom: 8px !important; gap: 8px !important; }
+  .tag_pub_box_avatar img { width: 30px !important; height: 30px !important; }
+  .tag_pub_box_bg_text { padding: 6px 12px !important; font-size: 13px !important; }
+  .tag_pub_box_bg_camlve { width: 30px !important; height: 30px !important; }
 }
 
 /* ---- UI-2: Glass Market Ticker ---- */
@@ -3792,15 +3799,18 @@ body:not(.night-mode) {
 .tag_pub_box .modal-footer {
   border-top: 1px solid rgba(0,0,0,.04) !important;
 }
-/* Input fields — no hard outline, rely on focus ring */
+/* Input fields — clean visible border, focus ring */
 .form-control,
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="search"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
 textarea:not(.postText) {
-  border: 1.5px solid rgba(0,0,0,.08) !important;
-  border-radius: 10px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
   transition: border-color .2s, box-shadow .2s !important;
 }
 .form-control:focus,
@@ -3808,6 +3818,9 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
 textarea:not(.postText):focus {
   border-color: var(--bc-primary, #6C5CFF) !important;
   box-shadow: 0 0 0 3px rgba(108,92,255,.12) !important;
@@ -3862,8 +3875,13 @@ body.night-mode input[type="text"],
 body.night-mode input[type="email"],
 body.night-mode input[type="password"],
 body.night-mode input[type="search"],
+body.night-mode input[type="number"],
+body.night-mode input[type="tel"],
+body.night-mode input[type="url"],
 body.night-mode textarea:not(.postText) {
-  border-color: rgba(255,255,255,.08) !important;
+  border-color: rgba(255,255,255,.18) !important;
+  background-color: #2a2a2a !important;
+  color: #e2e2e2 !important;
 }
 body.night-mode .tag_header_main,
 body.night-mode .tag_top_bar {
