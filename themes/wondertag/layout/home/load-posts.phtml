@@ -6,20 +6,6 @@ if (!empty($wo['config']['feed_algorithm_enabled']) && $wo['config']['feed_algor
     $stories = Wo_GetPosts(array('limit' => 10, 'publisher_id' => 0, 'placement' => 'multi_image_post', 'anonymous' => true));
 }
 ?>
-<script>
-<?php $users = Wo_UserSug(8); if (count($users) != 0) {
-  $sug_html = '<div class="wow_content tag_sidebar_widget tag_post_people_know"><div class="valign tag_sidebar_widget_title"><b>' . $wo['lang']['people_you_may_know'] . '</b><a onclick="Wo_ReloadSideBarUsers();" class="refresh">' . $wo['lang']['home_refresh'] . '</a></div><div class="tag_scroll sidebar-users-may-know-container">';
-  foreach ($users as $wo['UsersList']) { $wo['UsersList']['user_name'] = mb_substr($wo['UsersList']['name'],0,10, "utf-8"); $sug_html .= Wo_LoadPage('sidebar/sidebar-user-list'); }
-  $sug_html .= '</div><div class="clear"></div></div>';
-  $sug_js = addslashes(preg_replace('/\s+/', ' ', trim($sug_html)));
-?>
-// BC-SUG: Friend suggestion schedule — after post 3 (nth-child 2 + promoted = 3 visible) and post 8
-$("<?php if (count($stories) <= 0) { ?>.home_no_post_people<?php } else { ?>.home_post_people .post-container:nth-child(2)<?php } ?>").append('<?php echo $sug_js; ?>');
-<?php if (count($stories) > 7) { ?>
-$(".home_post_people .post-container:nth-child(7)").append('<?php echo $sug_js; ?>');
-<?php } ?>
-<?php } ?>
-</script>
 <div id="posts">
 	<?php
 		if ($wo['config']['pro'] == 1) {
@@ -52,3 +38,24 @@ $(".home_post_people .post-container:nth-child(7)").append('<?php echo $sug_js; 
 <div id="load-more-filter">
 	<span class="filter-by-more hidden" data-filter-by="all"></span>
 </div>
+<script>
+<?php
+// BC-SUG: Friend suggestion schedule — runs AFTER posts HTML is in the DOM
+$users = Wo_UserSug(8);
+if (count($users) != 0) {
+  $sug_html = '<div class="wow_content tag_sidebar_widget tag_post_people_know"><div class="valign tag_sidebar_widget_title"><b>' . $wo['lang']['people_you_may_know'] . '</b><a onclick="Wo_ReloadSideBarUsers();" class="refresh">' . $wo['lang']['home_refresh'] . '</a></div><div class="tag_scroll sidebar-users-may-know-container">';
+  foreach ($users as $wo['UsersList']) {
+    $wo['UsersList']['user_name'] = mb_substr($wo['UsersList']['name'], 0, 10, "utf-8");
+    $sug_html .= Wo_LoadPage('sidebar/sidebar-user-list');
+  }
+  $sug_html .= '</div><div class="clear"></div></div>';
+  $sug_js = addslashes(preg_replace('/\s+/', ' ', trim($sug_html)));
+?>
+// After post 3 (nth-child 2 + promoted = 3 visible)
+$("<?php if (count($stories) <= 0) { ?>.home_no_post_people<?php } else { ?>.home_post_people .post-container:nth-child(2)<?php } ?>").append('<?php echo $sug_js; ?>');
+<?php if (count($stories) > 7) { ?>
+// After post 8 (nth-child 7 + promoted = 8 visible)
+$(".home_post_people .post-container:nth-child(7)").append('<?php echo $sug_js; ?>');
+<?php } ?>
+<?php } ?>
+</script>
