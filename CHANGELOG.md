@@ -2,9 +2,13 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
-## 2026-03-02 — Fix login on welcome page
+## 2026-03-02 — Friend suggestion schedule + UI height reduction
 
+- **Feature**: Friend suggestion widget now follows a progressive schedule: after post 3, post 8 (initial load), then on every pagination load (cumulative positions 15, 25, 35, then every 10). Previously only appeared once after post 2.
+- **UI**: Reduced hero market banner height by 30% — min-height 110→77px, smaller padding/fonts/buttons/stats bar
+- **UI**: Reduced composer ("Share what's on your mind") box height by 30% — padding 16→10px, avatar 42→34px, text input and camera buttons all scaled down
 - **Bug fix**: Login form was broken — `ajaxForm()` (jQuery Form Plugin) was unavailable because `script.js` (372KB) was gated behind `page != welcome` during the performance optimization. Extracted the jQuery Form Plugin (~15KB) into `jquery.form.min.js` and load it on the welcome page only — login works again while keeping the performance gain.
+- **Mobile**: Welcome page now hides hero column on phones (<768px) and shows only the login form. Logo scaled to 200px max on mobile.
 
 ---
 
