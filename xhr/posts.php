@@ -1102,12 +1102,32 @@ if ($f == 'posts') {
                 $is_api = true;
             }
             if (!empty($_GET['posts_count']) && !empty($get_posts) && $is_api == false) {
-                if ($_GET['posts_count'] > 9 && $_GET['posts_count'] < 15) {
+                $pc = intval($_GET['posts_count']);
+                if ($pc > 9 && $pc < 15) {
                     echo Wo_GetAd('post_first', false);
-                } else if ($_GET['posts_count'] > 20 && $_GET['posts_count'] < 28) {
+                } else if ($pc > 20 && $pc < 28) {
                     echo Wo_GetAd('post_second', false);
-                } else if ($_GET['posts_count'] > 29) {
+                } else if ($pc > 29) {
                     echo Wo_GetAd('post_third', false);
+                }
+                // BC-SUG: Friend suggestion schedule during pagination
+                // Cumulative targets: 15 (pc 10-19), 25 (pc 20-29), 35 (pc 30-39), then every 10 (pc 40+)
+                $show_sug = false;
+                if ($pc >= 10 && $pc < 20) { $show_sug = true; }       // for cumulative position 15
+                else if ($pc >= 20 && $pc < 30) { $show_sug = true; }  // for cumulative position 25
+                else if ($pc >= 30 && $pc < 40) { $show_sug = true; }  // for cumulative position 35
+                else if ($pc >= 40 && ($pc % 10) < 10) { $show_sug = true; } // every 10 after
+                if ($show_sug && $wo['loggedin']) {
+                    $sug_users = Wo_UserSug(8);
+                    if (count($sug_users) > 0) {
+                        $sug_html = '<div class="wow_content tag_sidebar_widget tag_post_people_know"><div class="valign tag_sidebar_widget_title"><b>' . $wo['lang']['people_you_may_know'] . '</b><a onclick="Wo_ReloadSideBarUsers();" class="refresh">' . $wo['lang']['home_refresh'] . '</a></div><div class="tag_scroll sidebar-users-may-know-container">';
+                        foreach ($sug_users as $wo['UsersList']) {
+                            $wo['UsersList']['user_name'] = mb_substr($wo['UsersList']['name'], 0, 10, "utf-8");
+                            $sug_html .= Wo_LoadPage('sidebar/sidebar-user-list');
+                        }
+                        $sug_html .= '</div><div class="clear"></div></div>';
+                        echo $sug_html;
+                    }
                 }
             }
             // Batch increment post views for feed impressions

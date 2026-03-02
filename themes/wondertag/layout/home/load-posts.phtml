@@ -7,7 +7,18 @@ if (!empty($wo['config']['feed_algorithm_enabled']) && $wo['config']['feed_algor
 }
 ?>
 <script>
-$("<?php if (count($stories) <= 0) { ?>.home_no_post_people<?php } else { ?>.home_post_people .post-container:nth-child(2)<?php } ?>").append('<?php $users = Wo_UserSug(8);if (count($users) != 0) { ?><div class="wow_content tag_sidebar_widget tag_post_people_know"><div class="valign tag_sidebar_widget_title"><b><?php echo $wo['lang']['people_you_may_know'] ?></b><a onclick="Wo_ReloadSideBarUsers();" class="refresh"><?php echo $wo['lang']['home_refresh'] ?></a></div><div class="tag_scroll sidebar-users-may-know-container"><?php foreach ($users as $wo['UsersList']) { $wo['UsersList']['user_name'] = mb_substr($wo['UsersList']['name'],0,10, "utf-8");echo Wo_LoadPage('sidebar/sidebar-user-list'); } ?></div><div class="clear"></div></div><?php } ?>');
+<?php $users = Wo_UserSug(8); if (count($users) != 0) {
+  $sug_html = '<div class="wow_content tag_sidebar_widget tag_post_people_know"><div class="valign tag_sidebar_widget_title"><b>' . $wo['lang']['people_you_may_know'] . '</b><a onclick="Wo_ReloadSideBarUsers();" class="refresh">' . $wo['lang']['home_refresh'] . '</a></div><div class="tag_scroll sidebar-users-may-know-container">';
+  foreach ($users as $wo['UsersList']) { $wo['UsersList']['user_name'] = mb_substr($wo['UsersList']['name'],0,10, "utf-8"); $sug_html .= Wo_LoadPage('sidebar/sidebar-user-list'); }
+  $sug_html .= '</div><div class="clear"></div></div>';
+  $sug_js = addslashes(preg_replace('/\s+/', ' ', trim($sug_html)));
+?>
+// BC-SUG: Friend suggestion schedule — after post 3 and post 8 in initial load
+$("<?php if (count($stories) <= 0) { ?>.home_no_post_people<?php } else { ?>.home_post_people .post-container:nth-child(3)<?php } ?>").after('<?php echo $sug_js; ?>');
+<?php if (count($stories) > 7) { ?>
+$(".home_post_people .post-container:nth-child(8)").after('<?php echo $sug_js; ?>');
+<?php } ?>
+<?php } ?>
 </script>
 <div id="posts">
 	<?php

@@ -3112,13 +3112,13 @@ div[class*="timeline"] {
 #bc-hero-banner {
   background: linear-gradient(135deg, #6C5CFF 0%, #00D4FF 100%);
   border-radius: var(--bc-radius-xl, 22px);
-  padding: 6px 24px 0;
+  padding: 4px 20px 0;
   color: #fff;
   margin-top: -24px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   overflow: hidden;
   position: relative;
-  min-height: 110px; /* P5-14: ensure visual weight even with minimal content */
+  min-height: 77px; /* reduced 30% from 110px */
 }
 #bc-hero-banner::before {
   content: '';
@@ -3136,17 +3136,17 @@ div[class*="timeline"] {
   justify-content: space-between;
   gap: 24px;
 }
-.bc-hero-content { flex: 1; padding-bottom: 4px; }
+.bc-hero-content { flex: 1; padding-bottom: 2px; }
 .bc-hero-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 5px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: .08em;
   text-transform: uppercase;
   opacity: .85;
-  margin-bottom: 6px;
+  margin-bottom: 3px;
 }
 .bc-live-dot {
   display: inline-block;
@@ -3163,19 +3163,19 @@ div[class*="timeline"] {
   100%{ box-shadow: 0 0 0 0 rgba(34,197,94,0); }
 }
 #bc-hero-banner .bc-hero-headline {
-  font-size: clamp(22px, 3vw, 30px);
+  font-size: clamp(18px, 2.5vw, 24px);
   font-weight: 700;
-  line-height: 1.25;
-  margin: 0 0 6px;
+  line-height: 1.2;
+  margin: 0 0 4px;
   letter-spacing: -.02em;
   background: none;
   -webkit-text-fill-color: #fff;
 }
 .bc-hero-name { opacity: .9; }
 #bc-hero-banner .bc-hero-sub {
-  font-size: 14px;
+  font-size: 13px;
   opacity: .8;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 .bc-hero-ctas {
   display: flex;
@@ -3185,13 +3185,13 @@ div[class*="timeline"] {
 .bc-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: #fff;
   color: #6C5CFF;
   border: none;
-  border-radius: 12px;
-  padding: 12px 22px;
-  font-size: 14px;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -3205,13 +3205,13 @@ div[class*="timeline"] {
 .bc-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: rgba(255,255,255,.18);
   color: #fff;
   border: 1.5px solid rgba(255,255,255,.4);
-  border-radius: 12px;
-  padding: 12px 22px;
-  font-size: 14px;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -3239,7 +3239,7 @@ div[class*="timeline"] {
   align-items: center;
   gap: 0;
   margin: 0 -40px;
-  padding: 7px 40px;
+  padding: 5px 40px;
   background: rgba(0,0,0,.15);
   border-top: 1px solid rgba(255,255,255,.12);
 }
@@ -3250,7 +3250,7 @@ div[class*="timeline"] {
   flex: 1;
 }
 .bc-hero-stat-value {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -.02em;
 }
@@ -3400,11 +3400,11 @@ body.night-mode .bc-ticker-bar {
   border-radius: var(--bc-radius-lg, 16px) !important;
   box-shadow: var(--bc-shadow-soft, 0 8px 24px rgba(0,0,0,.06)) !important;
   border: none !important;
-  padding: 16px 20px !important;
+  padding: 10px 16px !important;
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
-  margin-bottom: 16px !important;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
   transition: box-shadow .2s ease !important;
 }
 .tag_pub_box_bg:hover {
@@ -3414,8 +3414,8 @@ body.night-mode .bc-ticker-bar {
   flex-shrink: 0;
 }
 .tag_pub_box_avatar img {
-  width: 42px !important;
-  height: 42px !important;
+  width: 34px !important;
+  height: 34px !important;
   border-radius: 50% !important;
   object-fit: cover;
 }
@@ -3424,8 +3424,8 @@ body.night-mode .bc-ticker-bar {
   background: var(--bc-bg, #F8FAFF) !important;
   border: 1.5px solid rgba(108,92,255,.15) !important;
   border-radius: 24px !important;
-  padding: 10px 18px !important;
-  font-size: 14px !important;
+  padding: 7px 14px !important;
+  font-size: 13px !important;
   color: var(--bc-text-muted, #888) !important;
   text-align: left !important;
   font-weight: 500 !important;
@@ -3438,9 +3438,9 @@ body.night-mode .bc-ticker-bar {
 }
 /* Camera & Live buttons as icon chips */
 .tag_pub_box_bg_camlve {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 12px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
   background: var(--bc-bg, #F8FAFF) !important;
   border: none !important;
   display: flex !important;
@@ -4524,11 +4524,11 @@ a[href*="link1=memories"] { display: none !important; }
 
 /* ── TG3: Composer — all buttons visible (LP-2 minimal mode removed) ───── */
 
-/* Composer idle state — compact 56px height */
+/* Composer idle state — compact 40px height (reduced 30%) */
 #tagPostBoxInput:not(:focus),
 .tag_pub_box_input:not(:focus-within) {
-  min-height: 56px !important;
-  max-height: 56px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
   overflow: hidden !important;
   transition: max-height 0.2s ease !important;
 }
