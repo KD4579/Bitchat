@@ -13,10 +13,10 @@ if (!empty($wo['config']['feed_algorithm_enabled']) && $wo['config']['feed_algor
   $sug_html .= '</div><div class="clear"></div></div>';
   $sug_js = addslashes(preg_replace('/\s+/', ' ', trim($sug_html)));
 ?>
-// BC-SUG: Friend suggestion schedule — after post 3 and post 8 in initial load
-$("<?php if (count($stories) <= 0) { ?>.home_no_post_people<?php } else { ?>.home_post_people .post-container:nth-child(3)<?php } ?>").after('<?php echo $sug_js; ?>');
+// BC-SUG: Friend suggestion schedule — after post 3 (nth-child 2 + promoted = 3 visible) and post 8
+$("<?php if (count($stories) <= 0) { ?>.home_no_post_people<?php } else { ?>.home_post_people .post-container:nth-child(2)<?php } ?>").append('<?php echo $sug_js; ?>');
 <?php if (count($stories) > 7) { ?>
-$(".home_post_people .post-container:nth-child(8)").after('<?php echo $sug_js; ?>');
+$(".home_post_people .post-container:nth-child(7)").append('<?php echo $sug_js; ?>');
 <?php } ?>
 <?php } ?>
 </script>
