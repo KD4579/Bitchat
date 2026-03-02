@@ -2,6 +2,12 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-02 — Hide CTA prompt card
+
+- **UI**: Hidden the CTA action prompt card ("Hey Bitchat, what's on your mind?") from the home feed. Code commented out (not deleted) for potential future re-enablement. Both the HTML in `content.phtml` and the `bc-prompts.js` script load in `container.phtml` are commented out.
+
+---
+
 ## 2026-03-02 — Friend suggestion schedule + UI height reduction
 
 - **Feature**: Friend suggestion widget now follows a progressive schedule: after post 3, post 8 (initial load), then on every pagination load (cumulative positions 15, 25, 35, then every 10). Previously only appeared once after post 2.

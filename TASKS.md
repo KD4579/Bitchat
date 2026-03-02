@@ -2041,3 +2041,14 @@ ALTER TABLE Wo_Users
 
 **DB change (live server only):**
 - Updated `Wo_Langs.english` for `share_my_location` key
+
+---
+
+## Task 8: Hide CTA Prompt Card ("Hey Bitchat, what's on your mind?")
+**Status:** [x] Completed
+**Reported:** User wants the CTA action prompt card hidden from the home feed. Code preserved (commented out) for potential future re-enablement.
+**Fix Applied:**
+- Commented out the `#bc-action-prompt` HTML and `require_once('functions_growth.php')` call in `content.phtml`
+- Commented out the `bc-prompts.js` script load in `container.phtml`
+- JS file (`bc-prompts.js`) and CSS styles (`.bc-prompt-card`) left intact for easy re-enablement
+**Files Modified:** `themes/wondertag/layout/home/content.phtml`, `themes/wondertag/layout/container.phtml`
