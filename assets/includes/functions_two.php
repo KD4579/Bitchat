@@ -2312,7 +2312,7 @@ function Wo_DeletePage($page_id = 0) {
         }
     }
     if ($wo["config"]["cacheSystem"] == 1) {
-        $cache->delete(md5($user_id) . "_PAGE_Data.tmp");
+        $cache->delete(md5($page_id) . "_PAGE_Data.tmp");
         $query_two = mysqli_query($sqlConnect, "SELECT `id`,`post_id` FROM " . T_POSTS . " WHERE `page_id` = {$page_id}");
         if (mysqli_num_rows($query_two) > 0) {
             while ($fetched_data_two = mysqli_fetch_assoc($query_two)) {
@@ -2322,7 +2322,7 @@ function Wo_DeletePage($page_id = 0) {
         }
     }
     $query_one = mysqli_query($sqlConnect, "DELETE FROM " . T_PAGES . " WHERE `page_id` = {$page_id}");
-    $query_one = mysqli_query($sqlConnect, "DELETE FROM " . T_PAGES_INVAITES . " WHERE `page_id` = {$page_id}");
+    $query_one .= mysqli_query($sqlConnect, "DELETE FROM " . T_PAGES_INVAITES . " WHERE `page_id` = {$page_id}");
     $query_one .= mysqli_query($sqlConnect, "DELETE FROM " . T_PAGES_LIKES . " WHERE `page_id` = {$page_id}");
     $query_one .= mysqli_query($sqlConnect, "DELETE FROM " . T_NOTIFICATION . " WHERE `page_id` = {$page_id}");
     $query_one .= mysqli_query($sqlConnect, "DELETE FROM " . T_VERIFICATION_REQUESTS . " WHERE `page_id` = {$page_id}");
@@ -3030,7 +3030,7 @@ function Wo_DeleteGroup($group_id = 0) {
         }
     }
     if ($wo["config"]["cacheSystem"] == 1) {
-        $cache->delete(md5($user_id) . "_GROUP_Data.tmp");
+        $cache->delete(md5($group_id) . "_GROUP_Data.tmp");
         $query_two = mysqli_query($sqlConnect, "SELECT `id`,`post_id` FROM " . T_POSTS . " WHERE `group_id` = {$group_id}");
         if (mysqli_num_rows($query_two) > 0) {
             while ($fetched_data_two = mysqli_fetch_assoc($query_two)) {

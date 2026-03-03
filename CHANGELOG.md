@@ -2,6 +2,35 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-03 — Audit & fix 5 bugs in Wo_DeleteUser, Wo_DeletePage, Wo_DeleteGroup
+
+### Bug Fixes
+
+- **Wo_DeleteUser**: Fixed `foreach ($raise)` crash — missing null check caused PHP 8.x warning when no fundraise records exist
+- **Wo_DeleteUser**: Fixed wrong variable in fundraise post cleanup — `$posts` (funding posts) was used instead of `$raise_posts` (fundraise posts), deleting wrong child posts
+- **Wo_DeletePage**: Fixed undefined `$user_id` in cache delete — should be `$page_id`, caused cache entries to never be cleared
+- **Wo_DeletePage**: Fixed `=` overwrite instead of `.=` on T_PAGES_INVAITES delete — lost the T_PAGES delete result
+- **Wo_DeleteGroup**: Fixed undefined `$user_id` in cache delete — should be `$group_id`, caused cache entries to never be cleared
+
+---
+
+## 2026-03-03 — Fix delete account HTTP 500 error
+
+### Bug Fix
+
+- Fixed trailing space in column name `` `from_id ` `` in T_AGORA DELETE query inside `Wo_DeleteUser()` — PHP 8.2 strict mysqli mode threw uncaught `mysqli_sql_exception`
+- Added try/catch error handling in `xhr/delete_user_account.php` for graceful failure
+
+---
+
+## 2026-03-03 — Fix Nearby Users "See All" 404 error
+
+### Bug Fix
+
+- Fixed sidebar "See All" link using `friends_nearby` (underscore) instead of `friends-nearby` (hyphen) — route mismatch caused 404
+
+---
+
 ## 2026-03-03 — Fix new user registration onboarding loop
 
 ### Bug Fix

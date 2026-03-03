@@ -1022,14 +1022,16 @@ function Wo_DeleteUser($user_id) {
                 }
             }
             $raise = $db->where('funding_id', $fund->id)->get(T_FUNDING_RAISE);
-            foreach ($raise as $key => $value) {
-                $raise_posts = $db->where('fund_raise_id', $value->id)->get(T_POSTS);
-                if (!empty($raise_posts)) {
-                    foreach ($posts as $key => $value1) {
-                        $db->where('parent_id', $value1->id)->delete(T_POSTS);
+            if (!empty($raise)) {
+                foreach ($raise as $key => $value) {
+                    $raise_posts = $db->where('fund_raise_id', $value->id)->get(T_POSTS);
+                    if (!empty($raise_posts)) {
+                        foreach ($raise_posts as $key => $value1) {
+                            $db->where('parent_id', $value1->id)->delete(T_POSTS);
+                        }
                     }
+                    $db->where('fund_raise_id', $value->id)->delete(T_POSTS);
                 }
-                $db->where('fund_raise_id', $value->id)->delete(T_POSTS);
             }
         }
         $db->where('user_id', $user_id)->delete(T_FUNDING);

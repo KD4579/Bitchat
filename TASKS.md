@@ -2089,7 +2089,7 @@ ALTER TABLE Wo_Users
 ---
 
 ## Task 10: New User Registration — Repeatedly Asked to Update Info
-**Status:** [~] In Progress
+**Status:** [x] Completed
 **Reported:** After new user registration, users are trapped in an infinite onboarding redirect loop, repeatedly asked to update their info.
 **Root Cause:** Three bugs in `welcome-setup` onboarding:
 1. **Hash mismatch (primary):** `bcWelcomeComplete()` sends `$wo['user']['hash_id']` (user's DB field) but `Wo_CheckSession()` checks against `$_SESSION['hash_id']` (CSRF session hash) — always mismatches, so the AJAX to set `onboarding_completed=1` silently returns 400 every time
@@ -2101,3 +2101,36 @@ ALTER TABLE Wo_Users
 3. Updated `xhr/onboarding.php` to also set all old startup flags to 1
 4. Fixed all stuck users in database (set onboarding_completed=1, start_up=1, etc.)
 **Files Modified:** `themes/wondertag/layout/welcome_setup/content.phtml`, `xhr/onboarding.php`
+
+---
+
+## Task 11: Nearby Users "See All" — 404 Error
+**Status:** [x] Completed
+**Reported:** Clicking "See All" on the Nearby Users sidebar widget returned a 404 page.
+**Root Cause:** Sidebar link used `friends_nearby` (underscore) but `index.php` route expects `friends-nearby` (hyphen).
+**Fix Applied:** Changed `Wo_SeoLink('index.php?link1=friends_nearby')` to `friends-nearby` in sidebar template.
+**Files Modified:** `themes/wondertag/layout/sidebar/content.phtml`
+
+---
+
+## Task 12: Delete Account — HTTP 500 Error
+**Status:** [x] Completed
+**Reported:** Delete account form at `/setting/delete-account` returns HTTP 500 on submission.
+**Root Cause:** `Wo_DeleteUser()` in `functions_one.php` had a trailing space inside backticks in a column name (`` `from_id ` `` instead of `` `from_id` ``) in the T_AGORA DELETE query. PHP 8.2's strict `mysqli` mode throws `mysqli_sql_exception` on SQL errors, causing an uncaught exception.
+**Fix Applied:**
+1. Fixed the column name typo in `Wo_DeleteUser()`
+2. Added try/catch in `xhr/delete_user_account.php` for graceful error handling
+**Files Modified:** `assets/includes/functions_one.php`, `xhr/delete_user_account.php`
+
+---
+
+## Task 13: Audit Wo_DeleteUser & Sub-Functions — 5 Bugs Fixed
+**Status:** [x] Completed
+**Reported:** Full audit of `Wo_DeleteUser()` and all sub-functions (`Wo_DeletePage`, `Wo_DeleteGroup`, `Wo_DeletePost`, `Wo_DeleteForumThread`, `Wo_DeleteThreadReply`, `Wo_DeleteEvent`, `Wo_DeleteFromToS3`).
+**Bugs Found & Fixed:**
+1. **`Wo_DeleteUser` line 1025** — `foreach ($raise as ...)` without null check — PHP 8.x throws warning on null. Added `if (!empty($raise))` guard.
+2. **`Wo_DeleteUser` line 1028** — `foreach ($posts as ...)` used wrong variable. Should be `$raise_posts` (fundraise posts), was iterating `$posts` (funding posts) — deleted wrong child posts. Fixed variable name.
+3. **`Wo_DeletePage` line 2315** — `$cache->delete(md5($user_id)...)` used undefined `$user_id`. Changed to `$page_id`.
+4. **`Wo_DeletePage` line 2325** — Used `=` instead of `.=`, overwriting the T_PAGES delete result with T_PAGES_INVAITES result. Fixed to `.=`.
+5. **`Wo_DeleteGroup` line 3033** — `$cache->delete(md5($user_id)...)` used undefined `$user_id`. Changed to `$group_id`.
+**Files Modified:** `assets/includes/functions_one.php`, `assets/includes/functions_two.php`
