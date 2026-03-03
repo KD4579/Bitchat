@@ -1,4 +1,5 @@
 <div class="bc-welcome-overlay">
+	<input type="hidden" name="hash_id" value="<?php echo Wo_CreateSession();?>">
 	<div class="bc-welcome-card">
 		<!-- Step indicators -->
 		<div class="bc-welcome-steps">
@@ -94,9 +95,9 @@ document.getElementById('bc-avatar-input').addEventListener('change', function(e
 	// Upload
 	var fd = new FormData();
 	fd.append('avatar', file);
-	fd.append('hash_id', $('input[name=hash_id]').val() || '<?php echo Wo_Secure($wo['user']['hash_id']); ?>');
+	fd.append('user_id', '<?php echo $wo['user']['user_id']; ?>');
 	$.ajax({
-		url: '<?php echo $wo['config']['site_url']; ?>/requests.php?f=update_general_settings',
+		url: '<?php echo $wo['config']['site_url']; ?>/requests.php?f=update_user_avatar_picture',
 		type: 'POST',
 		data: fd,
 		processData: false,
@@ -128,7 +129,7 @@ function bcWelcomeFollowAll() {
 function bcWelcomeComplete() {
 	$.post('<?php echo $wo['config']['site_url']; ?>/requests.php?f=onboarding', {
 		action: 'complete',
-		hash_id: $('input[name=hash_id]').val() || '<?php echo Wo_Secure($wo['user']['hash_id']); ?>'
+		hash_id: $('input[name=hash_id]').val()
 	}, function(data) {
 		window.location.href = '<?php echo $wo['config']['site_url']; ?>';
 	}, 'json').fail(function() {

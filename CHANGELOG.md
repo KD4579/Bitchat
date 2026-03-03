@@ -2,6 +2,17 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-03 — Fix new user registration onboarding loop
+
+### Bug Fix
+- **Root cause**: `bcWelcomeComplete()` sent wrong hash (`$wo['user']['hash_id']` from DB) instead of session CSRF hash — `Wo_CheckSession()` always failed, so `onboarding_completed` was never set, trapping users in an infinite redirect loop
+- Fixed welcome-setup template to include proper `<input name="hash_id">` with `Wo_CreateSession()`
+- Fixed avatar upload to use correct endpoint (`update_user_avatar_picture` instead of `update_general_settings` which requires username/email)
+- Updated `xhr/onboarding.php` to also set old startup flags (`start_up`, `startup_image`, `start_up_info`, `startup_follow`)
+- Fixed 33 stuck users in database
+
+---
+
 ## 2026-03-03 — Full project cleanup: unnecessary files & cache
 
 ### Live Server (~3.8 GB freed)

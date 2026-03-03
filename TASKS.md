@@ -2085,3 +2085,19 @@ ALTER TABLE Wo_Users
 - Added `*.js.map`, `ffmpeg/manpages/`, `ffmpeg/model/`, `admin-panel/videos/test*.mp4`, `composer.phar`
 
 **Files Modified:** `.gitignore`, plus 624 files removed from git tracking
+
+---
+
+## Task 10: New User Registration — Repeatedly Asked to Update Info
+**Status:** [~] In Progress
+**Reported:** After new user registration, users are trapped in an infinite onboarding redirect loop, repeatedly asked to update their info.
+**Root Cause:** Three bugs in `welcome-setup` onboarding:
+1. **Hash mismatch (primary):** `bcWelcomeComplete()` sends `$wo['user']['hash_id']` (user's DB field) but `Wo_CheckSession()` checks against `$_SESSION['hash_id']` (CSRF session hash) — always mismatches, so the AJAX to set `onboarding_completed=1` silently returns 400 every time
+2. **Avatar upload wrong endpoint:** Sends to `update_general_settings` which requires `username`/`email` fields — silently fails, avatar never changes from default
+3. **Old startup flags never cleared:** `start_up`, `startup_image`, `start_up_info`, `startup_follow` all stay at 0 even after onboarding
+**Fix Applied:**
+1. Added proper `<input type="hidden" name="hash_id">` with `Wo_CreateSession()` to welcome-setup template
+2. Changed avatar upload to use correct endpoint `update_user_avatar_picture`
+3. Updated `xhr/onboarding.php` to also set all old startup flags to 1
+4. Fixed all stuck users in database (set onboarding_completed=1, start_up=1, etc.)
+**Files Modified:** `themes/wondertag/layout/welcome_setup/content.phtml`, `xhr/onboarding.php`
