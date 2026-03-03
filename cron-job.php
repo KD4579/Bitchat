@@ -163,6 +163,20 @@ if ($wo["config"]["last_notification_delete_run"] <= time() - 60 * 60 * 24) {
 }
 // ********** Notifications **********
 
+// ********** Nearby User Notifications **********
+if (!empty($wo['config']['find_friends']) && $wo['config']['find_friends'] == 1) {
+    $admin_user = $db->where('admin','1')->ArrayBuilder()->getOne(T_USERS);
+    if (!empty($admin_user)) {
+        $wo['user']     = Wo_UserData($admin_user['user_id']);
+        $wo['loggedin'] = true;
+        $nearby_distance = 10; // km
+        if (function_exists('Wo_CheckNearbyProximityNotifications')) {
+            Wo_CheckNearbyProximityNotifications($nearby_distance);
+        }
+    }
+}
+// ********** Nearby User Notifications **********
+
 // ********** Typing **********
 Wo_GetOfflineTyping();
 // ********** Typing **********

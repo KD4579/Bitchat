@@ -2852,6 +2852,7 @@ function Wo_RegisterNotification($data = array()) {
             'e_commented' => 1, 'e_followed' => 1, 'e_accepted' => 1,
             'e_mentioned' => 1, 'e_joined_group' => 1, 'e_liked_page' => 1,
             'e_visited' => 1, 'e_profile_wall_post' => 1, 'e_memory' => 1,
+            'e_nearby' => 1,
         );
     }
     if (($data['type'] == 'liked_post' || $data['type'] == 'reaction') && $recipient['notification_settings']['e_liked'] != 1) {
@@ -2885,6 +2886,9 @@ function Wo_RegisterNotification($data = array()) {
         $send_notification = false;
     }
     if ($data['type'] == 'profile_wall_post' && $recipient['notification_settings']['e_profile_wall_post'] != 1) {
+        $send_notification = false;
+    }
+    if (($data['type'] == 'nearby_user' || $data['type'] == 'wave') && isset($recipient['notification_settings']['e_nearby']) && $recipient['notification_settings']['e_nearby'] != 1) {
         $send_notification = false;
     }
     if ($send_notification == false) {

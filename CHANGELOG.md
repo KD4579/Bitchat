@@ -2,6 +2,43 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-04 — Enhanced Nearby Users — 4 GPS Improvements
+
+### New Features
+
+- **More Frequent Location Updates**: Location now refreshes every 1 hour (was 7 days) when visiting `/friends-nearby` page. Added "Refresh My Location" button for manual updates.
+- **Push Notifications for Nearby Users**: Cron-based proximity detection notifies users when someone new is within 10km. 24-hour deduplication prevents duplicate alerts. New `e_nearby` notification preference toggle in settings.
+- **"Nearby Now" Quick-Connect (Wave)**: Users within 1km shown prominently at top of nearby page. "Wave" button sends instant greeting notification with 1-hour rate limit per pair.
+- **Live Map with Socket.io**: Real-time user positions on Leaflet.js map via WebSocket. Avatar markers with online/offline indicators. Users appear/disappear as they join/leave the nearby page.
+
+### Database Changes
+
+- New table `Wo_Nearby_Notifications` — tracks proximity notification pairs to prevent duplicates
+- New table `Wo_Waves` — stores wave interactions with rate limiting
+- New column `e_nearby` on `Wo_Users` — notification preference for nearby alerts
+
+### Files Modified
+
+- `assets/includes/tabels.php` — Added T_NEARBY_NOTIFICATIONS, T_WAVES constants
+- `xhr/save_user_location.php` — Context-aware refresh intervals + lat/lng in response
+- `themes/wondertag/javascript/script.js` — Updated Wo_UpdateLocation with context, callback, Socket.io emit
+- `themes/wondertag/layout/friends_nearby/content.phtml` — All 4 features: refresh button, Nearby Now section, live map, auto-update
+- `themes/wondertag/layout/friends_nearby/includes/user-list.phtml` — Added Wave button
+- `assets/includes/functions_three.php` — Added Wo_CheckNearbyProximityNotifications()
+- `assets/includes/functions_one.php` — Added nearby_user + wave notification type checks
+- `cron-job.php` — Added nearby proximity cron section
+- `themes/wondertag/layout/header/notifecation.phtml` — Render nearby_user + wave notifications
+- `themes/wondertag/layout/setting/notifications-settings.phtml` — Added e_nearby checkbox
+- `xhr/update_notifications_settings.php` — Handle e_nearby preference
+- `nodejs/listeners/listeners.js` — Added 3 nearby map Socket.io events + disconnect handler
+- `nodejs/models/wo_users.js` — Added e_nearby field
+
+### Files Created
+
+- `xhr/wave.php` — Wave AJAX handler with rate limiting, block checks, CSRF validation
+
+---
+
 ## 2026-03-03 — Audit & fix 5 bugs in Wo_DeleteUser, Wo_DeletePage, Wo_DeleteGroup
 
 ### Bug Fixes

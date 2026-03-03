@@ -13,6 +13,7 @@ if ($f == "update_notifications_settings") {
         $e_accepted          = 0;
         $e_profile_wall_post = 0;
         $e_memory = 0;
+        $e_nearby = 0;
         $array               = array(
             '0',
             '1'
@@ -77,6 +78,11 @@ if ($f == "update_notifications_settings") {
                 $e_memory = 1;
             }
         }
+        if (!empty($_POST['e_nearby'])) {
+            if (in_array($_POST['e_nearby'], $array)) {
+                $e_nearby = 1;
+            }
+        }
         $Update_data = array(
             'e_liked' => $e_liked,
             'e_shared' => $e_shared,
@@ -89,7 +95,8 @@ if ($f == "update_notifications_settings") {
             'e_liked_page' => $e_liked_page,
             'e_visited' => $e_visited,
             'e_profile_wall_post' => $e_profile_wall_post,
-            'e_memory' => $e_memory
+            'e_memory' => $e_memory,
+            'e_nearby' => $e_nearby
         );
         $Update_data = json_encode($Update_data);
         if (Wo_UpdateUserData($_POST['user_id'], array(

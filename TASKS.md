@@ -2134,3 +2134,17 @@ ALTER TABLE Wo_Users
 4. **`Wo_DeletePage` line 2325** — Used `=` instead of `.=`, overwriting the T_PAGES delete result with T_PAGES_INVAITES result. Fixed to `.=`.
 5. **`Wo_DeleteGroup` line 3033** — `$cache->delete(md5($user_id)...)` used undefined `$user_id`. Changed to `$group_id`.
 **Files Modified:** `assets/includes/functions_one.php`, `assets/includes/functions_two.php`
+
+---
+
+## Task 14: Enhanced Nearby Users — 4 GPS Improvements
+**Status:** [~] In Progress
+**Reported:** User requested Bluetooth for nearby users; Bluetooth not viable for web apps (Web Bluetooth API lacks Peripheral/advertising role). Enhancing existing GPS-based system instead with 4 features.
+**Features:**
+1. **More Frequent Location Updates** — 1-hour refresh on nearby page (was 7 days) + "Refresh My Location" button
+2. **Push Notifications for Nearby Users** — Cron-based proximity detection, notifies when someone new within 10km
+3. **Live Map with Socket.io** — Real-time user positions on Leaflet.js map via WebSocket
+4. **"Nearby Now" Quick-Connect (Wave)** — Users within 1km shown prominently + Wave greeting button
+**Database Changes:** New `Wo_Nearby_Notifications` and `Wo_Waves` tables, new `e_nearby` column on `Wo_Users`
+**Files to Modify:** `tabels.php`, `save_user_location.php`, `script.js`, `friends_nearby/content.phtml`, `friends_nearby/includes/user-list.phtml`, `functions_three.php`, `functions_one.php`, `cron-job.php`, `notifecation.phtml`, `notifications-settings.phtml`, `update_notifications_settings.php`, `listeners.js`, `wo_users.js`
+**Files to Create:** `xhr/wave.php`

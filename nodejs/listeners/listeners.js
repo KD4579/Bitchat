@@ -2746,10 +2746,70 @@ module.exports.registerListeners = async (socket, io, ctx) => {
 
     
 
+    // ========== Nearby Users Live Map ==========
+    socket.on("join_nearby_page", async (data) => {
+        let user_id = ctx.userHashUserId[data.user_id];
+        if (!user_id) return;
+        socket.join("nearby_page");
+        try {
+            let userData = await ctx.wo_users.findOne({
+                attributes: ["user_id", "lat", "lng", "first_name", "last_name", "avatar", "lastseen"],
+                where: { user_id: user_id, share_my_location: 1 },
+                raw: true
+            });
+            if (userData && userData.lat !== "0" && userData.lng !== "0") {
+                socket.to("nearby_page").emit("nearby_user_online", {
+                    user_id: userData.user_id,
+                    lat: userData.lat,
+                    lng: userData.lng,
+                    name: (userData.first_name || '') + " " + (userData.last_name || ''),
+                    avatar: userData.avatar,
+                    online: true
+                });
+            }
+        } catch (e) { console.log("join_nearby_page error:", e.message); }
+    });
+
+    socket.on("leave_nearby_page", async (data) => {
+        let user_id = ctx.userHashUserId[data.user_id];
+        if (!user_id) return;
+        socket.leave("nearby_page");
+        socket.to("nearby_page").emit("nearby_user_offline", { user_id: user_id });
+    });
+
+    socket.on("update_nearby_location", async (data) => {
+        let user_id = ctx.userHashUserId[data.user_id];
+        if (!user_id) return;
+        if (!data.lat || !data.lng) return;
+        let lat = parseFloat(data.lat);
+        let lng = parseFloat(data.lng);
+        if (isNaN(lat) || isNaN(lng)) return;
+        try {
+            let userData = await ctx.wo_users.findOne({
+                attributes: ["user_id", "first_name", "last_name", "avatar", "share_my_location"],
+                where: { user_id: user_id },
+                raw: true
+            });
+            if (!userData || userData.share_my_location != 1) return;
+            socket.to("nearby_page").emit("nearby_user_moved", {
+                user_id: userData.user_id,
+                lat: lat,
+                lng: lng,
+                name: (userData.first_name || '') + " " + (userData.last_name || ''),
+                avatar: userData.avatar,
+                online: true
+            });
+        } catch (e) { console.log("update_nearby_location error:", e.message); }
+    });
+    // ========== End Nearby Users Live Map ==========
+
     socket.on('disconnect', async (reason) => {
         console.log('a user disconnected ' + socket.id + " " + reason);
         let hash = ctx.socketIdUserHash[socket.id]
         let user_id = ctx.userHashUserId[hash]
+
+        // Notify nearby_page room that user went offline
+        socket.to("nearby_page").emit("nearby_user_offline", { user_id: user_id });
         ctx.userIdCount[user_id] > 0 ? ctx.userIdCount[user_id] = ctx.userIdCount[user_id] - 1 : delete ctx.userIdCount[user_id]
         if (ctx.userIdCount[user_id] === 0) {
             delete ctx.userIdCount[user_id]

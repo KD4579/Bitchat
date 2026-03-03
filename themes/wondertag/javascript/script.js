@@ -3004,12 +3004,30 @@ function Wo_OpenLighteBox(self ,event){
   $('#modal_light_box').modal('show').find('.image').attr('src', url);
 }
 
-function Wo_UpdateLocation(position) {
+function Wo_UpdateLocation(position, context, callback) {
   if (!position) {
-    return false; 
+    return false;
   }
-  $.post(Wo_Ajax_Requests_File() + '?f=save_user_location', {lat: position.coords.latitude, lng:position.coords.longitude}, function(data, textStatus, xhr) {
+  var postData = {
+    lat: position.coords.latitude,
+    lng: position.coords.longitude
+  };
+  if (context) {
+    postData.context = context;
+  }
+  $.post(Wo_Ajax_Requests_File() + '?f=save_user_location', postData, function(data, textStatus, xhr) {
     if (data.status == 200) {
+      // Broadcast location update via Socket.io if on nearby page
+      if (typeof socket !== 'undefined' && socket !== null && context === 'nearby_page') {
+        socket.emit('update_nearby_location', {
+          user_id: _getCookie('user_id'),
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      }
+      if (typeof callback === 'function') {
+        callback(data);
+      }
       return true;
     }
   });

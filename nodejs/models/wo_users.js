@@ -274,6 +274,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: "1"
     },
+    e_nearby: {
+      type: DataTypes.ENUM('0','1'),
+      allowNull: false,
+      defaultValue: "1"
+    },
     e_sentme_msg: {
       type: DataTypes.ENUM('0','1'),
       allowNull: false,

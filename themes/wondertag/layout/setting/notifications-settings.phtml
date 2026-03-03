@@ -101,9 +101,17 @@
 						<label for="e_memory"><?php echo $wo['lang']['memory_this_day']; ?></label>
 					</div>
 			    <?php } ?>
+
+				<?php if (!empty($wo['config']['find_friends']) && $wo['config']['find_friends'] == 1) { ?>
+					<?php $selected_e_nearby = (!empty($wo['setting']['notification_settings']['e_nearby']) && $wo['setting']['notification_settings']['e_nearby'] == 1) ? ' checked' : ''; ?>
+					<div class="col-12 round-check">
+						<input type="checkbox" name="e_nearby" id="e_nearby" value="1" <?php echo $selected_e_nearby; ?>>
+						<label for="e_nearby"><?php echo $wo['lang']['e_nearby_users'] ?? 'Someone new is nearby'; ?></label>
+					</div>
+				<?php } ?>
 			</div>
 		</div>
-		
+
 		<div class="text-center">
 			<button type="submit" class="btn btn-main btn-mat btn-mat-raised disable_btn"><?php echo $wo['lang']['save']; ?></button>
 		</div>

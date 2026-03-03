@@ -13,6 +13,11 @@ navigator.permissions && navigator.permissions.query({name: 'geolocation'}).then
 </script>
 <link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/leaflet.css?version=<?php echo $wo['config']['version']; ?>">
 <script src="<?php echo $wo['config']['theme_url'];?>/javascript/leaflet.js?version=<?php echo $wo['config']['version']; ?>"></script>
+<style>
+.nearby-map-marker { background: transparent !important; border: none !important; }
+.nearby-map-marker img { transition: all 0.3s ease; }
+.wave-btn.waved { pointer-events: none; opacity: 0.7; }
+</style>
 
 <div class="page-margin">
 	<div class="container-fluid tag_cont_fluid">
@@ -102,7 +107,42 @@ navigator.permissions && navigator.permissions.query({name: 'geolocation'}).then
 										</div>
 									</ul>
 								</div>
+								<button class="btn btn-mat btn-main-rev" id="refresh_location_btn" onclick="Wo_RefreshMyLocation(this);" style="margin-left:8px;" title="Refresh My Location">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M3.05,13H1V11H3.05C3.5,6.83 6.83,3.5 11,3.05V1H13V3.05C17.17,3.5 20.5,6.83 20.95,11H23V13H20.95C20.5,17.17 17.17,20.5 13,20.95V23H11V20.95C6.83,20.5 3.5,17.17 3.05,13M12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5Z"/></svg>
+									<span>Refresh</span>
+								</button>
 							</div>
+							<?php
+								// Nearby Now: users within 1km
+								$nearby_now_users = Wo_GetNearbyUsers(array('distance' => 1, 'limit' => 10));
+								if (!empty($nearby_now_users) && count($nearby_now_users) > 0) { ?>
+								<div class="wow_content mb-15 bc-nearby-now-section" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+									<h4 style="margin: 0 0 12px 0; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#0ea5e9"><path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z"/></svg>
+										Nearby Now
+										<span style="font-size: 12px; color: #64748b; font-weight: 400;">within 1km</span>
+									</h4>
+									<div class="nearby-now-users" style="display: flex; flex-wrap: wrap; gap: 12px;">
+										<?php foreach ($nearby_now_users as $nn_user) { ?>
+										<div class="nearby-now-card" style="display: flex; align-items: center; gap: 10px; background: white; border-radius: 10px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); min-width: 200px; flex: 1;">
+											<a href="<?php echo $nn_user['user_data']['url'];?>" data-ajax="?link1=timeline&u=<?php echo $nn_user['user_data']['username'];?>">
+												<img src="<?php echo $nn_user['user_data']['avatar'];?>" alt="<?php echo $nn_user['user_data']['name']; ?>" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
+											</a>
+											<div style="flex: 1; min-width: 0;">
+												<a href="<?php echo $nn_user['user_data']['url'];?>" data-ajax="?link1=timeline&u=<?php echo $nn_user['user_data']['username'];?>" style="font-weight: 600; font-size: 14px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+													<?php echo $nn_user['user_data']['name']; ?>
+												</a>
+												<span style="font-size: 12px; color: #64748b;"><?php echo number_format($nn_user['distance'], 2); ?> km</span>
+											</div>
+											<button class="btn btn-sm btn-main wave-btn" onclick="Wo_SendWave(<?php echo $nn_user['user_data']['id'];?>, this);">
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7.03 4.95L3.49 8.49c-3.32 3.32-3.32 8.7 0 12.02s8.7 3.32 12.02 0l6.01-6.01a2.517 2.517 0 00-.39-3.86l.39-.39c.97-.97.97-2.56 0-3.54-.16-.16-.35-.3-.54-.41a2.497 2.497 0 00-3.54-3.54l-.41-.41a2.514 2.514 0 00-3.54 0l-.95.95c-.29-.1-.59-.16-.91-.16-.68 0-1.3.28-1.75.72L7.03 4.95z"/></svg>
+												Wave
+											</button>
+										</div>
+										<?php } ?>
+									</div>
+								</div>
+							<?php } ?>
 							<div class="wow_frnd_usr" id="nearby_users_list">
 								<?php
 									$nearby_users = Wo_GetNearbyUsers(array('country' => $wo['user']['country_id']));
@@ -151,6 +191,39 @@ navigator.permissions && navigator.permissions.query({name: 'geolocation'}).then
 </div>
 
 <script>
+// Auto-update location when visiting nearby page (1-hour refresh)
+if (navigator.geolocation) {
+	navigator.geolocation.getCurrentPosition(function(position) {
+		Wo_UpdateLocation(position, 'nearby_page', function(data) {
+			Wo_LoadNearByUsers();
+			if (typeof map !== 'undefined' && data.lat && data.lng) {
+				map.setView([data.lat, data.lng], 7);
+			}
+		});
+	});
+}
+
+function Wo_RefreshMyLocation(btn) {
+	if (!navigator.geolocation) {
+		alert('Geolocation is not supported by your browser');
+		return;
+	}
+	var $btn = $(btn);
+	$btn.prop('disabled', true).find('span').text('Updating...');
+	navigator.geolocation.getCurrentPosition(function(position) {
+		Wo_UpdateLocation(position, 'nearby_page', function(data) {
+			Wo_LoadNearByUsers();
+			if (typeof map !== 'undefined' && data.lat && data.lng) {
+				map.setView([data.lat, data.lng], 7);
+			}
+			$btn.prop('disabled', false).find('span').text('Refresh');
+		});
+	}, function(error) {
+		$btn.prop('disabled', false).find('span').text('Refresh');
+		alert('Unable to retrieve your location');
+	});
+}
+
 $('.tag_onboard_btn').click(function() {
 	if ($("body").hasClass("onboard_done")) {
 		$('body').toggleClass('onboard_done');
@@ -166,9 +239,16 @@ $('.tag_onboard_btn').click(function() {
 jQuery(document).ready(function($) {
 /*Map*/
 var planes = [];
-var markersArray = [];
+var markersMap = {};
 <?php foreach ($nearby_users as $user) : ?>
-planes.push(['<?php echo $user['user_data']['name']?>',<?php echo $user['user_data']['lat']?>, <?php echo $user['user_data']['lng']?>]);
+planes.push({
+	name: '<?php echo addslashes($user['user_data']['name'])?>',
+	lat: <?php echo $user['user_data']['lat']?>,
+	lng: <?php echo $user['user_data']['lng']?>,
+	user_id: <?php echo $user['user_data']['id']?>,
+	avatar: '<?php echo addslashes($user['user_data']['avatar'])?>',
+	online: <?php echo ($user['user_data']['lastseen'] > (time() - 60)) ? 'true' : 'false'; ?>
+});
 <?php endforeach; ?>
 var map = L.map('map').setView([<?php echo $wo['user']['lat']?>, <?php echo $wo['user']['lng']?>], 7);
 
@@ -178,12 +258,74 @@ L.tileLayer(
 		maxZoom: 18,
 	}).addTo(map);
 
+function createMarkerIcon(avatarUrl, isOnline) {
+	var borderColor = isOnline ? '#22c55e' : '#e2e8f0';
+	var dotColor = isOnline ? '#22c55e' : '#94a3b8';
+	return L.divIcon({
+		className: 'nearby-map-marker',
+		html: '<div style="position:relative;width:36px;height:36px;">' +
+			'<img src="' + avatarUrl + '" style="width:36px;height:36px;border-radius:50%;border:2px solid ' + borderColor + ';object-fit:cover;" onerror="this.src=\'<?php echo $wo['config']['theme_url'];?>/img/d-avatar.jpg\'">' +
+			'<div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:' + dotColor + ';border:2px solid white;border-radius:50%;"></div></div>',
+		iconSize: [36, 36],
+		iconAnchor: [18, 18],
+		popupAnchor: [0, -20]
+	});
+}
+
 for (var i = 0; i < planes.length; i++) {
-	marker = new L.marker([planes[i][1],planes[i][2]])
-	.bindPopup(planes[i][0])
-	.addTo(map);
-	markersArray.push(marker);
-};
+	var icon = createMarkerIcon(planes[i].avatar, planes[i].online);
+	var marker = L.marker([planes[i].lat, planes[i].lng], {icon: icon})
+		.bindPopup(planes[i].name)
+		.addTo(map);
+	markersMap[planes[i].user_id] = marker;
+}
+
+// Socket.io live map integration
+if (typeof socket !== 'undefined' && socket !== null) {
+	socket.emit('join_nearby_page', { user_id: _getCookie('user_id') });
+
+	socket.on('nearby_user_online', function(data) {
+		if (!data.user_id || !data.lat || !data.lng) return;
+		if (markersMap[data.user_id]) {
+			markersMap[data.user_id].setLatLng([data.lat, data.lng]);
+			markersMap[data.user_id].setIcon(createMarkerIcon(data.avatar || '', true));
+		} else {
+			var icon = createMarkerIcon(data.avatar || '', true);
+			var m = L.marker([data.lat, data.lng], {icon: icon})
+				.bindPopup(data.name || 'User')
+				.addTo(map);
+			markersMap[data.user_id] = m;
+		}
+	});
+
+	socket.on('nearby_user_moved', function(data) {
+		if (!data.user_id || !data.lat || !data.lng) return;
+		if (markersMap[data.user_id]) {
+			markersMap[data.user_id].setLatLng([data.lat, data.lng]);
+			markersMap[data.user_id].setIcon(createMarkerIcon(data.avatar || '', true));
+		} else {
+			var icon = createMarkerIcon(data.avatar || '', true);
+			var m = L.marker([data.lat, data.lng], {icon: icon})
+				.bindPopup(data.name || 'User')
+				.addTo(map);
+			markersMap[data.user_id] = m;
+		}
+	});
+
+	socket.on('nearby_user_offline', function(data) {
+		if (!data.user_id) return;
+		if (markersMap[data.user_id]) {
+			markersMap[data.user_id].setIcon(createMarkerIcon('', false));
+		}
+	});
+
+	$(window).on('beforeunload', function() {
+		socket.emit('leave_nearby_page', { user_id: _getCookie('user_id') });
+	});
+	$(document).on('click', 'a[data-ajax]', function() {
+		socket.emit('leave_nearby_page', { user_id: _getCookie('user_id') });
+	});
+}
 });
 
 	function Wo_ShowUserLocationMap(user_geoData = false) {
@@ -291,6 +433,32 @@ for (var i = 0; i < planes.length; i++) {
 		.fail(function() {
 			console.log("error");
 		})
+	}
+
+	function Wo_SendWave(userId, btn) {
+		var $btn = $(btn);
+		if ($btn.hasClass('waved')) return;
+		$btn.prop('disabled', true);
+		$.ajax({
+			url: Wo_Ajax_Requests_File() + '?f=wave',
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				receiver_id: userId,
+				hash_id: $('input[name=hash_id]').val() || $('.main_session').val()
+			},
+			success: function(data) {
+				if (data.status == 200) {
+					$btn.addClass('waved').html('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/></svg> Waved!');
+				} else if (data.status == 429) {
+					$btn.html('Already waved');
+				}
+				setTimeout(function() { $btn.prop('disabled', false); }, 3000);
+			},
+			error: function() {
+				$btn.prop('disabled', false);
+			}
+		});
 	}
 
 	jQuery(document).ready(function($) {

@@ -6402,6 +6402,117 @@ function Wo_GetNearbyUsersCount($args = array()) {
     $query = mysqli_query($sqlConnect, $sql);
     return $query ? mysqli_num_rows($query) : 0;
 }
+function Wo_CheckNearbyProximityNotifications($notification_distance = 10) {
+    global $wo, $sqlConnect;
+    $t_users   = T_USERS;
+    $t_nearby  = T_NEARBY_NOTIFICATIONS;
+    $unit      = 6371; // Earth radius in km
+    $cutoff    = time() - 7200; // 2 hours
+
+    // Get users with recent location updates who share location
+    $sql = "SELECT user_id, lat, lng FROM {$t_users}
+            WHERE lat <> '0' AND lng <> '0'
+            AND share_my_location = 1
+            AND last_location_update > {$cutoff}
+            AND active = '1'
+            LIMIT 500";
+    $query = mysqli_query($sqlConnect, $sql);
+    if (!$query || mysqli_num_rows($query) == 0) {
+        return 0;
+    }
+    $active_users = array();
+    while ($row = mysqli_fetch_assoc($query)) {
+        $active_users[] = $row;
+    }
+
+    $notifications_sent = 0;
+    $original_user = isset($wo['user']) ? $wo['user'] : null;
+    $original_loggedin = isset($wo['loggedin']) ? $wo['loggedin'] : false;
+
+    foreach ($active_users as $user) {
+        $user_id  = Wo_Secure($user['user_id']);
+        $user_lat = Wo_Secure($user['lat']);
+        $user_lng = Wo_Secure($user['lng']);
+
+        // Find nearby users within $notification_distance km
+        $nearby_sql = "SELECT u.user_id, u.lat, u.lng,
+            ({$unit} * acos(cos(radians('{$user_lat}')) *
+            cos(radians(u.lat)) * cos(radians(u.lng) - radians('{$user_lng}')) +
+            sin(radians('{$user_lat}')) * sin(radians(u.lat)))) AS distance
+            FROM {$t_users} u
+            WHERE u.user_id <> '{$user_id}'
+            AND u.lat <> '0' AND u.lng <> '0'
+            AND u.share_my_location = 1
+            AND u.active = '1'
+            HAVING distance < {$notification_distance}
+            ORDER BY distance ASC
+            LIMIT 20";
+        $nearby_query = mysqli_query($sqlConnect, $nearby_sql);
+        if (!$nearby_query || mysqli_num_rows($nearby_query) == 0) {
+            continue;
+        }
+
+        while ($nearby = mysqli_fetch_assoc($nearby_query)) {
+            $nearby_id = Wo_Secure($nearby['user_id']);
+
+            // Check if already notified this pair within 24 hours
+            $check_sql = "SELECT id, notified_at FROM {$t_nearby}
+                          WHERE user_id = '{$user_id}' AND nearby_user_id = '{$nearby_id}'
+                          AND expired = 0";
+            $check = mysqli_query($sqlConnect, $check_sql);
+            if ($check && mysqli_num_rows($check) > 0) {
+                $existing = mysqli_fetch_assoc($check);
+                if ($existing['notified_at'] > (time() - 86400)) {
+                    continue; // Already notified within 24h
+                }
+            }
+
+            // Check recipient notification preference
+            $recipient_data = Wo_UserData($nearby_id);
+            if (!empty($recipient_data['notification_settings'])) {
+                $notif_settings = (array) json_decode(html_entity_decode($recipient_data['notification_settings']));
+                if (isset($notif_settings['e_nearby']) && $notif_settings['e_nearby'] != 1) {
+                    continue;
+                }
+            }
+
+            // Insert/update tracking record
+            $now = time();
+            $dist_rounded = round($nearby['distance'], 2);
+            $upsert_sql = "INSERT INTO {$t_nearby} (user_id, nearby_user_id, distance, notified_at, expired)
+                           VALUES ('{$user_id}', '{$nearby_id}', '{$dist_rounded}', '{$now}', 0)
+                           ON DUPLICATE KEY UPDATE distance = '{$dist_rounded}', notified_at = '{$now}', expired = 0";
+            mysqli_query($sqlConnect, $upsert_sql);
+
+            // Set user context for notification
+            $wo['user']     = Wo_UserData($user_id);
+            $wo['loggedin'] = true;
+
+            Wo_RegisterNotification(array(
+                'recipient_id' => $nearby_id,
+                'notifier_id'  => $user_id,
+                'type'         => 'nearby_user',
+                'text'         => '',
+                'type2'        => 'nearby',
+                'url'          => 'index.php?link1=friends-nearby',
+                'post_id'      => 0
+            ));
+            $notifications_sent++;
+        }
+    }
+
+    // Restore original user context
+    if ($original_user !== null) {
+        $wo['user']     = $original_user;
+        $wo['loggedin'] = $original_loggedin;
+    }
+
+    // Expire old proximity records (48 hours)
+    $expire_cutoff = time() - 172800;
+    mysqli_query($sqlConnect, "UPDATE {$t_nearby} SET expired = 1 WHERE notified_at < {$expire_cutoff}");
+
+    return $notifications_sent;
+}
 function Wo_CountStories($user_id = 0) {
     global $wo, $sqlConnect;
     if ($wo['loggedin'] == false) {
