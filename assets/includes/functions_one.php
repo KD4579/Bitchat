@@ -1276,7 +1276,7 @@ function Wo_DeleteUser($user_id) {
     $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_STORY_SEEN . " WHERE `user_id` = '{$user_id}'");
     $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_REFUND . " WHERE `user_id` = '{$user_id}'");
     $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_INVITAION_LINKS . " WHERE `user_id` = '{$user_id}' OR `invited_id` = '{$user_id}'");
-    $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_AGORA . " WHERE `from_id ` = '{$user_id}' OR `to_id` = '{$user_id}'");
+    $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_AGORA . " WHERE `from_id` = '{$user_id}' OR `to_id` = '{$user_id}'");
     $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_MUTE . " WHERE `user_id` = '{$user_id}'");
     $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_MUTE_STORY . " WHERE `user_id` = '{$user_id}' OR `story_user_id` = '{$user_id}'");
     $query_ones = mysqli_query($sqlConnect, "DELETE FROM " . T_CAST . " WHERE `user_id` = '{$user_id}'");

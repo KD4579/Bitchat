@@ -1,16 +1,22 @@
-<?php 
+<?php
 if ($f == 'delete_user_account' && $wo['config']['deleteAccount'] == 1) {
     if (isset($_POST['password'])) {
         if (Wo_HashPassword($_POST['password'], $wo['user']['password']) == false) {
             $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
         }
         if (empty($errors)) {
-            if (Wo_DeleteUser($wo['user']['user_id']) === true) {
-                $data = array(
-                    'status' => 200,
-                    'message' => $success_icon . $wo['lang']['account_deleted'],
-                    'location' => Wo_SeoLink('index.php?link1=logout')
-                );
+            try {
+                if (Wo_DeleteUser($wo['user']['user_id']) === true) {
+                    $data = array(
+                        'status' => 200,
+                        'message' => $success_icon . $wo['lang']['account_deleted'],
+                        'location' => Wo_SeoLink('index.php?link1=logout')
+                    );
+                } else {
+                    $errors[] = $error_icon . 'Could not delete account. Please try again.';
+                }
+            } catch (Throwable $e) {
+                $errors[] = $error_icon . 'An error occurred while deleting account. Please try again.';
             }
         }
     }
