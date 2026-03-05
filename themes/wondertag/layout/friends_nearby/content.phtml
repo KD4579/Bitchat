@@ -191,17 +191,36 @@ navigator.permissions && navigator.permissions.query({name: 'geolocation'}).then
 </div>
 
 <script>
-// Auto-update location when visiting nearby page (1-hour refresh)
-if (navigator.geolocation) {
+// Auto-update location on page load + auto-refresh every 30 seconds
+var _nearbyAutoRefresh = null;
+
+function _nearbyDoRefresh(centerMap) {
+	if (!navigator.geolocation) return;
 	navigator.geolocation.getCurrentPosition(function(position) {
 		Wo_UpdateLocation(position, 'nearby_page', function(data) {
 			Wo_LoadNearByUsers();
-			if (typeof map !== 'undefined' && data.lat && data.lng) {
+			if (centerMap && typeof map !== 'undefined' && data.lat && data.lng) {
 				map.setView([data.lat, data.lng], 7);
 			}
 		});
 	});
 }
+
+// Initial update (center map)
+_nearbyDoRefresh(true);
+
+// Auto-refresh every 30 seconds (don't re-center map)
+_nearbyAutoRefresh = setInterval(function() {
+	_nearbyDoRefresh(false);
+}, 30000);
+
+// Clear interval when leaving the page
+$(window).on('beforeunload.nearby', function() {
+	if (_nearbyAutoRefresh) clearInterval(_nearbyAutoRefresh);
+});
+$(document).on('click.nearby', 'a[data-ajax]', function() {
+	if (_nearbyAutoRefresh) clearInterval(_nearbyAutoRefresh);
+});
 
 function Wo_RefreshMyLocation(btn) {
 	if (!navigator.geolocation) {
