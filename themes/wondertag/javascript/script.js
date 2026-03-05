@@ -375,7 +375,7 @@ function Wo_CheckForAudioCallAnswerTabs(id) {
 
 // Notifications & follow requests updates
 function Wo_intervalUpdates(force_update = 0, loop = 0) {
-	if (node_socket_flow == "0" || force_update == 1) {
+	{  // Always poll for notifications, messages, and follow requests
 	var check_posts = true;
 	var hash_posts = true;
 	if ($('.posts-hashtag-count').length == 0) {
@@ -411,11 +411,12 @@ function Wo_intervalUpdates(force_update = 0, loop = 0) {
       ajax_request['hashtagName'] = $('#hashtagName').val();
 	}
 	$.get(Wo_Ajax_Requests_File(), ajax_request, function (data) {
-	  if (node_socket_flow == "0" || force_update == 0 || loop == 1) {
+	  {
           clearTimeout(intervalUpdates);
+          var _pollInterval = (node_socket_flow == "1") ? 15000 : 5000;
           intervalUpdates = setTimeout(function () {
             Wo_intervalUpdates(force_update);
-          } , 5000);
+          } , _pollInterval);
       }
     if (hash_posts == true) {
         if (data.count_num > 0) {
@@ -546,11 +547,10 @@ function Wo_intervalUpdates(force_update = 0, loop = 0) {
     }
   }).fail(function() {
       clearTimeout(intervalUpdates);
-		  if (force_update == 0) {
-            intervalUpdates = setTimeout(function () {
-              Wo_intervalUpdates(force_update);
-            } , 5000);
-          }
+      var _pollInterval = (node_socket_flow == "1") ? 15000 : 5000;
+      intervalUpdates = setTimeout(function () {
+        Wo_intervalUpdates(force_update);
+      } , _pollInterval);
     });
 	}
 }

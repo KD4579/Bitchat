@@ -1733,6 +1733,42 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
             }
         },500);
 
+        // Admin panel auto-refresh: poll for new activity every 30 seconds
+        var _adminAutoRefresh = null;
+        var _adminLastCounts = { users: 0, posts: 0, reports: 0 };
+
+        function Wo_AdminAutoRefresh() {
+            $.ajax({
+                url: '<?php echo $wo['config']['site_url']; ?>/requests.php?f=update_data',
+                type: 'GET',
+                dataType: 'json',
+                timeout: 10000,
+                success: function(data) {
+                    // Update notification badge in admin header if available
+                    if (data && typeof data.notifications !== 'undefined' && data.notifications > 0) {
+                        if ($('.admin-notif-badge').length) {
+                            $('.admin-notif-badge').text(data.notifications).show();
+                        }
+                    }
+                    // Update page title with pending count
+                    var pending = 0;
+                    if (data && data.notifications) pending += Number(data.notifications);
+                    if (data && data.messages) pending += Number(data.messages);
+                    if (pending > 0) {
+                        document.title = '(' + pending + ') Admin Panel';
+                    } else {
+                        document.title = 'Admin Panel';
+                    }
+                },
+                complete: function() {
+                    _adminAutoRefresh = setTimeout(Wo_AdminAutoRefresh, 30000);
+                }
+            });
+        }
+
+        // Start admin auto-refresh after 5 seconds
+        _adminAutoRefresh = setTimeout(Wo_AdminAutoRefresh, 5000);
+
         // Global admin notification helper (used by all custom admin pages)
         function Wo_ShowNotifications(type, message) {
             if (typeof toastr !== 'undefined') {
