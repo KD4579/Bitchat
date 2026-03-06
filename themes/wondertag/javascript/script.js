@@ -395,7 +395,11 @@ function Wo_intervalUpdates(force_update = 0, loop = 0) {
 	}
 	before_post_id = 0;
 	if($('.post-container').length > 0) {
-      var before_post_id = $('.post-container  > .post:not(.boosted)').attr('data-post-id');
+      var before_post_id = 0;
+      $('.post-container > .post:not(.boosted)').each(function() {
+        var pid = parseInt($(this).attr('data-post-id')) || 0;
+        if (pid > before_post_id) before_post_id = pid;
+      });
 	}
 	var notification_container = $('.notification-container');
 	var messages_notification_container = $('.messages-notification-container');
