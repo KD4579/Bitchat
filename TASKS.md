@@ -2137,8 +2137,19 @@ ALTER TABLE Wo_Users
 
 ---
 
+## Task 15: Fix "View New Posts" Button Not Working
+**Status:** [x] Completed
+**Reported:** Clicking "View 20 new posts" red button on home feed does nothing visible.
+**Root Cause:** `Wo_GetNewPosts()` used chronological `Wo_GetPosts()` with `before_post_id` from the first visible post to fetch and prepend new posts. But with the ranked feed algorithm enabled (`feed_algorithm_enabled=1`), the first visible post's ID isn't the newest — it's the highest-engagement post. This caused: (1) `Wo_GetPosts()` to return 0 posts (because its `before_post_id` logic expects chronological ordering), (2) duplicate posts when it did return results, (3) confusing mix of chronological prepended posts on top of a ranked feed.
+**Fix Applied:**
+- Replaced `Wo_GetNewPosts()` to reload the entire feed via `$("#posts-laoded").load()` instead of trying to prepend. Works correctly with both ranked and chronological feeds.
+- Fixed `force_update` cascading bug in `Wo_intervalUpdates()` — Socket.io `update_new_posts` event was passing `force_update=1` to every subsequent poll indefinitely. Now resets to 0 after the initial forced poll.
+**Files Modified:** `themes/wondertag/javascript/script.js`
+
+---
+
 ## Task 14: Enhanced Nearby Users — 4 GPS Improvements
-**Status:** [~] In Progress
+**Status:** [x] Completed
 **Reported:** User requested Bluetooth for nearby users; Bluetooth not viable for web apps (Web Bluetooth API lacks Peripheral/advertising role). Enhancing existing GPS-based system instead with 4 features.
 **Features:**
 1. **More Frequent Location Updates** — 1-hour refresh on nearby page (was 7 days) + "Refresh My Location" button

@@ -415,7 +415,7 @@ function Wo_intervalUpdates(force_update = 0, loop = 0) {
           clearTimeout(intervalUpdates);
           var _pollInterval = (node_socket_flow == "1") ? 15000 : 5000;
           intervalUpdates = setTimeout(function () {
-            Wo_intervalUpdates(force_update);
+            Wo_intervalUpdates(0);
           } , _pollInterval);
       }
     if (hash_posts == true) {
@@ -623,35 +623,15 @@ function Wo_GetNewPosts() {
   if(filter_by_more != 'all') {
     return false;
   }
-  if(typeof ($('#posts').attr('data-story-user')) == "string") {
-    user_id = $('#posts').attr('data-story-user');
-  } else {
-    user_id = 0;
-  }
-  var api = $('#api').val();
-  var api_ = 0;
-  if (api) {
-    api_ = 1;
-  }
-  before_post_id = 0;
-  if($('.post-container').length > 0) {
-    var before_post_id = $('.post-container  > .post:not(.boosted)').attr('data-post-id');
-  }
-  $('body,html').animate({
-        scrollTop : 0                       // Scroll to top of body
-    }, 500);
-  $.get(Wo_Ajax_Requests_File(), {
-    f: 'posts',
-    s: 'get_new_posts',
-    before_post_id: before_post_id,
-    user_id: user_id,
-    api: api_
-  }, function (data) {
-    if(data.length > 0) {
-      $('#posts').find('.posts-container').remove();
-      $('#posts').prepend(data);
+  $('.posts-count').empty();
+  $('body,html').animate({ scrollTop : 0 }, 500);
+  $("#posts-laoded").load(Wo_Ajax_Requests_File() + '?f=load_posts', function(response, status, xhr) {
+    if (status == "error") {
+      $("#posts-laoded").html('<div class="text-center p-3"><p>Could not load feed.</p><button class="btn btn-sm btn-primary" onclick="Wo_GetNewPosts()">Try Again</button></div>');
     }
-     $('.posts-count').empty();
+    $(".post-description p, .product-description").each(function(index, el) {
+      ReadMoreText(this);
+    });
   });
 }
 

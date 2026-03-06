@@ -2,6 +2,19 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-06 — Fix "View New Posts" Button + Polling Stability
+
+### Bug Fixes
+
+- **Fix "View N new posts" button**: Button was non-functional because `Wo_GetNewPosts()` tried to prepend chronological posts via `Wo_GetPosts()` on top of a ranked/algorithmic feed. With `feed_algorithm_enabled=1`, the `before_post_id` from the top-ranked post didn't correspond to the newest post, causing the server to return 0 results. Fixed by reloading the entire feed via `$("#posts-laoded").load()` instead of prepending — works correctly with both ranked and chronological feeds.
+- **Fix `force_update` cascading in polling**: When Socket.io emitted `update_new_posts`, `Wo_intervalUpdates(1)` was called but `force_update=1` was passed to every subsequent poll indefinitely via setTimeout. Now resets to `0` after the initial forced poll.
+
+### Files Modified
+
+- `themes/wondertag/javascript/script.js` — Rewrote `Wo_GetNewPosts()` to reload feed; fixed `force_update` propagation in `Wo_intervalUpdates()`
+
+---
+
 ## 2026-03-04 — Enhanced Nearby Users — 4 GPS Improvements
 
 ### New Features
