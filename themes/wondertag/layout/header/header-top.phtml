@@ -2,7 +2,7 @@
 	<div class="container-fluid">
 		<div class="valign tag_header full_width<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_expand_search'] == 1) { ?> tag_expand_search<?php } ?>">
 			<button type="button" class="tag_toggle_sidebar" onclick="javascript:$('body').toggleClass('side_open');"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path fill="currentColor" d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zm0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1z"/></svg></button>
-			<a class="header-brand" href="<?php echo $wo['config']['site_url']; ?>">
+			<a class="header-brand" href="<?php echo $wo['config']['site_url']; ?>" data-ajax="?link1=home">
 				<img class="tag_logo_pc" src="<?php echo $wo['config']['theme_url'];?>/img/logo.<?php echo $wo['config']['logo_extension'];?>" alt="<?php echo $wo['config']['siteName'];?>"/>
 				<img class="tag_logo_mobi" src="<?php echo $wo['config']['theme_url'];?>/img/icon.png" alt="<?php echo $wo['config']['siteName'];?>"/>
 			</a>
