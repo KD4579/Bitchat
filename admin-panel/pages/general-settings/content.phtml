@@ -488,6 +488,17 @@
                             <input type="checkbox" name="disable_start_up" id="chck-disable_start_up" value="1" <?php echo ($wo['config']['disable_start_up'] == '1') ? 'checked': '';?>>
                             <label for="chck-disable_start_up" class="check-trail"><span class="check-handler"></span></label>
                         </div>
+                        <div class="clearfix"></div>
+                        <hr>
+                        <div class="float-left">
+                            <label for="profile_picture_required" class="main-label">Profile picture required at registration</label>
+                            <br><small class="admin-info">When enabled, new users must upload a profile picture during sign-up (skip button is hidden)</small>
+                        </div>
+                        <div class="form-group float-right switcher">
+                            <input type="hidden" name="profile_picture_required" value="0" />
+                            <input type="checkbox" name="profile_picture_required" id="chck-profile_picture_required" value="1" <?php echo (!empty($wo['config']['profile_picture_required']) && $wo['config']['profile_picture_required'] == '1') ? 'checked': '';?>>
+                            <label for="chck-profile_picture_required" class="check-trail"><span class="check-handler"></span></label>
+                        </div>
 
                         <!-- <div class="user-settings-alert"></div> -->
                         <input type="hidden" name="hash_id" value="<?php echo Wo_CreateSession();?>">

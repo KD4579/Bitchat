@@ -19,7 +19,9 @@
 					<hr>
 					<div class="wow_usr_steps text-center">
 						<h4><?php echo $wo['lang']['add_photo_des'];?></h4>
+						<?php if (!empty($wo['config']['profile_picture_required']) && $wo['config']['profile_picture_required'] == '1') { ?>
 						<h4>Profile picture is required.</h4>
+						<?php } ?>
 						<div class="upload-image pointer" onclick="document.getElementById('avatar').click(); return false" title="<?php echo $wo['lang']['upload_your_photo'];?>">
 							<div class="user-avatar-uploading-container">
 								<div class="pace-activity-parent"><div class="pace-activity"></div></div>
@@ -36,7 +38,9 @@
 						<div class="clear"></div>
 					</div>
 					<div class="valign wow_usr_steps_cont">
-						<!-- <small class="skip-step pointer btn con-button btn-main btn-mat disable_btn" style="right:18%;"onclick="Wo_SkipStep('startup_image');"><?php echo $wo['lang']['start_up_skip'];?></small> -->
+						<?php if (empty($wo['config']['profile_picture_required']) || $wo['config']['profile_picture_required'] != '1') { ?>
+						<small class="skip-step pointer btn con-button btn-main btn-mat" style="right:18%;" onclick="Wo_SkipStep('startup_image');"><?php echo $wo['lang']['start_up_skip'];?></small>
+						<?php } ?>
 						<button class="btn con-button btn-main btn-mat disable_btn" disabled onclick="Wo_NextStep();"><?php echo $wo['lang']['start_up_continue'];?></button>
 					</div>
 				</div>
