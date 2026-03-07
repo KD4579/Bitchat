@@ -2167,3 +2167,23 @@ ALTER TABLE Wo_Users
 **Problem:** The TRDC ticker in the market strip would permanently disappear after any transient error (timeout, network glitch, rate limit). The error/timeout/onerror handlers set `display: none` on the element, but successful fetches never restored visibility. Once hidden, it stayed hidden until full page reload.
 **Fix:** Removed destructive `display: none` from error handlers (transient errors now just log a warning). Added `display` restoration on successful fetch so the ticker self-heals after any temporary failure.
 **Files Modified:** `themes/wondertag/custom/js/footer.js`
+
+---
+
+## Task 51: News Bots — Automated RSS News Posting System
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Description:** Full admin module to create and manage bot user accounts that automatically fetch RSS/Atom feeds and post international news articles to the platform.
+**Features:**
+- Admin UI under "Bitchat Growth > News Bots" to create/edit/delete bot accounts
+- Each bot has: display name, username, category, RSS feed URLs, post frequency, daily limit, thumbnail toggle
+- Bot accounts are real Wo_Users entries (verified, active) that post as regular users
+- RSS/Atom feed parser supports RSS 2.0, Atom, and RDF formats with media thumbnail extraction
+- Duplicate prevention via article URL hashing (Wo_Bot_Posted table)
+- Frequency and daily post limit enforcement
+- "Run Now" button for immediate manual execution
+- Automatic posting via cron job (runs all enabled bots each cycle)
+- Article thumbnails downloaded and saved locally as link preview images
+**Database Tables:** `Wo_Bot_Accounts`, `Wo_Bot_Posted`
+**Files Created:** `assets/includes/functions_news_bots.php`, `admin-panel/pages/news-bots/content.phtml`
+**Files Modified:** `xhr/admin_setting.php`, `admin-panel/autoload.php`, `cron-job.php`

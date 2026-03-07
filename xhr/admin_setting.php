@@ -5811,4 +5811,140 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         echo json_encode($data);
         exit();
     }
+
+    // ── News Bots CRUD ──────────────────────────────────────────────
+    if ($s == 'save_news_bot' && Wo_CheckSession($hash_id) === true) {
+        $data = array('status' => 400, 'message' => 'Error');
+        $bot_id = !empty($_POST['bot_id']) ? intval($_POST['bot_id']) : 0;
+        $name = Wo_Secure(trim($_POST['name'] ?? ''));
+        $username = strtolower(preg_replace('/[^a-z0-9_]/', '', trim($_POST['username'] ?? '')));
+        $category = Wo_Secure(trim($_POST['category'] ?? 'news'));
+        $post_frequency = max(5, min(1440, intval($_POST['post_frequency'] ?? 30)));
+        $max_posts_per_day = max(1, min(100, intval($_POST['max_posts_per_day'] ?? 20)));
+        $include_thumbnail = intval($_POST['include_thumbnail'] ?? 1) ? 1 : 0;
+        $news_sources = trim($_POST['news_sources'] ?? '');
+
+        if (empty($name) || empty($username)) {
+            $data['message'] = 'Name and username are required.';
+        } elseif (strlen($username) < 3) {
+            $data['message'] = 'Username must be at least 3 characters.';
+        } elseif (empty($news_sources)) {
+            $data['message'] = 'At least one RSS feed URL is required.';
+        } else {
+            $db = new MysqliDb($sqlConnect);
+            if ($bot_id > 0) {
+                // Update existing bot
+                $db->where('id', $bot_id);
+                $updated = $db->update('Wo_Bot_Accounts', [
+                    'name' => $name,
+                    'category' => $category,
+                    'news_sources' => $news_sources,
+                    'post_frequency' => $post_frequency,
+                    'max_posts_per_day' => $max_posts_per_day,
+                    'include_thumbnail' => $include_thumbnail
+                ]);
+                // Also update the user display name
+                $db->where('id', $bot_id);
+                $bot = $db->getOne('Wo_Bot_Accounts', ['user_id']);
+                if ($bot) {
+                    $parts = explode(' ', $name, 2);
+                    $db->where('user_id', $bot->user_id);
+                    $db->update('Wo_Users', [
+                        'first_name' => Wo_Secure($parts[0]),
+                        'last_name' => Wo_Secure($parts[1] ?? '')
+                    ]);
+                }
+                $data = array('status' => 200, 'message' => 'Bot updated.');
+            } else {
+                // Check username not taken
+                $existing = mysqli_query($sqlConnect, "SELECT user_id FROM " . T_USERS . " WHERE username = '" . Wo_Secure($username) . "' LIMIT 1");
+                if (mysqli_num_rows($existing) > 0) {
+                    $data['message'] = 'Username "' . $username . '" is already taken.';
+                } else {
+                    // Create user account for this bot
+                    $parts = explode(' ', $name, 2);
+                    $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+                    $email = $username . '@bot.bitchat.local';
+                    $insert_user = mysqli_query($sqlConnect, "INSERT INTO " . T_USERS . " (
+                        username, email, password, first_name, last_name, active, verified, start_up, startup_image, start_up_info, startup_follow, joined, registered, language, order_posts_by
+                    ) VALUES (
+                        '" . Wo_Secure($username) . "',
+                        '" . Wo_Secure($email) . "',
+                        '" . Wo_Secure($password) . "',
+                        '" . Wo_Secure($parts[0]) . "',
+                        '" . Wo_Secure($parts[1] ?? '') . "',
+                        '1', '1', '1', '1', '1', '1',
+                        '" . time() . "',
+                        '" . date('n') . '/' . date('Y') . "',
+                        '" . $wo['config']['defualtLang'] . "',
+                        '" . $wo['config']['order_posts_by'] . "'
+                    )");
+                    if ($insert_user) {
+                        $new_user_id = mysqli_insert_id($sqlConnect);
+                        // Create fields row
+                        mysqli_query($sqlConnect, "INSERT INTO " . T_USERS_FIELDS . " (user_id) VALUES ($new_user_id)");
+                        // Create bot account
+                        $db->insert('Wo_Bot_Accounts', [
+                            'user_id' => $new_user_id,
+                            'name' => $name,
+                            'username' => $username,
+                            'category' => $category,
+                            'news_sources' => $news_sources,
+                            'post_frequency' => $post_frequency,
+                            'max_posts_per_day' => $max_posts_per_day,
+                            'include_thumbnail' => $include_thumbnail,
+                            'enabled' => 1
+                        ]);
+                        $data = array('status' => 200, 'message' => 'Bot created.');
+                    } else {
+                        $data['message'] = 'Failed to create user account.';
+                    }
+                }
+            }
+        }
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
+    if ($s == 'toggle_news_bot' && Wo_CheckSession($hash_id) === true) {
+        $bot_id = intval($_POST['bot_id'] ?? 0);
+        $enabled = intval($_POST['enabled'] ?? 0) ? 1 : 0;
+        $db = new MysqliDb($sqlConnect);
+        $db->where('id', $bot_id);
+        $db->update('Wo_Bot_Accounts', ['enabled' => $enabled]);
+        header("Content-type: application/json");
+        echo json_encode(['status' => 200]);
+        exit();
+    }
+
+    if ($s == 'delete_news_bot' && Wo_CheckSession($hash_id) === true) {
+        $bot_id = intval($_POST['bot_id'] ?? 0);
+        $db = new MysqliDb($sqlConnect);
+        $db->where('id', $bot_id);
+        $bot = $db->getOne('Wo_Bot_Accounts', ['user_id']);
+        if ($bot) {
+            // Delete bot record and posted tracking
+            $db->where('id', $bot_id);
+            $db->delete('Wo_Bot_Accounts');
+            $db->where('bot_id', $bot_id);
+            $db->delete('Wo_Bot_Posted');
+            // Optionally delete the user account too
+            mysqli_query($sqlConnect, "DELETE FROM " . T_USERS . " WHERE user_id = " . intval($bot->user_id));
+        }
+        header("Content-type: application/json");
+        echo json_encode(['status' => 200]);
+        exit();
+    }
+
+    if ($s == 'run_news_bot_now' && Wo_CheckSession($hash_id) === true) {
+        $bot_id = intval($_POST['bot_id'] ?? 0);
+        $count = 0;
+        require_once(__DIR__ . '/../assets/includes/functions_news_bots.php');
+        $result = bc_run_single_bot($bot_id, $sqlConnect, $wo);
+        $count = is_int($result) ? $result : 0;
+        header("Content-type: application/json");
+        echo json_encode(['status' => 200, 'count' => $count]);
+        exit();
+    }
 }

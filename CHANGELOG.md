@@ -2,6 +2,30 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-08 — News Bots: Automated RSS News Posting System
+
+### New Features
+
+- **News Bots Admin Module**: Full admin interface under "Bitchat Growth > News Bots" to create, edit, enable/disable, and delete automated news bot accounts.
+- **RSS/Atom Feed Parser**: Supports RSS 2.0, Atom, and RDF feed formats with automatic thumbnail extraction from media:thumbnail, enclosure, and inline images.
+- **Automated Posting**: Bots fetch RSS feeds and create posts as real user accounts. Configurable post frequency (5-1440 min), daily limits, and thumbnail toggle per bot.
+- **Duplicate Prevention**: Article URLs are hashed and tracked in `Wo_Bot_Posted` to prevent re-posting the same article.
+- **Manual Run**: "Run Now" button in admin for immediate bot execution without waiting for cron.
+- **Cron Integration**: All enabled bots run automatically via the existing cron job cycle.
+
+### Files Created
+
+- `assets/includes/functions_news_bots.php` — Core RSS fetch, parse, and post creation logic
+- `admin-panel/pages/news-bots/content.phtml` — Admin UI for bot management
+
+### Files Modified
+
+- `xhr/admin_setting.php` — Added save_news_bot, toggle_news_bot, delete_news_bot, run_news_bot_now handlers
+- `admin-panel/autoload.php` — Registered news-bots page under Bitchat Growth menu
+- `cron-job.php` — Added news_bots section to run all enabled bots
+
+---
+
 ## 2026-03-06 — Fix TRDC Ticker Permanently Hidden After Error
 
 ### Bug Fixes

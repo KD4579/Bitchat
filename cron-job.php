@@ -320,6 +320,12 @@ if (!empty($wo['config']['auto_backup_enabled']) && $wo['config']['auto_backup_e
 }
 // ********** Automated Backup **********
 
+// ********** News Bots Auto-Posting **********
+_cron_log_section('news_bots');
+require_once(__DIR__ . '/assets/includes/functions_news_bots.php');
+bc_run_all_bots($sqlConnect, $wo);
+// ********** News Bots Auto-Posting **********
+
 // ********** Session Cleanup **********
 _cron_log_section('session_cleanup');
 // Remove DB login sessions older than 30 days (matches PHP session gc_maxlifetime)

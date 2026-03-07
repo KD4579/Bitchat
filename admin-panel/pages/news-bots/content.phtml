@@ -1,0 +1,278 @@
+<?php
+// Fetch all bots with user data
+$db = new MysqliDb($sqlConnect);
+$bots = $db->rawQuery("SELECT b.*, u.avatar, u.first_name, u.last_name FROM Wo_Bot_Accounts b LEFT JOIN Wo_Users u ON b.user_id = u.user_id ORDER BY b.created_at DESC");
+?>
+
+<h2>News Bots</h2>
+<p class="text-muted">Create and manage automated news bots that fetch RSS feeds and post to the platform.</p>
+
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h6 class="card-title mb-0">Bot Accounts</h6>
+            <button class="btn btn-primary btn-sm" onclick="$('#bc-bot-form-card').slideToggle(300); resetBotForm();">
+                <i class="material-icons" style="font-size:16px;vertical-align:middle;">add</i> Create New Bot
+            </button>
+        </div>
+
+        <!-- Create/Edit Bot Form -->
+        <div id="bc-bot-form-card" style="display:none; border:1px solid #e0e0e0; border-radius:8px; padding:20px; margin-bottom:20px; background:#fafafa;">
+            <h6 id="bc-bot-form-title">Create New Bot</h6>
+            <input type="hidden" id="bc-bot-edit-id" value="">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><strong>Display Name</strong></label>
+                        <input type="text" class="form-control" id="bc-bot-name" placeholder="e.g. Bitchat News">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><strong>Username</strong></label>
+                        <input type="text" class="form-control" id="bc-bot-username" placeholder="e.g. bitchat_news">
+                        <small class="text-muted">Lowercase, letters/numbers/underscores only</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><strong>Category</strong></label>
+                        <select class="form-control" id="bc-bot-category">
+                            <option value="world_news">World News</option>
+                            <option value="finance">Finance & Markets</option>
+                            <option value="crypto">Crypto & Web3</option>
+                            <option value="tech">Technology</option>
+                            <option value="sports">Sports</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="mixed">Mixed / General</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><strong>Post Frequency (minutes)</strong></label>
+                        <input type="number" class="form-control" id="bc-bot-frequency" value="30" min="5" max="1440">
+                        <small class="text-muted">Minimum time between posts (5-1440 min)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><strong>Max Posts Per Day</strong></label>
+                        <input type="number" class="form-control" id="bc-bot-max-posts" value="20" min="1" max="100">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><strong>Include Thumbnail Image</strong></label>
+                        <select class="form-control" id="bc-bot-thumbnail">
+                            <option value="1">Yes - fetch article image</option>
+                            <option value="0">No - text only</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><strong>RSS Feed URLs</strong> (one per line)</label>
+                <textarea class="form-control" id="bc-bot-sources" rows="5" placeholder="https://feeds.bbci.co.uk/news/world/rss.xml
+https://rss.nytimes.com/services/xml/rss/nyt/World.xml
+https://feeds.reuters.com/reuters/worldNews"></textarea>
+                <small class="text-muted">Enter RSS/Atom feed URLs. The bot will fetch headlines from these and post them automatically.</small>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-primary" id="bc-bot-save-btn" onclick="saveBotAccount();">Save Bot</button>
+                <button class="btn btn-secondary ml-2" onclick="$('#bc-bot-form-card').slideUp(300);">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Suggested Feeds Helper -->
+        <div id="bc-feed-suggestions" style="display:none; border:1px solid #e0e0e0; border-radius:8px; padding:15px; margin-bottom:20px; background:#f8f9fa;">
+            <h6>Suggested RSS Feeds</h6>
+            <div class="row" style="font-size:13px;">
+                <div class="col-md-4">
+                    <strong>World News</strong><br>
+                    <code style="font-size:11px;">https://feeds.bbci.co.uk/news/world/rss.xml</code><br>
+                    <code style="font-size:11px;">https://rss.nytimes.com/services/xml/rss/nyt/World.xml</code><br>
+                    <code style="font-size:11px;">https://www.aljazeera.com/xml/rss/all.xml</code>
+                </div>
+                <div class="col-md-4">
+                    <strong>Finance / Crypto</strong><br>
+                    <code style="font-size:11px;">https://www.coindesk.com/arc/outboundfeeds/rss/</code><br>
+                    <code style="font-size:11px;">https://cointelegraph.com/rss</code><br>
+                    <code style="font-size:11px;">https://feeds.bloomberg.com/markets/news.rss</code>
+                </div>
+                <div class="col-md-4">
+                    <strong>Technology</strong><br>
+                    <code style="font-size:11px;">https://feeds.feedburner.com/TechCrunch/</code><br>
+                    <code style="font-size:11px;">https://www.theverge.com/rss/index.xml</code><br>
+                    <code style="font-size:11px;">https://www.wired.com/feed/rss</code>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-secondary mt-2" onclick="$('#bc-feed-suggestions').slideUp(300);">Close</button>
+        </div>
+
+        <!-- Bots List -->
+        <?php if (empty($bots)) { ?>
+        <div class="text-center text-muted py-5" id="bc-no-bots">
+            <i class="material-icons" style="font-size:48px;color:#ccc;">smart_toy</i>
+            <p class="mt-2">No bots created yet. Click "Create New Bot" to get started.</p>
+            <button class="btn btn-sm btn-outline-primary" onclick="$('#bc-feed-suggestions').slideToggle(300);">View Suggested RSS Feeds</button>
+        </div>
+        <?php } ?>
+
+        <div id="bc-bots-list">
+        <?php foreach ($bots as $bot) {
+            $sources = $bot->news_sources ? count(array_filter(explode("\n", $bot->news_sources))) : 0;
+            $statusClass = $bot->enabled ? 'success' : 'secondary';
+            $statusText = $bot->enabled ? 'Active' : 'Disabled';
+            $lastPost = $bot->last_posted_at > 0 ? date('M j, g:i A', $bot->last_posted_at) : 'Never';
+        ?>
+        <div class="bc-bot-row" id="bc-bot-<?php echo $bot->id; ?>" style="display:flex; align-items:center; padding:14px; border:1px solid #e8e8e8; border-radius:8px; margin-bottom:10px;">
+            <div style="flex-shrink:0; margin-right:14px;">
+                <img src="<?php echo $bot->avatar ?: $wo['config']['theme_url'].'/img/d-avatar.jpg'; ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+            </div>
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:600; font-size:15px;"><?php echo htmlspecialchars($bot->name); ?> <span class="badge badge-<?php echo $statusClass; ?>" style="font-size:11px;"><?php echo $statusText; ?></span></div>
+                <div style="color:#888; font-size:13px;">@<?php echo htmlspecialchars($bot->username); ?> &middot; <?php echo ucfirst(str_replace('_', ' ', $bot->category)); ?> &middot; <?php echo $sources; ?> feeds &middot; Every <?php echo $bot->post_frequency; ?>min &middot; Max <?php echo $bot->max_posts_per_day; ?>/day</div>
+                <div style="color:#aaa; font-size:12px;">Last posted: <?php echo $lastPost; ?> &middot; Today: <?php echo ($bot->posts_today_date == date('Y-m-d')) ? $bot->posts_today : 0; ?> posts</div>
+            </div>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+                <button class="btn btn-sm btn-outline-primary" onclick="editBot(<?php echo $bot->id; ?>);" title="Edit"><i class="material-icons" style="font-size:16px;">edit</i></button>
+                <button class="btn btn-sm btn-outline-<?php echo $bot->enabled ? 'warning' : 'success'; ?>" onclick="toggleBot(<?php echo $bot->id; ?>, <?php echo $bot->enabled ? 0 : 1; ?>);" title="<?php echo $bot->enabled ? 'Disable' : 'Enable'; ?>">
+                    <i class="material-icons" style="font-size:16px;"><?php echo $bot->enabled ? 'pause' : 'play_arrow'; ?></i>
+                </button>
+                <button class="btn btn-sm btn-outline-info" onclick="runBotNow(<?php echo $bot->id; ?>);" title="Run Now"><i class="material-icons" style="font-size:16px;">play_circle</i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteBot(<?php echo $bot->id; ?>);" title="Delete"><i class="material-icons" style="font-size:16px;">delete</i></button>
+            </div>
+        </div>
+        <?php } ?>
+        </div>
+    </div>
+</div>
+
+<!-- Bot data for JS editing -->
+<script>
+var bcBotData = <?php echo json_encode(array_map(function($b) {
+    return [
+        'id' => $b->id,
+        'name' => $b->name,
+        'username' => $b->username,
+        'category' => $b->category,
+        'news_sources' => $b->news_sources,
+        'post_frequency' => $b->post_frequency,
+        'max_posts_per_day' => $b->max_posts_per_day,
+        'include_thumbnail' => $b->include_thumbnail,
+        'enabled' => $b->enabled
+    ];
+}, $bots)); ?>;
+
+function resetBotForm() {
+    $('#bc-bot-form-title').text('Create New Bot');
+    $('#bc-bot-edit-id').val('');
+    $('#bc-bot-name').val('');
+    $('#bc-bot-username').val('').prop('disabled', false);
+    $('#bc-bot-category').val('world_news');
+    $('#bc-bot-frequency').val(30);
+    $('#bc-bot-max-posts').val(20);
+    $('#bc-bot-thumbnail').val('1');
+    $('#bc-bot-sources').val('');
+}
+
+function editBot(id) {
+    var bot = bcBotData.find(function(b) { return b.id == id; });
+    if (!bot) return;
+    $('#bc-bot-form-title').text('Edit Bot: ' + bot.name);
+    $('#bc-bot-edit-id').val(bot.id);
+    $('#bc-bot-name').val(bot.name);
+    $('#bc-bot-username').val(bot.username).prop('disabled', true);
+    $('#bc-bot-category').val(bot.category);
+    $('#bc-bot-frequency').val(bot.post_frequency);
+    $('#bc-bot-max-posts').val(bot.max_posts_per_day);
+    $('#bc-bot-thumbnail').val(bot.include_thumbnail);
+    $('#bc-bot-sources').val(bot.news_sources || '');
+    $('#bc-bot-form-card').slideDown(300);
+    $('html,body').animate({scrollTop: $('#bc-bot-form-card').offset().top - 80}, 300);
+}
+
+function saveBotAccount() {
+    var data = {
+        hash_id: '<?php echo Wo_CreateSession(); ?>',
+        bot_id: $('#bc-bot-edit-id').val(),
+        name: $('#bc-bot-name').val().trim(),
+        username: $('#bc-bot-username').val().trim(),
+        category: $('#bc-bot-category').val(),
+        post_frequency: $('#bc-bot-frequency').val(),
+        max_posts_per_day: $('#bc-bot-max-posts').val(),
+        include_thumbnail: $('#bc-bot-thumbnail').val(),
+        news_sources: $('#bc-bot-sources').val().trim()
+    };
+    if (!data.name || !data.username) {
+        alert('Name and username are required.');
+        return;
+    }
+    if (!data.news_sources) {
+        alert('Please add at least one RSS feed URL.');
+        return;
+    }
+    $('#bc-bot-save-btn').prop('disabled', true).text('Saving...');
+    $.post(Wo_Ajax_Requests_File() + '?f=admin_setting&s=save_news_bot', data, function(resp) {
+        $('#bc-bot-save-btn').prop('disabled', false).text('Save Bot');
+        if (resp.status == 200) {
+            location.reload();
+        } else {
+            alert(resp.message || 'Error saving bot.');
+        }
+    }).fail(function() {
+        $('#bc-bot-save-btn').prop('disabled', false).text('Save Bot');
+        alert('Network error.');
+    });
+}
+
+function toggleBot(id, enable) {
+    $.post(Wo_Ajax_Requests_File() + '?f=admin_setting&s=toggle_news_bot', {
+        hash_id: '<?php echo Wo_CreateSession(); ?>',
+        bot_id: id,
+        enabled: enable
+    }, function(resp) {
+        if (resp.status == 200) location.reload();
+        else alert(resp.message || 'Error');
+    });
+}
+
+function deleteBot(id) {
+    if (!confirm('Delete this bot and its user account? This cannot be undone.')) return;
+    $.post(Wo_Ajax_Requests_File() + '?f=admin_setting&s=delete_news_bot', {
+        hash_id: '<?php echo Wo_CreateSession(); ?>',
+        bot_id: id
+    }, function(resp) {
+        if (resp.status == 200) {
+            $('#bc-bot-' + id).fadeOut(300, function() { $(this).remove(); });
+        } else {
+            alert(resp.message || 'Error');
+        }
+    });
+}
+
+function runBotNow(id) {
+    var btn = event.target.closest('button');
+    $(btn).prop('disabled', true);
+    $.post(Wo_Ajax_Requests_File() + '?f=admin_setting&s=run_news_bot_now', {
+        hash_id: '<?php echo Wo_CreateSession(); ?>',
+        bot_id: id
+    }, function(resp) {
+        $(btn).prop('disabled', false);
+        if (resp.status == 200) {
+            alert('Posted ' + resp.count + ' new article(s).');
+            if (resp.count > 0) location.reload();
+        } else {
+            alert(resp.message || 'Error running bot.');
+        }
+    }).fail(function() {
+        $(btn).prop('disabled', false);
+        alert('Network error.');
+    });
+}
+</script>

@@ -85,6 +85,7 @@ $pages = array(
     'announcement-banner',
     'trdc-rewards',
     'creator-mode',
+    'news-bots',
     'growth-intelligence',
     'growth-presets',
     'admin-activity-log',
@@ -1340,7 +1341,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     </li>
                     <?php } ?>
                     <?php if ($is_admin) { ?>
-                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','creator-mode']) ? 'class="open"' : ''; ?>>
+                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','creator-mode','news-bots']) ? 'class="open"' : ''; ?>>
                         <a href="#">
                             <span class="nav-link-icon">
                                 <i class="material-icons">trending_up</i>
@@ -1371,6 +1372,9 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             </li>
                             <li>
                                 <a <?php echo ($page == 'creator-mode') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('creator-mode'); ?>" data-ajax="?path=creator-mode">Creator Mode</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'news-bots') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('news-bots'); ?>" data-ajax="?path=news-bots">News Bots</a>
                             </li>
                             <li>
                                 <a <?php echo ($page == 'admin-activity-log') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('admin-activity-log'); ?>" data-ajax="?path=admin-activity-log"><strong>Admin Activity Log</strong></a>
