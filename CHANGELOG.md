@@ -12,6 +12,12 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 - **Duplicate Prevention**: Article URLs are hashed and tracked in `Wo_Bot_Posted` to prevent re-posting the same article.
 - **Manual Run**: "Run Now" button in admin for immediate bot execution without waiting for cron.
 - **Cron Integration**: All enabled bots run automatically via the existing cron job cycle.
+- **Auto-Follow**: New users automatically follow all enabled news bots on registration.
+- **Feed Algorithm Integration**: Bot posts appear in ranked feed with balanced visibility (max 4 bot posts, 1 per bot), exempt from frequency/link penalties.
+
+### Bot Accounts Created
+
+Al Jazeera, BBC News, CNN, Zee News, CoinDesk, The Block, CryptoSlate, Web3 News Wire, CNBC, Aaj Tak, Crypto News (11 bots with website logos as avatars).
 
 ### Files Created
 
@@ -23,6 +29,8 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 - `xhr/admin_setting.php` — Added save_news_bot, toggle_news_bot, delete_news_bot, run_news_bot_now handlers
 - `admin-panel/autoload.php` — Registered news-bots page under Bitchat Growth menu
 - `cron-job.php` — Added news_bots section to run all enabled bots
+- `assets/includes/functions_one.php` — Auto-follow bots on user registration
+- `assets/includes/functions_feed.php` — Bot boost, frequency/link penalty exemption, total bot cap in feed
 
 ---
 

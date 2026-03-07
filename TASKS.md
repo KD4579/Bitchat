@@ -2184,6 +2184,10 @@ ALTER TABLE Wo_Users
 - "Run Now" button for immediate manual execution
 - Automatic posting via cron job (runs all enabled bots each cycle)
 - Article thumbnails downloaded and saved locally as link preview images
+- Auto-follow: new users automatically follow all enabled bots on registration
+- Feed visibility: bot posts integrated into ranked feed algorithm with balanced visibility (max 4 bot posts, 1 per bot, exempt from frequency/link penalties)
+- All existing users (4,578) bulk-followed all 11 bots
+**Bot Accounts (11):** Al Jazeera, BBC News, CNN, Zee News, CoinDesk, The Block, CryptoSlate, Web3 News Wire, CNBC, Aaj Tak, Crypto News
 **Database Tables:** `Wo_Bot_Accounts`, `Wo_Bot_Posted`
 **Files Created:** `assets/includes/functions_news_bots.php`, `admin-panel/pages/news-bots/content.phtml`
-**Files Modified:** `xhr/admin_setting.php`, `admin-panel/autoload.php`, `cron-job.php`
+**Files Modified:** `xhr/admin_setting.php`, `admin-panel/autoload.php`, `cron-job.php`, `assets/includes/functions_one.php`, `assets/includes/functions_feed.php`

@@ -125,7 +125,9 @@ https://feeds.reuters.com/reuters/worldNews"></textarea>
 
         <div id="bc-bots-list">
         <?php foreach ($bots as $bot) {
+            $contentType = isset($bot->content_type) ? $bot->content_type : 'rss';
             $sources = $bot->news_sources ? count(array_filter(explode("\n", $bot->news_sources))) : 0;
+            $sourceLabel = ($contentType === 'template') ? 'Template bot' : $sources . ' feeds';
             $statusClass = $bot->enabled ? 'success' : 'secondary';
             $statusText = $bot->enabled ? 'Active' : 'Disabled';
             $lastPost = $bot->last_posted_at > 0 ? date('M j, g:i A', $bot->last_posted_at) : 'Never';
@@ -136,7 +138,7 @@ https://feeds.reuters.com/reuters/worldNews"></textarea>
             </div>
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:600; font-size:15px;"><?php echo htmlspecialchars($bot->name); ?> <span class="badge badge-<?php echo $statusClass; ?>" style="font-size:11px;"><?php echo $statusText; ?></span></div>
-                <div style="color:#888; font-size:13px;">@<?php echo htmlspecialchars($bot->username); ?> &middot; <?php echo ucfirst(str_replace('_', ' ', $bot->category)); ?> &middot; <?php echo $sources; ?> feeds &middot; Every <?php echo $bot->post_frequency; ?>min &middot; Max <?php echo $bot->max_posts_per_day; ?>/day</div>
+                <div style="color:#888; font-size:13px;">@<?php echo htmlspecialchars($bot->username); ?> &middot; <?php echo ucfirst(str_replace('_', ' ', $bot->category)); ?> &middot; <?php echo $sourceLabel; ?> &middot; Every <?php echo $bot->post_frequency; ?>min &middot; Max <?php echo $bot->max_posts_per_day; ?>/day</div>
                 <div style="color:#aaa; font-size:12px;">Last posted: <?php echo $lastPost; ?> &middot; Today: <?php echo ($bot->posts_today_date == date('Y-m-d')) ? $bot->posts_today : 0; ?> posts</div>
             </div>
             <div style="display:flex; gap:8px; flex-shrink:0;">

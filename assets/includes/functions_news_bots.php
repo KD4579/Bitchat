@@ -36,16 +36,22 @@ function bc_run_single_bot($bot_id, $sqlConnect, $wo) {
         }
     }
 
-    // Parse RSS feed URLs
-    $feedUrls = array_filter(array_map('trim', explode("\n", $bot->news_sources)));
-    if (empty($feedUrls)) {
-        return 0;
-    }
-
     // Reset daily counter if new day
     $postsToday = ($bot->posts_today_date == $today) ? $bot->posts_today : 0;
     $remaining = $bot->max_posts_per_day - $postsToday;
     if ($remaining <= 0) {
+        return 0;
+    }
+
+    // Dispatch based on content type
+    $contentType = isset($bot->content_type) ? $bot->content_type : 'rss';
+    if ($contentType === 'template') {
+        return bc_run_template_bot($bot, $db, $sqlConnect, $wo, $postsToday, $remaining);
+    }
+
+    // --- RSS bot flow ---
+    $feedUrls = array_filter(array_map('trim', explode("\n", $bot->news_sources)));
+    if (empty($feedUrls)) {
         return 0;
     }
 
@@ -108,6 +114,109 @@ function bc_run_single_bot($bot_id, $sqlConnect, $wo) {
     }
 
     return $posted;
+}
+
+/**
+ * Run a template-based bot: pick random unposted content from JSON file.
+ */
+function bc_run_template_bot($bot, $db, $sqlConnect, $wo, $postsToday, $remaining) {
+    $contentFile = isset($bot->content_file) ? $bot->content_file : '';
+    if (empty($contentFile)) {
+        return 0;
+    }
+
+    // Resolve path relative to project root
+    $filePath = realpath(dirname(__FILE__) . '/../../') . '/' . $contentFile;
+    if (!file_exists($filePath)) {
+        return 0;
+    }
+
+    $content = json_decode(file_get_contents($filePath), true);
+    if (!is_array($content) || empty($content)) {
+        return 0;
+    }
+
+    // Shuffle for variety
+    shuffle($content);
+
+    $posted = 0;
+    foreach ($content as $entry) {
+        if ($posted >= $remaining || $posted >= 1) {
+            break; // Template bots post 1 at a time for natural pacing
+        }
+
+        $postText = is_string($entry) ? $entry : (isset($entry['text']) ? $entry['text'] : '');
+        if (empty($postText)) {
+            continue;
+        }
+
+        // Check if already posted (hash the text)
+        $contentHash = md5($postText);
+        $db->where('bot_id', $bot->id);
+        $db->where('article_hash', $contentHash);
+        $existing = $db->getOne('Wo_Bot_Posted');
+        if ($existing) {
+            continue;
+        }
+
+        // Create plain text post (no link preview)
+        $postId = bc_create_template_post($bot, $postText, $sqlConnect);
+        if ($postId) {
+            $db->insert('Wo_Bot_Posted', [
+                'bot_id' => $bot->id,
+                'article_hash' => $contentHash,
+                'post_id' => $postId
+            ]);
+            $posted++;
+        }
+    }
+
+    // Update bot stats
+    if ($posted > 0) {
+        $db->where('id', $bot->id);
+        $db->update('Wo_Bot_Accounts', [
+            'last_posted_at' => time(),
+            'posts_today' => $postsToday + $posted,
+            'posts_today_date' => date('Y-m-d')
+        ]);
+    }
+
+    return $posted;
+}
+
+/**
+ * Create a plain text post (no link preview) for template bots.
+ */
+function bc_create_template_post($bot, $postText, $sqlConnect) {
+    $postTextSafe = mysqli_real_escape_string($sqlConnect, $postText);
+    $now = time();
+    $registered = date('n') . '/' . date('Y');
+
+    $query = "INSERT INTO " . T_POSTS . " (
+        `user_id`, `postText`, `postPrivacy`, `postType`, `time`, `registered`, `active`
+    ) VALUES (
+        {$bot->user_id},
+        '{$postTextSafe}',
+        '0',
+        'post',
+        {$now},
+        '{$registered}',
+        1
+    )";
+
+    $result = mysqli_query($sqlConnect, $query);
+    if ($result) {
+        $postId = mysqli_insert_id($sqlConnect);
+        mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET `post_id` = {$postId} WHERE `id` = {$postId}");
+
+        if (class_exists('BitchatCache')) {
+            BitchatCache::delete('trending');
+        }
+
+        return $postId;
+    }
+
+    return false;
 }
 
 /**
