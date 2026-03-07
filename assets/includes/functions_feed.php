@@ -123,6 +123,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
     $postsTable     = T_POSTS;
     $usersTable     = T_USERS;
     $spamTable      = defined('T_SPAM_TRACKING') ? T_SPAM_TRACKING : 'Wo_Spam_Tracking';
+    $botTable       = 'Wo_Bot_Accounts';
 
     // Engagement weight values
     $wEng     = floatval($weights['engagement']);
@@ -178,8 +179,12 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             -- TRDC boost (paid boost, +10 score while active)
             (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END) AS trdc_boost,
 
-            -- Link penalty
+            -- News bot boost (ensures bot posts appear in feed)
+            (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 5.0 ELSE 0 END) AS news_bot_boost,
+
+            -- Link penalty (exempt news bots — their links are legitimate articles)
             (CASE
+                WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 0
                 WHEN p.postLink != '' AND p.postText = '' AND p.postFile = ''
                     AND p.postYoutube = '' AND p.postVimeo = '' THEN {$wLink}
                 WHEN p.postLink != '' THEN ({$wLink} * 0.5)
@@ -236,8 +241,11 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             + (CASE WHEN (SELECT COUNT(*) FROM {$postsTable} fp2 WHERE fp2.user_id = p.user_id AND fp2.id < p.id) < 3 THEN {$wFirstPosts} ELSE 0 END)
             -- TRDC boost
             + (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END)
-            -- Penalties (subtracted)
+            -- News bot boost
+            + (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 5.0 ELSE 0 END)
+            -- Penalties (subtracted, bots exempt from link penalty)
             - (CASE
+                WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 0
                 WHEN p.postLink != '' AND p.postText = '' AND p.postFile = ''
                     AND p.postYoutube = '' AND p.postVimeo = '' THEN {$wLink}
                 WHEN p.postLink != '' THEN ({$wLink} * 0.5)
