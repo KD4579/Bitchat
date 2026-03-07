@@ -7638,3 +7638,30 @@ body.night_mode .earn_points .counter .count-text {
 .tag_field:has(.bc-pw-toggle) > input {
   padding-right: 44px !important;
 }
+
+/* ---- Location Permission Modal ---- */
+.bc-loc-modal { border-radius:16px !important; overflow:hidden; border:none !important; box-shadow:0 20px 60px rgba(0,0,0,0.3); padding:0 !important; }
+.bc-loc-header { background:linear-gradient(135deg,#0073CE 0%,#005bb5 100%); padding:28px 24px 20px; text-align:center; }
+.bc-loc-icon { width:64px; height:64px; background:rgba(255,255,255,0.15); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.bc-loc-title { color:#fff; margin:0 0 6px; font-size:20px; font-weight:700; }
+.bc-loc-subtitle { color:rgba(255,255,255,0.85); margin:0; font-size:14px; line-height:1.5; }
+.bc-loc-body { padding:20px 24px 8px; text-align:center; }
+.bc-loc-desc { color:#555; font-size:14px; line-height:1.6; margin:0 0 6px; }
+.bc-loc-note { color:#888; font-size:12px; margin:0; }
+.bc-loc-actions { padding:12px 24px 22px; display:flex; gap:10px; }
+.bc-loc-btn-skip { flex:1; padding:12px; border-radius:10px; font-size:14px; font-weight:600; background:#f1f3f5; color:#555; border:none; }
+.bc-loc-btn-allow { flex:2; padding:12px; border-radius:10px; font-size:14px; font-weight:600; background:#0073CE; color:#fff; border:none; cursor:pointer; }
+.bc-loc-btn-skip:hover { background:#e2e6ea; }
+.bc-loc-btn-allow:hover { background:#005bb5; }
+
+/* Location modal — dark mode */
+html:has(link#night-mode-css) .bc-loc-modal,
+html.bc-dark-mode .bc-loc-modal { background-color:#212121 !important; }
+html:has(link#night-mode-css) .bc-loc-desc,
+html.bc-dark-mode .bc-loc-desc { color:#ccc; }
+html:has(link#night-mode-css) .bc-loc-note,
+html.bc-dark-mode .bc-loc-note { color:#999; }
+html:has(link#night-mode-css) .bc-loc-btn-skip,
+html.bc-dark-mode .bc-loc-btn-skip { background:#3a3a3a; color:#ddd; }
+html:has(link#night-mode-css) .bc-loc-btn-skip:hover,
+html.bc-dark-mode .bc-loc-btn-skip:hover { background:#4a4a4a; }
