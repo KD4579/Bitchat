@@ -191,11 +191,13 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
                 ELSE 0
             END) AS link_penalty,
 
-            -- Frequency penalty (posts by this user in last hour beyond threshold of 2)
-            GREATEST(0,
-                (SELECT COUNT(*) FROM {$postsTable} fp
-                 WHERE fp.user_id = p.user_id AND fp.time > {$oneHourAgo} AND fp.id != p.id) - 1
-            ) * {$wFreq} AS frequency_penalty,
+            -- Frequency penalty (posts by this user in last hour beyond threshold of 2, bots exempt)
+            (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 0 ELSE
+                GREATEST(0,
+                    (SELECT COUNT(*) FROM {$postsTable} fp
+                     WHERE fp.user_id = p.user_id AND fp.time > {$oneHourAgo} AND fp.id != p.id) - 1
+                ) * {$wFreq}
+            END) AS frequency_penalty,
 
             -- Spam penalty (duplicate text hashes in spam window)
             COALESCE(
@@ -250,10 +252,12 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
                     AND p.postYoutube = '' AND p.postVimeo = '' THEN {$wLink}
                 WHEN p.postLink != '' THEN ({$wLink} * 0.5)
                 ELSE 0 END)
-            - GREATEST(0,
-                (SELECT COUNT(*) FROM {$postsTable} fp
-                 WHERE fp.user_id = p.user_id AND fp.time > {$oneHourAgo} AND fp.id != p.id) - 1
-              ) * {$wFreq}
+            - (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 0 ELSE
+                GREATEST(0,
+                    (SELECT COUNT(*) FROM {$postsTable} fp
+                     WHERE fp.user_id = p.user_id AND fp.time > {$oneHourAgo} AND fp.id != p.id) - 1
+                ) * {$wFreq}
+              END)
         ) DESC, p.id DESC
         LIMIT {$poolSize}
     ";
