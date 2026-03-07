@@ -6343,8 +6343,8 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
                   OR `page_id` IN (SELECT `page_id` FROM " . T_PAGES_LIKES . " WHERE `user_id` = {$logged_user_id} AND `active` = '1')
                   OR `group_id` IN (SELECT `id` FROM " . T_GROUPS . " WHERE `user_id` = {$logged_user_id})
                   OR `event_id` IN (SELECT `event_id` FROM " . T_EVENTS_GOING . " WHERE `user_id` = {$logged_user_id})
-                  OR `group_id` IN (SELECT `group_id` FROM " . T_GROUP_MEMBERS . " WHERE `user_id` = {$logged_user_id}
-                  )
+                  OR `group_id` IN (SELECT `group_id` FROM " . T_GROUP_MEMBERS . " WHERE `user_id` = {$logged_user_id})
+                  OR `user_id` IN (SELECT `user_id` FROM Wo_Bot_Accounts WHERE `enabled` = 1)
             )";
         }
         $query_text .= " AND (`postPrivacy` <> '3' OR (`user_id` = {$logged_user_id} AND `postPrivacy` >= '0'))";

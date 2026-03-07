@@ -391,6 +391,7 @@ function Wo_BuildFeedWhereClause($userId) {
         $groupMembersTable = T_GROUP_MEMBERS;
         $eventsGoingTable = defined('T_EVENTS_GOING') ? T_EVENTS_GOING : 'Wo_Events_Going';
 
+        $botTable = 'Wo_Bot_Accounts';
         $where .= "
             AND (
                 p.user_id IN (SELECT following_id FROM {$followersTable} WHERE follower_id = {$userId} AND active = '1')
@@ -401,6 +402,7 @@ function Wo_BuildFeedWhereClause($userId) {
                 OR p.group_id IN (SELECT id FROM {$groupsTable} WHERE user_id = {$userId})
                 OR p.event_id IN (SELECT event_id FROM {$eventsGoingTable} WHERE user_id = {$userId})
                 OR p.group_id IN (SELECT group_id FROM {$groupMembersTable} WHERE user_id = {$userId})
+                OR p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1)
             )
         ";
     }
