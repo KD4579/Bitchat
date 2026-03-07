@@ -332,18 +332,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				$(function() {
 					<?php if ($wo['loggedin'] == true && $wo['config']['find_friends'] == 1) {?>
 						if (navigator.geolocation) {
-							navigator.permissions && navigator.permissions.query({name: 'geolocation'}).then(function(result) {
-								if (result.state === 'granted') {
-									navigator.geolocation.getCurrentPosition(Wo_UpdateLocation);
-								} else if (result.state === 'prompt') {
-									$('#bc-location-modal').modal('show');
-								}
-							}).catch(function() {
-								$('#bc-location-modal').modal('show');
-							});
-							if (!navigator.permissions) {
-								$('#bc-location-modal').modal('show');
-							}
+							$('#bc-location-modal').modal('show');
 						}
 					<?php } ?>
 					var box = $('#contnet');
@@ -1539,6 +1528,9 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				Wo_UpdateLocation,
 				function(err) {
 					console.warn('[Bitchat] Location denied:', err.message);
+					if (err.code === 1) {
+						alert('Location access is blocked by your browser.\n\nTo enable it:\n1. Click the lock icon (🔒) in the address bar\n2. Set Location to "Allow"\n3. Refresh the page');
+					}
 				},
 				{enableHighAccuracy: true, timeout: 10000}
 			);
