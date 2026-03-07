@@ -309,7 +309,8 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             if ($meta) {
                 $hasMedia = (floatval($meta['media_bonus']) > 0);
                 $hasEngagement = (floatval($meta['engagement_score']) >= 5);
-                $isQuality = ($hasMedia || $hasEngagement);
+                $isNewsBot = (isset($meta['news_bot_boost']) && floatval($meta['news_bot_boost']) > 0);
+                $isQuality = ($hasMedia || $hasEngagement || $isNewsBot);
             }
             if ($isQuality) {
                 $quality[] = $pid;
