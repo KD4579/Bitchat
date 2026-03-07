@@ -872,6 +872,13 @@ function Wo_RegisterUser($registration_data, $invited = false) {
             @Wo_DeleteAdminInvitation('code', $invited);
             Wo_AddInvitedUser($user_id, $invited);
         }
+        // Auto-follow all enabled news bots
+        $botQuery = mysqli_query($sqlConnect, "SELECT user_id FROM Wo_Bot_Accounts WHERE enabled = 1");
+        if ($botQuery) {
+            while ($botRow = mysqli_fetch_assoc($botQuery)) {
+                @mysqli_query($sqlConnect, "INSERT IGNORE INTO " . T_FOLLOWERS . " (follower_id, following_id, active) VALUES ({$user_id}, {$botRow['user_id']}, '1')");
+            }
+        }
         return true;
     } else {
         return false;
