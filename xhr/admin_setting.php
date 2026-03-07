@@ -29,7 +29,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
                                     break;
                                 }
                             }
-                            $html .= '<a href="' . Wo_LoadAdminLinkSettings($file) . '?highlight=' . $keyword . '"><div  style="padding: 5px 2px;">' . $page_title . '</div><div><small style="color: #333;">' . $title . '</small></div></a>';
+                            $html .= '<a href="' . Wo_LoadAdminLinkSettings($file) . '?highlight=' . $keyword . '" style="display:block;padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#333;text-decoration:none;"><div style="font-weight:600;font-size:13px;">' . $page_title . '</div><div><small style="color:#888;">' . $title . '</small></div></a>';
                             break;
                         }
                     }
@@ -46,7 +46,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
                                     break;
                                 }
                             }
-                            $html .= '<a href="' . Wo_LoadAdminLinkSettings($file) . '?highlight=' . $keyword . '"><div  style="padding: 5px 2px;">' . $page_title . '</div><div><small style="color: #333;">' . $lable . '</small></div></a>';
+                            $html .= '<a href="' . Wo_LoadAdminLinkSettings($file) . '?highlight=' . $keyword . '" style="display:block;padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#333;text-decoration:none;"><div style="font-weight:600;font-size:13px;">' . $page_title . '</div><div><small style="color:#888;">' . $lable . '</small></div></a>';
                             break;
                         }
                     }

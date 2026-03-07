@@ -471,14 +471,14 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     <ul class="navbar-nav">
                         <li class="nav-item mr-3">
                             <div class="header-search-form">
-                                <div class="input-group">
+                                <div class="input-group" style="position:relative;">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">
                                             <i data-feather="search"></i>
                                         </span>
                                     </div>
                                     <input type="text" class="form-control" placeholder="Search" onkeyup="searchInFiles($(this).val())">
-                                    <div class="pt_admin_hdr_srch_reslts" id="search_for_bar"></div>
+                                    <div class="pt_admin_hdr_srch_reslts" id="search_for_bar" style="position:absolute;top:100%;left:0;right:0;z-index:9999;background:#fff;border-radius:0 0 8px 8px;box-shadow:0 8px 24px rgba(0,0,0,0.15);max-height:400px;overflow-y:auto;"></div>
                                 </div>
                             </div>
                         </li>
@@ -1708,6 +1708,11 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
         $(document).on('click', '#search_for_bar a', function(event) {
             event.preventDefault();
             location.href = $(this).attr('href');
+        });
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.header-search-form').length) {
+                $('#search_for_bar').html('');
+            }
         });
         function ReadNotify() {
             hash_id = $('#hash_id').val();
