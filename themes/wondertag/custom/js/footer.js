@@ -209,8 +209,8 @@ function fetchTRDC() {
     var trdcEl = document.getElementById('bc-tick-trdc');
     if (!trdcEl) return;
 
-    var poolAddress = '0x7b57fa13cca5093f5d724823d58503dfd02ff07c';
-    var apiUrl = 'https://api.geckoterminal.com/api/v2/networks/bsc/pools/' + poolAddress;
+    var tokenAddress = '0x39006641db2d9c3618523a1778974c0d7e98e39d';
+    var apiUrl = 'https://api.dexscreener.com/latest/dex/tokens/' + tokenAddress;
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', apiUrl, true);
@@ -222,9 +222,10 @@ function fetchTRDC() {
         if (xhr.status === 200) {
             try {
                 var d = JSON.parse(xhr.responseText);
-                var pool = d.data.attributes;
-                var priceUSD = parseFloat(pool.base_token_price_usd);
-                var change24h = parseFloat(pool.price_change_percentage.h24) || 0;
+                if (!d.pairs || d.pairs.length === 0) return;
+                var pair = d.pairs[0];
+                var priceUSD = parseFloat(pair.priceUsd);
+                var change24h = (pair.priceChange && pair.priceChange.h24 != null) ? parseFloat(pair.priceChange.h24) : 0;
 
                 var priceStr;
                 if (priceUSD >= 1) {
