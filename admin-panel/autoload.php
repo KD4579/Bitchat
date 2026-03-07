@@ -302,6 +302,15 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
         .card form .form-check-inline input:checked + label::before, .card form .form-check-inline input:active + label::before {border-color: #C32E3A;}
         .card form .form-check-inline label::after {background-color: #C32E3A;}
         .select2-container--default.select2-container--focus .select2-selection--multiple {border: 2px solid #C32E3A !important;}
+        /* Admin search dropdown */
+        #search_for_bar { position:absolute; top:100%; left:0; right:0; z-index:9999; background:#fff; border-radius:0 0 8px 8px; box-shadow:0 8px 24px rgba(0,0,0,0.15); max-height:400px; overflow-y:auto; }
+        #search_for_bar a { display:block; padding:10px 14px; border-bottom:1px solid #f0f0f0; color:#333; text-decoration:none; }
+        #search_for_bar a:hover { background:#f5f6fa; }
+        #search_for_bar a small { color:#888; }
+        body.dark #search_for_bar { background:rgb(44,45,50); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+        body.dark #search_for_bar a { color:#d4d4d4; border-bottom-color:rgb(56,58,63); }
+        body.dark #search_for_bar a:hover { background:rgb(56,58,63); }
+        body.dark #search_for_bar a small { color:#999; }
     </style>
 </head>
 <script type="text/javascript">
@@ -478,7 +487,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                                         </span>
                                     </div>
                                     <input type="text" class="form-control" placeholder="Search" onkeyup="searchInFiles($(this).val())">
-                                    <div class="pt_admin_hdr_srch_reslts" id="search_for_bar" style="position:absolute;top:100%;left:0;right:0;z-index:9999;background:#fff;border-radius:0 0 8px 8px;box-shadow:0 8px 24px rgba(0,0,0,0.15);max-height:400px;overflow-y:auto;"></div>
+                                    <div class="pt_admin_hdr_srch_reslts" id="search_for_bar"></div>
                                 </div>
                             </div>
                         </li>
