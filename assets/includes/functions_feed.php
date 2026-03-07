@@ -180,7 +180,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END) AS trdc_boost,
 
             -- News bot boost (ensures bot posts appear in feed)
-            (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 3.0 ELSE 0 END) AS news_bot_boost,
+            (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 2.0 ELSE 0 END) AS news_bot_boost,
 
             -- Link penalty (exempt news bots — their links are legitimate articles)
             (CASE
@@ -244,7 +244,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             -- TRDC boost
             + (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END)
             -- News bot boost
-            + (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 3.0 ELSE 0 END)
+            + (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 2.0 ELSE 0 END)
             -- Penalties (subtracted, bots exempt from link penalty)
             - (CASE
                 WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 0
@@ -287,7 +287,8 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
         }
     }
     $totalBotCount = 0;
-    $maxTotalBots  = 4; // Max bot posts per feed page cycle
+    $maxTotalBots  = 4; // Max bot posts in ranked feed
+    $maxPerBot     = 1; // Max posts per individual bot
 
     $rankedIds  = array();
     $overflow   = array();
@@ -301,11 +302,11 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
         // Apply bot total cap in addition to per-user cap
         $isBot = isset($botUserIds[$postUserId]);
         if ($isBot && $totalBotCount >= $maxTotalBots) {
-            $overflow[] = intval($row['id']);
-            continue;
+            continue; // Drop excess bot posts entirely
         }
 
-        if ($userCounts[$postUserId] < $maxSameUser) {
+        $userLimit = $isBot ? $maxPerBot : $maxSameUser;
+        if ($userCounts[$postUserId] < $userLimit) {
             $rankedIds[] = intval($row['id']);
             $userCounts[$postUserId]++;
             if ($isBot) $totalBotCount++;
@@ -332,8 +333,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             if ($meta) {
                 $hasMedia = (floatval($meta['media_bonus']) > 0);
                 $hasEngagement = (floatval($meta['engagement_score']) >= 5);
-                $isNewsBot = (isset($meta['news_bot_boost']) && floatval($meta['news_bot_boost']) > 0);
-                $isQuality = ($hasMedia || $hasEngagement || $isNewsBot);
+                $isQuality = ($hasMedia || $hasEngagement);
             }
             if ($isQuality) {
                 $quality[] = $pid;
