@@ -310,8 +310,8 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             $rankedIds[] = intval($row['id']);
             $userCounts[$postUserId]++;
             if ($isBot) $totalBotCount++;
-        } else {
-            $overflow[] = intval($row['id']);
+        } elseif (!$isBot) {
+            $overflow[] = intval($row['id']); // Only non-bot overflow gets appended
         }
     }
 
