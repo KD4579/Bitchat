@@ -278,6 +278,17 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
     }
     mysqli_free_result($result);
 
+    // Build set of bot user IDs for total bot cap
+    $botUserIds = array();
+    $botQ = mysqli_query($sqlConnect, "SELECT user_id FROM {$botTable} WHERE enabled = 1");
+    if ($botQ) {
+        while ($bRow = mysqli_fetch_assoc($botQ)) {
+            $botUserIds[intval($bRow['user_id'])] = true;
+        }
+    }
+    $totalBotCount = 0;
+    $maxTotalBots  = 4; // Max bot posts per feed page cycle
+
     $rankedIds  = array();
     $overflow   = array();
 
@@ -287,9 +298,17 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             $userCounts[$postUserId] = 0;
         }
 
+        // Apply bot total cap in addition to per-user cap
+        $isBot = isset($botUserIds[$postUserId]);
+        if ($isBot && $totalBotCount >= $maxTotalBots) {
+            $overflow[] = intval($row['id']);
+            continue;
+        }
+
         if ($userCounts[$postUserId] < $maxSameUser) {
             $rankedIds[] = intval($row['id']);
             $userCounts[$postUserId]++;
+            if ($isBot) $totalBotCount++;
         } else {
             $overflow[] = intval($row['id']);
         }
