@@ -2,6 +2,12 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-06 — Fix TRDC Ticker Permanently Hidden After Error
+
+### Bug Fixes
+
+- **Fix TRDC price ticker disappearing**: The TRDC ticker in the market strip would permanently vanish after any transient API error (timeout, network glitch, rate limit). Error handlers set `display: none` but successful fetches never restored visibility. Fixed by removing destructive hide-on-error behavior and adding `display` restoration on successful fetch, making the ticker self-heal after temporary failures.
+
 ## 2026-03-06 — Fix "View New Posts" Button + Polling Stability
 
 ### Bug Fixes

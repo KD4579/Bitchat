@@ -217,9 +217,6 @@ function fetchTRDC() {
     xhr.timeout = 10000;
     xhr.ontimeout = function() {
         console.warn('[Bitchat] TRDC ticker request timed out');
-        if (trdcEl) trdcEl.style.display = 'none';
-        var prev = trdcEl.previousElementSibling;
-        if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
     };
     xhr.onload = function() {
         if (xhr.status === 200) {
@@ -238,19 +235,17 @@ function fetchTRDC() {
                     priceStr = '$' + priceUSD.toFixed(6);
                 }
 
+                trdcEl.style.display = '';
+                var prevSep = trdcEl.previousElementSibling;
+                if (prevSep && prevSep.classList.contains('bc-ticker-sep')) prevSep.style.display = '';
                 updateTicker(trdcEl, 'TRDC', priceStr, change24h, change24h >= 0);
             } catch(e) {
                 console.warn('[Bitchat] TRDC ticker parse error:', e.message);
-                if (trdcEl) trdcEl.style.display = 'none';
-                var prev = trdcEl.previousElementSibling;
-                if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
             }
         }
     };
     xhr.onerror = function() {
-        if (trdcEl) trdcEl.style.display = 'none';
-        var prev = trdcEl.previousElementSibling;
-        if (prev && prev.classList.contains('bc-ticker-sep')) prev.style.display = 'none';
+        console.warn('[Bitchat] TRDC ticker request failed');
     };
     xhr.send();
 }

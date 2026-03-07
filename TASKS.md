@@ -2159,3 +2159,11 @@ ALTER TABLE Wo_Users
 **Database Changes:** New `Wo_Nearby_Notifications` and `Wo_Waves` tables, new `e_nearby` column on `Wo_Users`
 **Files to Modify:** `tabels.php`, `save_user_location.php`, `script.js`, `friends_nearby/content.phtml`, `friends_nearby/includes/user-list.phtml`, `functions_three.php`, `functions_one.php`, `cron-job.php`, `notifecation.phtml`, `notifications-settings.phtml`, `update_notifications_settings.php`, `listeners.js`, `wo_users.js`
 **Files to Create:** `xhr/wave.php`
+
+
+## Task 50: TRDC Ticker Price Not Updating (Permanently Hidden After Error)
+**Status:** Completed
+**Date:** 2026-03-06
+**Problem:** The TRDC ticker in the market strip would permanently disappear after any transient error (timeout, network glitch, rate limit). The error/timeout/onerror handlers set `display: none` on the element, but successful fetches never restored visibility. Once hidden, it stayed hidden until full page reload.
+**Fix:** Removed destructive `display: none` from error handlers (transient errors now just log a warning). Added `display` restoration on successful fetch so the ticker self-heals after any temporary failure.
+**Files Modified:** `themes/wondertag/custom/js/footer.js`
