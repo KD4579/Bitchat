@@ -331,11 +331,20 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				var websiteUrl = "<?php echo $wo['config']['site_url'];?>";
 				$(function() {
 					<?php if ($wo['loggedin'] == true && $wo['config']['find_friends'] == 1) {?>
-					<?php if ($wo['user']['last_location_update'] < time()): ?>
 						if (navigator.geolocation) {
-							var location = navigator.geolocation.getCurrentPosition(Wo_UpdateLocation);
+							navigator.permissions && navigator.permissions.query({name: 'geolocation'}).then(function(result) {
+								if (result.state === 'granted') {
+									navigator.geolocation.getCurrentPosition(Wo_UpdateLocation);
+								} else if (result.state === 'prompt') {
+									$('#bc-location-modal').modal('show');
+								}
+							}).catch(function() {
+								$('#bc-location-modal').modal('show');
+							});
+							if (!navigator.permissions) {
+								$('#bc-location-modal').modal('show');
+							}
 						}
-					<?php endif; ?>
 					<?php } ?>
 					var box = $('#contnet');
 					var ISAPI = $('#ISAPI').val();
@@ -1495,7 +1504,48 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		if ($wo['loggedin'] == true && $wo['config']['memories_system'] != 0 && $wo['user']['notification_settings']['e_memory'] == 1 && empty($_COOKIE['memory'])) { ?>
 			<script type="text/javascript">$.post(Wo_Ajax_Requests_File() + '?f=notify_memories', function(data, textStatus, xhr) {});</script>
 		<?php } } ?>
-		
+
+		<?php if ($wo['loggedin'] == true && $wo['config']['find_friends'] == 1) { ?>
+		<!-- Location Permission Modal -->
+		<div class="modal fade" id="bc-location-modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-dialog-centered" role="document" style="max-width:420px;">
+				<div class="modal-content" style="border-radius:16px;overflow:hidden;border:none;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+					<div style="background:linear-gradient(135deg,#0073CE 0%,#005bb5 100%);padding:28px 24px 20px;text-align:center;">
+						<div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;">
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+						</div>
+						<h4 style="color:#fff;margin:0 0 6px;font-size:20px;font-weight:700;">Enable Location Access</h4>
+						<p style="color:rgba(255,255,255,0.85);margin:0;font-size:14px;line-height:1.5;">Required for the <strong>Nearby Users</strong> feature</p>
+					</div>
+					<div style="padding:20px 24px 8px;text-align:center;">
+						<p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 6px;">
+							Bitchat uses your location to show <strong>traders and users near you</strong> on the map. This helps you discover and connect with people in your area.
+						</p>
+						<p style="color:#888;font-size:12px;margin:0;">
+							Your location is never shared publicly. You can change this anytime in Privacy Settings.
+						</p>
+					</div>
+					<div style="padding:12px 24px 22px;display:flex;gap:10px;">
+						<button type="button" class="btn" data-dismiss="modal" style="flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:600;background:#f1f3f5;color:#555;border:none;">Not Now</button>
+						<button type="button" id="bc-location-allow-btn" style="flex:2;padding:12px;border-radius:10px;font-size:14px;font-weight:600;background:#0073CE;color:#fff;border:none;cursor:pointer;">Allow Location</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+		document.getElementById('bc-location-allow-btn').addEventListener('click', function() {
+			$('#bc-location-modal').modal('hide');
+			navigator.geolocation.getCurrentPosition(
+				Wo_UpdateLocation,
+				function(err) {
+					console.warn('[Bitchat] Location denied:', err.message);
+				},
+				{enableHighAccuracy: true, timeout: 10000}
+			);
+		});
+		</script>
+		<?php } ?>
+
 		<?php if ($wo['page'] == 'welcome') { ?>
 			<div id="select-language" class="modal fade" data-keyboard="false">
 				<div class="modal-dialog modal-lg wow_mat_mdl lang_select_modal">
