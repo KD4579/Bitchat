@@ -180,7 +180,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END) AS trdc_boost,
 
             -- News bot boost (ensures bot posts appear in feed)
-            (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 5.0 ELSE 0 END) AS news_bot_boost,
+            (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 8.0 ELSE 0 END) AS news_bot_boost,
 
             -- Link penalty (exempt news bots — their links are legitimate articles)
             (CASE
@@ -242,7 +242,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             -- TRDC boost
             + (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END)
             -- News bot boost
-            + (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 5.0 ELSE 0 END)
+            + (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 8.0 ELSE 0 END)
             -- Penalties (subtracted, bots exempt from link penalty)
             - (CASE
                 WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 0
