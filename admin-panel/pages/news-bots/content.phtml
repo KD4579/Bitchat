@@ -167,20 +167,21 @@ var bcBotData = <?php echo json_encode(array_map(function($b) {
         'post_frequency' => $b->post_frequency,
         'max_posts_per_day' => $b->max_posts_per_day,
         'include_thumbnail' => $b->include_thumbnail,
-        'enabled' => $b->enabled
+        'enabled' => $b->enabled,
+        'content_type' => isset($b->content_type) ? $b->content_type : 'rss'
     ];
 }, $bots)); ?>;
 
 function resetBotForm() {
     $('#bc-bot-form-title').text('Create New Bot');
-    $('#bc-bot-edit-id').val('');
+    $('#bc-bot-edit-id').val('').data('content-type', 'rss');
     $('#bc-bot-name').val('');
     $('#bc-bot-username').val('').prop('disabled', false);
     $('#bc-bot-category').val('world_news');
     $('#bc-bot-frequency').val(30);
     $('#bc-bot-max-posts').val(20);
     $('#bc-bot-thumbnail').val('1');
-    $('#bc-bot-sources').val('');
+    $('#bc-bot-sources').val('').attr('placeholder', "https://feeds.bbci.co.uk/news/world/rss.xml\nhttps://rss.nytimes.com/services/xml/rss/nyt/World.xml\nhttps://feeds.reuters.com/reuters/worldNews");
 }
 
 function editBot(id) {
@@ -188,6 +189,7 @@ function editBot(id) {
     if (!bot) return;
     $('#bc-bot-form-title').text('Edit Bot: ' + bot.name);
     $('#bc-bot-edit-id').val(bot.id);
+    $('#bc-bot-edit-id').data('content-type', bot.content_type || 'rss');
     $('#bc-bot-name').val(bot.name);
     $('#bc-bot-username').val(bot.username).prop('disabled', true);
     $('#bc-bot-category').val(bot.category);
@@ -195,6 +197,12 @@ function editBot(id) {
     $('#bc-bot-max-posts').val(bot.max_posts_per_day);
     $('#bc-bot-thumbnail').val(bot.include_thumbnail);
     $('#bc-bot-sources').val(bot.news_sources || '');
+    // Show note for template bots
+    if (bot.content_type === 'template') {
+        $('#bc-bot-sources').attr('placeholder', 'Optional for template bots. Add RSS URLs to switch to RSS mode.');
+    } else {
+        $('#bc-bot-sources').attr('placeholder', "https://feeds.bbci.co.uk/news/world/rss.xml\nhttps://rss.nytimes.com/services/xml/rss/nyt/World.xml\nhttps://feeds.reuters.com/reuters/worldNews");
+    }
     $('#bc-bot-form-card').slideDown(300);
     $('html,body').animate({scrollTop: $('#bc-bot-form-card').offset().top - 80}, 300);
 }
@@ -215,7 +223,8 @@ function saveBotAccount() {
         alert('Name and username are required.');
         return;
     }
-    if (!data.news_sources) {
+    var isTemplate = $('#bc-bot-edit-id').data('content-type') === 'template';
+    if (!data.news_sources && !isTemplate) {
         alert('Please add at least one RSS feed URL.');
         return;
     }

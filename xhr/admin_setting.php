@@ -5840,11 +5840,20 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         $include_thumbnail = intval($_POST['include_thumbnail'] ?? 1) ? 1 : 0;
         $news_sources = trim($_POST['news_sources'] ?? '');
 
+        // Check if this is a template bot (skip RSS requirement)
+        $is_template_bot = false;
+        if ($bot_id > 0) {
+            $check_type = mysqli_query($sqlConnect, "SELECT content_type FROM Wo_Bot_Accounts WHERE id = $bot_id LIMIT 1");
+            if ($check_type && $row = mysqli_fetch_assoc($check_type)) {
+                $is_template_bot = ($row['content_type'] === 'template');
+            }
+        }
+
         if (empty($name) || empty($username)) {
             $data['message'] = 'Name and username are required.';
         } elseif (strlen($username) < 3) {
             $data['message'] = 'Username must be at least 3 characters.';
-        } elseif (empty($news_sources)) {
+        } elseif (empty($news_sources) && !$is_template_bot) {
             $data['message'] = 'At least one RSS feed URL is required.';
         } else {
             $db = new MysqliDb($sqlConnect);
