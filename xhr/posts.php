@@ -1093,7 +1093,7 @@ if ($f == 'posts') {
                 && function_exists('Wo_GetRankedPosts')
                 && !empty($_GET['ranked_page'])) {
                 $ranked_page = max(2, intval($_GET['ranked_page']));
-                $get_posts = Wo_GetRankedPosts(array('limit' => 10, 'page' => $ranked_page));
+                $get_posts = Wo_GetRankedPosts(array('limit' => 10, 'page' => $ranked_page, 'after_post_id' => Wo_Secure($_GET['after_post_id'])));
             } else {
                 $get_posts = Wo_GetPosts($postsData);
             }

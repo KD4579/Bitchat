@@ -67,10 +67,13 @@ function Wo_GetRankedPosts($data = array()) {
 
     if (empty($pageIds)) {
         // Exhausted ranked posts — fall back to chronological for older content
-        $lastRankedId = !empty($rankedIds) ? end($rankedIds) : 0;
+        // Use minimum post ID from ranked set so we get truly older posts
+        $minRankedId = !empty($rankedIds) ? min($rankedIds) : 0;
+        // If caller provided a specific after_post_id (from client scroll), prefer it
+        $fallbackId = !empty($data['after_post_id']) ? intval($data['after_post_id']) : $minRankedId;
         return Wo_GetPosts(array(
             'limit'         => $limit,
-            'after_post_id' => $lastRankedId,
+            'after_post_id' => $fallbackId,
             'publisher_id'  => 0,
             'placement'     => 'multi_image_post',
             'anonymous'     => true
