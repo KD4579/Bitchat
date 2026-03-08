@@ -6092,6 +6092,11 @@ body {
    FIX-4b: Mobile bottom nav — uniform icons, distinct colors, home button
    ========================================================================== */
 
+/* Hide original WoWonder bottom toolbar — replaced by header bottom nav */
+.tag_sec_toolbar {
+  display: none !important;
+}
+
 /* Home button — hidden on desktop, shown on mobile */
 .bc-bottom-home-btn {
   display: none !important;
