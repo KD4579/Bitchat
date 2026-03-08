@@ -57,7 +57,7 @@ function Wo_GetRankedPosts($data = array()) {
         $rankedIds = Wo_BuildRankedFeedIds($userId, $poolSize);
 
         if (class_exists('BitchatCache') && BitchatCache::isEnabled()) {
-            BitchatCache::set("ranked_feed:{$userId}:ids", $rankedIds, 30);
+            BitchatCache::set("ranked_feed:{$userId}:ids", $rankedIds, 120);
         }
     }
 

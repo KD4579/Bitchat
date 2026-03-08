@@ -733,7 +733,15 @@ function Wo_GetMorePosts() {
      } else {
       if (data != 'Please login or signup to continue.') {
           $('body').removeAttr('no-more-posts');
-          $('#posts').append(data);
+          // Deduplicate: remove posts already visible in the DOM
+          var $newPosts = $('<div>').html(data);
+          $newPosts.find('.post[data-post-id]').each(function() {
+            var pid = $(this).attr('data-post-id');
+            if ($('#posts .post[data-post-id="' + pid + '"]').length > 0) {
+              $(this).closest('.post-container').remove();
+            }
+          });
+          $('#posts').append($newPosts.html());
       } else {
          $('body').attr('no-more-posts', "true");
       }
