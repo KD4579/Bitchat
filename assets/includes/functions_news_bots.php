@@ -439,7 +439,7 @@ function bc_parse_atom_entry($entry) {
  * @return int|false Post ID on success, false on failure
  */
 function bc_create_bot_post($bot, $article, $sqlConnect, $wo) {
-    // Build post text: title + description + link
+    // Build post text: title + description (no link)
     $title = htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8');
     $desc = htmlspecialchars($article['description'], ENT_QUOTES, 'UTF-8');
 
@@ -447,37 +447,32 @@ function bc_create_bot_post($bot, $article, $sqlConnect, $wo) {
     if (!empty($desc) && $desc !== $title) {
         $postText .= "\n\n" . $desc;
     }
-    $postText .= "\n\n" . $article['link'];
 
     // Secure the text for DB insertion
     $postTextSafe = mysqli_real_escape_string($sqlConnect, $postText);
-    $postLink = mysqli_real_escape_string($sqlConnect, $article['link']);
-    $postLinkTitle = mysqli_real_escape_string($sqlConnect, $article['title']);
-    $postLinkContent = mysqli_real_escape_string($sqlConnect, $article['description']);
 
-    // Handle thumbnail
-    $postLinkImage = '';
+    // Handle thumbnail as a post image (not link preview)
+    $postFile = '';
     if ($bot->include_thumbnail && !empty($article['thumbnail'])) {
-        // Download and save the thumbnail locally
         $savedImage = bc_download_article_image($article['thumbnail'], $wo);
         if ($savedImage) {
-            $postLinkImage = mysqli_real_escape_string($sqlConnect, $savedImage);
+            $postFile = mysqli_real_escape_string($sqlConnect, $savedImage);
         }
     }
 
     $now = time();
     $registered = date('n') . '/' . date('Y');
 
+    // Post as content + image, no link preview
+    $postFileCol = !empty($postFile) ? "'postFile_image'" : "''";
     $query = "INSERT INTO " . T_POSTS . " (
-        `user_id`, `postText`, `postLink`, `postLinkTitle`, `postLinkImage`, `postLinkContent`,
+        `user_id`, `postText`, `postFile`, `postFileName`,
         `postPrivacy`, `postType`, `time`, `registered`, `active`
     ) VALUES (
         {$bot->user_id},
         '{$postTextSafe}',
-        '{$postLink}',
-        '{$postLinkTitle}',
-        '{$postLinkImage}',
-        '{$postLinkContent}',
+        '{$postFile}',
+        {$postFileCol},
         '0',
         'post',
         {$now},
