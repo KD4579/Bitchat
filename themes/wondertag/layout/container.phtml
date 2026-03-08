@@ -340,7 +340,9 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 							navigator.geolocation.getCurrentPosition(
 								Wo_UpdateLocation,
 								function(err) {
-									$('#bc-location-modal').modal('show');
+									if (navigator.userAgent.indexOf('BitchatApp') === -1) {
+										$('#bc-location-modal').modal('show');
+									}
 								},
 								{enableHighAccuracy: true, timeout: 5000}
 							);
