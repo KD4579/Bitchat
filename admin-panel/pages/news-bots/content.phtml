@@ -185,8 +185,8 @@ function resetBotForm() {
 }
 
 function editBot(id) {
-    var bot = bcBotData.find(function(b) { return b.id == id; });
-    if (!bot) return;
+    var bot = bcBotData.find(function(b) { return parseInt(b.id) === parseInt(id); });
+    if (!bot) { console.error('Bot not found:', id, bcBotData); return; }
     $('#bc-bot-form-title').text('Edit Bot: ' + bot.name);
     $('#bc-bot-edit-id').val(bot.id);
     $('#bc-bot-edit-id').data('content-type', bot.content_type || 'rss');
