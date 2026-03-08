@@ -2601,8 +2601,15 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
                 $data['status']  = 400;
                 $data['message'] = 'This lang is already used.';
             } else {
-                $lang_name = Wo_Secure($_POST['lang']);
+                $lang_name = preg_replace('/[^a-zA-Z0-9_-]/', '', $_POST['lang']);
                 $lang_name = strtolower($lang_name);
+                if (empty($lang_name)) {
+                    $data['status']  = 400;
+                    $data['message'] = 'Invalid language name. Use only letters, numbers, hyphens and underscores.';
+                    header("Content-type: application/json");
+                    echo json_encode($data);
+                    exit();
+                }
                 $first = "module.exports = function(sequelize, DataTypes) {
                           return sequelize.define('Wo_Langs', {
                             id: {
@@ -4685,7 +4692,9 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
     if ($s == 'add_new_announcement') {
         if (!empty($_POST['announcement_text'])) {
             $html = '';
-            $id   = Wo_AddNewAnnouncement(base64_decode($_POST['announcement_text']));
+            $announcement_text = base64_decode($_POST['announcement_text']);
+            $announcement_text = strip_tags($announcement_text, '<b><i><a><br><p><strong><em><ul><ol><li>');
+            $id   = Wo_AddNewAnnouncement($announcement_text);
             if ($id > 0) {
                 $wo['activeAnnouncement'] = Wo_GetAnnouncement($id);
                 $html .= Wo_LoadAdminPage('manage-announcements/active-list');
@@ -5789,6 +5798,13 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
     if ($s == 'uploadFiles') {
         if (!empty($_GET['file']) && !empty($_GET['path'])) {
             $file = Wo_Secure(base64_decode($_GET['path']));
+            // Prevent directory traversal / LFI
+            if (strpos($file, '..') !== false || strpos($file, "\0") !== false) {
+                $data = ['status' => 400, 'message' => 'Invalid file path.'];
+                header("Content-type: application/json");
+                echo json_encode($data);
+                exit();
+            }
             $storage = Wo_Secure($_GET['file']);
             $checkIfFileExistsInUpload = $db->where('filename', Wo_Secure($file))->where('storage', $storage)->getOne(T_UPLOADED_MEDIA);
             if (empty($checkIfFileExistsInUpload)) {

@@ -65,11 +65,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mkdir($upload_dir, 0755, true);
         }
         
+        // Validate file extension and MIME type
+        $file_extension = strtolower(pathinfo($_FILES['transaction_image']['name'], PATHINFO_EXTENSION));
+        $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+        if (!in_array($file_extension, $allowed_extensions)) {
+            $response['status'] = 400;
+            $response['message'] = 'Only image files (jpg, jpeg, png, gif, webp) are allowed';
+            echo json_encode($response);
+            exit();
+        }
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $_FILES['transaction_image']['tmp_name']);
+        finfo_close($finfo);
+        $allowed_mimes = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
+        if (!in_array($mime_type, $allowed_mimes)) {
+            $response['status'] = 400;
+            $response['message'] = 'Invalid file type. Only image files are allowed';
+            echo json_encode($response);
+            exit();
+        }
+
         // Generate unique filename
-        $file_extension = pathinfo($_FILES['transaction_image']['name'], PATHINFO_EXTENSION);
         $filename = 'btc_deposit_' . time() . '_' . $wo['user']['user_id'] . '.' . $file_extension;
         $upload_path = $upload_dir . $filename;
-        
+
         if (move_uploaded_file($_FILES['transaction_image']['tmp_name'], $upload_path)) {
             $image_path = 'uploads/btc_deposits/' . $filename;
         } else {

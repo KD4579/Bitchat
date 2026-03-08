@@ -352,7 +352,7 @@ else{
 		$computedSignature = base64_encode($hash_hmac);
 		if ($signature == $computedSignature) {
             if (Wo_ReplenishingUserBalance($_POST['amount'])) {
-                $_POST['amount'] = Wo_Secure($_POST['amount']);
+                $_POST['amount'] = floatval($_POST['amount']);
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $_POST['amount'] . "', 'Cashfree')");
                 $_SESSION['replenished_amount'] = $_POST['amount'];
                 $response_data = array(

@@ -53,8 +53,8 @@ elseif ($_POST['type'] == 'success') {
 
         # print result
         if ($checkoutForm->getPaymentStatus() == 'SUCCESS') {
-            $amount          = Wo_Secure($_POST['amount']);
-            $_POST['user_id'] = Wo_Secure($_POST['user_id']);
+            $amount          = floatval($_POST['amount']);
+            $_POST['user_id'] = intval($_POST['user_id']);
             $db->where('user_id', $_POST['user_id'])->update(T_USERS, array(
                 'wallet' => $db->inc($amount)
             ));

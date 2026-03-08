@@ -46,6 +46,7 @@ if ($f == "insert-blog") {
             }
             $_POST['blog_tags'] = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_POST['blog_tags']);
             $_POST['blog_tags'] = strip_tags($_POST['blog_tags']);
+            $_POST['blog_tags'] = htmlspecialchars($_POST['blog_tags'], ENT_QUOTES, 'UTF-8');
             $registration_data  = array(
                 'user' => $wo['user']['id'],
                 'title' => Wo_Secure($_POST['blog_title']),

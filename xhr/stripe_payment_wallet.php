@@ -20,6 +20,7 @@ if ($f == 'stripe_payment_wallet') {
         if ($charge) {
             $user   = Wo_UserData($wo['user']['user_id']);
             //encrease wallet value with posted amount
+            $_POST['amount'] = floatval($_POST['amount']);
             $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $_POST['amount'] . " WHERE `user_id` = '" . $user['id'] . "'");
             if ($result) {
                 cache($user['id'], 'users', 'delete');

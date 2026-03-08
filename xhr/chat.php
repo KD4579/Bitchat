@@ -518,6 +518,7 @@ if ($f == 'chat') {
                         $mediaFilename = Wo_ImportImageFromUrl($_POST['chatSticker'], $fileend);
                         $is_sticker    = true;
                     } elseif (!empty($_POST['chatSticker']) && strpos($_POST['chatSticker'], '.gif')) {
+                        $_POST['chatSticker'] = htmlspecialchars($_POST['chatSticker'], ENT_QUOTES, 'UTF-8');
                         $_POST['chatSticker'] = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_POST['chatSticker']);
                         $_POST['chatSticker'] = preg_replace('/\((.*?)\)/m', '', $_POST['chatSticker']);
                         $_POST['chatSticker'] = strip_tags($_POST['chatSticker']);

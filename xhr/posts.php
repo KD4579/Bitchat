@@ -618,6 +618,7 @@ if ($f == 'posts') {
                 }
             }
             if (isset($_POST['postSticker']) && Wo_IsUrl($_POST['postSticker']) && empty($_FILES) && empty($_POST['postRecord'])) {
+                $_POST['postSticker'] = htmlspecialchars($_POST['postSticker'], ENT_QUOTES, 'UTF-8');
                 $_POST['postSticker'] = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_POST['postSticker']);
                 $_POST['postSticker'] = preg_replace('/\((.*?)\)/m', '', $_POST['postSticker']);
                 $_POST['postSticker'] = strip_tags($_POST['postSticker']);
@@ -1835,7 +1836,7 @@ if ($f == 'posts') {
             Wo_RunInBackground(array(
                 'status' => 200
             ));
-            $query = mysqli_query($sqlConnect, "SELECT `post_id`, `user_id` FROM `" . T_COMMENTS . "` WHERE `id` = " . $_GET['comment_id']);
+            $query = mysqli_query($sqlConnect, "SELECT `post_id`, `user_id` FROM `" . T_COMMENTS . "` WHERE `id` = " . intval($_GET['comment_id']));
             if (mysqli_num_rows($query) > 0) {
                 $fetched_data = mysqli_fetch_assoc($query);
                 $post_id      = $fetched_data['post_id'];

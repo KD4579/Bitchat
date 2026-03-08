@@ -51,8 +51,8 @@ if ($f == "iyzipay") {
 
             # print result
             if ($checkoutForm->getPaymentStatus() == 'SUCCESS') {
-                $amount          = Wo_Secure($_GET['amount']);
-                $_GET['user_id'] = Wo_Secure($_GET['user_id']);
+                $amount          = floatval($_GET['amount']);
+                $_GET['user_id'] = intval($_GET['user_id']);
                 $db->where('user_id', $_GET['user_id'])->update(T_USERS, array(
                     'wallet' => $db->inc($amount)
                 ));

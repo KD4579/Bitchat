@@ -9,7 +9,10 @@
 // | Copyright (c) 2016 WoWonder. All rights reserved.
 // +------------------------------------------------------------------------+
 require 'assets/libraries/PHPMailer-Master/vendor/autoload.php';
-require_once base64_decode('YXNzZXRzL2xpYnJhcmllcy9nb29nbGUvdmVuZG9yL3JpemUvdXJpLXRlbXBsYXRlL3NyYy9SaXplL1VyaVRlbXBsYXRlL05vZGUvTm9kZS5waHA=');
+// Decoded from base64 for auditability (original WoWonder framework path)
+if (file_exists('assets/libraries/google/vendor/rize/uri-template/src/Rize/UriTemplate/Node/Node.php')) {
+    require_once 'assets/libraries/google/vendor/rize/uri-template/src/Rize/UriTemplate/Node/Node.php';
+}
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 

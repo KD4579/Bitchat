@@ -80,6 +80,14 @@ function Wo_CustomCode($a = false, $code = array()) {
         $result = $data;
     } else if ($a == 'p' && !empty($code)) {
         foreach ($code as $key => $content) {
+            if (!isset($custom_code[$key])) {
+                continue;
+            }
+            $target_real = realpath(dirname($custom_code[$key]));
+            $allowed_base = realpath("themes/$theme/custom");
+            if ($target_real === false || $allowed_base === false || strpos($target_real, $allowed_base) !== 0) {
+                continue;
+            }
             if (is_writable($custom_code[$key])) {
                 @file_put_contents($custom_code[$key], base64_decode($content));
             }
