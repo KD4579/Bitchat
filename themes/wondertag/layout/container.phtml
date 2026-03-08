@@ -1260,6 +1260,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php if ($wo['page'] != 'get_news_feed' && $wo['page'] != 'maintenance') { ?>
 			<script>
 				window.addEventListener("load", function(){
+					if (navigator.userAgent.indexOf('BitchatApp') !== -1) return;
 					window.cookieconsent.initialise({
 						"theme": "classic",
 						"content": {

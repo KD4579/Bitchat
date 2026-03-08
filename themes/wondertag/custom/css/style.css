@@ -3128,6 +3128,9 @@ div[class*="timeline"] {
 /* ---- UI-1: Hero Market Banner ---- */
 /* Hide hero banner in native Android app */
 html.bc-native-app #bc-hero-banner { display: none !important; }
+/* Hide lightbox prev/next buttons in native app — swipe is used instead */
+html.bc-native-app .wo_imagecombo_lbox .previous-btn,
+html.bc-native-app .wo_imagecombo_lbox .next-btn { display: none !important; }
 
 /* Scoped to #bc-hero-banner (home page only) to avoid overriding welcome page .bc-hero */
 #bc-hero-banner {
@@ -6086,13 +6089,69 @@ body {
 }
 
 /* ==========================================================================
-   FIX-4b: Mobile bottom nav icons — 50% larger (24px → 36px)
+   FIX-4b: Mobile bottom nav — uniform icons, distinct colors, home button
    ========================================================================== */
+
+/* Home button — hidden on desktop, shown on mobile */
+.bc-bottom-home-btn {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
-  .tag_hdr_droptoggle svg,
+  .bc-bottom-home-btn {
+    display: flex !important;
+    order: -2 !important;
+  }
+
+  /* Uniform icon size for ALL bottom nav SVGs */
+  .tag_hdr_right > .dropdown > .tag_hdr_droptoggle svg,
+  .tag_hdr_right > .dropdown > a.tag_hdr_droptoggle svg,
+  .tag_hdr_right > .tag_main_usr_ddmenu > .tag_hdr_droptoggle svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
   .tag_hdr_user_droptoggle img {
-    width: 36px !important;
-    height: 36px !important;
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 50% !important;
+  }
+
+  /* Equal button tap target — uniform padding and alignment */
+  .tag_hdr_right > .dropdown > .tag_hdr_droptoggle,
+  .tag_hdr_right > .dropdown > a.tag_hdr_droptoggle,
+  .tag_hdr_right > .tag_main_usr_ddmenu > .tag_hdr_droptoggle {
+    padding: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  /* Colorful icons — each button gets a distinct color */
+  .bc-bottom-home-btn > .tag_hdr_droptoggle svg {
+    color: #0073CE !important;              /* Blue — Home */
+  }
+  .bc-bottom-search-btn > .tag_hdr_droptoggle svg {
+    color: #8B5CF6 !important;              /* Purple — Search */
+  }
+  .requests-container > .tag_hdr_droptoggle svg {
+    color: #23BB9B !important;              /* Teal — Requests */
+  }
+  .messages-notification-container > .tag_hdr_droptoggle svg {
+    color: #3B82F6 !important;              /* Blue — Messages */
+  }
+  .notification-container > .tag_hdr_droptoggle svg {
+    color: #F59E0B !important;              /* Amber — Notifications */
+  }
+
+  /* Active/open state */
+  .tag_hdr_right > .dropdown.show > .tag_hdr_droptoggle {
+    background: rgba(0,0,0,0.06) !important;
+  }
+  html:has(link#night-mode-css) .tag_hdr_right > .dropdown.show > .tag_hdr_droptoggle,
+  html.bc-dark-mode .tag_hdr_right > .dropdown.show > .tag_hdr_droptoggle {
+    background: rgba(255,255,255,0.1) !important;
   }
 }
 
@@ -7817,3 +7876,49 @@ html.bc-dark-mode .bc-loc-btn-skip:hover { background:#4a4a4a; }
     padding-right: 0 !important;
   }
 }
+
+/* ==========================================================================
+   FIX-5: Native app adjustments
+   ========================================================================== */
+
+/* FIX-5a: Hide wallet login in native app (window.ethereum unavailable in WebView) */
+html.bc-native-app .bc-wallet-login { display: none !important; }
+
+/* FIX-5b: Google login fallback button for WebView */
+.bc-google-fallback-btn {
+  display: none;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background: #fff;
+  color: #3c4043;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.bc-google-fallback-btn:hover { background: #f8f9fa; text-decoration: none; color: #3c4043; }
+html.bc-native-app .bc-google-fallback-btn { display: flex; }
+html.bc-native-app #buttonDiv { display: none !important; }
+
+/* FIX-5c: Sidebar load-more for native app */
+.bc-sidebar-load-more {
+  display: none;
+  padding: 8px 16px;
+  margin: 4px 0 8px 0;
+  font-size: 13px;
+  color: var(--bc-accent, #0073CE);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+.bc-sidebar-load-more:hover { text-decoration: underline; }
+html.bc-native-app .bc-sidebar-load-more { display: block; }

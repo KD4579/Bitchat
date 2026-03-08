@@ -14,6 +14,29 @@
         document.documentElement.classList.add('bc-native-app');
     }
 
+    // --- Part 0a2: Lightbox swipe navigation (native app only) ---
+    if (document.documentElement.classList.contains('bc-native-app')) {
+        var _lbStartX = 0, _lbStartY = 0;
+        $(document).on('touchstart', '.wo_imagecombo_lbox', function(e) {
+            var t = e.originalEvent.touches[0];
+            _lbStartX = t.clientX;
+            _lbStartY = t.clientY;
+        });
+        $(document).on('touchend', '.wo_imagecombo_lbox', function(e) {
+            var t = e.originalEvent.changedTouches[0];
+            var dx = t.clientX - _lbStartX;
+            var dy = t.clientY - _lbStartY;
+            if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+            var id = parseInt($(this).attr('data-post-id'));
+            if (!id) return;
+            if (dx < 0 && typeof Wo_NextPicture === 'function') {
+                Wo_NextPicture(id);
+            } else if (dx > 0 && typeof Wo_PreviousPicture === 'function') {
+                Wo_PreviousPicture(id);
+            }
+        });
+    }
+
     // --- Part 0b: Mobile search overlay close handler ---
     $(document).on('click', '.tag_toggle_search', function() {
         $('.search-container').removeClass('bc-search-open');
@@ -668,4 +691,54 @@ document.addEventListener('click', function(e) {
             $(this).modal('hide');
         }
     });
+})();
+
+/* =========================================================================
+   Part 5: Sidebar "Load More" for native app — show 5 items at a time
+   ========================================================================= */
+(function() {
+    if (!document.documentElement.classList.contains('bc-native-app')) return;
+
+    var ITEMS_PER_PAGE = 5;
+
+    function initLoadMore() {
+        var sections = document.querySelectorAll('.tag_sidebar_section');
+        sections.forEach(function(section) {
+            if (section.querySelector('.bc-sidebar-load-more')) return; // already init
+            var items = section.querySelectorAll(':scope > a');
+            if (items.length <= ITEMS_PER_PAGE) return;
+
+            // Hide items beyond the first 5
+            for (var i = ITEMS_PER_PAGE; i < items.length; i++) {
+                items[i].style.display = 'none';
+                items[i].setAttribute('data-bc-hidden', '1');
+            }
+
+            var btn = document.createElement('button');
+            btn.className = 'bc-sidebar-load-more';
+            btn.textContent = 'Load More...';
+            btn.style.display = 'block';
+            btn.addEventListener('click', function() {
+                var hidden = section.querySelectorAll('a[data-bc-hidden="1"]');
+                var count = 0;
+                for (var j = 0; j < hidden.length && count < ITEMS_PER_PAGE; j++) {
+                    hidden[j].style.display = '';
+                    hidden[j].removeAttribute('data-bc-hidden');
+                    count++;
+                }
+                if (section.querySelectorAll('a[data-bc-hidden="1"]').length === 0) {
+                    btn.style.display = 'none';
+                }
+            });
+            section.appendChild(btn);
+        });
+    }
+
+    // Run on load and after AJAX navigation
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLoadMore);
+    } else {
+        initLoadMore();
+    }
+    $(document).ajaxComplete(function() { setTimeout(initLoadMore, 300); });
 })();
