@@ -1097,6 +1097,13 @@ if ($f == 'posts') {
             } else {
                 $get_posts = Wo_GetPosts($postsData);
             }
+            // Exclude already-seen posts to prevent duplicates
+            if (!empty($_GET['seen_ids']) && !empty($get_posts)) {
+                $seen = array_flip(array_map('intval', explode(',', Wo_Secure($_GET['seen_ids']))));
+                $get_posts = array_values(array_filter($get_posts, function($post) use ($seen) {
+                    return !isset($seen[intval($post['id'] ?? $post['post_id'] ?? 0)]);
+                }));
+            }
             $is_api    = false;
             if (!empty($_GET['is_api'])) {
                 $is_api = true;

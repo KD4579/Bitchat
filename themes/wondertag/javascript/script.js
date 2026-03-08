@@ -712,6 +712,12 @@ function Wo_GetMorePosts() {
   var ranked_page = parseInt($('#posts').attr('data-ranked-page') || '1') + 1;
   $('#posts').attr('data-ranked-page', ranked_page);
 
+  // Collect visible post IDs to exclude duplicates server-side
+  var seen_ids = [];
+  $('#posts .post[data-post-id]').each(function() {
+    seen_ids.push($(this).attr('data-post-id'));
+  });
+
   $.get(Wo_Ajax_Requests_File(), {
     f: 'posts',
     s: 'load_more_posts',
@@ -725,7 +731,8 @@ function Wo_GetMorePosts() {
     is_api: is_api,
     ad_id: ad_id,
     story_id: story_id,
-    ranked_page: ranked_page
+    ranked_page: ranked_page,
+    seen_ids: seen_ids.join(',')
   }, function (data) {
     if (data.length == 0) {
       $('body').attr('no-more-posts', "true");
@@ -733,15 +740,14 @@ function Wo_GetMorePosts() {
      } else {
       if (data != 'Please login or signup to continue.') {
           $('body').removeAttr('no-more-posts');
-          // Deduplicate: remove posts already visible in the DOM
-          var $newPosts = $('<div>').html(data);
-          $newPosts.find('.post[data-post-id]').each(function() {
+          $('#posts').append(data);
+          // Client-side dedup fallback: remove any duplicate post-containers
+          var seenMap = {};
+          $('#posts .post[data-post-id]').each(function() {
             var pid = $(this).attr('data-post-id');
-            if ($('#posts .post[data-post-id="' + pid + '"]').length > 0) {
-              $(this).closest('.post-container').remove();
-            }
+            if (seenMap[pid]) { $(this).closest('.post-container').remove(); }
+            else { seenMap[pid] = true; }
           });
-          $('#posts').append($newPosts.html());
       } else {
          $('body').attr('no-more-posts', "true");
       }
