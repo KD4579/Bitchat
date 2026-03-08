@@ -1104,6 +1104,26 @@ if ($f == 'posts') {
                     return !isset($seen[intval($post['id'] ?? $post['post_id'] ?? 0)]);
                 }));
             }
+            // Bot diversity: max 2 posts per bot per page load
+            if (!empty($get_posts)) {
+                $botIds = array();
+                $bq = mysqli_query($sqlConnect, "SELECT user_id FROM Wo_Bot_Accounts WHERE enabled = 1");
+                if ($bq) { while ($br = mysqli_fetch_assoc($bq)) { $botIds[intval($br['user_id'])] = true; } }
+                if (!empty($botIds)) {
+                    $botPageCounts = array();
+                    $filtered = array();
+                    foreach ($get_posts as $p) {
+                        $uid = intval($p['user_id'] ?? 0);
+                        if (isset($botIds[$uid])) {
+                            if (!isset($botPageCounts[$uid])) $botPageCounts[$uid] = 0;
+                            if ($botPageCounts[$uid] >= 2) continue;
+                            $botPageCounts[$uid]++;
+                        }
+                        $filtered[] = $p;
+                    }
+                    $get_posts = $filtered;
+                }
+            }
             $is_api    = false;
             if (!empty($_GET['is_api'])) {
                 $is_api = true;

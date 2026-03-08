@@ -290,7 +290,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
         }
     }
     $totalBotCount = 0;
-    $maxTotalBots  = 2; // Max bot posts in ranked feed
+    $maxTotalBots  = 4; // Max bot posts in ranked feed
     $maxPerBot     = 1; // Max posts per individual bot
 
     $rankedIds  = array();
