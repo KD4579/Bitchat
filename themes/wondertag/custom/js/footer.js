@@ -438,15 +438,21 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(function() { overlay.classList.add('bc-ig-in'); });
     }
 
-    /* Install button — triggers PWA install + OneSignal push */
+    /* Install button — Android gets APK, iOS gets PWA, desktop gets PWA */
     document.getElementById('bc-install-btn').addEventListener('click', function() {
         dismiss();
-        /* Trigger native PWA Add to Home Screen if available */
-        if (deferredPWAPrompt) {
+        var ua = navigator.userAgent.toLowerCase();
+        var isAndroid = ua.indexOf('android') > -1;
+
+        if (isAndroid) {
+            /* Direct APK download for Android */
+            window.location.href = '/upload/Bitchat-v1.0.0.apk';
+        } else if (deferredPWAPrompt) {
+            /* Native PWA Add to Home Screen */
             deferredPWAPrompt.prompt();
             deferredPWAPrompt.userChoice.then(function() { deferredPWAPrompt = null; });
         } else {
-            /* Fallback: show styled install guide */
+            /* Fallback: show styled install guide (iOS, desktop) */
             showInstallGuide();
         }
         /* Trigger OneSignal push notifications if available */

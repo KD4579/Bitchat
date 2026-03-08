@@ -260,3 +260,6 @@ ExpiresDefault "access plus 1 month"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </ifModule>
+
+# APK download MIME type
+AddType application/vnd.android.package-archive .apk
