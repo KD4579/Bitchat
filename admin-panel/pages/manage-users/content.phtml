@@ -293,7 +293,7 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
         <div class="col-lg-12 col-md-12">
             <div class="card">
                 <div class="card-body">
-					<div id="dashboard-daterangepicker" class="btn btn-outline-light pull-right">
+					<div id="dashboard-daterangepicker" class="btn btn-outline-light float-right">
                             <?php 
                             if (!empty($_GET['range']) && in_array($_GET['range'], array('Today','Yesterday','This Week','This Month','Last Month','This Year'))) {
                                 echo $_GET['range'];
@@ -308,48 +308,38 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
                       <div class="col-md-12">
                          <div class="site-settings-alert"></div>
                       </div>
-                      <div class="col-md-9" style="margin-bottom:0;">
+                      <div class="col-md-12 mb-0">
                         <form method="get" action="<?php echo Wo_LoadAdminLinkSettings('manage-users'); ?>">
-                          <div class="row">
-                            <div class="col-md-4">
-                              <div class="form-group form-float">
-                                  <div class="form-line">
-                                    <label class="form-label search-form">
-                                        Search for Username, E-mail, First or Last Name
-                                      </label>
-                                      <input type="text" name="query" id="query" class="form-control" value="<?php echo($filter_keyword); ?>">
-                                  </div>
+                          <div class="row align-items-end">
+                            <div class="col-lg-5 col-md-5 col-12">
+                              <div class="form-group mb-2">
+                                <label class="form-label search-form">Search for Username, E-mail, First or Last Name</label>
+                                <input type="text" name="query" id="query" class="form-control" value="<?php echo($filter_keyword); ?>">
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <div class="form-group form-float">
-                                  <div class="form-line">
-                                    <label class="form-label search-form">
-                                        Type
-                                      </label>
-                                        <select class="form-control show-tick " id="user_type" name="user_type">
-                                            <option value="all">All</option>
-                                            <option value="active" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'active') ? 'selected' : ''); ?>>Active</option>
-                                            <option value="inactive" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'inactive') ? 'selected' : ''); ?>>Inactive</option>
-                                            <option value="online" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'online') ? 'selected' : ''); ?>>Online</option>
-                                            <option value="offline" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'offline') ? 'selected' : ''); ?>>Offline</option>
-                                        </select>
-                                  </div>
+                            <div class="col-lg-3 col-md-3 col-12">
+                              <div class="form-group mb-2">
+                                <label class="form-label search-form">Type</label>
+                                <select class="form-control show-tick" id="user_type" name="user_type">
+                                    <option value="all">All</option>
+                                    <option value="active" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'active') ? 'selected' : ''); ?>>Active</option>
+                                    <option value="inactive" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'inactive') ? 'selected' : ''); ?>>Inactive</option>
+                                    <option value="online" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'online') ? 'selected' : ''); ?>>Online</option>
+                                    <option value="offline" <?php echo ((!empty($_GET['user_type']) && $_GET['user_type'] == 'offline') ? 'selected' : ''); ?>>Offline</option>
+                                </select>
                               </div>
                             </div>
-                            <div class="col-md-1">
-                              <label>&nbsp;</label>
-                               <button class="btn btn-info">Search</button>
+                            <div class="col-lg-2 col-md-2 col-12">
+                              <div class="form-group mb-2">
+                                <button class="btn btn-info btn-block">Search</button>
+                              </div>
                             </div>
                           </div>
-                          <div class="clearfix"></div>
                         </form>
                       </div>
-                      <div class="col-md-3" style="margin-bottom:0;">
-                       </div>
                     </div>
                     <div class="clearfix"></div>
-                    <div class="table-responsive1">
+                    <div class="table-responsive">
                         <table class="table table-bordered table-striped table-hover">
                             <thead>
                             <tr>
@@ -394,12 +384,12 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
                         </table>
                     </div>
                     <div class="wo-admincp-feturepager">
-                      <div class="pull-left">
+                      <div class="float-left">
                         <span>
                           <?php echo "Showing $page out of " . $db->totalPages; ?>
                         </span>
                       </div>
-                      <div class="pull-right">
+                      <div class="float-right">
                         <nav>
                           <ul class="pagination">
                             <li>
