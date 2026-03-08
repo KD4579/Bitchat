@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (isAndroid) {
             /* Direct APK download for Android */
-            window.location.href = '/upload/Bitchat-v1.0.2.apk';
+            window.location.href = '/upload/Bitchat-v1.0.3.apk';
         } else if (deferredPWAPrompt) {
             /* Native PWA Add to Home Screen */
             deferredPWAPrompt.prompt();
@@ -511,8 +511,8 @@ document.addEventListener('DOMContentLoaded', function() {
    compared to the version string in the app's user agent.
    Shows every page load until user updates. */
 (function() {
-    var LATEST_VERSION = '1.0.2'; /* ← bump this when you upload a new APK */
-    var APK_URL = '/upload/Bitchat-v1.0.2.apk'; /* ← update filename too */
+    var LATEST_VERSION = '1.0.3'; /* ← bump this when you upload a new APK */
+    var APK_URL = '/upload/Bitchat-v1.0.3.apk'; /* ← update filename too */
 
     var ua = navigator.userAgent;
     var match = ua.match(/BitchatApp\/([\d.]+)/);
