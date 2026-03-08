@@ -2,6 +2,28 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-08 — Ghost Activity, Play Store Prep & Cleanup
+
+### Ghost Activity
+
+- **10 dedicated ghost accounts**: Created ghost accounts with natural names from 10 different countries (Jacob Miller, Aisha Rahman, Lucas Santos, etc.), unique profile photos, and always-online status via cron lastseen updates.
+- **Replaced admin ghost actor**: Ghost reactions now come from dedicated accounts instead of the BITCHAT admin (user_id=1). Config updated to use all 10 new accounts for variety.
+
+### Play Store Preparation
+
+- **Signing credentials secured**: Moved hardcoded keystore passwords from `build.gradle.kts` to `local.properties` (gitignored).
+- **Security hardening**: Set `allowFileAccess=false` (blocks WebView local file access) and `allowBackup=false` (prevents ADB data extraction).
+- **AAB build**: Generated signed Android App Bundle (`app-release.aab`) required by Google Play Store.
+- **Privacy policy**: Populated `bitchat.live/terms/privacy-policy` with full 10-section Bitchat-specific privacy policy.
+
+### Cleanup
+
+- **Removed 5 old template files**: Deleted `wallet_old.phtml`, `content_old.phtml`, `avatar_startup_old.phtml` (x2), `page-tab-old.phtml` — 1,891 lines removed.
+- **Android build cache**: Cleaned 194MB of build artifacts, added `.gitignore` for Android project.
+- **APK download URLs**: Updated footer.js download button and update banner to v1.0.3.
+
+---
+
 ## 2026-03-08 — Android App v1.0.3 Release Build
 
 ### Release

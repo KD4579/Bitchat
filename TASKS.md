@@ -2287,3 +2287,40 @@ ALTER TABLE Wo_Users
 **Summary:** Rebuilt the Android app with all pending features from Tasks 56-60: scroll sensitivity fix (SwipeRefreshLayout conflict), wallet login detection (BitchatWallet JS interface), Google OAuth in WebView, back button navigation, and duplicate menu cleanup.
 **Changes:** Bumped versionCode 3→4, versionName 1.0.2→1.0.3, UserAgent BitchatApp/1.0.3. Built signed release APK with ProGuard minification.
 **Files Modified:** `app/build.gradle.kts`, `app/src/main/java/live/bitchat/app/MainActivity.kt`
+
+---
+
+## Task 63: Android App Play Store Preparation
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Summary:** Prepared Android app for Google Play Store submission — moved hardcoded signing credentials to `local.properties`, set `allowFileAccess=false` and `allowBackup=false` for security, built signed AAB (required by Play Store). Created proper privacy policy page.
+**Changes:** Signing credentials now loaded from `local.properties` (gitignored) via `Properties` loader. Built `app-release.aab` via `./gradlew bundleRelease`. Created `.gitignore` for Android project.
+**Files Modified:** `app/build.gradle.kts`, `app/src/main/AndroidManifest.xml`, `app/src/main/java/live/bitchat/app/MainActivity.kt`, `.gitignore`
+
+---
+
+## Task 64: Privacy Policy Page
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Summary:** Populated the privacy policy page at `bitchat.live/terms/privacy-policy` with proper Bitchat-specific content. Covers data collection, usage, sharing, retention, security, user rights, children's privacy, third-party services, and contact info. Required for Google Play Store submission.
+**Changes:** Updated `Wo_Terms` database row (type=`privacy_policy`) with full 10-section privacy policy.
+**Files Modified:** Database only (`Wo_Terms` table)
+
+---
+
+## Task 65: Ghost Activity — Dedicated Ghost Accounts
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Summary:** Created 10 dedicated ghost accounts with natural names from different countries, unique profile photos, and always-online status. Replaced previous config (admin account user_id=1) with new dedicated accounts. No real users are used for ghost activity.
+**Accounts Created:** Jacob Miller (USA), Aisha Rahman (Bangladesh), Lucas Santos (Brazil), Yuki Tanaka (Japan), Elena Petrov (Russia), Omar Hassan (Middle East), Sophie Laurent (France), Maria Garcia (Spain), Daniel Kim (South Korea), Vikram Singh (India)
+**Changes:** Created 10 Wo_Users entries with verified status, random passwords, ghost email addresses. Downloaded unique profile photos to `upload/photos/ghost/`. Updated `ghost_activity_accounts` config. Added lastseen auto-update in cron-job.php so ghost accounts always appear online.
+**Files Modified:** `cron-job.php`, Database (`Wo_Users`, `Wo_Config`)
+
+---
+
+## Task 66: Codebase Cleanup
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Summary:** Removed 5 old/backup template files (1,891 lines deleted). Cleaned 194MB of Android build artifacts. Updated APK download URLs from v1.0.2 to v1.0.3 in footer.js.
+**Files Deleted:** `themes/wondertag/layout/ads/wallet_old.phtml`, `themes/wondertag/layout/home/content_old.phtml`, `themes/wondertag/layout/start_up/avatar_startup_old.phtml`, `themes/wondertag/layout/start_up/avatar_startup_old (1).phtml`, `themes/sunshine/layout/chat/page-tab-old.phtml`
+**Files Modified:** `themes/wondertag/custom/js/footer.js`
