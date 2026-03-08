@@ -151,7 +151,7 @@ if (Wo_IsLogged() == true) {
     }
     $wo["loggedin"] = true;
 } else {
-    $wo["userSession"] = getUserProfileSessionID();
+    $wo["userSession"] = false;
 }
 if (!empty($_GET["c_id"]) && !empty($_GET["user_id"])) {
     $application = "windows";
