@@ -249,6 +249,15 @@ if (!empty($wo['config']['scheduled_posts_enabled']) && $wo['config']['scheduled
 // ********** Ghost Activity **********
 _cron_log_section('ghost_activity');
 if (!empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_activity_enabled'] == '1') {
+    // Keep ghost accounts appearing online (update lastseen every cron run)
+    $ghostIds = $wo['config']['ghost_activity_accounts'] ?? '';
+    if (!empty($ghostIds)) {
+        $safeIds = implode(',', array_filter(array_map('intval', explode(',', $ghostIds))));
+        if (!empty($safeIds)) {
+            mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET lastseen = " . time() . " WHERE user_id IN ({$safeIds})");
+        }
+    }
+
     if (function_exists('Wo_ProcessGhostQueue')) {
         Wo_ProcessGhostQueue();
     }
