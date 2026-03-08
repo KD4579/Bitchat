@@ -4154,6 +4154,57 @@ body:not(.bc-welcome) .tag_content  { margin-left: 280px !important; }
   display: none !important;
 }
 
+/* ── MC-7a: Search in bottom nav + hide top search bar on mobile ──────── */
+/* Hide search bar from header on mobile */
+@media (max-width: 768px) {
+  .tag_header > .search-container {
+    display: none !important;
+  }
+  /* Show search when toggled open via bottom nav button */
+  .tag_header > .search-container.bc-search-open {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    background: var(--header-background, #fff) !important;
+    padding: 8px 12px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,.15) !important;
+  }
+  .tag_header > .search-container.bc-search-open form {
+    width: 100% !important;
+  }
+  .tag_header > .search-container.bc-search-open .search-input {
+    width: 100% !important;
+    font-size: 16px !important;
+    padding: 10px 12px 10px 40px !important;
+  }
+  .tag_header > .search-container.bc-search-open .tag_toggle_search {
+    display: inline-flex !important;
+  }
+  .tag_header > .search-container.bc-search-open .search-dropdown-container {
+    position: fixed !important;
+    top: 52px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 45px !important;
+    max-height: none !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+  }
+}
+/* Search button visible only on mobile bottom bar */
+.bc-bottom-search-btn {
+  display: none !important;
+}
+@media (max-width: 768px) {
+  .bc-bottom-search-btn {
+    display: flex !important;
+    order: -1 !important;
+  }
+}
+
 /* ── MC-7b: Mobile Logo — force logo visible on small screens ────────────
    Core hides .header-brand at ≤520px. Override to show the mobile icon
    logo (.tag_logo_mobi) in the top-left corner of the header bar.

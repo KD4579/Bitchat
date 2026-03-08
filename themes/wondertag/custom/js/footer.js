@@ -9,6 +9,11 @@
  *    (fallback for browsers without :has() support).
  */
 (function() {
+    // --- Part 0: Mobile search overlay close handler ---
+    $(document).on('click', '.tag_toggle_search', function() {
+        $('.search-container').removeClass('bc-search-open');
+    });
+
     // --- Part 1: Prevent stuck invisible content area ---
     function ensureContentVisible() {
         var el = document.getElementById('ajax_loading');
