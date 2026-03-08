@@ -478,8 +478,8 @@ document.addEventListener('DOMContentLoaded', function() {
    compared to the version string in the app's user agent.
    Shows every page load until user updates. */
 (function() {
-    var LATEST_VERSION = '1.0.0'; /* ← bump this when you upload a new APK */
-    var APK_URL = '/upload/Bitchat-v1.0.0.apk'; /* ← update filename too */
+    var LATEST_VERSION = '1.0.1'; /* ← bump this when you upload a new APK */
+    var APK_URL = '/upload/Bitchat-v1.0.1.apk'; /* ← update filename too */
 
     var ua = navigator.userAgent;
     var match = ua.match(/BitchatApp\/([\d.]+)/);
