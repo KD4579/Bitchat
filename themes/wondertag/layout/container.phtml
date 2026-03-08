@@ -1508,7 +1508,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php if ($wo['loggedin'] == true && $wo['config']['find_friends'] == 1) { ?>
 		<!-- Location Permission Modal -->
 		<div class="modal fade" id="bc-location-modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
-			<div class="modal-dialog modal-dialog-centered" role="document" style="max-width:420px;">
+			<div class="modal-dialog modal-dialog-centered bc-loc-dialog" role="document">
 				<div class="modal-content bc-loc-modal">
 					<div class="bc-loc-header">
 						<div class="bc-loc-icon">
