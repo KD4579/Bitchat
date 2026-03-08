@@ -183,14 +183,15 @@ function Wo_AwardTRDC($userId, $amount, $reason, $milestoneType, $postId = 0) {
  * @param int $limit  Max records
  * @return array
  */
-function Wo_GetRewardHistory($userId, $limit = 50) {
+function Wo_GetRewardHistory($userId, $limit = 50, $offset = 0) {
     global $sqlConnect;
 
     $userId       = intval($userId);
     $limit        = max(1, min(200, intval($limit)));
+    $offset       = max(0, intval($offset));
     $rewardsTable = T_TRDC_REWARDS;
 
-    $result = mysqli_query($sqlConnect, "SELECT * FROM {$rewardsTable} WHERE user_id = {$userId} ORDER BY created_at DESC LIMIT {$limit}");
+    $result = mysqli_query($sqlConnect, "SELECT * FROM {$rewardsTable} WHERE user_id = {$userId} ORDER BY created_at DESC LIMIT {$limit} OFFSET {$offset}");
 
     $rewards = array();
     if ($result) {

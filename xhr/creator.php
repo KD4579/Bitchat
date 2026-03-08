@@ -8,6 +8,31 @@ if ($f == 'creator') {
     }
 
     $data = array('status' => 200);
+
+    // GET action: load more reward history
+    if (isset($_GET['action']) && $_GET['action'] == 'load_rewards') {
+        $offset = isset($_GET['offset']) ? max(0, intval($_GET['offset'])) : 0;
+        $limit = 10;
+        if (function_exists('Wo_GetRewardHistory')) {
+            $rewards = Wo_GetRewardHistory($wo['user']['user_id'], $limit + 1, $offset);
+            $hasMore = count($rewards) > $limit;
+            if ($hasMore) array_pop($rewards);
+            $html = '';
+            foreach ($rewards as $rh) {
+                $amt = number_format($rh['amount'], 4);
+                $reason = htmlspecialchars($rh['reason']);
+                $date = date('M j, Y', $rh['created_at']);
+                $html .= '<div class="bc-cd-history-item"><div class="bc-cd-hi-left"><span class="bc-cd-hi-amount">+' . $amt . ' TRDC</span><span class="bc-cd-hi-reason">' . $reason . '</span></div><span class="bc-cd-hi-date">' . $date . '</span></div>';
+            }
+            $data = array('status' => 200, 'html' => $html, 'has_more' => $hasMore);
+        } else {
+            $data = array('status' => 400, 'html' => '', 'has_more' => false);
+        }
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
     $action = isset($_POST['action']) ? Wo_Secure($_POST['action']) : '';
 
     // Admin actions — always accessible regardless of creator_mode_enabled

@@ -233,7 +233,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             Reward History
         </h4>
-        <div class="bc-cd-history">
+        <div class="bc-cd-history" id="bc-reward-history">
             <?php foreach ($wo['reward_history'] as $rh): ?>
             <div class="bc-cd-history-item">
                 <div class="bc-cd-hi-left">
@@ -244,6 +244,11 @@
             </div>
             <?php endforeach; ?>
         </div>
+        <?php if (count($wo['reward_history']) >= 10): ?>
+        <div id="bc-rh-load-more" style="text-align:center;padding:12px 0;">
+            <button class="btn btn-sm btn-default" onclick="bcLoadMoreRewards(this);" data-offset="10">Load More</button>
+        </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 
@@ -304,5 +309,22 @@ function bcDisableCreatorMode(btn) {
             btn.textContent = 'Disable Creator Mode';
         }
     });
+}
+
+function bcLoadMoreRewards(btn) {
+    var offset = parseInt($(btn).attr('data-offset')) || 10;
+    $(btn).prop('disabled', true).text('Loading...');
+    $.get(Wo_Ajax_Requests_File(), { f: 'creator', action: 'load_rewards', offset: offset }, function(data) {
+        if (data.status == 200 && data.html) {
+            $('#bc-reward-history').append(data.html);
+            if (data.has_more) {
+                $(btn).attr('data-offset', offset + 10).prop('disabled', false).text('Load More');
+            } else {
+                $('#bc-rh-load-more').remove();
+            }
+        } else {
+            $('#bc-rh-load-more').remove();
+        }
+    }, 'json').fail(function() { $(btn).prop('disabled', false).text('Load More'); });
 }
 </script>

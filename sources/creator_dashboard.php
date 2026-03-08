@@ -33,7 +33,7 @@ if (function_exists('Wo_IsCreator') && Wo_IsCreator($wo['user'])) {
         $wo['creator_rank'] = Wo_GetCreatorRank($wo['creator_stats']);
     }
     if (function_exists('Wo_GetRewardHistory')) {
-        $wo['reward_history'] = Wo_GetRewardHistory($wo['user']['user_id'], 20);
+        $wo['reward_history'] = Wo_GetRewardHistory($wo['user']['user_id'], 10);
     }
     if (function_exists('Wo_GetMilestoneProgress')) {
         $wo['milestone_progress'] = Wo_GetMilestoneProgress($wo['user']['user_id']);
