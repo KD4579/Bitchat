@@ -203,8 +203,15 @@ function editBot(id) {
     } else {
         $('#bc-bot-sources').attr('placeholder', "https://feeds.bbci.co.uk/news/world/rss.xml\nhttps://rss.nytimes.com/services/xml/rss/nyt/World.xml\nhttps://feeds.reuters.com/reuters/worldNews");
     }
-    $('#bc-bot-form-card').slideDown(300);
-    $('html,body').animate({scrollTop: $('#bc-bot-form-card').offset().top - 80}, 300);
+    $('#bc-bot-form-card').slideDown(300, function() {
+        // Scroll within admin panel's .content container (NiceScroll)
+        var container = $('.content');
+        if (container.length && container[0].scrollHeight > container[0].clientHeight) {
+            container.animate({scrollTop: 0}, 300);
+        } else {
+            $('html,body').animate({scrollTop: $('#bc-bot-form-card').offset().top - 80}, 300);
+        }
+    });
 }
 
 function saveBotAccount() {
