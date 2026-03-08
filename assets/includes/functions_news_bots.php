@@ -72,12 +72,13 @@ function bc_run_single_bot($bot_id, $sqlConnect, $wo) {
         return 0;
     }
 
-    // Shuffle to mix sources, then limit
+    // Shuffle to mix sources; post only 1 per cron run so posts spread throughout the day
     shuffle($articles);
 
     $posted = 0;
+    $maxPerRun = 1;
     foreach ($articles as $article) {
-        if ($posted >= $remaining) {
+        if ($posted >= $maxPerRun || $posted >= $remaining) {
             break;
         }
 
