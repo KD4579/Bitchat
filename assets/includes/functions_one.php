@@ -5596,6 +5596,23 @@ function Wo_RegisterPost($re_data = array('recipient_id' => 0)) {
             $re_data['user_id'] = 0;
         }
     }
+    // Duplicate post prevention: block same content from same user within 24 hours
+    if (!empty($re_data['postText']) && function_exists('Wo_GenerateTextHash')) {
+        $dupHash = Wo_GenerateTextHash($re_data['postText']);
+        if ($dupHash) {
+            $dupUserId = intval($re_data['user_id']);
+            $dupCutoff = time() - 86400;
+            $spamTable = defined('T_SPAM_TRACKING') ? T_SPAM_TRACKING : 'Wo_Spam_Tracking';
+            $dupHashSafe = mysqli_real_escape_string($sqlConnect, $dupHash);
+            $dupCheck = mysqli_query($sqlConnect,
+                "SELECT post_id FROM {$spamTable} WHERE user_id = {$dupUserId} AND text_hash = '{$dupHashSafe}' AND created_at > {$dupCutoff} LIMIT 1"
+            );
+            if ($dupCheck && mysqli_num_rows($dupCheck) > 0) {
+                return false;
+            }
+        }
+    }
+
     $fields  = '`' . implode('`, `', array_keys($re_data)) . '`';
     $data    = '\'' . implode('\', \'', $re_data) . '\'';
     $query   = mysqli_query($sqlConnect, "INSERT INTO " . T_POSTS . " ({$fields}) VALUES ({$data})");

@@ -189,6 +189,22 @@ function bc_run_template_bot($bot, $db, $sqlConnect, $wo, $postsToday, $remainin
  * Create a plain text post (no link preview) for template bots.
  */
 function bc_create_template_post($bot, $postText, $sqlConnect) {
+    // Duplicate content check: block same text from same bot within 24 hours
+    if (function_exists('Wo_GenerateTextHash')) {
+        $dupHash = Wo_GenerateTextHash($postText);
+        if ($dupHash) {
+            $dupCutoff = time() - 86400;
+            $spamTable = defined('T_SPAM_TRACKING') ? T_SPAM_TRACKING : 'Wo_Spam_Tracking';
+            $dupHashSafe = mysqli_real_escape_string($sqlConnect, $dupHash);
+            $dupCheck = mysqli_query($sqlConnect,
+                "SELECT post_id FROM {$spamTable} WHERE user_id = {$bot->user_id} AND text_hash = '{$dupHashSafe}' AND created_at > {$dupCutoff} LIMIT 1"
+            );
+            if ($dupCheck && mysqli_num_rows($dupCheck) > 0) {
+                return false;
+            }
+        }
+    }
+
     $postTextSafe = mysqli_real_escape_string($sqlConnect, $postText);
     $now = time();
     $registered = date('n') . '/' . date('Y');
@@ -212,6 +228,11 @@ function bc_create_template_post($bot, $postText, $sqlConnect) {
 
         if (class_exists('BitchatCache')) {
             BitchatCache::delete('trending');
+        }
+
+        // Track in spam table for duplicate detection
+        if (function_exists('Wo_TrackPostSpam')) {
+            Wo_TrackPostSpam($bot->user_id, $postText, '');
         }
 
         return $postId;
@@ -460,6 +481,22 @@ function bc_create_bot_post($bot, $article, $sqlConnect, $wo) {
         }
     }
 
+    // Duplicate content check: block same text from same bot within 24 hours
+    if (function_exists('Wo_GenerateTextHash')) {
+        $dupHash = Wo_GenerateTextHash($postText);
+        if ($dupHash) {
+            $dupCutoff = time() - 86400;
+            $spamTable = defined('T_SPAM_TRACKING') ? T_SPAM_TRACKING : 'Wo_Spam_Tracking';
+            $dupHashSafe = mysqli_real_escape_string($sqlConnect, $dupHash);
+            $dupCheck = mysqli_query($sqlConnect,
+                "SELECT post_id FROM {$spamTable} WHERE user_id = {$bot->user_id} AND text_hash = '{$dupHashSafe}' AND created_at > {$dupCutoff} LIMIT 1"
+            );
+            if ($dupCheck && mysqli_num_rows($dupCheck) > 0) {
+                return false;
+            }
+        }
+    }
+
     $now = time();
     $registered = date('n') . '/' . date('Y');
 
@@ -489,6 +526,11 @@ function bc_create_bot_post($bot, $article, $sqlConnect, $wo) {
         // Invalidate feed cache if available
         if (class_exists('BitchatCache')) {
             BitchatCache::delete('trending');
+        }
+
+        // Track in spam table for duplicate detection
+        if (function_exists('Wo_TrackPostSpam')) {
+            Wo_TrackPostSpam($bot->user_id, $postText, '');
         }
 
         return $postId;

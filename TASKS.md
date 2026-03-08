@@ -2324,3 +2324,35 @@ ALTER TABLE Wo_Users
 **Summary:** Removed 5 old/backup template files (1,891 lines deleted). Cleaned 194MB of Android build artifacts. Updated APK download URLs from v1.0.2 to v1.0.3 in footer.js.
 **Files Deleted:** `themes/wondertag/layout/ads/wallet_old.phtml`, `themes/wondertag/layout/home/content_old.phtml`, `themes/wondertag/layout/start_up/avatar_startup_old.phtml`, `themes/wondertag/layout/start_up/avatar_startup_old (1).phtml`, `themes/sunshine/layout/chat/page-tab-old.phtml`
 **Files Modified:** `themes/wondertag/custom/js/footer.js`
+
+---
+
+## Task 67: Duplicate Post Prevention
+**Status:** [x] Completed
+**Date:** 2026-03-09
+**Summary:** Block same-content posts from same user (real or bot) within 24 hours. Uses `Wo_GenerateTextHash()` to hash post text and checks `Wo_Spam_Tracking` table for existing match before INSERT. Added to all 3 post creation paths.
+**Files Modified:** `assets/includes/functions_one.php` (Wo_RegisterPost), `assets/includes/functions_news_bots.php` (bc_create_bot_post, bc_create_template_post)
+
+---
+
+## Task 68: Fix "View X New Posts" Counter
+**Status:** [x] Completed
+**Date:** 2026-03-09
+**Summary:** The "View N new posts" button was showing inflated counts because it counted bot posts. The ranked feed applies diversity limits (max 2 per bot), so clicking the button showed fewer posts than indicated. Fixed by excluding bot posts from the counter and always filtering to followed users/own posts/liked pages/joined groups.
+**Files Modified:** `xhr/update_data.php`
+
+---
+
+## Task 69: Anti-Spam Registration Protection (PRE-PLAY STORE)
+**Status:** [ ] Not Started
+**Priority:** High — MUST complete before Play Store submission
+**Date Added:** 2026-03-09
+**Issue:** Many new users register but never post or add profile pictures — likely spam/bot accounts.
+**Root Cause:** Registration has no real protection: no CAPTCHA enabled, no email verification, weak IP rate limit (10 accounts/IP/53min).
+**Planned Fixes:**
+1. Enable reCAPTCHA (admin setting `reCaptcha = 1` + add Google keys)
+2. Enable email verification (admin setting `emailValidation = 1`)
+3. Tighten IP rate limit — reduce from 10 to 3 accounts per IP per 24 hours
+4. Add honeypot field to registration form (hidden field that bots fill but humans don't)
+5. Purge inactive accounts — delete accounts with no posts, no avatar, no activity after X days
+**Key Files:** `xhr/register.php`, `assets/includes/functions_one.php` (Wo_CheckIfUserCanRegister), registration form templates

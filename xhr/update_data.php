@@ -67,25 +67,16 @@ if ($f == 'update_data') {
                 // Profile page: count new posts by that user
                 $count_query = "SELECT COUNT(*) AS cnt FROM " . T_POSTS . " WHERE `id` > {$before_post_id} AND `multi_image_post` = 0 AND `postType` <> 'profile_picture_deleted' AND (`user_id` = {$user_id_param} OR `recipient_id` = {$user_id_param}) AND `postShare` IN (0,1) AND `group_id` = 0 AND `event_id` = 0 AND `postPrivacy` <> '4'";
             } else {
-                // Home feed: count new posts visible to this user
+                // Home feed: count new posts from real users only (exclude bots)
+                // Bot posts appear naturally in feed refresh — counting them inflates the indicator
                 $count_query = "SELECT COUNT(*) AS cnt FROM " . T_POSTS . " WHERE `id` > {$before_post_id} AND `multi_image_post` = 0 AND `postType` <> 'profile_picture_deleted' AND `postShare` NOT IN (1) AND `active` = 1";
-                $add_filter_query = false;
-                if ($wo['config']['order_posts_by'] == 0) {
-                    if ($wo['user']['order_posts_by'] == 1) {
-                        $add_filter_query = true;
-                    }
-                } else {
-                    $add_filter_query = true;
-                }
-                if ($add_filter_query == true) {
-                    $count_query .= " AND (
-                        `user_id` IN (SELECT `following_id` FROM " . T_FOLLOWERS . " WHERE `follower_id` = {$logged_user_id} AND `active` = '1')
-                        OR `user_id` = {$logged_user_id}
-                        OR `page_id` IN (SELECT `page_id` FROM " . T_PAGES_LIKES . " WHERE `user_id` = {$logged_user_id} AND `active` = '1')
-                        OR `group_id` IN (SELECT `group_id` FROM " . T_GROUP_MEMBERS . " WHERE `user_id` = {$logged_user_id} AND `active` = '1')
-                        OR `user_id` IN (SELECT `user_id` FROM Wo_Bot_Accounts WHERE `enabled` = 1)
-                    )";
-                }
+                $count_query .= " AND `user_id` NOT IN (SELECT `user_id` FROM Wo_Bot_Accounts)";
+                $count_query .= " AND (
+                    `user_id` IN (SELECT `following_id` FROM " . T_FOLLOWERS . " WHERE `follower_id` = {$logged_user_id} AND `active` = '1')
+                    OR `user_id` = {$logged_user_id}
+                    OR `page_id` IN (SELECT `page_id` FROM " . T_PAGES_LIKES . " WHERE `user_id` = {$logged_user_id} AND `active` = '1')
+                    OR `group_id` IN (SELECT `group_id` FROM " . T_GROUP_MEMBERS . " WHERE `user_id` = {$logged_user_id} AND `active` = '1')
+                )";
                 $count_query .= " AND (`postPrivacy` <> '3' OR (`user_id` = {$logged_user_id} AND `postPrivacy` >= '0'))";
             }
 
