@@ -219,6 +219,75 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
 }
 
 ?>
+<style>
+/* Manage Users — uniform table layout */
+.manage-users-table .setting-avatar {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    float: none;
+    display: inline-block;
+}
+.manage-users-table td,
+.manage-users-table th {
+    vertical-align: middle;
+    font-size: 13px;
+    white-space: nowrap;
+    padding: 8px 10px;
+}
+.manage-users-table th {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #495057;
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+.manage-users-table td a {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+    color: #333;
+}
+.manage-users-table .label {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+.manage-users-table .feather {
+    vertical-align: middle;
+}
+.manage-users-table .feather-arrow-up,
+.manage-users-table .feather-arrow-down {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.wo-admincp-feturepager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    clear: both;
+}
+.wo-admincp-feturepager .float-left,
+.wo-admincp-feturepager .float-right {
+    float: none;
+}
+.wo-admincp-feturepager .pagination {
+    margin: 0;
+}
+.wo-admincp-feturepager .pagination li a {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+</style>
 <div class="container-fluid">
     <div>
         <h3>Manage Users</h3>
@@ -340,7 +409,7 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
                     </div>
                     <div class="clearfix"></div>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover">
+                        <table class="table table-bordered table-striped table-hover manage-users-table">
                             <thead>
                             <tr>
                               <th><input type="checkbox" id="check-all" class="filled-in check-all" ><label for="check-all"></label></th>
@@ -435,19 +504,17 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
                           </ul>
                         </nav>
                       </div>
-                      <div class="clearfix"></div>
-                      <div class="row">
-                          <div class="col-lg-2 col-md-2">
-                              <span>Action</span>
-                              <select class="form-control show-tick" id="action_type">
+                      <div class="row align-items-end mt-3">
+                          <div class="col-auto">
+                              <label class="form-label mb-1" style="font-size:13px;">Bulk Action</label>
+                              <select class="form-control form-control-sm show-tick" id="action_type" style="width:150px;">
                                   <option value="activate">Activate</option>
                                   <option value="deactivate">Deactivate</option>
                                   <option value="delete">Delete</option>
                               </select>
                           </div>
-                          <div class="col-lg-3 col-md-3">
-                              <span>&nbsp;</span>
-                              <button type="button" class="btn btn-info waves-effect delete-selected d-block" disabled>Submit<span></span></button>
+                          <div class="col-auto">
+                              <button type="button" class="btn btn-info btn-sm waves-effect delete-selected" disabled>Submit</button>
                           </div>
                       </div>
                     </div>
