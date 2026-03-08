@@ -270,22 +270,41 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
     cursor: pointer;
 }
 .wo-admincp-feturepager {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 12px 0;
     clear: both;
+    overflow: hidden;
 }
-.wo-admincp-feturepager .float-left,
+.wo-admincp-feturepager .float-left {
+    float: left;
+    line-height: 36px;
+    font-size: 13px;
+}
 .wo-admincp-feturepager .float-right {
-    float: none;
+    float: right;
 }
 .wo-admincp-feturepager .pagination {
     margin: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    list-style: none;
+    padding: 0;
+}
+.wo-admincp-feturepager .pagination li {
+    display: inline-block;
 }
 .wo-admincp-feturepager .pagination li a {
-    padding: 6px 10px;
+    display: inline-block;
+    padding: 6px 12px;
     font-size: 13px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #dee2e6;
+    margin-left: -1px;
+}
+.wo-admincp-feturepager .pagination li.active a {
+    background: #5c9eff;
+    color: #fff;
+    border-color: #5c9eff;
 }
 </style>
 <div class="container-fluid">
@@ -504,19 +523,20 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
                           </ul>
                         </nav>
                       </div>
-                      <div class="row align-items-end mt-3">
-                          <div class="col-auto">
-                              <label class="form-label mb-1" style="font-size:13px;">Bulk Action</label>
-                              <select class="form-control form-control-sm show-tick" id="action_type" style="width:150px;">
-                                  <option value="activate">Activate</option>
-                                  <option value="deactivate">Deactivate</option>
-                                  <option value="delete">Delete</option>
-                              </select>
-                          </div>
-                          <div class="col-auto">
-                              <button type="button" class="btn btn-info btn-sm waves-effect delete-selected" disabled>Submit</button>
-                          </div>
-                      </div>
+                      <div class="clearfix"></div>
+                    </div>
+                    <div class="row align-items-end mt-3">
+                        <div class="col-auto">
+                            <label class="form-label mb-1" style="font-size:13px;">Bulk Action</label>
+                            <select class="form-control form-control-sm show-tick" id="action_type" style="width:150px;">
+                                <option value="activate">Activate</option>
+                                <option value="deactivate">Deactivate</option>
+                                <option value="delete">Delete</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-info btn-sm waves-effect delete-selected" disabled>Submit</button>
+                        </div>
                     </div>
                 </div>
             </div>
