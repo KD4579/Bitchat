@@ -189,7 +189,7 @@
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
 								<span>Connect Wallet</span>
 							</button>
-							<p style="text-align:center;font-size:11px;color:#888;margin-top:4px;">Connect wallet to receive TRDC rewards instantly.</p>
+							<p class="bc-wallet-hint" style="text-align:center;font-size:11px;color:#888;margin-top:4px;">Connect wallet to receive TRDC rewards instantly.</p>
 						</div>
 					</div>
 					 <!--<a href="<?php echo Wo_SeoLink('index.php?link1=forgot-password'); ?>"-->
@@ -268,11 +268,54 @@ window.onload = function () {
 };
 <?php endif; ?>
 
-// Wallet login — uses raw window.ethereum (EIP-1193), no library needed
+// Wallet login — uses window.ethereum (EIP-1193) on desktop/wallet browsers,
+// or native wallet detection via BitchatWallet bridge on Android app
 ;(function() {
     var btn = document.getElementById('bc-wallet-btn');
     if (!btn) return;
 
+    var isNativeApp = document.documentElement.classList.contains('bc-native-app');
+    var walletContainer = btn.closest('.bc-wallet-login');
+
+    // Native app: detect installed wallets and show them
+    if (isNativeApp && typeof window.BitchatWallet !== 'undefined') {
+        try {
+            var wallets = JSON.parse(BitchatWallet.getInstalledWallets());
+            if (wallets.length > 0) {
+                // Replace button with wallet list
+                btn.style.display = 'none';
+                var listDiv = document.createElement('div');
+                listDiv.className = 'bc-wallet-list';
+                var heading = document.createElement('p');
+                heading.style.cssText = 'font-size:13px;font-weight:600;margin:0 0 8px;color:#333;';
+                heading.textContent = 'Connect with installed wallet:';
+                listDiv.appendChild(heading);
+
+                wallets.forEach(function(w) {
+                    var wBtn = document.createElement('button');
+                    wBtn.type = 'button';
+                    wBtn.className = 'bc-wallet-list-btn';
+                    wBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22"><path fill="#333" d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>' + w.name;
+                    wBtn.addEventListener('click', function() {
+                        BitchatWallet.openWalletBrowser(w['package'], 'https://bitchat.live');
+                    });
+                    listDiv.appendChild(wBtn);
+                });
+                walletContainer.insertBefore(listDiv, btn.nextSibling);
+            } else {
+                // No wallets installed — show install prompt
+                btn.querySelector('span').textContent = 'Install a Wallet';
+                btn.addEventListener('click', function() {
+                    BitchatWallet.openWalletBrowser('io.metamask', 'https://metamask.io/download/');
+                });
+            }
+        } catch(e) {
+            btn.style.display = 'none';
+        }
+        return;
+    }
+
+    // Desktop / wallet browser: use window.ethereum directly
     btn.addEventListener('click', async function() {
         var $errors = $('#login').find('.errors');
 
@@ -285,7 +328,6 @@ window.onload = function () {
         btn.querySelector('span').textContent = 'Connecting...';
 
         try {
-            // Request accounts — triggers MetaMask/Trust Wallet popup
             var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             if (!accounts || !accounts[0]) {
                 $errors.html('No accounts found. Please unlock your wallet.');
@@ -295,7 +337,6 @@ window.onload = function () {
             }
             var address = accounts[0].toLowerCase();
 
-            // Step 1: get server-generated nonce
             var nonceRes = await $.post(Wo_Ajax_Requests_File() + '?f=wallet_nonce', { wallet_address: address });
             if (!nonceRes || !nonceRes.nonce) {
                 $errors.html('Failed to get login challenge. Please try again.');
@@ -306,14 +347,12 @@ window.onload = function () {
 
             btn.querySelector('span').textContent = 'Sign in wallet...';
 
-            // Step 2: personal_sign — EIP-191, no gas fee
             var message   = 'Login to Bitchat\nNonce: ' + nonceRes.nonce;
             var signature = await window.ethereum.request({
                 method: 'personal_sign',
                 params: [message, address]
             });
 
-            // Step 3: verify on server and create session
             btn.querySelector('span').textContent = 'Verifying...';
             var loginRes = await $.post(Wo_Ajax_Requests_File() + '?f=wallet_login', {
                 wallet_address: address,

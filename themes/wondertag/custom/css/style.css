@@ -7886,8 +7886,28 @@ html.bc-dark-mode .bc-loc-btn-skip:hover { background:#4a4a4a; }
    FIX-5: Native app adjustments
    ========================================================================== */
 
-/* FIX-5a: Hide wallet login in native app (window.ethereum unavailable in WebView) */
-html.bc-native-app .bc-wallet-login { display: none !important; }
+/* FIX-5a: Wallet login styles for native app */
+html.bc-native-app .bc-wallet-login .bc-wallet-hint { display: none; }
+
+.bc-wallet-list { margin-top: 8px; }
+.bc-wallet-list-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+.bc-wallet-list-btn:hover { background: #f5f5f5; }
+.bc-wallet-list-btn svg { flex-shrink: 0; }
 
 /* FIX-5b: Google login fallback button for WebView */
 .bc-google-fallback-btn {
