@@ -474,16 +474,16 @@ if (($page > $db->totalPages) && !empty($_GET['page-id'])) {
                               </li>
                             <?php  } ?>
 
-                            <?php 
+                            <?php
                               $nums       = 0;
-                              $nums_pages = ($page > 4) ? ($page - 4) : $page;
+                              $nums_pages = ($page > 2) ? ($page - 2) : 1;
 
-                              for ($i=$nums_pages; $i <= $db->totalPages; $i++) { 
-                                if ($nums < 20) {
+                              for ($i=$nums_pages; $i <= $db->totalPages; $i++) {
+                                if ($nums < 5) {
                             ?>
                               <li class="<?php echo ($page == $i) ? 'active' : ''; ?>">
                                 <a href="<?php echo Wo_LoadAdminLinkSettings('manage-users?page-id=' . ($i)).$link; ?>" data-ajax="?path=manage-users&page-id=<?php echo($i) ?><?php echo($link); ?>" class="waves-effect">
-                                  <?php echo $i ?>   
+                                  <?php echo $i ?>
                                 </a>
                               </li>
 
