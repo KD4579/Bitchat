@@ -507,6 +507,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!isOlder(installedVersion, LATEST_VERSION)) return;
 
+    /* Skip if user dismissed this session (reappears on refresh/relogin) */
+    if (sessionStorage.getItem('bc_update_dismissed') === LATEST_VERSION) return;
+
     /* Build update banner */
     var banner = document.createElement('div');
     banner.id = 'bc-update-banner';
@@ -536,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('bc-update-close').addEventListener('click', function() {
         banner.classList.remove('bc-upd-visible');
         setTimeout(function() { banner.remove(); }, 300);
-        /* Show again on next page load — no sessionStorage dismiss */
+        sessionStorage.setItem('bc_update_dismissed', LATEST_VERSION);
     });
 })();
 

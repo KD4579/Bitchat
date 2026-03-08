@@ -7751,3 +7751,66 @@ html:has(link#night-mode-css) .bc-loc-btn-skip,
 html.bc-dark-mode .bc-loc-btn-skip { background:#3a3a3a; color:#ddd; }
 html:has(link#night-mode-css) .bc-loc-btn-skip:hover,
 html.bc-dark-mode .bc-loc-btn-skip:hover { background:#4a4a4a; }
+
+/* ==========================================================================
+   FIX-POST: Post cards fit-to-screen on all mobile devices
+   Override core negative margins that cause horizontal overflow.
+   Posts render edge-to-edge with proper containment.
+   ========================================================================== */
+@media (max-width: 520px) {
+  /* Prevent horizontal scroll from any overflow */
+  body, html {
+    overflow-x: hidden !important;
+  }
+  /* Remove negative margins that push posts outside viewport */
+  .post:not(.wo_imagecombo_lbox),
+  .tag_pub_box_bg {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 0 !important;
+  }
+  /* Container flush to edges */
+  .tag_cont_fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  /* Post inner content breathing room */
+  .post .post_hdr,
+  .post .post-text,
+  .post .post-actions,
+  .post .comment-section,
+  .post .wo_post_sec_text,
+  .post .record-btn-cont,
+  .post .post_content,
+  .post .shared-post-header {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  /* Post images/videos full width */
+  .post .post_img,
+  .post .post-media,
+  .post .post_video,
+  .post .wo_imagecombo_cont {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
+  /* Feed container no overflow */
+  #contnet,
+  .tag_content,
+  .page-margin {
+    overflow-x: hidden !important;
+  }
+  /* Column padding tighter */
+  .page-margin > .container > .row > [class*="col-"],
+  body:not(.bc-welcome) .tag_content .container > .row > [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .page-margin > .container,
+  body:not(.bc-welcome) .tag_content > .container,
+  body:not(.bc-welcome) .tag_content .page-margin > .container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
