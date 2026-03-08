@@ -8,7 +8,7 @@ if (!empty($wo['config']['feed_algorithm_enabled']) && $wo['config']['feed_algor
 ?>
 <?php
 // Store the actual latest post ID at page load time for accurate "new posts" counting
-$max_post_row = mysqli_fetch_assoc(mysqli_query($sqlConnect, "SELECT MAX(`id`) AS max_id FROM " . T_POSTS . " WHERE `active` = 1"));
+$max_post_row = mysqli_fetch_assoc(mysqli_query($wo['sqlConnect'], "SELECT MAX(`id`) AS max_id FROM " . T_POSTS . " WHERE `active` = 1"));
 $page_load_max_id = (int)($max_post_row['max_id'] ?? 0);
 ?>
 <div id="posts" data-page-load-max-id="<?php echo $page_load_max_id; ?>">
