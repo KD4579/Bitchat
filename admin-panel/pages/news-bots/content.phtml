@@ -134,7 +134,7 @@ https://feeds.reuters.com/reuters/worldNews"></textarea>
         ?>
         <div class="bc-bot-row" id="bc-bot-<?php echo $bot->id; ?>" style="display:flex; align-items:center; padding:14px; border:1px solid #e8e8e8; border-radius:8px; margin-bottom:10px;">
             <div style="flex-shrink:0; margin-right:14px;">
-                <img src="<?php echo $bot->avatar ?: $wo['config']['theme_url'].'/img/d-avatar.jpg'; ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+                <img src="<?php echo $bot->avatar ? Wo_GetMedia($bot->avatar) : $wo['config']['theme_url'].'/img/d-avatar.jpg'; ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
             </div>
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:600; font-size:15px;"><?php echo htmlspecialchars($bot->name); ?> <span class="badge badge-<?php echo $statusClass; ?>" style="font-size:11px;"><?php echo $statusText; ?></span></div>
