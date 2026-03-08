@@ -52,7 +52,7 @@ $section = Wo_GetForumSec(array('id' => $wo['forum_data']['forum']['sections']))
 	function FroumShare(self) {
 		$("#forum-shared").modal('show');
 		$(self).attr('disabled', 'true');
-		$.post(Wo_Ajax_Requests_File() + '?f=forum_share&hash_id=' + $('.main_session').val(), {id: <?php echo $_GET['fid']; ?>}, function(data, textStatus, xhr) {
+		$.post(Wo_Ajax_Requests_File() + '?f=forum_share&hash_id=' + $('.main_session').val(), {id: <?php echo intval($_GET['fid']); ?>}, function(data, textStatus, xhr) {
 			setTimeout(function (argument) {
 				$(self).removeAttr('disabled');
 				$("#forum-shared").modal('hide');
@@ -66,7 +66,7 @@ $section = Wo_GetForumSec(array('id' => $wo['forum_data']['forum']['sections']))
 	         dataType: 'json',
 	         data: {
 	         	f:"forum-posts-load",
-	         	forum:<?php echo $_GET['fid']; ?>,
+	         	forum:<?php echo intval($_GET['fid']); ?>,
 	         	offset:($(".topic-list").length > 0) ? $(".topic-list:last").attr('data-forum') : 0,
 	         },
 	         success:function(data){

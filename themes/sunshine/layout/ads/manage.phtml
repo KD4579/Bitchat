@@ -296,7 +296,7 @@
       });
 
       $('#update-ads').ajaxForm({
-       url: Wo_Ajax_Requests_File() + '?f=ads&s=update&ad-id=<?php echo $_GET['id']; ?>&a=1',
+       url: Wo_Ajax_Requests_File() + '?f=ads&s=update&ad-id=<?php echo intval($_GET['id']); ?>&a=1',
        type:"POST",
        beforeSend: function() {
         Wo_progressIconLoader($('#update-ads').find('button.btn-main'));

@@ -10,7 +10,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 @ini_set('session.gc_maxlifetime', 2592000); // 30 days session lifetime
 @ini_set('session.cookie_lifetime', 2592000); // 30 days cookie lifetime
 @ini_set('session.cookie_samesite', 'Lax'); // Allow cookies with same-site AJAX requests
-@ini_set('session.cookie_secure', 0); // Allow HTTP and HTTPS
+@ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) ? 1 : 0); // Secure cookies when on HTTPS
 @ini_set('session.use_strict_mode', 1);
 if (!version_compare(PHP_VERSION, '7.1.0', '>=')) {
     exit("Required PHP_VERSION >= 7.1.0 , Your PHP_VERSION is : " . PHP_VERSION . "\n");

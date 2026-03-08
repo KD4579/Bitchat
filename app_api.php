@@ -46,7 +46,7 @@ if ($application == 'windows_app') {
         echo json_encode($response_data, JSON_PRETTY_PRINT);
         exit();
     }
-    if ($server_key != $wo['config']['widnows_app_api_key']) {
+    if (!hash_equals($wo['config']['widnows_app_api_key'], $server_key)) {
         $response_data = array(
             'api_status' => '404',
             'errors' => array(

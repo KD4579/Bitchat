@@ -185,7 +185,7 @@
 	   <?php } ?>
 
       	$('#update-ads').ajaxForm({
-	       	url: Wo_Ajax_Requests_File() + '?f=ads&s=update&ad-id=<?php echo $_GET['id']; ?>&a=0',
+	       	url: Wo_Ajax_Requests_File() + '?f=ads&s=update&ad-id=<?php echo intval($_GET['id']); ?>&a=0',
 	       	type:"POST",
 	       	beforeSend: function() {
 	        	$('#update-ads').find('.add_wow_loader').addClass('btn-loading');

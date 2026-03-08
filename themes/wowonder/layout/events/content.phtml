@@ -303,7 +303,7 @@ $(function () {
 		  		url: Wo_Ajax_Requests_File(),
 		  		type: 'GET',
 		  		dataType: 'json',
-		  		data: {f: 'search-my-followers',filter:filter, event_id: <?php echo $_GET['eid']; ?>},
+		  		data: {f: 'search-my-followers',filter:filter, event_id: <?php echo intval($_GET['eid']); ?>},
 		  	}).done(function(data) {
 		  		if (data['status'] == 200) {
 		  			$(".event-people-invition-list").css("display","block").html(data['html'])
@@ -383,7 +383,7 @@ $(function () {
 				url: Wo_Ajax_Requests_File(),
 				type: 'GET',
 				dataType: 'json',
-				data: {f: 'register_event_invite',event_id:<?php echo $_GET['eid']; ?>,user_id:user_id},
+				data: {f: 'register_event_invite',event_id:<?php echo intval($_GET['eid']); ?>,user_id:user_id},
 				success:function(data){
 					if (data['status'] == 200) {
 						if (node_socket_flow == "1") {

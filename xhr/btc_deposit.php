@@ -6,7 +6,7 @@ if ($wo['loggedin'] == false) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && Wo_CheckMainSession($_POST['hash_id'] ?? '') === true) {
     $response = array();
     
     // Validate required fields

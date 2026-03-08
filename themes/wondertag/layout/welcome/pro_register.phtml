@@ -95,7 +95,7 @@
 						</div>
 						<button type="submit" class="btn btn-main btn-mat tag_wel_btn register_pay_btn" disabled><?php echo $wo['lang']['lets_go']?></button>
 						<?php if (isset($_GET['invite'])): ?>
-							<input type="text" class="d-none" value="<?php echo $_GET['invite']; ?>" name="invited">
+							<input type="text" class="d-none" value="<?php echo htmlspecialchars($_GET['invite'], ENT_QUOTES, 'UTF-8'); ?>" name="invited">
 						<?php endif; ?>
 						<input type="text" class="d-none" name="payment" id="payment">
 					</div>
