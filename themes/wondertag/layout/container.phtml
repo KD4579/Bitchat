@@ -1541,7 +1541,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 					console.warn('[Bitchat] Location denied:', err.message);
 					if (err.code === 1) {
 						if (navigator.userAgent.indexOf('BitchatApp') !== -1) {
-							alert('Location access is blocked.\n\nTo enable it:\n1. Open your phone Settings\n2. Go to Apps > Bitchat > Permissions\n3. Enable Location\n4. Reopen the app');
+							/* Native app handles permissions — skip alert */
 						} else {
 							alert('Location access is blocked by your browser.\n\nTo enable it:\n1. Click the lock icon (🔒) in the address bar\n2. Set Location to "Allow"\n3. Refresh the page');
 						}
