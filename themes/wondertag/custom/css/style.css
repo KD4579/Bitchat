@@ -3428,7 +3428,7 @@ body.night-mode .bc-ticker-bar {
   padding: 10px 16px !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 6px !important;
   margin-bottom: 12px !important;
   transition: box-shadow .2s ease !important;
 }
@@ -3449,7 +3449,7 @@ body.night-mode .bc-ticker-bar {
   background: var(--bc-bg, #F8FAFF) !important;
   border: 1.5px solid rgba(108,92,255,.15) !important;
   border-radius: 24px !important;
-  padding: 7px 14px !important;
+  padding: 7px 12px !important;
   font-size: 13px !important;
   color: var(--bc-text-muted, #888) !important;
   text-align: left !important;
@@ -3463,9 +3463,9 @@ body.night-mode .bc-ticker-bar {
 }
 /* Camera & Live buttons as icon chips */
 .tag_pub_box_bg_camlve {
-  width: 34px !important;
-  height: 34px !important;
-  border-radius: 10px !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 8px !important;
   background: var(--bc-bg, #F8FAFF) !important;
   border: none !important;
   display: flex !important;
@@ -3479,7 +3479,7 @@ body.night-mode .bc-ticker-bar {
   background: rgba(108,92,255,.1) !important;
   transform: translateY(-1px) !important;
 }
-.tag_pub_box_bg_camlve svg { color: var(--bc-primary, #6C5CFF); fill: var(--bc-primary, #6C5CFF); }
+.tag_pub_box_bg_camlve svg { color: var(--bc-primary, #6C5CFF); fill: var(--bc-primary, #6C5CFF); width: 20px; height: 20px; }
 
 /* Composer modal polish */
 .tag_main_pub_box .modal-content,
