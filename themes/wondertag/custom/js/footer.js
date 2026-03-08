@@ -9,7 +9,12 @@
  *    (fallback for browsers without :has() support).
  */
 (function() {
-    // --- Part 0: Mobile search overlay close handler ---
+    // --- Part 0a: Tag native app for CSS hiding ---
+    if (navigator.userAgent.indexOf('BitchatApp') !== -1) {
+        document.documentElement.classList.add('bc-native-app');
+    }
+
+    // --- Part 0b: Mobile search overlay close handler ---
     $(document).on('click', '.tag_toggle_search', function() {
         $('.search-container').removeClass('bc-search-open');
     });
