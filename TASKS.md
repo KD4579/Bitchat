@@ -2278,3 +2278,12 @@ ALTER TABLE Wo_Users
 **Problem:** Two issues: 1) Post composer textarea stayed at 44px height with overflow hidden even in full-screen mobile modal, making it nearly unusable on phones. 2) Long text/URLs in post cards could overflow horizontally without word-wrap.
 **Fix:** Added flex expansion rules for the composer textarea inside the full-screen mobile modal (≤600px) — textarea now fills available space with min-height 120px. Added `overflow-wrap: break-word` and `word-break: break-word` to `.post-description` to prevent horizontal text overflow. Added `overflow: hidden` to `.post-description` as containment guard.
 **Files Modified:** `themes/wondertag/custom/css/style.css`
+
+---
+
+## Task 62: Android App v1.0.3 Release Build
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Summary:** Rebuilt the Android app with all pending features from Tasks 56-60: scroll sensitivity fix (SwipeRefreshLayout conflict), wallet login detection (BitchatWallet JS interface), Google OAuth in WebView, back button navigation, and duplicate menu cleanup.
+**Changes:** Bumped versionCode 3→4, versionName 1.0.2→1.0.3, UserAgent BitchatApp/1.0.3. Built signed release APK with ProGuard minification.
+**Files Modified:** `app/build.gradle.kts`, `app/src/main/java/live/bitchat/app/MainActivity.kt`

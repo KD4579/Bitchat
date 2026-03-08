@@ -2,6 +2,14 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-08 — Android App v1.0.3 Release Build
+
+### Release
+
+- **Android app v1.0.3 (versionCode 4)**: Rebuilt signed release APK with all pending features — scroll sensitivity fix, wallet login detection, Google OAuth in WebView, back button navigation, duplicate menu cleanup. Bumped UserAgent to `BitchatApp/1.0.3`.
+
+---
+
 ## 2026-03-08 — Android App Fixes + Post Card Text Area Fix
 
 ### Android App Improvements
