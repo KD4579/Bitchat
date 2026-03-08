@@ -2,6 +2,24 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-08 — Android App Fixes + Post Card Text Area Fix
+
+### Android App Improvements
+
+- **Remove duplicate menu items**: Removed Privacy Settings and General Settings from profile dropdown (kept in sidebar). Hidden duplicate WoWonder bottom toolbar (`tag_sec_toolbar`).
+- **Fix pull-to-refresh during scroll**: Rewrote scroll detection to check CSS `overflow-y` on scrollable containers, preventing SwipeRefreshLayout from triggering when scrolling inside sidebar, modals, or any scrollable element.
+- **Wallet login with installed wallet detection**: Added `BitchatWallet` JS interface to detect installed wallet apps (MetaMask, Trust Wallet, Coinbase, etc.) and open their dApp browsers via deep links.
+- **Google login in WebView**: Added OAuth redirect fallback button when Google Identity Services SDK fails to render in WebView. Whitelisted Google OAuth URLs in WebView navigation.
+- **Back button navigation**: Rewrote back button to close sidebars/modals first, then try WebView history, then JS `history.back()` for AJAX/pushState navigation, with exit dialog fallback.
+
+### Bug Fixes
+
+- **Post composer textarea expansion on mobile**: Composer textarea stayed at 44px in full-screen mobile modal. Added flex expansion rules so textarea fills available space with 120px minimum height.
+- **Post text overflow**: Added `overflow-wrap: break-word` and `word-break: break-word` to `.post-description` to prevent long text/URLs from overflowing post cards horizontally.
+- **Post description overflow containment**: Added `overflow: hidden` to `.post-description` as a guard against horizontal overflow.
+
+---
+
 ## 2026-03-08 — Standardize Cache Busting
 
 ### Improvements

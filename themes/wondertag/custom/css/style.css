@@ -420,6 +420,9 @@ body.night_mode {
   font-size: 15px;
   line-height: 1.5;
   color: var(--bc-text-primary);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Post footer separator */
@@ -4062,6 +4065,7 @@ body:not(.bc-welcome) .tag_content  { margin-left: 280px !important; }
    The negative margin cancels padding to make action bar edge-to-edge. */
 .post .post-description {
   padding: 4px 15px 0 !important;
+  overflow: hidden !important;
 }
 .post .post-description p,
 .post .post-description .edited_text {
@@ -5417,6 +5421,26 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
     min-height: 100% !important;
     display: flex !important;
     flex-direction: column !important;
+  }
+  /* Textarea fills available space in full-screen composer modal */
+  #tagPostBox.show .modal-content #post-textarea {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo textarea,
+  #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo .postText {
+    flex: 1 !important;
+    min-height: 120px !important;
+    max-height: unset !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    resize: none !important;
   }
 }
 

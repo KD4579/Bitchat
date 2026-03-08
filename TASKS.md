@@ -2224,3 +2224,57 @@ ALTER TABLE Wo_Users
 **Problem:** CSS/JS cache-busting used static strings (`$wo['update_cache']`, `Tag_version()` = "2.7.2", `$wo['config']['version']`) that never changed, so Nginx with `expires max` served stale files indefinitely after updates.
 **Fix:** Created `bc_v()` helper using `filemtime()` for automatic cache invalidation. Replaced 25+ references in `container.phtml` and 1 in `extra_js/content.phtml` with `bc_v()` calls.
 **Files Modified:** `themes/wondertag/layout/container.phtml`, `themes/wondertag/layout/extra_js/content.phtml`
+
+---
+
+## Task 56: Android App — Remove Duplicate Menu Items
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** Profile dropdown and sidebar both showed Privacy Settings and General Settings, creating duplicate navigation items in the Android WebView app.
+**Fix:** Removed duplicate Privacy Settings and General Settings from the profile dropdown menu (kept in sidebar where the full Settings section lives). Hid original WoWonder bottom toolbar (`tag_sec_toolbar`) via CSS since custom `bc-bottom-home-btn` replaces it.
+**Files Modified:** `themes/wondertag/layout/header/loggedin-header.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Task 57: Android App — Fix Pull-to-Refresh Triggering During Scroll
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** Scrolling up inside sidebar menus, modals, and other scrollable containers triggered SwipeRefreshLayout pull-to-refresh instead of scrolling the container content.
+**Fix:** Rewrote scroll detection in `MainActivity.kt` to detect scrollable containers by checking CSS `overflow-y` property. Tracks whether touch started inside a scrollable element and blocks refresh for the entire touch gesture. Uses `BitchatScroll` JavascriptInterface with `setOnChildScrollUpCallback`.
+**Files Modified:** `bitchat-android/app/src/main/java/live/bitchat/app/MainActivity.kt`
+
+---
+
+## Task 58: Android App — Wallet Login with Installed Wallet Detection
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** "Connect Wallet" on the login page used `window.ethereum` which is unavailable in Android WebView. Users couldn't log in with crypto wallets from the app.
+**Fix:** Added `BitchatWallet` JavascriptInterface in `MainActivity.kt` that detects installed wallet apps (MetaMask, Trust Wallet, Coinbase, Rainbow, etc.) via package manager. Opens wallet dApp browsers via deep links. Updated login page JS to show list of installed wallets in native app, falling back to `window.ethereum` on desktop.
+**Files Modified:** `bitchat-android/app/src/main/java/live/bitchat/app/MainActivity.kt`, `themes/wondertag/layout/welcome/content-simple.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Task 59: Android App — Google Login in WebView
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** Google Identity Services (GIS) SDK doesn't render in Android WebView, so Google login button was invisible in the app.
+**Fix:** Added OAuth redirect fallback button that appears when GIS fails to render (detected by checking `#buttonDiv` content after 2s timeout). Button redirects to `login-with.php?provider=Google` which uses server-side HybridAuth OAuth flow. Whitelisted `accounts.google.com` and `googleapis.com` URLs in WebView's `shouldOverrideUrlLoading`.
+**Files Modified:** `bitchat-android/app/src/main/java/live/bitchat/app/MainActivity.kt`, `themes/wondertag/layout/welcome/content-simple.phtml`, `themes/wondertag/layout/welcome/content-startup.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Task 60: Android App — Back Button Navigation Fix
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** Android back button didn't work properly with WoWonder's AJAX/pushState navigation. Pressing back either did nothing or exited the app instead of going to the previous page.
+**Fix:** Rewrote `onKeyDown` in `MainActivity.kt` to: 1) Close open sidebar/dropdown menus first, 2) Dismiss open modals, 3) Try WebView `goBack()` for actual page navigations, 4) Fall back to `window.history.back()` for pushState navigations, 5) Show exit dialog only if URL didn't change after history.back().
+**Files Modified:** `bitchat-android/app/src/main/java/live/bitchat/app/MainActivity.kt`
+
+---
+
+## Task 61: Fix Post Card Text Area — Composer Expansion + Text Overflow
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** Two issues: 1) Post composer textarea stayed at 44px height with overflow hidden even in full-screen mobile modal, making it nearly unusable on phones. 2) Long text/URLs in post cards could overflow horizontally without word-wrap.
+**Fix:** Added flex expansion rules for the composer textarea inside the full-screen mobile modal (≤600px) — textarea now fills available space with min-height 120px. Added `overflow-wrap: break-word` and `word-break: break-word` to `.post-description` to prevent horizontal text overflow. Added `overflow: hidden` to `.post-description` as containment guard.
+**Files Modified:** `themes/wondertag/custom/css/style.css`
