@@ -702,8 +702,7 @@ function Wo_UrlDomain($url) {
     return $host;
 }
 function Wo_Secure($string, $censored_words = 0, $br = true, $strip = 0,$cleanString = true) {
-    global $sqlConnect, $mysqlMaria;
-    $mysqlMaria->setSQLType($sqlConnect);
+    global $sqlConnect;
     $string = trim($string);
     if ($cleanString) {
         $string = cleanString($string);
