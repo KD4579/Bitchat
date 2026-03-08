@@ -2031,6 +2031,24 @@ html:has(link#night-mode-css) .bc-ig-close,
 html.bc-dark-mode .bc-ig-close {
   color: #666;
 }
+
+/* ---- App Update Banner ---- */
+#bc-update-banner { position:fixed; bottom:0; left:0; right:0; z-index:99999; transform:translateY(100%); transition:transform 0.3s ease; }
+#bc-update-banner.bc-upd-visible { transform:translateY(0); }
+.bc-upd-content { display:flex; align-items:center; gap:10px; padding:12px 16px; background:#1a1a2e; color:#fff; }
+.bc-upd-icon { flex-shrink:0; color:#4ECDC4; }
+.bc-upd-text { flex:1; min-width:0; display:flex; flex-direction:column; font-size:13px; line-height:1.3; }
+.bc-upd-text strong { font-size:14px; }
+.bc-upd-text span { color:rgba(255,255,255,0.7); font-size:12px; }
+.bc-upd-btn { flex-shrink:0; padding:8px 20px; border:none; border-radius:8px; background:#4ECDC4; color:#1a1a2e; font-size:13px; font-weight:700; cursor:pointer; }
+.bc-upd-btn:hover { background:#3dbdb5; }
+.bc-upd-close { flex-shrink:0; background:none; border:none; color:rgba(255,255,255,0.5); font-size:22px; line-height:1; cursor:pointer; padding:0 4px; }
+.bc-upd-close:hover { color:#fff; }
+@media (max-width:480px) {
+  .bc-upd-content { padding:10px 12px; gap:8px; }
+  .bc-upd-text strong { font-size:13px; }
+  .bc-upd-btn { padding:7px 14px; font-size:12px; }
+}
 html:has(link#night-mode-css) .bc-ig-close:hover,
 html.bc-dark-mode .bc-ig-close:hover {
   color: #ccc;

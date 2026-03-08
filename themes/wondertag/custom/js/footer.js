@@ -288,10 +288,14 @@ if (marketStrip) {
    If user clicks Install or X → never shows again until logout.
    Uses sessionStorage (clears on logout/tab close).
    Random bg + font color from 15 presets each appearance.
-   Also captures beforeinstallprompt for native PWA install. */
+   Also captures beforeinstallprompt for native PWA install.
+   SKIPPED entirely when running inside the Bitchat Android app. */
 document.addEventListener('DOMContentLoaded', function() {
     var popup = document.getElementById('bc-install-popup');
     if (!popup) return;
+
+    /* Don't show install popup if already inside the app */
+    if (navigator.userAgent.indexOf('BitchatApp') !== -1) return;
 
     /* Capture native PWA install prompt */
     var deferredPWAPrompt = null;
@@ -467,6 +471,69 @@ document.addEventListener('DOMContentLoaded', function() {
     /* First show after 3 seconds (let page settle) */
     setTimeout(showPopup, 3000);
 });
+
+/* ---- Part 4: App Update Popup ---- */
+/* Checks if the installed app version is outdated and shows a
+   persistent update banner. Version is set server-side below and
+   compared to the version string in the app's user agent.
+   Shows every page load until user updates. */
+(function() {
+    var LATEST_VERSION = '1.0.0'; /* ← bump this when you upload a new APK */
+    var APK_URL = '/upload/Bitchat-v1.0.0.apk'; /* ← update filename too */
+
+    var ua = navigator.userAgent;
+    var match = ua.match(/BitchatApp\/([\d.]+)/);
+    if (!match) return; /* not in the app */
+
+    var installedVersion = match[1];
+    if (installedVersion === LATEST_VERSION) return; /* up to date */
+
+    /* Compare versions: return true if installed < latest */
+    function isOlder(installed, latest) {
+        var a = installed.split('.').map(Number);
+        var b = latest.split('.').map(Number);
+        for (var i = 0; i < Math.max(a.length, b.length); i++) {
+            var x = a[i] || 0, y = b[i] || 0;
+            if (x < y) return true;
+            if (x > y) return false;
+        }
+        return false;
+    }
+
+    if (!isOlder(installedVersion, LATEST_VERSION)) return;
+
+    /* Build update banner */
+    var banner = document.createElement('div');
+    banner.id = 'bc-update-banner';
+    banner.innerHTML =
+        '<div class="bc-upd-content">' +
+            '<div class="bc-upd-icon">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+            '</div>' +
+            '<div class="bc-upd-text">' +
+                '<strong>Update Available</strong>' +
+                '<span>v' + LATEST_VERSION + ' is ready. You have v' + installedVersion + '</span>' +
+            '</div>' +
+            '<button class="bc-upd-btn" id="bc-update-btn">Update</button>' +
+            '<button class="bc-upd-close" id="bc-update-close">&times;</button>' +
+        '</div>';
+    document.body.appendChild(banner);
+
+    /* Show with animation */
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() { banner.classList.add('bc-upd-visible'); });
+    });
+
+    document.getElementById('bc-update-btn').addEventListener('click', function() {
+        window.location.href = APK_URL;
+    });
+
+    document.getElementById('bc-update-close').addEventListener('click', function() {
+        banner.classList.remove('bc-upd-visible');
+        setTimeout(function() { banner.remove(); }, 300);
+        /* Show again on next page load — no sessionStorage dismiss */
+    });
+})();
 
 /* ---- Part 5: Composer "More Options" Button ---- */
 (function() {
