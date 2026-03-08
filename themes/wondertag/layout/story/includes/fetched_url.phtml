@@ -5,7 +5,7 @@
 			<a href="<?php echo $wo['story']['postLink'];?>" target="_blank" rel="nofollow">
 				<?php if (!empty($wo['story']['postLinkImage'])) {?>
 					<div class="post-fetched-url-con">
-						<img src="<?php echo $wo['story']['postLinkImage'];?>" alt="<?php echo $wo['story']['postLinkTitle'];?>"/>
+						<img src="<?php echo $wo['story']['postLinkImage'];?>" alt="<?php echo $wo['story']['postLinkTitle'];?>" onerror="this.parentElement.style.display='none'"/>
 					</div>
 				<?php } ?>
 				<div class="fetched-url-text">

@@ -2,6 +2,11 @@
 	function Tag_version () {
 		echo '2.7.2';
 	}
+	/** Return filemtime-based cache buster for a theme asset path (relative to layout dir) */
+	function bc_v($rel_path) {
+		$full = __DIR__ . '/../' . $rel_path;
+		return '?v=' . (@filemtime($full) ?: '1');
+	}
 ?>
 <?php 
 $wondertage_settings = array();
@@ -212,38 +217,38 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php } ?>
 
 		<link rel="shortcut icon" type="image/png" href="<?php echo $wo['config']['theme_url'];?>/img/icon.png"/>
-		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/general-style-plugins.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/general-style-plugins.css<?php echo bc_v('stylesheet/general-style-plugins.css'); ?>">
 		
 		<?php if ($wo['page'] == 'create_blog' || $wo['page'] == 'edit-blog' || $wo['page'] == 'create-ai-blog') { ?>
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/tinymce/js/tinymce/tinymce.min.js"></script>
 		<?php } ?>
     
 		<?php if ($wo['page'] == 'welcome') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome.css<?php echo bc_v('stylesheet/welcome.css'); ?>">
 			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_welcome_layout'] == 1) { ?>
-				<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome-startup.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
+				<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome-startup.css<?php echo bc_v('stylesheet/welcome-startup.css'); ?>">
 			<?php } ?>
 		<?php } else { ?>
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/twilio-video.min.js"></script>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style.css<?php echo bc_v('stylesheet/style.css'); ?>">
 			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style.header.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style.header.css<?php echo bc_v('stylesheet/style.header.css'); ?>">
 			<?php } ?>
 		<?php } ?>
 		
 		<?php if ($wo['page'] == 'welcome') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/font-awesome-4.7.0/css/font-awesome.min.css<?php echo $wo['update_cache']; ?>" media="print" onload="this.media='all'">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/font-awesome-4.7.0/css/font-awesome.min.css<?php echo bc_v('stylesheet/font-awesome-4.7.0/css/font-awesome.min.css'); ?>" media="print" onload="this.media='all'">
 		<?php } else { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/font-awesome-4.7.0/css/font-awesome.min.css<?php echo $wo['update_cache']; ?>">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/font-awesome-4.7.0/css/font-awesome.min.css<?php echo bc_v('stylesheet/font-awesome-4.7.0/css/font-awesome.min.css'); ?>">
 		<?php } ?>
 	  
 		<?php if($wo['language_type'] == 'rtl' && $wo['page'] != 'welcome') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/bootsrap-rtl.min.css<?php echo $wo['update_cache']; ?>">
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style_rtl.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/bootsrap-rtl.min.css<?php echo bc_v('stylesheet/bootsrap-rtl.min.css'); ?>">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style_rtl.css<?php echo bc_v('stylesheet/style_rtl.css'); ?>">
 		<?php } ?>
     
 		<?php if ($wo['page'] == 'welcome' && $wo['language_type'] == 'rtl') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome_rtl.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome_rtl.css<?php echo bc_v('stylesheet/welcome_rtl.css'); ?>">
 		<?php } ?>
 
 		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery-3.1.1.min.js"></script>
@@ -261,7 +266,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<?php } ?>
 
 			<?php if ($wo['page'] == 'movies' || $wo['page'] == 'watch_movie') { ?>
-				<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/movies/style.movies.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>" />
+				<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/movies/style.movies.css<?php echo bc_v('stylesheet/movies/style.movies.css'); ?>" />
 			<?php } ?>
 
 			<?php if ($wo['config']['checkout_payment'] == 'yes') { ?>
@@ -499,13 +504,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php echo Wo_LoadPage('style') ?>
 
 		<?php if (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo $wo['update_cache']; ?>?version=<?php echo Tag_version(); ?>" id="night-mode-css">
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">
 		<?php } ?>
 
 		<!-- VI-1: Bitchat Design System (loads before custom overrides) -->
-		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css?v=<?php echo @filemtime(__DIR__ . '/../custom/css/bitchat-design.css') ?: time(); ?>">
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css<?php echo bc_v('custom/css/bitchat-design.css'); ?>">
 		<!-- Custom UI Overrides (highest priority) -->
-		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/style.css?v=<?php echo @filemtime(__DIR__ . '/../custom/css/style.css') ?: '1'; ?>">
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/style.css<?php echo bc_v('custom/css/style.css'); ?>">
 
 		<?php if($wo['config']['googleLogin'] != 0): ?>
 			<script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -821,16 +826,16 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
       <?php } ?>
 
 		<?php if ($wo['config']['website_mode'] == 'askfm') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/askfm.css<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>" />
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/askfm.css<?php echo bc_v('stylesheet/website_mode/askfm.css'); ?>" />
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/website_mode/askfm.js"></script>
 		<?php }elseif ($wo['config']['website_mode'] == 'twitter') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/twitter.css<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>" />
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/twitter.css<?php echo bc_v('stylesheet/website_mode/twitter.css'); ?>" />
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/website_mode/twitter.js"></script>
 		<?php }elseif ($wo['config']['website_mode'] == 'instagram') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/instagram.css<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>" />
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/instagram.css<?php echo bc_v('stylesheet/website_mode/instagram.css'); ?>" />
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/website_mode/instagram.js"></script>
 		<?php }elseif ($wo['config']['website_mode'] == 'linkedin') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/linkedin.css<?php echo $wo['update_cache']; ?>?version=<?php echo $wo['config']['version']; ?>" />
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/website_mode/linkedin.css<?php echo bc_v('stylesheet/website_mode/linkedin.css'); ?>" />
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/website_mode/linkedin.js"></script>
 		<?php } ?>
 
@@ -1042,7 +1047,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php } ?>
 		
 		<?php if ($wo['loggedin'] == false) { ?>
-			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/welcome.js<?php echo $wo['update_cache']; ?>"></script>
+			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/welcome.js<?php echo bc_v('javascript/welcome.js'); ?>"></script>
 		<?php } ?>
 		
 		<?php if ($wo['config']['node_socket_flow'] == "1") { ?>
@@ -1052,9 +1057,9 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php } ?>
 		
 		<?php if ($wo['page'] != 'welcome') { ?>
-			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/script.js?v=<?php echo @filemtime(__DIR__ . '/../javascript/script.js') ?: time(); ?>"></script>
+			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/script.js<?php echo bc_v('javascript/script.js'); ?>"></script>
 		<?php } else { ?>
-			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery.form.min.js?v=<?php echo @filemtime(__DIR__ . '/../javascript/jquery.form.min.js') ?: time(); ?>"></script>
+			<script type="text/javascript" src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery.form.min.js<?php echo bc_v('javascript/jquery.form.min.js'); ?>"></script>
 		<?php } ?>
 		
 		<?php if ($wo['loggedin'] == true) {?>
@@ -1062,7 +1067,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				<script src="https://maps.googleapis.com/maps/api/js?key=<?php echo $wo['config']['google_map_api'];?>&libraries=places"></script>
 			<?php } ?>
 			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/audioRecord/recorder.js"></script>
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/audioRecord/record.js?version=<?php echo Tag_version(); ?>"></script>
+			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/audioRecord/record.js<?php echo bc_v('javascript/audioRecord/record.js'); ?>"></script>
 		<?php } ?>
 		
 		<?php if ($wo['page'] == 'timeline' && $wo['loggedin'] == true && $wo['config']['css_upload'] == 1) { ?>
@@ -1215,7 +1220,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	  
 			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_auto_dark'] == 1) { ?>
 			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				$('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo $wo['update_cache']; ?>" id="night-mode-css">');
+				$('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">');
 				$('head').append('<meta name="theme-color" content="#212121" id="night-mode-meta">');
 				$('#night_mode_toggle').addClass('d-none');
 				$('#night_mode_auto').removeClass('d-none');
@@ -1223,7 +1228,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 
 			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
 				if (e.matches) {
-					$('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo $wo['update_cache']; ?>" id="night-mode-css">');
+					$('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">');
 					$('head').append('<meta name="theme-color" content="#212121" id="night-mode-meta">');
 					$('#night_mode_toggle').addClass('d-none');
 					$('#night_mode_auto').removeClass('d-none');
@@ -1736,18 +1741,18 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<a href="<?php echo $wo['config']['site_url'].'/checkout';?>" data-ajax="?link1=checkout" id="load_checkout" style="display: none;"></a>
 		<?php } ?>
 	<?php if ($wo['page'] != 'welcome') { ?>
-	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/footer.js?v=3.<?php echo @filemtime(__DIR__ . '/../custom/js/footer.js') ?: time(); ?>"></script>
-	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-loader.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-loader.js') ?: time(); ?>"></script>
-	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-modal.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-modal.js') ?: time(); ?>"></script>
-	<?php /* <script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-prompts.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-prompts.js') ?: time(); ?>"></script> */ ?>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/footer.js<?php echo bc_v('custom/js/footer.js'); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-loader.js<?php echo bc_v('custom/js/bc-loader.js'); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-modal.js<?php echo bc_v('custom/js/bc-modal.js'); ?>"></script>
+	<?php /* <script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-prompts.js<?php echo bc_v('custom/js/bc-prompts.js'); ?>"></script> */ ?>
 	<?php if ($wo['loggedin'] == true && function_exists('Wo_GetPendingRewardToasts')): ?>
 	<?php $__bc_toasts = Wo_GetPendingRewardToasts(); if (!empty($__bc_toasts)): ?>
 	<script>window.__BC_PENDING_TOASTS = <?php echo json_encode($__bc_toasts, JSON_HEX_TAG | JSON_HEX_AMP); ?>;</script>
 	<?php endif; ?>
 	<?php endif; ?>
-	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-rewards.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-rewards.js') ?: time(); ?>"></script>
-	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-badges.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-badges.js') ?: time(); ?>"></script>
-	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-skeleton.js?v=<?php echo @filemtime(__DIR__ . '/../custom/js/bc-skeleton.js') ?: time(); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-rewards.js<?php echo bc_v('custom/js/bc-rewards.js'); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-badges.js<?php echo bc_v('custom/js/bc-badges.js'); ?>"></script>
+	<script src="<?php echo $wo['config']['theme_url'];?>/custom/js/bc-skeleton.js<?php echo bc_v('custom/js/bc-skeleton.js'); ?>"></script>
 	<?php } ?>
 
 	<?php if ($wo['loggedin'] == true): ?>

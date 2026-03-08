@@ -587,7 +587,7 @@ function Wo_Translate(id,lang){
 $(document).on('click', '#night_mode_toggle', function(event) {
   mode = $(this).attr('data-mode');
   if (mode == 'night') {
-      $('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo $wo['update_cache']; ?>" id="night-mode-css">');
+      $('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css?v=<?php echo @filemtime(__DIR__ . '/../../stylesheet/dark.css') ?: 1; ?>" id="night-mode-css">');
 	  $('head').append('<meta name="theme-color" content="#212121" id="night-mode-meta">');
       $('#night_mode_toggle').attr('data-mode', 'day');
       $('#night-mode-text').addClass('active');

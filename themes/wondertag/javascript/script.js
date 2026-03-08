@@ -394,7 +394,11 @@ function Wo_intervalUpdates(force_update = 0, loop = 0) {
       user_id = 0;
 	}
 	before_post_id = 0;
-	if($('.post-container').length > 0) {
+	// Use page-load max ID if available (ranked feed), else scan visible posts
+	var pageLoadMax = parseInt($('#posts').attr('data-page-load-max-id')) || 0;
+	if (pageLoadMax > 0) {
+      before_post_id = pageLoadMax;
+	} else if($('.post-container').length > 0) {
       var before_post_id = 0;
       $('.post-container > .post:not(.boosted)').each(function() {
         var pid = parseInt($(this).attr('data-post-id')) || 0;
@@ -424,11 +428,17 @@ function Wo_intervalUpdates(force_update = 0, loop = 0) {
       }
     if (hash_posts == true) {
         if (data.count_num > 0) {
-          $('.posts-count').html(data.count);
+          var $pc = $('.posts-count');
+          if ($pc.attr('data-count') != String(data.count_num)) {
+            $pc.attr('data-count', data.count_num).html(data.count);
+          }
         }
     } else {
         if (data.count_num > 0 && $('.filter-by-more').attr('data-filter-by') == 'all') {
-          $('.posts-count').html(data.count);
+          var $pc = $('.posts-count');
+          if ($pc.attr('data-count') != String(data.count_num)) {
+            $pc.attr('data-count', data.count_num).html(data.count);
+          }
         }
     }
     if(typeof (data.notifications) != "undefined" && data.notifications > 0) {
@@ -627,7 +637,7 @@ function Wo_GetNewPosts() {
   if(filter_by_more != 'all') {
     return false;
   }
-  $('.posts-count').empty();
+  $('.posts-count').empty().removeAttr('data-count');
   $('body,html').animate({ scrollTop : 0 }, 500);
   $("#posts-laoded").load(Wo_Ajax_Requests_File() + '?f=load_posts', function(response, status, xhr) {
     if (status == "error") {

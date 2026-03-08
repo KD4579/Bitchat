@@ -2191,3 +2191,36 @@ ALTER TABLE Wo_Users
 **Database Tables:** `Wo_Bot_Accounts`, `Wo_Bot_Posted`
 **Files Created:** `assets/includes/functions_news_bots.php`, `admin-panel/pages/news-bots/content.phtml`
 **Files Modified:** `xhr/admin_setting.php`, `admin-panel/autoload.php`, `cron-job.php`, `assets/includes/functions_one.php`, `assets/includes/functions_feed.php`
+
+---
+
+## Task 53: "View New Posts" Button — Wrong Count, CSS Hover Shift
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** The "View X new posts" button had three issues:
+1. Wrong count — used heavy `Wo_GetPosts()` with `limit: 20` cap, returning full post objects just to count them
+2. CSS hover shift — `transition: all .2s ease` caused visual jitter when box-shadow/focus ring changed on hover/focus/active
+3. Missing singular translation — `view_more_post` key didn't exist, causing empty text when count was 1
+**Fix:**
+1. Replaced `Wo_GetPosts()` with lightweight `COUNT(*)` SQL query (no limit cap, accurate count)
+2. Changed CSS `transition` from `all` to `background-color` only; pinned box-shadow on hover/focus/active states; added `outline: none` to prevent focus ring shift
+3. Added missing `view_more_post` singular key to english.php; added fallback in PHP for missing lang keys
+**Files Modified:** `xhr/update_data.php`, `themes/wondertag/stylesheet/style.css`, `assets/languages/english.php`, `themes/wondertag/javascript/script.js`
+
+---
+
+## Task 54: Post Card Z-Index Overlap — Like Button Over Link Preview
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** Link preview images in post cards rendered above the like/comment action buttons due to `z-index: 1` on `.post-fetched-url` creating a stacking context.
+**Fix:** Removed `z-index: 1` from `.post-fetched-url`, added `margin-bottom: 5px` for spacing, added `onerror` handler and background-color fallback for broken link preview thumbnails.
+**Files Modified:** `themes/wondertag/stylesheet/style.css`, `themes/wondertag/layout/story/includes/fetched_url.phtml`
+
+---
+
+## Task 55: Standardize Cache Busting Across All CSS/JS Includes
+**Status:** [x] Completed
+**Date:** 2026-03-08
+**Problem:** CSS/JS cache-busting used static strings (`$wo['update_cache']`, `Tag_version()` = "2.7.2", `$wo['config']['version']`) that never changed, so Nginx with `expires max` served stale files indefinitely after updates.
+**Fix:** Created `bc_v()` helper using `filemtime()` for automatic cache invalidation. Replaced 25+ references in `container.phtml` and 1 in `extra_js/content.phtml` with `bc_v()` calls.
+**Files Modified:** `themes/wondertag/layout/container.phtml`, `themes/wondertag/layout/extra_js/content.phtml`

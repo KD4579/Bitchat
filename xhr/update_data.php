@@ -59,21 +59,46 @@ if ($f == 'update_data') {
     $data['count_num'] = 0;
     if ($_GET['check_posts'] == 'true') {
         if (!empty($_GET['before_post_id']) && isset($_GET['user_id'])) {
-            $html      = '';
-            $postsData = array(
-                'before_post_id' => $_GET['before_post_id'],
-                'publisher_id' => $_GET['user_id'],
-                'limit' => 20,
-                'ad-id' => 0,
-                'placement' => 'multi_image_post'
-            );
-            $posts     = Wo_GetPosts($postsData);
-            $count     = count($posts);
-            if ($count == 1) {
-                $data['count'] = str_replace('{count}', $count, $wo['lang']['view_more_post']);
+            $before_post_id = Wo_Secure($_GET['before_post_id']);
+            $logged_user_id = Wo_Secure($wo['user']['user_id']);
+            $user_id_param  = Wo_Secure($_GET['user_id']);
+
+            if (!empty($user_id_param) && $user_id_param > 0) {
+                // Profile page: count new posts by that user
+                $count_query = "SELECT COUNT(*) AS cnt FROM " . T_POSTS . " WHERE `id` > {$before_post_id} AND `multi_image_post` = 0 AND `postType` <> 'profile_picture_deleted' AND (`user_id` = {$user_id_param} OR `recipient_id` = {$user_id_param}) AND `postShare` IN (0,1) AND `group_id` = 0 AND `event_id` = 0 AND `postPrivacy` <> '4'";
             } else {
-                $data['count'] = str_replace('{count}', $count, $wo['lang']['view_more_posts']);
+                // Home feed: count new posts visible to this user
+                $count_query = "SELECT COUNT(*) AS cnt FROM " . T_POSTS . " WHERE `id` > {$before_post_id} AND `multi_image_post` = 0 AND `postType` <> 'profile_picture_deleted' AND `postShare` NOT IN (1) AND `active` = 1";
+                $add_filter_query = false;
+                if ($wo['config']['order_posts_by'] == 0) {
+                    if ($wo['user']['order_posts_by'] == 1) {
+                        $add_filter_query = true;
+                    }
+                } else {
+                    $add_filter_query = true;
+                }
+                if ($add_filter_query == true) {
+                    $count_query .= " AND (
+                        `user_id` IN (SELECT `following_id` FROM " . T_FOLLOWERS . " WHERE `follower_id` = {$logged_user_id} AND `active` = '1')
+                        OR `user_id` = {$logged_user_id}
+                        OR `page_id` IN (SELECT `page_id` FROM " . T_PAGES_LIKES . " WHERE `user_id` = {$logged_user_id} AND `active` = '1')
+                        OR `group_id` IN (SELECT `group_id` FROM " . T_GROUP_MEMBERS . " WHERE `user_id` = {$logged_user_id} AND `active` = '1')
+                        OR `user_id` IN (SELECT `user_id` FROM Wo_Bot_Accounts WHERE `enabled` = 1)
+                    )";
+                }
+                $count_query .= " AND (`postPrivacy` <> '3' OR (`user_id` = {$logged_user_id} AND `postPrivacy` >= '0'))";
             }
+
+            $count_result = mysqli_query($sqlConnect, $count_query);
+            $count = 0;
+            if ($count_result) {
+                $row = mysqli_fetch_assoc($count_result);
+                $count = (int) $row['cnt'];
+            }
+
+            $lang_key = ($count == 1) ? 'view_more_post' : 'view_more_posts';
+            $lang_str = isset($wo['lang'][$lang_key]) ? $wo['lang'][$lang_key] : 'View {count} new post' . ($count != 1 ? 's' : '');
+            $data['count'] = str_replace('{count}', $count, $lang_str);
             $data['count_num'] = $count;
         }
     } else if ($_GET['hash_posts'] == 'true') {
@@ -81,11 +106,9 @@ if ($f == 'update_data') {
             $html  = '';
             $posts = Wo_GetHashtagPosts($_GET['hashtagName'], 0, 20, $_GET['before_post_id']);
             $count = count($posts);
-            if ($count == 1) {
-                $data['count'] = str_replace('{count}', $count, $wo['lang']['view_more_post']);
-            } else {
-                $data['count'] = str_replace('{count}', $count, $wo['lang']['view_more_posts']);
-            }
+            $lang_key = ($count == 1) ? 'view_more_post' : 'view_more_posts';
+            $lang_str = isset($wo['lang'][$lang_key]) ? $wo['lang'][$lang_key] : 'View {count} new post' . ($count != 1 ? 's' : '');
+            $data['count'] = str_replace('{count}', $count, $lang_str);
             $data['count_num'] = $count;
         }
     }

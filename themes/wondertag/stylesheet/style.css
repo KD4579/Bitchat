@@ -1552,8 +1552,9 @@ input.cusrange[type=range]::-ms-thumb {background-color: var(--main);width:15px;
 .promoted-post {position:relative}
 .promoted-post .promoted-icon {position: absolute;top: 15px;color: #ff7042;left: 15px;background-color: #ffedd3;border-radius: 7px;font-weight: 500;text-transform: uppercase;font-size: 11px;letter-spacing: 0.5px;line-height: 22px;padding: 0 10px;word-spacing: 1px;}
 .promoted-post .post.boosted .panel {padding-top: 37px;box-shadow: 0 0px 0px 1px #ffcc80, 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);}
-.posts-count {z-index: 99;position: fixed;transition: all .2s ease;top: 90px;left: 50%;transform: translateX(-50%) translate3d( 0, 0, 0);border-radius: 2em;}
-.posts-count:empty {padding: 0;box-shadow: none;}
+.posts-count {z-index: 99;position: fixed;transition: none;top: 90px;left: 50%;transform: translateX(-50%) translate3d(0,0,0);border-radius: 2em;cursor: pointer;box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);}
+.posts-count:empty {padding: 0;box-shadow: none !important;}
+.posts-count:hover,.posts-count:focus,.posts-count:active,.posts-count.focus {box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important;outline: none;}
 
 /*Home Stories*/
 .tag_stories_on_home {margin-bottom: 30px;}
@@ -2640,7 +2641,7 @@ table.wow_pymnt_table .label-danger {color: #F44336;background-color: rgba(244, 
 .user-ad-container .post-advertisement .ads-cover {padding: 0 15px 15px;}
 
 /*Donation Posts*/
-.wow_dontd_posts, .post-map, .post-fetched-url, .wo_post_fetch_offer {background: rgb(0 0 0 / 0.04);z-index: 1;border-radius: 8px;}
+.wow_dontd_posts, .post-map, .post-fetched-url, .wo_post_fetch_offer {background: rgb(0 0 0 / 0.04);border-radius: 8px;margin-bottom: 5px;}
 .tag_dont_post_img {width: 35%;min-width: 35%;}
 .tag_dont_post_img span {display: block;}
 .tag_dont_post_img img {border-radius: 8px 0 0 8px;}
@@ -2689,7 +2690,7 @@ table.wow_pymnt_table .label-danger {color: #F44336;background-color: rgba(244, 
 .post-map img {border-radius: 0 0 8px 8px;}
 
 /*Post Site Links*/
-.post-fetched-url-con {position: relative;height: 0;width: 100%;padding-top: 56.25%;}
+.post-fetched-url-con {position: relative;height: 0;width: 100%;padding-top: 56.25%;background-color: var(--card-color, #f5f5f5);overflow: hidden;}
 .post-fetched-url-con img {border-radius: 8px 8px 0 0;}
 .post-fetched-url .fetched-url-text {padding: 10px;position: relative;}
 .post-fetched-url .fetched-url-text .url {font-weight: 500;font-size: 13px;letter-spacing: 0.2px;}

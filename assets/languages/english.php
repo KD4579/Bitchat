@@ -879,6 +879,7 @@ $wo['lang'] = array(
     'turn_off_notification' => 'Turn off notification sound',
     'turn_on_notification' => 'Turn on notification sound',
     'view_more_posts' => 'View {count} new posts',
+    'view_more_post' => 'View {count} new post',
     'store_posts_by' => 'Store posts by',
     // version v1.4.3
     'new_audio_call' => 'New audio call',

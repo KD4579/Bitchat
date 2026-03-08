@@ -2,6 +2,28 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-08 — Standardize Cache Busting
+
+### Improvements
+
+- **Unified cache busting**: Created `bc_v()` helper in container.phtml using `filemtime()` for automatic cache invalidation on file changes.
+- **Replaced 25+ stale cache params**: Removed all `$wo['update_cache']`, `Tag_version()`, and `$wo['config']['version']` references in container.phtml and extra_js/content.phtml — these were static strings that never changed, causing Nginx to serve stale CSS/JS.
+
+### Bug Fixes
+
+- **Post card z-index overlap**: Removed `z-index: 1` from `.post-fetched-url` that caused link preview images to render above the like/comment action buttons.
+- **Broken link preview images**: Added `onerror` handler and background-color fallback for failed link preview thumbnails.
+
+## 2026-03-08 — Fix "View New Posts" Button
+
+### Bug Fixes
+
+- **Wrong count**: Replaced heavy `Wo_GetPosts()` call (limited to 20, fetched full objects) with lightweight `COUNT(*)` SQL query for accurate new-post count with no artificial cap.
+- **CSS hover shift**: Changed `transition: all` to `transition: background-color` on `.posts-count` button, pinned consistent `box-shadow` on hover/focus/active states, and suppressed focus outline ring.
+- **Missing singular translation**: Added `view_more_post` language key ("View 1 new post") with PHP fallback for missing keys.
+- **Button flickering**: Added `data-count` tracking to prevent DOM re-renders when poll count hasn't changed.
+- **Button reappearing after click**: Clear `data-count` attribute in `Wo_GetNewPosts()` so the button stays hidden until a genuinely new post arrives.
+
 ## 2026-03-08 — News Bots: Automated RSS News Posting System
 
 ### New Features
