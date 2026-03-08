@@ -103,7 +103,7 @@ if (!empty($user_stories)) {
 	$_trdc_balance = 0;
 	if (!empty($wo['user']['user_id'])) {
 		// Sum all TRDC rewards earned by this user from the rewards log
-		$_trdc_q = @mysqli_query($sqlConnect, "SELECT COALESCE(SUM(amount), 0) AS total FROM " . T_TRDC_REWARDS . " WHERE user_id = " . intval($wo['user']['user_id']));
+		$_trdc_q = @mysqli_query($wo['sqlConnect'], "SELECT COALESCE(SUM(amount), 0) AS total FROM " . T_TRDC_REWARDS . " WHERE user_id = " . intval($wo['user']['user_id']));
 		if ($_trdc_q && ($_trdc_row = mysqli_fetch_assoc($_trdc_q))) {
 			$_trdc_balance = floatval($_trdc_row['total']);
 		}
