@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (isAndroid) {
             /* Direct APK download for Android */
-            window.location.href = '/upload/Bitchat-v1.0.0.apk';
+            window.location.href = '/upload/Bitchat-v1.0.1.apk';
         } else if (deferredPWAPrompt) {
             /* Native PWA Add to Home Screen */
             deferredPWAPrompt.prompt();
