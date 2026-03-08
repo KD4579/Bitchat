@@ -284,18 +284,18 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php } ?>
 	  
 		<?php if ($wo['loggedin'] == true && $wo['page'] == 'home' && $wo['config']['web_push'] == 1) { ?>
-			<link rel="manifest" href="<?php echo $wo['config']['theme_url'];?>/javascript/OneSignalSDKFiles/manifest.json">
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/OneSignalSDK.js" async='async'></script>
 			<script>
+			/* OneSignal web push — skip in native app (uses Firebase FCM instead) */
+			if (navigator.userAgent.indexOf('BitchatApp') === -1) {
+				var _osl = document.createElement('link'); _osl.rel='manifest'; _osl.href='<?php echo $wo['config']['theme_url'];?>/javascript/OneSignalSDKFiles/manifest.json'; document.head.appendChild(_osl);
+				var _oss = document.createElement('script'); _oss.src='<?php echo $wo['config']['theme_url'];?>/javascript/OneSignalSDK.js'; _oss.async=true; document.head.appendChild(_oss);
 				var push_user_id = '';
 				var my_id = '<?php echo $wo['user']['web_device_id'] ?>';
 				var OneSignal = window.OneSignal || [];
 				OneSignal.push(["init", {
 					appId: "<?php echo $wo['config']['web_push_id'] ?>",
-					autoRegister: false, /* Controlled by bc-notif-popup */
-					notifyButton: {
-						enable: false /* Hidden — using custom popup */
-					},
+					autoRegister: false,
+					notifyButton: { enable: false },
 					persistNotification: false,
 				}]);
 				OneSignal.push(function () {
@@ -313,6 +313,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 						}
 					});
 				});
+			}
 			</script>
 		<?php } ?>
 		

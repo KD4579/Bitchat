@@ -209,9 +209,9 @@
 				<link rel="manifest" href="manifest.json">
 
 
-                <!-- Service worker for PWA -->
+                <!-- Service worker for PWA (skip in native app) -->
                 <script>
-                  if ('serviceWorker' in navigator) {
+                  if ('serviceWorker' in navigator && navigator.userAgent.indexOf('BitchatApp') === -1) {
                     navigator.serviceWorker.register('/sw.js')
                       .then(reg => console.log('Service worker registered'))
                       .catch(err => console.log('Service worker failed', err));

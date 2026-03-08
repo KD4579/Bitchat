@@ -2356,13 +2356,15 @@ function Wo_AddEmoToCommentInput(post_id, code, type) {
 function Wo_SendMessages() {
   $.get(Wo_Ajax_Requests_File(), {f: 'send_mails'});
 }
-// request permission on page load
+// request permission on page load (skip in native app — uses FCM)
 document.addEventListener('DOMContentLoaded', function () {
-  if (Notification.permission !== "granted")
+  if (navigator.userAgent.indexOf('BitchatApp') !== -1) return;
+  if (typeof Notification !== 'undefined' && Notification.permission !== "granted")
     Notification.requestPermission();
 });
 
 function Wo_NotifyMe(icon, title, notification_text, url) {
+  if (navigator.userAgent.indexOf('BitchatApp') !== -1) return;
   if (!Notification) {
     return;
   }
@@ -2373,11 +2375,11 @@ function Wo_NotifyMe(icon, title, notification_text, url) {
       icon: icon,
       body: notification_text,
     });
-    
+
     notification.onclick = function () {
       window.open(url);
       notification.close();
-      Wo_OpenNotificationsMenu();    
+      Wo_OpenNotificationsMenu();
     };
   }
 }
