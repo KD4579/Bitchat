@@ -7984,3 +7984,125 @@ html.bc-native-app #buttonDiv { display: none !important; }
 }
 .bc-sidebar-load-more:hover { text-decoration: underline; }
 html.bc-native-app .bc-sidebar-load-more { display: block; }
+
+/* =====================================================
+   Dark Mode Consistency Fixes — Modals, Dropdowns, Overlays
+   ===================================================== */
+html:has(link#night-mode-css) .modal-content,
+html.bc-dark-mode .modal-content,
+body.night_mode .modal-content {
+  background-color: #212121 !important;
+  color: #e7e9ea !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+html:has(link#night-mode-css) .modal-header,
+html.bc-dark-mode .modal-header,
+body.night_mode .modal-header {
+  border-bottom-color: rgba(255,255,255,0.1) !important;
+  color: #e7e9ea !important;
+}
+html:has(link#night-mode-css) .modal-body,
+html.bc-dark-mode .modal-body,
+body.night_mode .modal-body {
+  color: #dcdcdc !important;
+}
+html:has(link#night-mode-css) .modal-footer,
+html.bc-dark-mode .modal-footer,
+body.night_mode .modal-footer {
+  border-top-color: rgba(255,255,255,0.1) !important;
+}
+html:has(link#night-mode-css) .modal-header .close,
+html.bc-dark-mode .modal-header .close,
+body.night_mode .modal-header .close {
+  color: #fff !important;
+  opacity: 0.7;
+}
+
+/* Dropdown menus */
+html:has(link#night-mode-css) .dropdown-menu,
+html.bc-dark-mode .dropdown-menu,
+body.night_mode .dropdown-menu {
+  background-color: #2e2e2e !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important;
+}
+html:has(link#night-mode-css) .dropdown-menu > li > a,
+html:has(link#night-mode-css) .dropdown-item,
+html.bc-dark-mode .dropdown-menu > li > a,
+html.bc-dark-mode .dropdown-item,
+body.night_mode .dropdown-menu > li > a,
+body.night_mode .dropdown-item {
+  color: #e0e0e0 !important;
+}
+html:has(link#night-mode-css) .dropdown-menu > li > a:hover,
+html:has(link#night-mode-css) .dropdown-item:hover,
+html.bc-dark-mode .dropdown-menu > li > a:hover,
+html.bc-dark-mode .dropdown-item:hover,
+body.night_mode .dropdown-menu > li > a:hover,
+body.night_mode .dropdown-item:hover {
+  background-color: #3d3d3d !important;
+  color: #fff !important;
+}
+html:has(link#night-mode-css) .dropdown-divider,
+html.bc-dark-mode .dropdown-divider,
+body.night_mode .dropdown-divider {
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Form controls inside modals */
+html:has(link#night-mode-css) .modal .form-control,
+html.bc-dark-mode .modal .form-control,
+body.night_mode .modal .form-control {
+  background-color: #181818 !important;
+  color: #e7e9ea !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+html:has(link#night-mode-css) .modal .form-control::placeholder,
+html.bc-dark-mode .modal .form-control::placeholder,
+body.night_mode .modal .form-control::placeholder {
+  color: #6e7a85 !important;
+}
+
+/* Select inputs */
+html:has(link#night-mode-css) .modal select.form-control,
+html.bc-dark-mode .modal select.form-control,
+body.night_mode .modal select.form-control {
+  background-color: #181818 !important;
+  color: #e7e9ea !important;
+}
+
+/* Tooltips */
+html:has(link#night-mode-css) .tooltip-inner,
+html.bc-dark-mode .tooltip-inner,
+body.night_mode .tooltip-inner {
+  background-color: #2e2e2e !important;
+  color: #e2e2e2 !important;
+}
+
+/* Cards inside dark mode */
+html:has(link#night-mode-css) .card,
+html.bc-dark-mode .card,
+body.night_mode .card {
+  background-color: #212121 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+html:has(link#night-mode-css) .card-header,
+html.bc-dark-mode .card-header,
+body.night_mode .card-header {
+  background-color: #2a2a2a !important;
+  border-bottom-color: rgba(255,255,255,0.08) !important;
+  color: #e7e9ea !important;
+}
+
+/* Popover */
+html:has(link#night-mode-css) .popover,
+html.bc-dark-mode .popover,
+body.night_mode .popover {
+  background-color: #2e2e2e !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+html:has(link#night-mode-css) .popover-body,
+html.bc-dark-mode .popover-body,
+body.night_mode .popover-body {
+  color: #dcdcdc !important;
+}
