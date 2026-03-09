@@ -540,29 +540,21 @@ function Wo_Translate(id,lang){
   }
   postDesc.append('<span class="hidden data_translated">'+translatable_text+'</span>');
 
-  // MyMemory free translation API — auto-detect source language
-  var langPair = 'autodetect|' + lang;
+  // Server-side translate with Redis caching
   $.ajax({
-    url: 'https://api.mymemory.translated.net/get',
-    type: 'GET',
+    url: '<?php echo $wo['config']['site_url']; ?>/requests.php?f=translate',
+    type: 'POST',
     dataType: 'json',
-    data: { q: String(translatable_text).substring(0, 500), langpair: langPair }
+    data: { text: String(translatable_text).substring(0, 1000), lang: lang, hash: '<?php echo Wo_CreateMainSession(); ?>' }
   }).done(function(data) {
-    if (data.responseStatus == 200 && data.responseData && data.responseData.translatedText) {
-      var translated = data.responseData.translatedText;
-      // MyMemory returns uppercase "NO QUERY SPECIFIED" on errors
-      if (translated && translated !== 'NO QUERY SPECIFIED') {
-        $("[data-translate-text="+id+"]").html(translated);
-        $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['show_original']); ?>");
-      } else {
-        _wo_translate_restore(id);
-      }
+    if (data.status == 200 && data.translated) {
+      $("[data-translate-text="+id+"]").html(data.translated);
+      $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['show_original']); ?>");
     } else {
       _wo_translate_restore(id);
     }
   }).fail(function() {
     _wo_translate_restore(id);
-    console.log("translation error");
   });
 }
 function _wo_translate_restore(id) {
