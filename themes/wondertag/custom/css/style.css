@@ -5910,28 +5910,41 @@ body {
    Desktop: reduce top blank space above hero. Section gaps stay as-is (perfect).
    Mobile:  tighten ALL section gaps for compact feed layout.
    -------------------------------------------------------------------------- */
-/* Desktop — reduce the stacked gap above hero */
+/* Desktop — eliminate blank gap between ticker and hero */
 #bc-market-strip {
   margin-bottom: 0 !important;
 }
+/* Reduce header wrapper margin (creates white gap between ticker & content) */
+header {
+  margin-bottom: 8px !important;
+}
 #bc-hero-banner {
-  margin-top: -8px !important;
+  margin-top: 0 !important;
   margin-bottom: 16px !important;
 }
 .page-margin {
   margin-top: 0 !important;
 }
 .page-margin > .container {
-  padding-top: 10px !important;
+  padding-top: 4px !important;
+}
+/* Dark mode: ensure no white gap between ticker and hero banner */
+html:has(link#night-mode-css) body,
+html.bc-dark-mode body,
+body.night_mode {
+  background-color: var(--body-bg, #121212) !important;
 }
 
 /* Mobile — compact all section gaps */
 @media (max-width: 900px) {
+  header {
+    margin-bottom: 4px !important;
+  }
   .page-margin {
     margin-top: 0 !important;
   }
   .page-margin > .container {
-    padding-top: 6px !important;
+    padding-top: 2px !important;
   }
   #bc-hero-banner {
     margin-top: 0 !important;
