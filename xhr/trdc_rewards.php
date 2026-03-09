@@ -35,6 +35,14 @@ if ($f == 'trdc_rewards') {
         Wo_SaveConfig('trdc_tip_custom_enabled', ($_POST['trdc_tip_custom_enabled'] == '1') ? '1' : '0');
     }
 
+    // Save weekly digest settings
+    if (isset($_POST['weekly_digest_enabled'])) {
+        Wo_SaveConfig('weekly_digest_enabled', ($_POST['weekly_digest_enabled'] == '1') ? '1' : '0');
+    }
+    if (isset($_POST['weekly_digest_day'])) {
+        Wo_SaveConfig('weekly_digest_day', max(0, min(6, intval($_POST['weekly_digest_day']))));
+    }
+
     // Save trading signals settings
     if (isset($_POST['trading_signals_enabled'])) {
         Wo_SaveConfig('trading_signals_enabled', ($_POST['trading_signals_enabled'] == '1') ? '1' : '0');

@@ -13,6 +13,7 @@ if ($f == "update_email_settings") {
         $e_accepted          = 0;
         $e_profile_wall_post = 0;
         $e_sentme_msg        = 0;
+        $e_weekly_digest     = 0;
         $array               = array(
             '0',
             '1'
@@ -77,6 +78,11 @@ if ($f == "update_email_settings") {
                 $e_sentme_msg = 1;
             }
         }
+        if (!empty($_POST['e_weekly_digest'])) {
+            if (in_array($_POST['e_weekly_digest'], $array)) {
+                $e_weekly_digest = 1;
+            }
+        }
         $Update_data = array(
             'e_liked' => $e_liked,
             'e_shared' => $e_shared,
@@ -89,7 +95,8 @@ if ($f == "update_email_settings") {
             'e_liked_page' => $e_liked_page,
             'e_visited' => $e_visited,
             'e_profile_wall_post' => $e_profile_wall_post,
-            'e_sentme_msg' => $e_sentme_msg
+            'e_sentme_msg' => $e_sentme_msg,
+            'e_weekly_digest' => $e_weekly_digest
         );
         if (!in_array(1, $Update_data)) {
             $Update_data['emailNotification'] = 0;

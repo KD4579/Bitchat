@@ -64,6 +64,31 @@
                 </div>
 
                 <hr>
+                <h4>Weekly Digest Email</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Weekly Digest Enabled</label>
+                            <select name="weekly_digest_enabled" class="form-control">
+                                <option value="0" <?php echo (($wo['config']['weekly_digest_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo (($wo['config']['weekly_digest_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Send Day</label>
+                            <select name="weekly_digest_day" class="form-control">
+                                <?php $days = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+                                foreach ($days as $i => $d) { ?>
+                                    <option value="<?php echo $i; ?>" <?php echo (($wo['config']['weekly_digest_day'] ?? '1') == $i) ? 'selected' : ''; ?>><?php echo $d; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
                 <h4>Trading Signals</h4>
                 <div class="row">
                     <div class="col-md-3">
@@ -328,6 +353,8 @@ $(document).ready(function() {
             trdc_tip_enabled: form.find('[name=trdc_tip_enabled]').val(),
             trdc_tip_amounts: form.find('[name=trdc_tip_amounts]').val(),
             trdc_tip_custom_enabled: form.find('[name=trdc_tip_custom_enabled]').val(),
+            weekly_digest_enabled: form.find('[name=weekly_digest_enabled]').val(),
+            weekly_digest_day: form.find('[name=weekly_digest_day]').val(),
             trading_signals_enabled: form.find('[name=trading_signals_enabled]').val(),
             trading_signals_pairs: form.find('[name=trading_signals_pairs]').val(),
             trdc_gate_enabled: form.find('[name=trdc_gate_enabled]').val(),

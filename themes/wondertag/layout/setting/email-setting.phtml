@@ -94,9 +94,15 @@
 					<input type="checkbox" name="e_sentme_msg" id="e_sentme_msg" value="1" <?php echo $selected_e_sentme_msg; ?>>
 					<label for="e_sentme_msg"><?php echo $wo['lang']['e_sent_msg']; ?></label>
 				</div>
+				<hr style="margin:10px 0;">
+				<?php $selected_e_weekly_digest = (!empty($wo['setting']['e_weekly_digest']) && $wo['setting']['e_weekly_digest'] == 1) ? ' checked' : ''; ?>
+				<div class="col-12 round-check">
+					<input type="checkbox" name="e_weekly_digest" id="e_weekly_digest" value="1" <?php echo $selected_e_weekly_digest; ?>>
+					<label for="e_weekly_digest">Weekly digest email (trending posts, stats & activity summary)</label>
+				</div>
 			</div>
          </div>
-		
+
 		<div class="text-center">
 			<button type="submit" class="btn btn-main btn-mat btn-mat-raised disable_btn"><?php echo $wo['lang']['save']; ?></button>
 		</div>

@@ -351,6 +351,23 @@ if (function_exists('Wo_PurgeInactiveAccounts')) {
 }
 // ********** Purge Inactive Accounts **********
 
+// ********** Weekly Digest Email **********
+_cron_log_section('weekly_digest');
+if (!empty($wo['config']['weekly_digest_enabled']) && $wo['config']['weekly_digest_enabled'] == '1') {
+    $digestDay = intval($wo['config']['weekly_digest_day'] ?? 1); // 0=Sun, 1=Mon, ...
+    $lastRun = intval($wo['config']['weekly_digest_last_run'] ?? 0);
+    $today = intval(date('w')); // Current day of week
+    $daysSinceLastRun = ($lastRun > 0) ? floor((time() - $lastRun) / 86400) : 999;
+
+    // Run on configured day, max once per 6 days
+    if ($today == $digestDay && $daysSinceLastRun >= 6) {
+        require_once(__DIR__ . '/assets/includes/functions_weekly_digest.php');
+        $digestCount = Wo_SendWeeklyDigests();
+        mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'weekly_digest_last_run'");
+    }
+}
+// ********** Weekly Digest Email **********
+
 _cron_log_write();
 
 // Release cron lock
