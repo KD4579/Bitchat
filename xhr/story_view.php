@@ -11,7 +11,7 @@ if ($f == 'story_view') {
                 if (empty($story_media)) {
                     $story_media = Wo_GetStoryMedia($story_id, 'video');
                 }
-                $wo['story']['story_media'] = $story_media;
+                $wo['story']['story_media'] = !empty($story_media) ? $story_media : array();
                 $wo['story']['view_count']  = $db->where('story_id', $story_id)->where('user_id', $story->user_id, '!=')->getValue(T_STORY_SEEN, 'COUNT(*)');
                 $story_views                = $db->where('story_id', $story_id)->where('user_id', $story->user_id, '!=')->get(T_STORY_SEEN, 10);
                 if (!empty($story_views)) {

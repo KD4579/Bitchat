@@ -8152,3 +8152,140 @@ html.bc-dark-mode .popover-body,
 body.night_mode .popover-body {
   color: #dcdcdc !important;
 }
+
+/* ==========================================================================
+   Text Stories — Creation & Display
+   ========================================================================== */
+
+/* Story type tabs */
+.bc-story-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.bc-story-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: transparent;
+  color: #666;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bc-story-tab:hover {
+  border-color: #aaa;
+  color: #333;
+}
+.bc-story-tab.active {
+  border-color: var(--bc-primary, #6c5ce7);
+  background: var(--bc-primary, #6c5ce7);
+  color: #fff;
+}
+.bc-story-tab svg {
+  flex-shrink: 0;
+}
+
+/* Color picker grid */
+.bc-story-colors {
+  margin-bottom: 16px;
+}
+.bc-color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.bc-color-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 3px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 40px;
+}
+.bc-color-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.bc-color-btn.active {
+  border-color: var(--bc-primary, #6c5ce7);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--bc-primary, #6c5ce7);
+  transform: scale(1.05);
+}
+
+/* Text story preview in create form */
+.bc-story-text-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  padding: 20px;
+  word-break: break-word;
+  min-height: 100px;
+}
+
+/* Text story display in lightbox */
+.bc-text-story-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  border-radius: inherit;
+}
+.bc-text-story-content p {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  word-break: break-word;
+  margin: 0;
+  max-width: 100%;
+}
+
+/* Dark mode adjustments for story tabs */
+html:has(link#night-mode-css) .bc-story-tab,
+html.bc-dark-mode .bc-story-tab,
+body.night_mode .bc-story-tab {
+  border-color: #444;
+  color: #aaa;
+}
+html:has(link#night-mode-css) .bc-story-tab:hover,
+html.bc-dark-mode .bc-story-tab:hover,
+body.night_mode .bc-story-tab:hover {
+  border-color: #666;
+  color: #ccc;
+}
+html:has(link#night-mode-css) .bc-story-tab.active,
+html.bc-dark-mode .bc-story-tab.active,
+body.night_mode .bc-story-tab.active {
+  border-color: var(--bc-primary, #6c5ce7);
+  background: var(--bc-primary, #6c5ce7);
+  color: #fff;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .bc-color-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .bc-text-story-content p {
+    font-size: 20px;
+  }
+}

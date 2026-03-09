@@ -6,21 +6,27 @@ if ($f == 'status') {
             'status' => 500
         );
         $error = false;
-        if (!isset($_FILES['statusMedia'])) {
+        $is_text_story = (!empty($_POST['story_type']) && $_POST['story_type'] == 'text' && !empty($_POST['bg_color']));
+
+        if (!$is_text_story && !isset($_FILES['statusMedia'])) {
             $error = true;
-        } else {
+        } else if (!$is_text_story) {
             if (gettype($_FILES['statusMedia']) != 'array' || count($_FILES['statusMedia']) < 1 || count($_FILES['statusMedia']) > 20) {
-                $error = true;
-            }
-            if (isset($_POST['title']) && strlen($_POST['title']) > 100) {
-                $error = true;
-            }
-            if (isset($_POST['description']) && strlen($_POST['description']) > 300) {
                 $error = true;
             }
             if (!Wo_IsValidMimeType($_FILES['statusMedia']['type'])) {
                 $error = true;
             }
+        }
+        if (isset($_POST['title']) && strlen($_POST['title']) > 100) {
+            $error = true;
+        }
+        if (isset($_POST['description']) && strlen($_POST['description']) > 300) {
+            $error = true;
+        }
+        // Text stories require description
+        if ($is_text_story && (empty($_POST['description']) || strlen(trim($_POST['description'])) < 2)) {
+            $error = true;
         }
         if (!$error) {
             $amazone_s3                   = $wo['config']['amazone_s3'];
@@ -36,11 +42,28 @@ if ($f == 'status') {
             if (isset($_POST['title']) && strlen($_POST['title']) >= 2) {
                 $registration_data['title'] = Wo_Secure($_POST['title']);
             }
-            if (isset($_POST['description']) && strlen($_POST['description']) >= 10) {
+            if (isset($_POST['description']) && strlen($_POST['description']) >= 2) {
                 $registration_data['description'] = Wo_Secure($_POST['description']);
             }
+            // Sanitize and store bg_color for text stories
+            if ($is_text_story && !empty($_POST['bg_color'])) {
+                $bg_raw = $_POST['bg_color'];
+                // Allow gradients and hex colors only
+                if (preg_match('/^(linear-gradient\(.+\)|#[0-9a-fA-F]{3,8})$/', $bg_raw) && strlen($bg_raw) <= 200) {
+                    $registration_data['bg_color'] = Wo_Secure($bg_raw, 0);
+                }
+            }
             if (count($registration_data) > 0) {
-                if (!empty($_FILES["statusMedia"])) {
+                // Handle text-only stories (no media)
+                if ($is_text_story && !empty($registration_data['description'])) {
+                    $last_id = Wo_InsertUserStory($registration_data);
+                    if ($last_id) {
+                        $data = array(
+                            'message' => $success_icon . $wo['lang']['status_added'],
+                            'status' => 200
+                        );
+                    }
+                } else if (!empty($_FILES["statusMedia"])) {
 
                     $files   = Wo_MultipleArrayFiles($_FILES["statusMedia"]);
                     $sources = array();
