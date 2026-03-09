@@ -7617,6 +7617,10 @@ function Wo_GetReactedTextIcon($object_id, $user_id, $col = "post") {
                 case 6:
                     $reaction_type = "-6";
                     break;
+                default:
+                    // Handle dynamic reaction types (7+: fire, insightful, bullish, bearish, etc.)
+                    $reaction_type = "-" . intval($sql_fetch_one['reaction']);
+                    break;
             }
             if (!empty($wo['reactions_types'][$sql_fetch_one['reaction']]['wowonder_small_icon'])) {
                 $reaction_icon = "<div class='inline_post_count_emoji reaction'><img src='{$wo['reactions_types'][$sql_fetch_one['reaction']]['wowonder_small_icon']}' alt=\"" . $wo['reactions_types'][$sql_fetch_one['reaction']]['name'] . "\"></div>";

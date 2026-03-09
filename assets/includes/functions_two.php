@@ -6751,9 +6751,15 @@ function Wo_GetReactionsTypes($type = "page") {
     $reactions = mysqli_query($sqlConnect, "SELECT * FROM " . T_REACTIONS_TYPES);
     if (!empty($reactions)) {
         while ($fetched_data = mysqli_fetch_assoc($reactions)) {
-            $fetched_data["name"] = str_replace('&#39;', "'", $wo["lang"][$fetched_data["name"]]);
-            $fetched_data["wowonder_icon"] = $fetched_data["wowonder_small_icon"] = Wo_GetMedia($fetched_data["wowonder_icon"]);
-            $fetched_data["is_html"]       = 0;
+            $fetched_data["name"] = str_replace('&#39;', "'", $wo["lang"][$fetched_data["name"]] ?? $fetched_data["name"]);
+            // Detect inline SVG icons vs file paths
+            if (strpos($fetched_data["wowonder_icon"], '<svg') !== false) {
+                $fetched_data["wowonder_small_icon"] = $fetched_data["wowonder_icon"];
+                $fetched_data["is_html"] = 1;
+            } else {
+                $fetched_data["wowonder_icon"] = $fetched_data["wowonder_small_icon"] = Wo_GetMedia($fetched_data["wowonder_icon"]);
+                $fetched_data["is_html"] = 0;
+            }
             $data[$fetched_data["id"]] = $fetched_data;
         }
         return $data;
