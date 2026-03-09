@@ -616,7 +616,7 @@
 					<?php if ($wo['story']['ai_post'] == 1) { ?>
 						<span class="middot">·</span><span class="time" title="<?php echo $wo['lang']['content_generated_ai'];?>"><?php echo $wo['lang']['ai'];?></span>
 					<?php } ?>
-					<?php if (!empty($wo['story']['postText']) && strlen($wo['story']['postText']) >= 2 && ($wo['config']['google_translate'] == 1 || $wo['config']['yandex_translate'] == 1)): ?>
+					<?php if (!empty($wo['story']['postText']) && strlen($wo['story']['postText']) >= 2): ?>
 						<span class="middot">·</span><span onclick="Wo_Translate($(this).attr('id'),$(this).attr('data-language'))" title="<?php echo $wo['lang']['translate'];?>" class="pointer time" id="<?php echo $wo['story']['id']; ?>" data-language="<?php echo DetermineUserLang(); ?>" data-trans-btn="<?php echo $wo['story']['id']; ?>"><?php echo $wo['lang']['translate'];?></span>
 					<?php endif ?>
 					<?php if(!empty($wo['story']['postMap'])) { ?>

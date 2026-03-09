@@ -522,66 +522,50 @@ function Wo_DetectTextLang(text){
   return lcode;
 }
 function Wo_Translate(id,lang){
-  if (!id || !lang && Wo_IsLangValid(lang)) {
+  if (!id || !lang) {
     return false;
-  }else{
-    <?php if ($wo['config']['google_translate'] != 1 && $wo['config']['yandex_translate'] != 1) { ?>
-      return false;
-    <?php } ?>
-    var translatable_text = $("[data-translate-text="+id+"]").text();
-    if (lang == Wo_DetectTextLang(translatable_text)) {
-      // $("[data-trans-btn=" + id + "]").removeAttr('onclick')
-      // return false;
-    }
-    $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['loading']); ?>");
-    if ($("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').length > 0) {
-      let tx = $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').text();
-      $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').remove();
-      $("[data-translate-text="+id+"]").text(tx);
-      $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['translate']); ?>");
-      return false;
-    }
-    $("[data-translate-text="+id+"]").parents('.post-description').append('<span class="hidden data_translated">'+translatable_text+'</span>');
-    
-    <?php if ($wo['config']['google_translate'] == 1) { ?>
-      let url = "https://translation.googleapis.com/language/translate/v2?key=<?php echo($wo['config']['google_translation_api']); ?>";
-      let method = "POST";
-      let r_data = {
-          q:String(translatable_text),
-          target:String(lang)
-      };
-    <?php }else if($wo['config']['yandex_translate'] == 1){ ?>
-      let url = "https://translate.yandex.net/api/v1.5/tr.json/translate";
-      let method = "GET";
-      let r_data = {
-          key:'<?php echo $wo['config']['yandex_translation_api']; ?>',
-          text:String(translatable_text),
-          lang:String(lang)
-      };
-    <?php } ?>
-    $.ajax({
-      url: url,
-      type: method,
-      dataType: 'json',
-      data: r_data
-    }).done(function(data) {
-      <?php if ($wo['config']['google_translate'] == 1) { ?>
-      let translation = data.data.translations[0].translatedText;
-      $("[data-translate-text="+id+"]").text(translation)
-      <?php }else if($wo['config']['yandex_translate'] == 1){ ?>
-      if (data.code == 200) {
-        $("[data-translate-text="+id+"]").text(data.text[0])
-      }
-    <?php } ?>
-    $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['show_original']); ?>");
-    }).fail(function() {
-      let tx = $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').text();
-      $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').remove();
-      $("[data-translate-text="+id+"]").text(tx);
-      $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['translate']); ?>");
-      console.log("translation error");
-    })
   }
+  var translatable_text = $("[data-translate-text="+id+"]").text();
+  if (!translatable_text || translatable_text.trim().length < 2) {
+    return false;
+  }
+  $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['loading']); ?>");
+  // Toggle back to original if already translated
+  if ($("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').length > 0) {
+    let tx = $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').text();
+    $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').remove();
+    $("[data-translate-text="+id+"]").text(tx);
+    $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['translate']); ?>");
+    return false;
+  }
+  $("[data-translate-text="+id+"]").parents('.post-description').append('<span class="hidden data_translated">'+translatable_text+'</span>');
+
+  // Use MyMemory free translation API (no key required, 5000 chars/day)
+  var srcLang = Wo_DetectTextLang(translatable_text) || 'en';
+  var langPair = srcLang + '|' + lang;
+  $.ajax({
+    url: 'https://api.mymemory.translated.net/get',
+    type: 'GET',
+    dataType: 'json',
+    data: { q: String(translatable_text).substring(0, 500), langpair: langPair }
+  }).done(function(data) {
+    if (data.responseStatus == 200 && data.responseData && data.responseData.translatedText) {
+      $("[data-translate-text="+id+"]").text(data.responseData.translatedText);
+      $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['show_original']); ?>");
+    } else {
+      // Fallback: restore original
+      let tx = $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').text();
+      $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').remove();
+      $("[data-translate-text="+id+"]").text(tx);
+      $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['translate']); ?>");
+    }
+  }).fail(function() {
+    let tx = $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').text();
+    $("[data-translate-text="+id+"]").parents('.post-description').find('.data_translated').remove();
+    $("[data-translate-text="+id+"]").text(tx);
+    $("[data-trans-btn="+id+"]").text("<?php echo($wo['lang']['translate']); ?>");
+    console.log("translation error");
+  });
 }
 
 $(document).on('click', '#night_mode_toggle', function(event) {
