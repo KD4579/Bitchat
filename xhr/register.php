@@ -58,8 +58,14 @@ if ($f == 'register') {
         }
     }
     // Initialize IP Registration Tracker
-    
-    
+
+    // Honeypot anti-bot check: if hidden field is filled, it's a bot
+    if (!empty($_POST['website_url'])) {
+        header("Content-type: application/json");
+        echo json_encode(array('errors' => $error_icon . $wo['lang']['please_check_details']));
+        exit();
+    }
+
     $fields = Wo_GetWelcomeFileds();
     if (empty($_POST['email']) || empty($_POST['username']) || empty($_POST['password']) || empty($_POST['confirm_password']) || empty($_POST['gender'])) {
         $errors = $error_icon . $wo['lang']['please_check_details'];

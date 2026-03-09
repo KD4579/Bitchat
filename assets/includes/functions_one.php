@@ -5298,7 +5298,7 @@ function Wo_CheckIfUserCanPost($num = 10) {
     }
     return true;
 }
-function Wo_CheckIfUserCanRegister($num = 10) {
+function Wo_CheckIfUserCanRegister($num = 3) {
     global $wo, $sqlConnect;
     if ($wo['loggedin'] == true) {
         return false;
@@ -5307,11 +5307,12 @@ function Wo_CheckIfUserCanRegister($num = 10) {
     if (empty($ip)) {
         return true;
     }
-    $time  = time() - 3200;
+    // Allow max 3 registrations per IP per 24 hours (was 10 per ~53 min)
+    $time  = time() - 86400;
     $query = mysqli_query($sqlConnect, "SELECT COUNT(`user_id`) as count FROM " . T_USERS . " WHERE `ip_address` = '{$ip}' AND `joined` > {$time}");
     if (mysqli_num_rows($query)) {
         $sql_query = mysqli_fetch_assoc($query);
-        if ($sql_query['count'] > $num) {
+        if ($sql_query['count'] >= $num) {
             return false;
         }
     }

@@ -87,6 +87,10 @@
 						<?php if(!empty( $_GET['last_url'])){?>
 							<div><input type="hidden" name="last_url" value="<?php echo urldecode(Wo_Secure($_GET['last_url']));?>"></div>
 						<?php } ?>
+						<!-- Honeypot anti-bot field — hidden from humans, bots auto-fill it -->
+						<div style="position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;overflow:hidden;" aria-hidden="true">
+							<input type="text" name="website_url" value="" tabindex="-1" autocomplete="off">
+						</div>
 						<div class="round-check">
 							<input type="checkbox" name="accept_terms" id="accept_terms" onchange="activateButton(this)">
 							<label for="accept_terms"> 
