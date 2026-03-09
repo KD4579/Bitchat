@@ -2399,7 +2399,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         $data['android_native_status'] = 0;
         if (!empty($_POST['android_purchase_code'])) {
             $android_code = Wo_Secure($_POST['android_purchase_code']);
-            $file         = file_get_contents("http://www.wowonder.com/access_token.php?code={$android_code}&type=android", false, stream_context_create($arrContextOptions));
+            $file         = file_get_contents("https://www.wowonder.com/access_token.php?code={$android_code}&type=android", false, stream_context_create($arrContextOptions));
             $check        = json_decode($file, true);
             if (!empty($check['status'])) {
                 if ($check['status'] == 'SUCCESS') {
@@ -2413,7 +2413,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         }
         if (!empty($_POST['android_native_purchase_code'])) {
             $android_code = Wo_Secure($_POST['android_native_purchase_code']);
-            $file         = file_get_contents("http://www.wowonder.com/access_token.php?code={$android_code}&type=android", false, stream_context_create($arrContextOptions));
+            $file         = file_get_contents("https://www.wowonder.com/access_token.php?code={$android_code}&type=android", false, stream_context_create($arrContextOptions));
             $check        = json_decode($file, true);
             if (!empty($check['status'])) {
                 if ($check['status'] == 'SUCCESS') {
@@ -2427,7 +2427,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         }
         if (!empty($_POST['windows_purchase_code'])) {
             $windows_code = Wo_Secure($_POST['windows_purchase_code']);
-            $file         = file_get_contents("http://www.wowonder.com/access_token.php?code={$windows_code}&type=windows_desktop", false, stream_context_create($arrContextOptions));
+            $file         = file_get_contents("https://www.wowonder.com/access_token.php?code={$windows_code}&type=windows_desktop", false, stream_context_create($arrContextOptions));
             $check        = json_decode($file, true);
             if (!empty($check['status'])) {
                 if ($check['status'] == 'SUCCESS') {
@@ -2441,7 +2441,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         }
         if (!empty($_POST['ios_purchase_code'])) {
             $windows_code = Wo_Secure($_POST['ios_purchase_code']);
-            $file         = file_get_contents("http://www.wowonder.com/access_token.php?code={$windows_code}&type=ios", false, stream_context_create($arrContextOptions));
+            $file         = file_get_contents("https://www.wowonder.com/access_token.php?code={$windows_code}&type=ios", false, stream_context_create($arrContextOptions));
             $check        = json_decode($file, true);
             if (!empty($check['status'])) {
                 if ($check['status'] == 'SUCCESS') {

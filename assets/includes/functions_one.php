@@ -843,7 +843,7 @@ function Wo_RegisterUser($registration_data, $invited = false) {
         $ip = $get_ip;
     }
     if ($wo['config']['login_auth'] == 1) {
-        $getIpInfo = fetchDataFromURL("http://ip-api.com/json/$get_ip");
+        $getIpInfo = fetchDataFromURL("https://ip-api.com/json/$get_ip");
         $getIpInfo = json_decode($getIpInfo, true);
         if ($getIpInfo['status'] == 'success' && !empty($getIpInfo['regionName']) && !empty($getIpInfo['countryCode']) && !empty($getIpInfo['timezone']) && !empty($getIpInfo['city'])) {
             $registration_data['last_login_data'] = json_encode($getIpInfo);
@@ -1498,7 +1498,7 @@ function Wo_UpdateUsernameInNotifications($user_id = 0, $username = '') {
 }
 function addhttp($url) {
     if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-        $url = "http://" . $url;
+        $url = "https://" . $url;
     }
     return $url;
 }

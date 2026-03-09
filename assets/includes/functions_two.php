@@ -5413,7 +5413,7 @@ function Wo_SendSMSMessage($to, $message) {
             $postData["DLT_TE_ID"] = $wo["config"]["msg91_dlt_id"];
         }
         //API URL
-        $url = "http://api.msg91.com/api/sendhttp.php";
+        $url = "https://api.msg91.com/api/sendhttp.php";
         // init the resource
         $ch  = curl_init();
         curl_setopt_array($ch, array(

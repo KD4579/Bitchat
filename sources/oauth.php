@@ -3,7 +3,7 @@ if (empty($_GET['app_id'])) {
     header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
     exit();
 }
-$actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$actual_link = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 if ($wo['loggedin'] == false) {
     header("Location: " . Wo_SeoLink('index.php?link1=welcome') . '?last_url=' . urlencode($actual_link));
     exit();

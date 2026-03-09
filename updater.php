@@ -103,7 +103,7 @@ if ($f == 'run_updater') {
             $version = Wo_Secure($_GET['script_version']);
         }
         $siteurl = urlencode($_SERVER['SERVER_NAME']);
-        $file = file_get_contents("http://www.wowonder.com/check_for_updates.php?code={$purchase_code}&version=$version&url=$siteurl&check_for=true", false, stream_context_create($arrContextOptions));
+        $file = file_get_contents("https://www.wowonder.com/check_for_updates.php?code={$purchase_code}&version=$version&url=$siteurl&check_for=true", false, stream_context_create($arrContextOptions));
         $check = json_decode($file, true);
         if (!empty($check['status'])) {
             if ($check['status'] == 'SUCCESS') {

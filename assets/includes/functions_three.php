@@ -6937,7 +6937,7 @@ function Wo_VerfiyIP($username = '') {
     }
     $getuser   = Wo_UserData(Wo_UserIdForLogin($username));
     $get_ip    = get_ip_address();
-    $getIpInfo = fetchDataFromURL("http://ip-api.com/json/$get_ip");
+    $getIpInfo = fetchDataFromURL("https://ip-api.com/json/$get_ip");
     $getIpInfo = json_decode($getIpInfo, true);
     if ($getIpInfo['status'] == 'success' && !empty($getIpInfo['regionName']) && !empty($getIpInfo['countryCode']) && !empty($getIpInfo['timezone']) && !empty($getIpInfo['city'])) {
         $create_new                  = false;
