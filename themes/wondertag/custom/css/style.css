@@ -4160,9 +4160,55 @@ body:not(.bc-welcome) .tag_content  { margin-left: 280px !important; }
    Hide custom #bc-mobile-nav. Let WoWonder's native .tag_hdr_right
    reposition to bottom:0 at ≤768px (as in the official Wondertag demo).
    ──────────────────────────────────────────────────────────────────────── */
+/* Show custom mobile nav on mobile only */
 #bc-mobile-nav {
-  display: none !important;
+  display: none;
 }
+@media (max-width: 768px) {
+  #bc-mobile-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: var(--bc-surface-primary, #fff);
+    border-top: 1px solid var(--bc-border-color, rgba(0,0,0,0.08));
+    padding: 4px 0 env(safe-area-inset-bottom, 4px);
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+  }
+  /* Pad page bottom so content isn't hidden behind nav */
+  body { padding-bottom: 60px !important; }
+}
+/* Dark mode */
+html:has(link#night-mode-css) #bc-mobile-nav,
+html.bc-dark-mode #bc-mobile-nav,
+body.night_mode #bc-mobile-nav {
+  background: #181818 !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+/* Notification badge on mobile nav items */
+.bc-mob-nav-item { position: relative; }
+.bc-mob-nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 50%;
+  transform: translateX(12px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  color: #fff;
+  background: #EF4444;
+  border-radius: 8px;
+  display: none;
+}
+.bc-mob-nav-badge:not(:empty) { display: block; }
 
 /* ── MC-7a: Search in bottom nav + hide top search bar on mobile ──────── */
 /* Hide search bar from header on mobile */

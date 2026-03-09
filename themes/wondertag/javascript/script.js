@@ -475,6 +475,15 @@ function Wo_intervalUpdates(force_update = 0, loop = 0) {
       messages_notification_container.find('.sixteen-font-size').removeClass('unread-update');
       current_messages_number = 0;
     }
+    // Update mobile bottom nav badges
+    var $notifBadge = document.getElementById('bc-mob-notif-badge');
+    var $msgBadge = document.getElementById('bc-mob-msg-badge');
+    if ($notifBadge) {
+      $notifBadge.textContent = (data.notifications > 0) ? data.notifications : '';
+    }
+    if ($msgBadge) {
+      $msgBadge.textContent = (data.messages > 0) ? data.messages : '';
+    }
     if(typeof (data.followRequests) != "undefined" && data.followRequests > 0) {
       follow_requests_container.find('.new-update-alert').removeClass('hidden');
       follow_requests_container.find('.sixteen-font-size').addClass('unread-update');
