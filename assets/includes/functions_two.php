@@ -7189,11 +7189,12 @@ function affiliateRef($price)
             ));
             $ref_amount  = ($wo['config']['amount_percent_ref'] * $price) / 100;
             if ($wo['config']['affiliate_level'] < 2) {
-                // Credit TRDC wallet instead of affiliate balance
                 mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$ref_amount} WHERE user_id = {$ref_user_id}");
                 cache($ref_user_id, 'users', 'delete');
+                Wo_LogReferralReward($ref_user_id, $ref_amount, 'referral_percent', $wo['user']['user_id']);
                 if (function_exists('Wo_RegisterNotification')) {
-                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned {$ref_amount} TRDC from a referral purchase!", 'url' => 'index.php?link1=wallet'));
+                    $pct = $wo['config']['amount_percent_ref'];
+                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned " . number_format($ref_amount, 4) . " TRDC ({$pct}% referral reward)!", 'url' => 'index.php?link1=wallet'));
                 }
             }
             if (is_numeric($wo['config']['affiliate_level']) && $wo['config']['affiliate_level'] > 1) {
@@ -7208,12 +7209,12 @@ function affiliateRef($price)
                 'src' => 'Referrer'
             ));
             if ($wo['config']['affiliate_level'] < 2) {
-                // Credit TRDC wallet instead of affiliate balance
                 $ref_fixed = floatval($wo['config']['amount_ref']);
                 mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$ref_fixed} WHERE user_id = {$ref_user_id}");
                 cache($ref_user_id, 'users', 'delete');
+                Wo_LogReferralReward($ref_user_id, $ref_fixed, 'referral_fixed', $wo['user']['user_id']);
                 if (function_exists('Wo_RegisterNotification')) {
-                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned {$ref_fixed} TRDC from a referral purchase!", 'url' => 'index.php?link1=wallet'));
+                    Wo_RegisterNotification(array('recipient_id' => $ref_user_id, 'type' => 'remaining', 'text' => "You earned " . number_format($ref_fixed, 4) . " TRDC from a referral!", 'url' => 'index.php?link1=wallet'));
                 }
             }
             if (is_numeric($wo['config']['affiliate_level']) && $wo['config']['affiliate_level'] > 1) {
@@ -7221,6 +7222,23 @@ function affiliateRef($price)
             }
             unset($_SESSION['ref']);
         }
+    }
+}
+
+/**
+ * Log referral reward to TRDC rewards table for tracking history.
+ */
+function Wo_LogReferralReward($userId, $amount, $type, $referredUserId = 0) {
+    global $sqlConnect;
+    if (defined('T_TRDC_REWARDS') && $amount > 0) {
+        $safeAmount = floatval($amount);
+        $safeUserId = intval($userId);
+        $safeRefId = intval($referredUserId);
+        $reason = ($type == 'referral_percent') ? 'Referral reward (percentage)' : 'Referral reward (fixed)';
+        if ($safeRefId > 0) $reason .= ' from user #' . $safeRefId;
+        $reason = mysqli_real_escape_string($sqlConnect, $reason);
+        $now = time();
+        mysqli_query($sqlConnect, "INSERT INTO " . T_TRDC_REWARDS . " (user_id, amount, reason, milestone_type, post_id, created_at) VALUES ({$safeUserId}, {$safeAmount}, '{$reason}', '{$type}', 0, {$now})");
     }
 }
 
