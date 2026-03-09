@@ -342,6 +342,15 @@ $sessionCutoff = time() - 2592000;
 @mysqli_query($sqlConnect, "DELETE FROM Wo_AppsSessions WHERE time < {$sessionCutoff}");
 // ********** Session Cleanup **********
 
+// ********** Purge Inactive Accounts **********
+_cron_log_section('purge_inactive_accounts');
+// Delete accounts with no posts, no avatar, no activity after 30 days (excludes bots & admins)
+// Processes up to 50 per cron run to avoid long-running queries
+if (function_exists('Wo_PurgeInactiveAccounts')) {
+    Wo_PurgeInactiveAccounts(30);
+}
+// ********** Purge Inactive Accounts **********
+
 _cron_log_write();
 
 // Release cron lock

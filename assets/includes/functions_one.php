@@ -1315,6 +1315,85 @@ function Wo_DeleteUser($user_id) {
         return true;
     }
 }
+/**
+ * Purge inactive accounts from cron job.
+ * Conditions (ALL must be true): no posts, no custom avatar, no activity (lastseen == 0 or lastseen == joined), registered > $days ago.
+ * Exempts: admin accounts, bot accounts (Wo_Bot_Accounts).
+ * Returns number of accounts deleted.
+ */
+function Wo_PurgeInactiveAccounts($days = 30) {
+    global $wo, $sqlConnect, $cache;
+    $cutoff = time() - ($days * 86400);
+    $defaultAvatars = array(
+        'upload/photos/d-avatar.jpg',
+        'upload/photos/f-avatar.jpg',
+        ''
+    );
+    $avatarCondition = implode("','", array_map(function($a) use ($sqlConnect) {
+        return mysqli_real_escape_string($sqlConnect, $a);
+    }, $defaultAvatars));
+
+    // Find inactive accounts: joined before cutoff, default avatar, no posts, not a bot, not admin
+    $query = "SELECT u.user_id FROM " . T_USERS . " u
+        WHERE u.joined < {$cutoff}
+        AND u.admin = '0'
+        AND (u.avatar IN ('{$avatarCondition}') OR u.avatar IS NULL)
+        AND (u.lastseen = 0 OR u.lastseen <= u.joined)
+        AND u.user_id NOT IN (SELECT user_id FROM Wo_Bot_Accounts)
+        AND u.user_id NOT IN (SELECT DISTINCT user_id FROM " . T_POSTS . " WHERE user_id = u.user_id LIMIT 1)
+        LIMIT 50";
+
+    // Use a simpler approach: get candidates then verify no posts
+    $query = "SELECT u.user_id FROM " . T_USERS . " u
+        LEFT JOIN " . T_POSTS . " p ON p.user_id = u.user_id
+        WHERE u.joined < {$cutoff}
+        AND u.admin = '0'
+        AND (u.avatar IN ('{$avatarCondition}') OR u.avatar IS NULL)
+        AND (u.lastseen = 0 OR u.lastseen <= u.joined)
+        AND u.user_id NOT IN (SELECT user_id FROM Wo_Bot_Accounts)
+        AND p.id IS NULL
+        LIMIT 50";
+
+    $result = mysqli_query($sqlConnect, $query);
+    if (!$result) return 0;
+
+    $deleted = 0;
+    while ($row = mysqli_fetch_assoc($result)) {
+        $uid = intval($row['user_id']);
+        // Clean up all related records (lightweight — these users have no posts/media)
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_FOLLOWERS . " WHERE follower_id = {$uid} OR following_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_NOTIFICATION . " WHERE notifier_id = {$uid} OR recipient_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_MESSAGES . " WHERE from_id = {$uid} OR to_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_APP_SESSIONS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_LIKES . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_COMMENTS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_RECENT_SEARCHES . " WHERE user_id = {$uid} OR search_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_BLOCKS . " WHERE blocker = {$uid} OR blocked = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_U_CHATS . " WHERE conversation_user_id = '{$uid}' OR user_id = '{$uid}'");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_PAGES_LIKES . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_GROUP_MEMBERS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_ACTIVITIES . " WHERE user_id = {$uid} OR follow_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_USERS_FIELDS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_CODES . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_TOKENS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_INVITAION_LINKS . " WHERE user_id = {$uid} OR invited_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_WONDERS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_SAVED_POSTS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_HIDDEN_POSTS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_ANNOUNCEMENT_VIEWS . " WHERE user_id = {$uid}");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_POKES . " WHERE received_user_id = '{$uid}' OR send_user_id = '{$uid}'");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_STORY_SEEN . " WHERE user_id = '{$uid}'");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_MUTE . " WHERE user_id = '{$uid}'");
+        @mysqli_query($sqlConnect, "DELETE FROM " . T_VOTES . " WHERE user_id = '{$uid}'");
+        // Delete user record
+        $del = mysqli_query($sqlConnect, "DELETE FROM " . T_USERS . " WHERE user_id = {$uid}");
+        if ($del) {
+            cache($uid, 'users', 'delete');
+            $deleted++;
+        }
+    }
+    return $deleted;
+}
 function Wo_UpdateUserData($user_id, $update_data, $unverify = false) {
     global $wo, $sqlConnect, $cache;
     if ($wo['loggedin'] == false) {
