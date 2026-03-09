@@ -242,8 +242,8 @@ function fetchTRDC() {
     var trdcEl = document.getElementById('bc-tick-trdc');
     if (!trdcEl) return;
 
-    var tokenAddress = 'DaCnDzf4wbPRYkJ774F7fp5hZdoFxXCATJ65h3xwpump';
-    var apiUrl = 'https://api.dexscreener.com/latest/dex/tokens/' + tokenAddress;
+    // TRDC is a BEP-20 token on BSC — contract: 0x39006641dB2d9C3618523a1778974c0D7e98e39d
+    var apiUrl = 'https://api.geckoterminal.com/api/v2/networks/bsc/tokens/0x39006641dB2d9C3618523a1778974c0D7e98e39d/pools?page=1';
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', apiUrl, true);
@@ -255,18 +255,22 @@ function fetchTRDC() {
         if (xhr.status === 200) {
             try {
                 var d = JSON.parse(xhr.responseText);
-                if (!d.pairs || d.pairs.length === 0) return;
-                var pair = d.pairs[0];
-                var priceUSD = parseFloat(pair.priceUsd);
-                var change24h = (pair.priceChange && pair.priceChange.h24 != null) ? parseFloat(pair.priceChange.h24) : 0;
+                var pools = d.data;
+                if (!pools || pools.length === 0) return;
+                var pool = pools[0].attributes;
+                var priceUSD = parseFloat(pool.base_token_price_usd);
+                if (isNaN(priceUSD) || priceUSD <= 0) return;
+                var change24h = (pool.price_change_percentage && pool.price_change_percentage.h24 != null) ? parseFloat(pool.price_change_percentage.h24) : 0;
 
                 var priceStr;
                 if (priceUSD >= 1) {
                     priceStr = '$' + priceUSD.toFixed(2);
                 } else if (priceUSD >= 0.01) {
                     priceStr = '$' + priceUSD.toFixed(4);
-                } else {
+                } else if (priceUSD >= 0.0001) {
                     priceStr = '$' + priceUSD.toFixed(6);
+                } else {
+                    priceStr = '$' + priceUSD.toFixed(8);
                 }
 
                 trdcEl.style.display = '';
