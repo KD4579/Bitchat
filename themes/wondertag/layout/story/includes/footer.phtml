@@ -5,7 +5,12 @@
 			<?php echo GetModeBtn('comments_btn');?>
 		</div>
 	</div>
-	<div>
+	<div class="valign" style="gap:2px;">
+		<?php if ($wo['loggedin'] && !empty($wo['config']['trdc_tip_enabled']) && $wo['config']['trdc_tip_enabled'] == '1' && $wo['story']['user_id'] != $wo['user']['user_id']) { ?>
+			<div class="valign stat-item tag_post_foot_acticon bc-tip-btn" onclick="bcOpenTipModal(<?php echo $wo['story']['id']; ?>, '<?php echo addslashes($wo['story']['publisher']['name']); ?>')" title="Tip TRDC" data-toggle="tooltip">
+				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+			</div>
+		<?php } ?>
 		<?php if($wo['config']['social_share_twitter'] == 0 && $wo['config']['social_share_facebook'] == 0 && $wo['config']['social_share_whatsup'] == 0 && $wo['config']['social_share_pinterest'] == 0 && $wo['config']['social_share_linkedin'] == 0 && $wo['config']['social_share_telegram'] == 0) { ?>
 			<?php if (empty($wo['story']['parent_id']) && $wo['story']['post_is_promoted'] != 1) { ?>
 				<div class="valign stat-item tag_post_foot_acticon share" <?php echo(PatreonPostSubscribed($wo['story']['user_id'],$wo['story']['id']) ? 'onclick="Wo_SharePostOn('.$wo['story']['id'].','.$wo['story']['user_id'].',\'timeline\')"' : '') ?> title="<?php echo $wo['lang']['share'];?>" data-toggle="tooltip">

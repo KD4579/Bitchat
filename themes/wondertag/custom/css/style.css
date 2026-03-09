@@ -8289,3 +8289,68 @@ body.night_mode .bc-story-tab.active {
     font-size: 20px;
   }
 }
+
+/* ==========================================================================
+   TRDC Tip System
+   ========================================================================== */
+.bc-tip-btn {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.2s;
+}
+.bc-tip-btn:hover {
+  opacity: 1;
+  color: #f39c12;
+}
+.bc-tip-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bc-tip-amount-btn {
+  flex: 1 1 auto;
+  min-width: 70px;
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: transparent;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bc-tip-amount-btn:hover {
+  border-color: #f39c12;
+  color: #f39c12;
+}
+.bc-tip-amount-btn.active {
+  border-color: #f39c12;
+  background: #f39c12;
+  color: #fff;
+}
+.bc-tip-balance {
+  font-size: 13px;
+  color: #888;
+}
+.bc-tip-custom input {
+  border-radius: 8px;
+}
+html:has(link#night-mode-css) .bc-tip-amount-btn,
+html.bc-dark-mode .bc-tip-amount-btn,
+body.night_mode .bc-tip-amount-btn {
+  border-color: #444;
+  color: #ccc;
+}
+html:has(link#night-mode-css) .bc-tip-amount-btn:hover,
+html.bc-dark-mode .bc-tip-amount-btn:hover,
+body.night_mode .bc-tip-amount-btn:hover {
+  border-color: #f39c12;
+  color: #f39c12;
+}
+html:has(link#night-mode-css) .bc-tip-amount-btn.active,
+html.bc-dark-mode .bc-tip-amount-btn.active,
+body.night_mode .bc-tip-amount-btn.active {
+  border-color: #f39c12;
+  background: #f39c12;
+  color: #fff;
+}

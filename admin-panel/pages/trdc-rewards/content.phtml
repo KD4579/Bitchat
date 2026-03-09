@@ -16,6 +16,54 @@
                 </div>
 
                 <hr>
+                <h4>Post Boost Settings</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Boost Cost (TRDC)</label>
+                            <input type="number" step="0.1" min="0" name="trdc_boost_cost" class="form-control" value="<?php echo htmlspecialchars($wo['config']['trdc_boost_cost'] ?? '5'); ?>">
+                            <small class="text-muted">TRDC tokens required to boost a post</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Boost Duration (hours)</label>
+                            <input type="number" step="1" min="1" name="trdc_boost_duration_hours" class="form-control" value="<?php echo htmlspecialchars($wo['config']['trdc_boost_duration_hours'] ?? '24'); ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4>Tipping Settings</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Tipping Enabled</label>
+                            <select name="trdc_tip_enabled" class="form-control">
+                                <option value="0" <?php echo (($wo['config']['trdc_tip_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo (($wo['config']['trdc_tip_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Preset Tip Amounts (comma-separated)</label>
+                            <input type="text" name="trdc_tip_amounts" class="form-control" value="<?php echo htmlspecialchars($wo['config']['trdc_tip_amounts'] ?? '1,5,10,25,50'); ?>">
+                            <small class="text-muted">e.g. 1,5,10,25,50</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Allow Custom Amounts</label>
+                            <select name="trdc_tip_custom_enabled" class="form-control">
+                                <option value="0" <?php echo (($wo['config']['trdc_tip_custom_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>No</option>
+                                <option value="1" <?php echo (($wo['config']['trdc_tip_custom_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
                 <h4>Reward Configuration</h4>
                 <p class="text-muted">Edit each reward type below. Set amount to 0 or toggle off to disable a specific reward.</p>
 
@@ -225,7 +273,12 @@ $(document).ready(function() {
 
         var form = $(this);
         var postData = {
-            trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val()
+            trdc_creator_rewards_enabled: form.find('[name=trdc_creator_rewards_enabled]').val(),
+            trdc_boost_cost: form.find('[name=trdc_boost_cost]').val(),
+            trdc_boost_duration_hours: form.find('[name=trdc_boost_duration_hours]').val(),
+            trdc_tip_enabled: form.find('[name=trdc_tip_enabled]').val(),
+            trdc_tip_amounts: form.find('[name=trdc_tip_amounts]').val(),
+            trdc_tip_custom_enabled: form.find('[name=trdc_tip_custom_enabled]').val()
         };
 
         // Collect reward config rows (if engine table exists)

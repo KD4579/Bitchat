@@ -1893,5 +1893,106 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		</div>
 	</div>
 
+	<?php if ($wo['loggedin'] && !empty($wo['config']['trdc_tip_enabled']) && $wo['config']['trdc_tip_enabled'] == '1') { ?>
+	<!-- TRDC Tip Modal -->
+	<div class="modal fade" id="bc-tip-modal" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm wow_mat_mdl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Tip <span id="bc-tip-recipient-name"></span></h4>
+					<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+				</div>
+				<div class="modal-body">
+					<p class="text-muted" style="margin-bottom:12px;">Send TRDC tokens to support this creator</p>
+					<div class="bc-tip-amounts">
+						<?php
+						$tipAmounts = explode(',', $wo['config']['trdc_tip_amounts'] ?? '1,5,10,25,50');
+						foreach ($tipAmounts as $amt) {
+							$amt = trim($amt);
+							if (is_numeric($amt) && floatval($amt) > 0) {
+						?>
+							<button type="button" class="btn bc-tip-amount-btn" data-amount="<?php echo $amt; ?>" onclick="bcSelectTipAmount(this)"><?php echo $amt; ?> TRDC</button>
+						<?php } } ?>
+					</div>
+					<?php if (!empty($wo['config']['trdc_tip_custom_enabled']) && $wo['config']['trdc_tip_custom_enabled'] == '1') { ?>
+					<div class="bc-tip-custom" style="margin-top:12px;">
+						<input type="number" id="bc-tip-custom-input" class="form-control" placeholder="Custom amount" min="0.1" max="1000" step="0.1">
+					</div>
+					<?php } ?>
+					<div class="bc-tip-balance" style="margin-top:10px;">
+						Your balance: <strong id="bc-tip-balance"><?php echo number_format(floatval($wo['user']['wallet']), 2); ?></strong> TRDC
+					</div>
+					<div id="bc-tip-error" class="text-danger" style="margin-top:8px;display:none;"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default btn-mat" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-main btn-mat" id="bc-tip-send-btn" onclick="bcSendTip()" disabled>Send Tip</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	var bcTipPostId = 0;
+	var bcTipAmount = 0;
+
+	function bcOpenTipModal(postId, recipientName) {
+		bcTipPostId = postId;
+		bcTipAmount = 0;
+		$('#bc-tip-recipient-name').text(recipientName);
+		$('.bc-tip-amount-btn').removeClass('active');
+		$('#bc-tip-custom-input').val('');
+		$('#bc-tip-error').hide();
+		$('#bc-tip-send-btn').attr('disabled', true);
+		$('#bc-tip-modal').modal('show');
+	}
+
+	function bcSelectTipAmount(el) {
+		$('.bc-tip-amount-btn').removeClass('active');
+		$(el).addClass('active');
+		bcTipAmount = parseFloat($(el).data('amount'));
+		$('#bc-tip-custom-input').val('');
+		$('#bc-tip-send-btn').removeAttr('disabled');
+		$('#bc-tip-error').hide();
+	}
+
+	$(document).on('input', '#bc-tip-custom-input', function() {
+		var val = parseFloat($(this).val());
+		if (val > 0) {
+			$('.bc-tip-amount-btn').removeClass('active');
+			bcTipAmount = val;
+			$('#bc-tip-send-btn').removeAttr('disabled');
+			$('#bc-tip-error').hide();
+		} else {
+			$('#bc-tip-send-btn').attr('disabled', true);
+		}
+	});
+
+	function bcSendTip() {
+		if (bcTipAmount <= 0 || bcTipPostId <= 0) return;
+		$('#bc-tip-send-btn').attr('disabled', true).text('Sending...');
+		$('#bc-tip-error').hide();
+		$.post(Wo_Ajax_Requests_File() + '?f=trdc_tip_post', {
+			post_id: bcTipPostId,
+			amount: bcTipAmount,
+			hash: $('.main_session').val()
+		}, function(data) {
+			if (data.status == 200) {
+				$('#bc-tip-modal').modal('hide');
+				$('#bc-tip-balance').text(parseFloat(data.new_balance).toFixed(2));
+				if (typeof Wo_Delay === 'function') {
+					$('body').snackbar({ message: data.message });
+				}
+			} else {
+				$('#bc-tip-error').text(data.message).show();
+			}
+			$('#bc-tip-send-btn').removeAttr('disabled').text('Send Tip');
+		}, 'json').fail(function() {
+			$('#bc-tip-error').text('Network error. Try again.').show();
+			$('#bc-tip-send-btn').removeAttr('disabled').text('Send Tip');
+		});
+	}
+	</script>
+	<?php } ?>
+
 	</body>
 </html>

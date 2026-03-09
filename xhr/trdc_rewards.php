@@ -14,6 +14,27 @@ if ($f == 'trdc_rewards') {
         Wo_SaveConfig('trdc_creator_rewards_enabled', ($_POST['trdc_creator_rewards_enabled'] == '1') ? '1' : '0');
     }
 
+    // Save boost settings
+    if (isset($_POST['trdc_boost_cost'])) {
+        Wo_SaveConfig('trdc_boost_cost', max(0, floatval($_POST['trdc_boost_cost'])));
+    }
+    if (isset($_POST['trdc_boost_duration_hours'])) {
+        Wo_SaveConfig('trdc_boost_duration_hours', max(1, intval($_POST['trdc_boost_duration_hours'])));
+    }
+
+    // Save tip settings
+    if (isset($_POST['trdc_tip_enabled'])) {
+        Wo_SaveConfig('trdc_tip_enabled', ($_POST['trdc_tip_enabled'] == '1') ? '1' : '0');
+    }
+    if (isset($_POST['trdc_tip_amounts'])) {
+        // Sanitize: only allow comma-separated numbers
+        $amounts = preg_replace('/[^0-9.,]/', '', $_POST['trdc_tip_amounts']);
+        Wo_SaveConfig('trdc_tip_amounts', $amounts);
+    }
+    if (isset($_POST['trdc_tip_custom_enabled'])) {
+        Wo_SaveConfig('trdc_tip_custom_enabled', ($_POST['trdc_tip_custom_enabled'] == '1') ? '1' : '0');
+    }
+
     // Save reward engine configs (new engine)
     if (!empty($_POST['reward_configs']) && function_exists('Wo_UpdateRewardConfig')) {
         $configs = json_decode($_POST['reward_configs'], true);

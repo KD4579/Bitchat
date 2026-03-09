@@ -11,8 +11,9 @@ if ($f == 'trdc_boost_post') {
     }
 
     $postId = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $boostCost = 5.0; // TRDC cost per boost (24 hours)
-    $boostDuration = 86400; // 24 hours
+    $boostCost = floatval($wo['config']['trdc_boost_cost'] ?? 5);
+    $boostHours = intval($wo['config']['trdc_boost_duration_hours'] ?? 24);
+    $boostDuration = $boostHours * 3600;
 
     if ($postId <= 0) {
         $data['message'] = 'Invalid post';
@@ -58,7 +59,7 @@ if ($f == 'trdc_boost_post') {
 
     $data = array(
         'status' => 200,
-        'message' => 'Post boosted for 24 hours!',
+        'message' => 'Post boosted for ' . $boostHours . ' hours!',
         'new_balance' => floatval($userData['wallet']) - $boostCost,
         'expires' => $expires
     );
