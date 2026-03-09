@@ -52,6 +52,32 @@ if ($f == 'trdc_rewards') {
         Wo_SaveConfig('trading_signals_pairs', $pairs);
     }
 
+    // Save creator badge settings
+    if (isset($_POST['creator_badge_mode'])) {
+        $mode = in_array($_POST['creator_badge_mode'], array('trdc', 'engagement')) ? $_POST['creator_badge_mode'] : 'trdc';
+        Wo_SaveConfig('creator_badge_mode', $mode);
+    }
+    if (!empty($_POST['creator_badge_thresholds'])) {
+        $thresholds = json_decode($_POST['creator_badge_thresholds'], true);
+        if (is_array($thresholds)) {
+            // Sanitize each tier
+            $clean = array();
+            foreach ($thresholds as $lvl => $t) {
+                $lvl = intval($lvl);
+                if ($lvl < 1 || $lvl > 10) continue;
+                $clean[$lvl] = array(
+                    'min' => max(0, floatval($t['min'] ?? 0)),
+                    'rank' => substr(preg_replace('/[^A-Za-z0-9 ]/', '', $t['rank'] ?? 'Tier'), 0, 20),
+                    'color' => preg_match('/^#[0-9a-fA-F]{3,8}$/', $t['color'] ?? '') ? $t['color'] : '#666',
+                    'bg' => preg_match('/^#[0-9a-fA-F]{3,8}$/', $t['bg'] ?? '') ? $t['bg'] : '#f0f0f0'
+                );
+            }
+            if (!empty($clean)) {
+                Wo_SaveConfig('creator_badge_thresholds', json_encode($clean));
+            }
+        }
+    }
+
     // Save token gate settings
     if (isset($_POST['trdc_gate_enabled'])) {
         Wo_SaveConfig('trdc_gate_enabled', ($_POST['trdc_gate_enabled'] == '1') ? '1' : '0');

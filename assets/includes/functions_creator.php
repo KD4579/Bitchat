@@ -266,29 +266,87 @@ function Wo_GetCreatorWeeklyEngagement($userId) {
 }
 
 /**
- * Get creator rank badge based on engagement, activity, and referrals.
+ * Get creator rank badge based on TRDC wallet balance (7 tiers) or engagement fallback.
+ * Thresholds are admin-configurable via creator_badge_thresholds config.
  *
  * @param array $stats Creator stats from Wo_GetCreatorStats()
- * @return array ['rank' => string, 'color' => string, 'icon' => string]
+ * @param float|null $walletBalance Optional wallet balance (fetched if null)
+ * @return array ['rank' => string, 'color' => string, 'bg' => string, 'level' => int]
  */
-function Wo_GetCreatorRank($stats) {
+function Wo_GetCreatorRank($stats, $walletBalance = null) {
+    global $wo;
+
+    $mode = !empty($wo['config']['creator_badge_mode']) ? $wo['config']['creator_badge_mode'] : 'trdc';
+
+    if ($mode == 'trdc') {
+        // TRDC wallet balance-based (7 tiers)
+        $balance = ($walletBalance !== null) ? floatval($walletBalance) : 0;
+        $thresholds = Wo_GetBadgeThresholds();
+
+        // Find highest matching tier (iterate from highest to lowest)
+        $result = array('rank' => 'Starter', 'color' => '#6b7280', 'bg' => '#f3f4f6', 'level' => 1);
+        foreach ($thresholds as $level => $t) {
+            if ($balance >= floatval($t['min'])) {
+                $result = array(
+                    'rank'  => $t['rank'],
+                    'color' => $t['color'],
+                    'bg'    => $t['bg'],
+                    'level' => intval($level)
+                );
+            }
+        }
+        return $result;
+    }
+
+    // Fallback: engagement-based scoring
     $engagement = intval($stats['total_engagement'] ?? 0);
     $posts      = intval($stats['total_posts'] ?? 0);
     $invited    = intval($stats['invited_users'] ?? 0);
     $followers  = intval($stats['total_followers'] ?? 0);
-
-    // Composite score for ranking
     $score = $engagement + ($posts * 2) + ($invited * 10) + ($followers * 3);
 
     if ($score >= 2000) {
-        return array('rank' => 'Champion', 'color' => '#f59e0b', 'bg' => '#fef3c7');
+        return array('rank' => 'Champion', 'color' => '#f59e0b', 'bg' => '#fef3c7', 'level' => 7);
     } elseif ($score >= 800) {
-        return array('rank' => 'Influencer', 'color' => '#8b5cf6', 'bg' => '#ede9fe');
+        return array('rank' => 'Influencer', 'color' => '#8b5cf6', 'bg' => '#ede9fe', 'level' => 5);
     } elseif ($score >= 200) {
-        return array('rank' => 'Contributor', 'color' => '#3b82f6', 'bg' => '#dbeafe');
+        return array('rank' => 'Contributor', 'color' => '#3b82f6', 'bg' => '#dbeafe', 'level' => 3);
     } else {
-        return array('rank' => 'Rising Star', 'color' => '#10b981', 'bg' => '#d1fae5');
+        return array('rank' => 'Rising Star', 'color' => '#10b981', 'bg' => '#d1fae5', 'level' => 1);
     }
+}
+
+/**
+ * Get badge thresholds from admin config (cached per request).
+ * Returns sorted array from lowest to highest tier.
+ */
+function Wo_GetBadgeThresholds() {
+    global $wo;
+    static $parsed = null;
+    if ($parsed !== null) return $parsed;
+
+    $json = $wo['config']['creator_badge_thresholds'] ?? '';
+    $thresholds = json_decode($json, true);
+    if (!is_array($thresholds) || empty($thresholds)) {
+        // Default 7 tiers
+        $thresholds = array(
+            '1' => array('min' => 0,    'rank' => 'Starter',   'color' => '#6b7280', 'bg' => '#f3f4f6'),
+            '2' => array('min' => 10,   'rank' => 'Bronze',    'color' => '#b45309', 'bg' => '#fef3c7'),
+            '3' => array('min' => 50,   'rank' => 'Silver',    'color' => '#6b7280', 'bg' => '#e5e7eb'),
+            '4' => array('min' => 100,  'rank' => 'Gold',      'color' => '#d97706', 'bg' => '#fef9c3'),
+            '5' => array('min' => 500,  'rank' => 'Platinum',  'color' => '#7c3aed', 'bg' => '#ede9fe'),
+            '6' => array('min' => 1000, 'rank' => 'Diamond',   'color' => '#2563eb', 'bg' => '#dbeafe'),
+            '7' => array('min' => 5000, 'rank' => 'Champion',  'color' => '#dc2626', 'bg' => '#fee2e2'),
+        );
+    }
+
+    // Sort by min threshold ascending
+    uasort($thresholds, function($a, $b) {
+        return floatval($a['min']) - floatval($b['min']);
+    });
+
+    $parsed = $thresholds;
+    return $parsed;
 }
 
 /**
@@ -299,6 +357,7 @@ function Wo_GetCreatorRank($stats) {
  * @return array|false Rank array or false if not a creator
  */
 function Wo_GetCreatorRankForDisplay($userId) {
+    global $wo;
     static $cache = array();
     $userId = intval($userId);
     if ($userId <= 0) return false;
@@ -312,7 +371,16 @@ function Wo_GetCreatorRankForDisplay($userId) {
     }
 
     $stats = Wo_GetCreatorStats($userId);
-    $rank  = Wo_GetCreatorRank($stats);
+
+    // Get wallet balance for TRDC-based badge mode
+    $walletBalance = 0;
+    $mode = !empty($wo['config']['creator_badge_mode']) ? $wo['config']['creator_badge_mode'] : 'trdc';
+    if ($mode == 'trdc') {
+        $userData = Wo_UserData($userId);
+        $walletBalance = floatval($userData['wallet'] ?? 0);
+    }
+
+    $rank = Wo_GetCreatorRank($stats, $walletBalance);
     $cache[$userId] = $rank;
     return $rank;
 }

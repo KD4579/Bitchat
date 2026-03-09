@@ -21,12 +21,18 @@
 					<?php if($wo['story']['publisher']['verified'] == 1) { ?>
 						<span class="verified-color fs-14" title="<?php echo ($wo['story']['page_id'] > 0 ? $wo['lang']['verified_page'] : $wo['lang']['verified_user']);?>" data-toggle="tooltip">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 512 512"><path d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0" fill="#2196f3"></path><path d="m385.75 201.75-138.667969 138.664062c-4.160156 4.160157-9.621093 6.253907-15.082031 6.253907s-10.921875-2.09375-15.082031-6.253907l-69.332031-69.332031c-8.34375-8.339843-8.34375-21.824219 0-30.164062 8.339843-8.34375 21.820312-8.34375 30.164062 0l54.25 54.25 123.585938-123.582031c8.339843-8.34375 21.820312-8.34375 30.164062 0 8.339844 8.339843 8.339844 21.820312 0 30.164062zm0 0" fill="#fff"></path></svg></span>
 					<?php } ?>
-					<?php if (!empty($wo['config']['creator_mode_enabled']) && $wo['config']['creator_mode_enabled'] == '1' && !empty($wo['story']['publisher']['is_creator']) && $wo['story']['publisher']['is_creator'] == 1) {
+					<?php
+					$_bc_badge_mode = $wo['config']['creator_badge_mode'] ?? 'trdc';
+					$_bc_show_badge = false;
+					if ($_bc_badge_mode == 'trdc' && function_exists('Wo_GetCreatorRankForDisplay')) {
+						$_bc_show_badge = (floatval($wo['story']['publisher']['wallet'] ?? 0) > 0);
+					} elseif (!empty($wo['config']['creator_mode_enabled']) && $wo['config']['creator_mode_enabled'] == '1' && !empty($wo['story']['publisher']['is_creator']) && $wo['story']['publisher']['is_creator'] == 1) {
+						$_bc_show_badge = true;
+					}
+					if ($_bc_show_badge) {
 						$_cr = function_exists('Wo_GetCreatorRankForDisplay') ? Wo_GetCreatorRankForDisplay($wo['story']['publisher']['id']) : false;
 						if ($_cr) { ?>
 						<span class="bc-rank-badge" style="background:<?php echo $_cr['bg']; ?>;color:<?php echo $_cr['color']; ?>;" title="<?php echo $_cr['rank']; ?>" data-toggle="tooltip">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> <?php echo $_cr['rank']; ?></span>
-					<?php } else { ?>
-						<span class="fs-14" title="Creator" data-toggle="tooltip">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="#ff9800" stroke="#ff9800" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>
 					<?php } } ?>
          			<?php
 						if (isset($wo['story']['publisher']['is_pro'])) {
@@ -445,12 +451,18 @@
 					<?php if($wo['story']['publisher']['verified'] == 1) { ?>
 						<span class="verified-color fs-14" title="<?php echo ($wo['story']['page_id'] > 0 ? $wo['lang']['verified_page'] : $wo['lang']['verified_user']);?>" data-toggle="tooltip">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 512 512"><path d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0" fill="#2196f3"></path><path d="m385.75 201.75-138.667969 138.664062c-4.160156 4.160157-9.621093 6.253907-15.082031 6.253907s-10.921875-2.09375-15.082031-6.253907l-69.332031-69.332031c-8.34375-8.339843-8.34375-21.824219 0-30.164062 8.339843-8.34375 21.820312-8.34375 30.164062 0l54.25 54.25 123.585938-123.582031c8.339843-8.34375 21.820312-8.34375 30.164062 0 8.339844 8.339843 8.339844 21.820312 0 30.164062zm0 0" fill="#fff"></path></svg></span>
 					<?php } ?>
-					<?php if (!empty($wo['config']['creator_mode_enabled']) && $wo['config']['creator_mode_enabled'] == '1' && !empty($wo['story']['publisher']['is_creator']) && $wo['story']['publisher']['is_creator'] == 1) {
+					<?php
+					$_bc_badge_mode = $wo['config']['creator_badge_mode'] ?? 'trdc';
+					$_bc_show_badge = false;
+					if ($_bc_badge_mode == 'trdc' && function_exists('Wo_GetCreatorRankForDisplay')) {
+						$_bc_show_badge = (floatval($wo['story']['publisher']['wallet'] ?? 0) > 0);
+					} elseif (!empty($wo['config']['creator_mode_enabled']) && $wo['config']['creator_mode_enabled'] == '1' && !empty($wo['story']['publisher']['is_creator']) && $wo['story']['publisher']['is_creator'] == 1) {
+						$_bc_show_badge = true;
+					}
+					if ($_bc_show_badge) {
 						$_cr = function_exists('Wo_GetCreatorRankForDisplay') ? Wo_GetCreatorRankForDisplay($wo['story']['publisher']['id']) : false;
 						if ($_cr) { ?>
 						<span class="bc-rank-badge" style="background:<?php echo $_cr['bg']; ?>;color:<?php echo $_cr['color']; ?>;" title="<?php echo $_cr['rank']; ?>" data-toggle="tooltip">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> <?php echo $_cr['rank']; ?></span>
-					<?php } else { ?>
-						<span class="fs-14" title="Creator" data-toggle="tooltip">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="#ff9800" stroke="#ff9800" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>
 					<?php } } ?>
 					<?php
 						if ($wo['config']['shout_box_system'] != 1 || $wo['story']['postPrivacy'] != 4) {

@@ -138,6 +138,48 @@
                 </div>
 
                 <hr>
+                <h4>Creator Verification Badges (7 Levels)</h4>
+                <p class="text-muted">Badge level is determined by user's TRDC wallet balance. Configure thresholds below.</p>
+                <div class="form-group" style="max-width:200px;">
+                    <label>Badge Mode</label>
+                    <select name="creator_badge_mode" class="form-control">
+                        <option value="trdc" <?php echo (($wo['config']['creator_badge_mode'] ?? 'trdc') == 'trdc') ? 'selected' : ''; ?>>TRDC Balance</option>
+                        <option value="engagement" <?php echo (($wo['config']['creator_badge_mode'] ?? 'trdc') == 'engagement') ? 'selected' : ''; ?>>Engagement Score</option>
+                    </select>
+                </div>
+                <?php
+                $badgeThresholds = json_decode($wo['config']['creator_badge_thresholds'] ?? '{}', true);
+                if (empty($badgeThresholds)) {
+                    $badgeThresholds = array(
+                        '1' => array('min' => 0, 'rank' => 'Starter', 'color' => '#6b7280', 'bg' => '#f3f4f6'),
+                        '2' => array('min' => 10, 'rank' => 'Bronze', 'color' => '#b45309', 'bg' => '#fef3c7'),
+                        '3' => array('min' => 50, 'rank' => 'Silver', 'color' => '#6b7280', 'bg' => '#e5e7eb'),
+                        '4' => array('min' => 100, 'rank' => 'Gold', 'color' => '#d97706', 'bg' => '#fef9c3'),
+                        '5' => array('min' => 500, 'rank' => 'Platinum', 'color' => '#7c3aed', 'bg' => '#ede9fe'),
+                        '6' => array('min' => 1000, 'rank' => 'Diamond', 'color' => '#2563eb', 'bg' => '#dbeafe'),
+                        '7' => array('min' => 5000, 'rank' => 'Champion', 'color' => '#dc2626', 'bg' => '#fee2e2'),
+                    );
+                }
+                ?>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="badge-thresholds-table">
+                        <thead><tr><th>Level</th><th>Min TRDC</th><th>Badge Name</th><th>Text Color</th><th>Bg Color</th><th>Preview</th></tr></thead>
+                        <tbody>
+                        <?php foreach ($badgeThresholds as $lvl => $bt) { ?>
+                            <tr>
+                                <td><strong><?php echo $lvl; ?></strong><input type="hidden" name="badge_level[]" value="<?php echo $lvl; ?>"></td>
+                                <td><input type="number" step="0.01" name="badge_min[]" class="form-control input-sm" value="<?php echo floatval($bt['min']); ?>" style="width:100px;"></td>
+                                <td><input type="text" name="badge_rank[]" class="form-control input-sm" value="<?php echo htmlspecialchars($bt['rank']); ?>"></td>
+                                <td><input type="color" name="badge_color[]" value="<?php echo htmlspecialchars($bt['color']); ?>" style="width:40px;height:30px;padding:2px;"></td>
+                                <td><input type="color" name="badge_bg[]" value="<?php echo htmlspecialchars($bt['bg']); ?>" style="width:40px;height:30px;padding:2px;"></td>
+                                <td><span class="label" style="background:<?php echo $bt['bg']; ?>;color:<?php echo $bt['color']; ?>;padding:4px 10px;border-radius:10px;font-size:11px;">&#9733; <?php echo $bt['rank']; ?></span></td>
+                            </tr>
+                        <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
                 <h4>Reward Configuration</h4>
                 <p class="text-muted">Edit each reward type below. Set amount to 0 or toggle off to disable a specific reward.</p>
 
@@ -359,8 +401,24 @@ $(document).ready(function() {
             trading_signals_pairs: form.find('[name=trading_signals_pairs]').val(),
             trdc_gate_enabled: form.find('[name=trdc_gate_enabled]').val(),
             trdc_gate_default_amount: form.find('[name=trdc_gate_default_amount]').val(),
-            trdc_gate_amounts: form.find('[name=trdc_gate_amounts]').val()
+            trdc_gate_amounts: form.find('[name=trdc_gate_amounts]').val(),
+            creator_badge_mode: form.find('[name=creator_badge_mode]').val()
         };
+
+        // Collect badge thresholds
+        var badges = {};
+        form.find('[name="badge_level[]"]').each(function(i) {
+            var lvl = $(this).val();
+            badges[lvl] = {
+                min: parseFloat(form.find('[name="badge_min[]"]').eq(i).val()) || 0,
+                rank: form.find('[name="badge_rank[]"]').eq(i).val(),
+                color: form.find('[name="badge_color[]"]').eq(i).val(),
+                bg: form.find('[name="badge_bg[]"]').eq(i).val()
+            };
+        });
+        if (Object.keys(badges).length > 0) {
+            postData.creator_badge_thresholds = JSON.stringify(badges);
+        }
 
         // Collect reward config rows (if engine table exists)
         var keys = form.find('[name="rc_key[]"]');
