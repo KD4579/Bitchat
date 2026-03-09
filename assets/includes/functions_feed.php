@@ -145,6 +145,8 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
     $sevenDaysAgo = $now - (7 * 86400);
     $wNewCreator = 5.0; // Boost for accounts < 7 days old
     $wFirstPosts = 3.0; // Extra boost for user's first 3 posts
+    $wRealUser   = 3.0; // Boost for real (non-bot) user content
+    $wFollowing  = 4.0; // Boost for posts from users you follow
 
     // --- Single scoring SQL query ---
     $sql = "
@@ -184,6 +186,12 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
 
             -- News bot boost (ensures bot posts appear in feed)
             (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 2.0 ELSE 0 END) AS news_bot_boost,
+
+            -- Real user boost (non-bot content weighted higher)
+            (CASE WHEN p.user_id NOT IN (SELECT user_id FROM {$botTable}) THEN {$wRealUser} ELSE 0 END) AS real_user_boost,
+
+            -- Following boost (posts from people you follow)
+            (CASE WHEN p.user_id IN (SELECT following_id FROM Wo_Followers WHERE follower_id = {$userId} AND active = '1') THEN {$wFollowing} ELSE 0 END) AS following_boost,
 
             -- Link penalty (exempt news bots — their links are legitimate articles)
             (CASE
@@ -248,6 +256,10 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             + (CASE WHEN p.trdc_boosted = 1 AND p.trdc_boost_expires > {$now} THEN 10.0 ELSE 0 END)
             -- News bot boost
             + (CASE WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 2.0 ELSE 0 END)
+            -- Real user boost
+            + (CASE WHEN p.user_id NOT IN (SELECT user_id FROM {$botTable}) THEN {$wRealUser} ELSE 0 END)
+            -- Following boost
+            + (CASE WHEN p.user_id IN (SELECT following_id FROM Wo_Followers WHERE follower_id = {$userId} AND active = '1') THEN {$wFollowing} ELSE 0 END)
             -- Penalties (subtracted, bots exempt from link penalty)
             - (CASE
                 WHEN p.user_id IN (SELECT user_id FROM {$botTable} WHERE enabled = 1) THEN 0
