@@ -5367,11 +5367,21 @@ function Wo_CheckIfUserCanPost($num = 10) {
     if (empty($user_id) || !is_numeric($user_id) || $user_id < 1) {
         return false;
     }
-    $time  = time() - 3200;
+    // Rate limit: max $num posts per hour (was ~53 min)
+    $time  = time() - 3600;
     $query = mysqli_query($sqlConnect, "SELECT COUNT(`id`) as count FROM " . T_POSTS . " WHERE `user_id` = {$user_id} AND `time` > {$time}");
     if (mysqli_num_rows($query)) {
         $sql_query = mysqli_fetch_assoc($query);
-        if ($sql_query['count'] > $num) {
+        if ($sql_query['count'] >= $num) {
+            return false;
+        }
+    }
+    // Burst protection: max 3 posts per 60 seconds
+    $burst_time = time() - 60;
+    $burst_query = mysqli_query($sqlConnect, "SELECT COUNT(`id`) as count FROM " . T_POSTS . " WHERE `user_id` = {$user_id} AND `time` > {$burst_time}");
+    if ($burst_query && mysqli_num_rows($burst_query)) {
+        $burst_row = mysqli_fetch_assoc($burst_query);
+        if ($burst_row['count'] >= 3) {
             return false;
         }
     }
