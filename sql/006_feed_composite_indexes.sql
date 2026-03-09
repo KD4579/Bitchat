@@ -44,10 +44,10 @@ CALL bc_add_index_if_missing('Wo_Posts', 'idx_group_posts', '`group_id`, `id` DE
 CALL bc_add_index_if_missing('Wo_Followers', 'idx_follower_active', '`follower_id`, `active`, `following_id`');
 
 -- GROUP MEMBERS: group membership check
-CALL bc_add_index_if_missing('Wo_GroupMembers', 'idx_user_group_active', '`user_id`, `active`, `group_id`');
+CALL bc_add_index_if_missing('Wo_Group_Members', 'idx_user_group_active', '`user_id`, `active`, `group_id`');
 
 -- PAGE LIKES: page like check
-CALL bc_add_index_if_missing('Wo_PageLikes', 'idx_user_page_active', '`user_id`, `active`, `page_id`');
+CALL bc_add_index_if_missing('Wo_Pages_Likes', 'idx_user_page_active', '`user_id`, `active`, `page_id`');
 
 -- REACTIONS: engagement count
 CALL bc_add_index_if_missing('Wo_Reactions', 'idx_post_reactions', '`post_id`, `id`');
