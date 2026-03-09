@@ -242,7 +242,7 @@ function fetchTRDC() {
     var trdcEl = document.getElementById('bc-tick-trdc');
     if (!trdcEl) return;
 
-    var tokenAddress = '0x39006641db2d9c3618523a1778974c0d7e98e39d';
+    var tokenAddress = 'DaCnDzf4wbPRYkJ774F7fp5hZdoFxXCATJ65h3xwpump';
     var apiUrl = 'https://api.dexscreener.com/latest/dex/tokens/' + tokenAddress;
 
     var xhr = new XMLHttpRequest();
