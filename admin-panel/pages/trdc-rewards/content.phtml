@@ -64,6 +64,27 @@
                 </div>
 
                 <hr>
+                <h4>Trading Signals</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Trading Signals Enabled</label>
+                            <select name="trading_signals_enabled" class="form-control">
+                                <option value="0" <?php echo (($wo['config']['trading_signals_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo (($wo['config']['trading_signals_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label>Crypto Pairs (comma-separated)</label>
+                            <input type="text" name="trading_signals_pairs" class="form-control" value="<?php echo htmlspecialchars($wo['config']['trading_signals_pairs'] ?? 'BTC/USD,ETH/USD,BTC/USDT,ETH/USDT,SOL/USD'); ?>">
+                            <small class="text-muted">Available pairs for signal creation</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
                 <h4>Token-Gated Content</h4>
                 <div class="row">
                     <div class="col-md-3">
@@ -307,6 +328,8 @@ $(document).ready(function() {
             trdc_tip_enabled: form.find('[name=trdc_tip_enabled]').val(),
             trdc_tip_amounts: form.find('[name=trdc_tip_amounts]').val(),
             trdc_tip_custom_enabled: form.find('[name=trdc_tip_custom_enabled]').val(),
+            trading_signals_enabled: form.find('[name=trading_signals_enabled]').val(),
+            trading_signals_pairs: form.find('[name=trading_signals_pairs]').val(),
             trdc_gate_enabled: form.find('[name=trdc_gate_enabled]').val(),
             trdc_gate_default_amount: form.find('[name=trdc_gate_default_amount]').val(),
             trdc_gate_amounts: form.find('[name=trdc_gate_amounts]').val()

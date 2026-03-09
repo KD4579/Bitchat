@@ -45,6 +45,52 @@ if ($bc_is_gated && $wo['loggedin']) {
 				<?php if (!empty($wo['story']['parent_id'])) { ?>
 					<div><p class="edited_text"><?php echo $wo['story']['postText']; ?></p></div>
 				<?php } ?>
+				<?php if ($wo['story']['postType'] == 'trading_signal') {
+					$bc_signal = null;
+					if (defined('T_TRADING_SIGNALS')) {
+						$bc_signal = $db->where('post_id', $wo['story']['id'])->getOne(T_TRADING_SIGNALS);
+					}
+					if (!empty($bc_signal)) {
+						$bc_sig_class = in_array($bc_signal['signal_type'], array('BUY','LONG')) ? 'bc-signal-buy' : (in_array($bc_signal['signal_type'], array('SELL','SHORT')) ? 'bc-signal-sell' : 'bc-signal-hold');
+						$bc_conf_stars = str_repeat('★', intval($bc_signal['confidence'])) . str_repeat('☆', 5 - intval($bc_signal['confidence']));
+				?>
+				<div class="bc-signal-card <?php echo $bc_sig_class; ?>">
+					<div class="bc-signal-header">
+						<span class="bc-signal-type"><?php echo $bc_signal['signal_type']; ?></span>
+						<span class="bc-signal-pair"><?php echo htmlspecialchars($bc_signal['crypto_pair']); ?></span>
+						<span class="bc-signal-tf"><?php echo htmlspecialchars($bc_signal['timeframe']); ?></span>
+						<span class="bc-signal-status bc-signal-status-<?php echo strtolower($bc_signal['status']); ?>"><?php echo $bc_signal['status']; ?></span>
+					</div>
+					<div class="bc-signal-prices">
+						<div class="bc-signal-price">
+							<small>Entry</small>
+							<strong>$<?php echo rtrim(rtrim(number_format(floatval($bc_signal['entry_price']), 8), '0'), '.'); ?></strong>
+						</div>
+						<?php if (floatval($bc_signal['target_price']) > 0) { ?>
+						<div class="bc-signal-price">
+							<small>Target</small>
+							<strong class="text-success">$<?php echo rtrim(rtrim(number_format(floatval($bc_signal['target_price']), 8), '0'), '.'); ?></strong>
+						</div>
+						<?php } ?>
+						<?php if (floatval($bc_signal['stop_loss']) > 0) { ?>
+						<div class="bc-signal-price">
+							<small>Stop Loss</small>
+							<strong class="text-danger">$<?php echo rtrim(rtrim(number_format(floatval($bc_signal['stop_loss']), 8), '0'), '.'); ?></strong>
+						</div>
+						<?php } ?>
+					</div>
+					<div class="bc-signal-meta">
+						<span class="bc-signal-conf" title="Confidence"><?php echo $bc_conf_stars; ?></span>
+						<?php if ($wo['loggedin'] && $wo['story']['user_id'] == $wo['user']['user_id'] && $bc_signal['status'] == 'ACTIVE') { ?>
+						<div class="bc-signal-actions">
+							<button class="btn btn-xs btn-success" onclick="bcUpdateSignal(<?php echo $bc_signal['id']; ?>,'HIT_TARGET')">Hit Target</button>
+							<button class="btn btn-xs btn-danger" onclick="bcUpdateSignal(<?php echo $bc_signal['id']; ?>,'HIT_STOPLOSS')">Hit SL</button>
+							<button class="btn btn-xs btn-default" onclick="bcUpdateSignal(<?php echo $bc_signal['id']; ?>,'CLOSED')">Close</button>
+						</div>
+						<?php } ?>
+					</div>
+				</div>
+				<?php } } ?>
 				<?php if (!empty($wo['story']['fund_id']) && empty($wo['story']['parent_id'])) { ?>
 					<?php if (!empty($wo['story']['fund_data']['image'])): ?>
 						<div class="wow_dontd_posts">

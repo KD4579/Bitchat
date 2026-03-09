@@ -155,6 +155,9 @@ define('T_SCHEDULED_POSTS', 'Wo_Scheduled_Posts');
 define('T_GHOST_QUEUE', 'Wo_Ghost_Queue');
 define('T_TRDC_REWARDS', 'Wo_TRDC_Rewards');
 
+// Trading Signals
+define('T_TRADING_SIGNALS', 'Wo_Trading_Signals');
+
 // Nearby Users Enhancements
 define('T_NEARBY_NOTIFICATIONS', 'Wo_Nearby_Notifications');
 define('T_WAVES', 'Wo_Waves');

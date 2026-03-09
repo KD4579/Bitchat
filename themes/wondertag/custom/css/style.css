@@ -8428,3 +8428,157 @@ html.bc-dark-mode .bc-gate-lock p,
 body.night_mode .bc-gate-lock p {
   color: #eee;
 }
+
+/* ===== Trading Signals ===== */
+.bc-signal-btn svg { vertical-align: middle; }
+
+.bc-signal-card {
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 8px 12px 4px;
+  border-left: 4px solid #888;
+  background: #f8f9fa;
+}
+.bc-signal-card.bc-signal-buy { border-left-color: #22c55e; background: #f0fdf4; }
+.bc-signal-card.bc-signal-sell { border-left-color: #ef4444; background: #fef2f2; }
+.bc-signal-card.bc-signal-hold { border-left-color: #f59e0b; background: #fffbeb; }
+
+.bc-signal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.bc-signal-type {
+  font-weight: 700;
+  font-size: 13px;
+  padding: 2px 10px;
+  border-radius: 4px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.bc-signal-buy .bc-signal-type { background: #22c55e; }
+.bc-signal-sell .bc-signal-type { background: #ef4444; }
+.bc-signal-hold .bc-signal-type { background: #f59e0b; }
+
+.bc-signal-pair {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1a1a2e;
+}
+.bc-signal-tf {
+  font-size: 12px;
+  color: #666;
+  background: #e5e7eb;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+.bc-signal-status {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  margin-left: auto;
+  font-weight: 600;
+}
+.bc-signal-status-active { background: #dbeafe; color: #1d4ed8; }
+.bc-signal-status-hit_target { background: #dcfce7; color: #16a34a; }
+.bc-signal-status-hit_stoploss { background: #fee2e2; color: #dc2626; }
+.bc-signal-status-closed, .bc-signal-status-expired { background: #e5e7eb; color: #6b7280; }
+
+.bc-signal-prices {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.bc-signal-price {
+  display: flex;
+  flex-direction: column;
+}
+.bc-signal-price small {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.bc-signal-price strong {
+  font-size: 14px;
+  color: #1a1a2e;
+}
+
+.bc-signal-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bc-signal-conf {
+  color: #f59e0b;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.bc-signal-actions {
+  display: flex;
+  gap: 4px;
+}
+.bc-signal-actions .btn-xs {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Signal modal */
+.bc-signal-types {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.bc-signal-type-btn {
+  padding: 4px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  transition: all 0.15s;
+  text-align: center;
+}
+.bc-signal-type-btn input { display: none; }
+.bc-signal-type-btn.active { border-color: #3b82f6; background: #eff6ff; color: #3b82f6; }
+.bc-signal-type-btn:hover { border-color: #93c5fd; }
+
+/* Dark mode */
+html:has(link#night-mode-css) .bc-signal-card,
+html.bc-dark-mode .bc-signal-card,
+body.night_mode .bc-signal-card {
+  background: #1e1e2e;
+}
+html:has(link#night-mode-css) .bc-signal-card.bc-signal-buy,
+html.bc-dark-mode .bc-signal-card.bc-signal-buy,
+body.night_mode .bc-signal-card.bc-signal-buy { background: #0a2e1a; }
+html:has(link#night-mode-css) .bc-signal-card.bc-signal-sell,
+html.bc-dark-mode .bc-signal-card.bc-signal-sell,
+body.night_mode .bc-signal-card.bc-signal-sell { background: #2e0a0a; }
+html:has(link#night-mode-css) .bc-signal-card.bc-signal-hold,
+html.bc-dark-mode .bc-signal-card.bc-signal-hold,
+body.night_mode .bc-signal-card.bc-signal-hold { background: #2e2a0a; }
+
+html:has(link#night-mode-css) .bc-signal-pair,
+html.bc-dark-mode .bc-signal-pair,
+body.night_mode .bc-signal-pair { color: #e5e5e5; }
+
+html:has(link#night-mode-css) .bc-signal-price strong,
+html.bc-dark-mode .bc-signal-price strong,
+body.night_mode .bc-signal-price strong { color: #e5e5e5; }
+
+html:has(link#night-mode-css) .bc-signal-tf,
+html.bc-dark-mode .bc-signal-tf,
+body.night_mode .bc-signal-tf { background: #374151; color: #9ca3af; }
+
+html:has(link#night-mode-css) .bc-signal-type-btn,
+html.bc-dark-mode .bc-signal-type-btn,
+body.night_mode .bc-signal-type-btn { border-color: #444; color: #ccc; }
+
+html:has(link#night-mode-css) .bc-signal-type-btn.active,
+html.bc-dark-mode .bc-signal-type-btn.active,
+body.night_mode .bc-signal-type-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }

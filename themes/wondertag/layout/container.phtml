@@ -1994,5 +1994,167 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	</script>
 	<?php } ?>
 
+	<?php if ($wo['loggedin'] && !empty($wo['config']['trading_signals_enabled']) && $wo['config']['trading_signals_enabled'] == '1') { ?>
+	<div class="modal fade" id="bc-signal-modal" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Post Trading Signal</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label>Crypto Pair</label>
+						<select id="bc-signal-pair" class="form-control">
+							<?php
+							$pairs = explode(',', $wo['config']['trading_signals_pairs'] ?? 'BTC/USD,ETH/USD,BTC/USDT,ETH/USDT,SOL/USD');
+							foreach ($pairs as $p) { $p = trim($p); ?>
+								<option value="<?php echo htmlspecialchars($p); ?>"><?php echo htmlspecialchars($p); ?></option>
+							<?php } ?>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Signal Type</label>
+						<div class="bc-signal-types">
+							<label class="bc-signal-type-btn active" data-type="BUY"><input type="radio" name="bc_signal_type" value="BUY" checked> BUY</label>
+							<label class="bc-signal-type-btn" data-type="SELL"><input type="radio" name="bc_signal_type" value="SELL"> SELL</label>
+							<label class="bc-signal-type-btn" data-type="LONG"><input type="radio" name="bc_signal_type" value="LONG"> LONG</label>
+							<label class="bc-signal-type-btn" data-type="SHORT"><input type="radio" name="bc_signal_type" value="SHORT"> SHORT</label>
+							<label class="bc-signal-type-btn" data-type="HOLD"><input type="radio" name="bc_signal_type" value="HOLD"> HOLD</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4">
+							<div class="form-group">
+								<label>Entry $</label>
+								<input type="number" step="any" id="bc-signal-entry" class="form-control input-sm" placeholder="0.00">
+							</div>
+						</div>
+						<div class="col-xs-4">
+							<div class="form-group">
+								<label>Target $</label>
+								<input type="number" step="any" id="bc-signal-target" class="form-control input-sm" placeholder="0.00">
+							</div>
+						</div>
+						<div class="col-xs-4">
+							<div class="form-group">
+								<label>Stop Loss $</label>
+								<input type="number" step="any" id="bc-signal-stoploss" class="form-control input-sm" placeholder="0.00">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label>Timeframe</label>
+								<select id="bc-signal-timeframe" class="form-control input-sm">
+									<option value="15m">15 min</option>
+									<option value="1h" selected>1 hour</option>
+									<option value="4h">4 hours</option>
+									<option value="1d">1 day</option>
+									<option value="1w">1 week</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label>Confidence</label>
+								<select id="bc-signal-confidence" class="form-control input-sm">
+									<option value="1">1 - Low</option>
+									<option value="2">2</option>
+									<option value="3" selected>3 - Medium</option>
+									<option value="4">4</option>
+									<option value="5">5 - High</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Analysis (optional)</label>
+						<textarea id="bc-signal-analysis" class="form-control" rows="2" placeholder="Brief analysis or reasoning..."></textarea>
+					</div>
+					<div id="bc-signal-error" class="alert alert-danger" style="display:none;margin-bottom:10px;"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-main btn-mat" id="bc-signal-submit-btn" onclick="bcSubmitSignal()">Post Signal</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	function bcUpdateSignal(signalId, newStatus) {
+		if (!confirm('Mark signal as ' + newStatus + '?')) return;
+		$.post(Wo_Ajax_Requests_File() + '?f=trading_signal', {
+			hash: $('.main_session').val(),
+			action: 'update_status',
+			signal_id: signalId,
+			new_status: newStatus
+		}, function(data) {
+			if (data.status == 200) {
+				Wo_ShowNotifications('success', 'Signal updated!');
+				setTimeout(function() { location.reload(); }, 500);
+			} else {
+				Wo_ShowNotifications('error', data.message || 'Error');
+			}
+		}, 'json');
+	}
+	function bcOpenSignalModal() {
+		$('#bc-signal-error').hide();
+		$('#bc-signal-modal').modal('show');
+	}
+	$('.bc-signal-type-btn').on('click', function() {
+		$('.bc-signal-type-btn').removeClass('active');
+		$(this).addClass('active');
+	});
+	function bcSubmitSignal() {
+		var pair = $('#bc-signal-pair').val();
+		var type = $('input[name=bc_signal_type]:checked').val();
+		var entry = parseFloat($('#bc-signal-entry').val()) || 0;
+		var target = parseFloat($('#bc-signal-target').val()) || 0;
+		var stoploss = parseFloat($('#bc-signal-stoploss').val()) || 0;
+		var timeframe = $('#bc-signal-timeframe').val();
+		var confidence = parseInt($('#bc-signal-confidence').val());
+		var analysis = $('#bc-signal-analysis').val().trim();
+
+		if (entry <= 0) {
+			$('#bc-signal-error').text('Entry price is required.').show();
+			return;
+		}
+
+		$('#bc-signal-submit-btn').attr('disabled', true).text('Posting...');
+		$('#bc-signal-error').hide();
+
+		$.post(Wo_Ajax_Requests_File() + '?f=trading_signal', {
+			hash: $('.main_session').val(),
+			crypto_pair: pair,
+			signal_type: type,
+			entry_price: entry,
+			target_price: target,
+			stop_loss: stoploss,
+			timeframe: timeframe,
+			confidence: confidence,
+			analysis: analysis
+		}, function(data) {
+			if (data.status == 200) {
+				$('#bc-signal-modal').modal('hide');
+				$('#bc-signal-entry, #bc-signal-target, #bc-signal-stoploss').val('');
+				$('#bc-signal-analysis').val('');
+				Wo_ShowNotifications('success', 'Trading signal posted!');
+				if (typeof Wo_Delay_Page_Load === 'function') {
+					setTimeout(function() { location.reload(); }, 600);
+				}
+			} else {
+				$('#bc-signal-error').text(data.message || 'Error posting signal.').show();
+			}
+			$('#bc-signal-submit-btn').removeAttr('disabled').text('Post Signal');
+		}, 'json').fail(function() {
+			$('#bc-signal-error').text('Network error. Try again.').show();
+			$('#bc-signal-submit-btn').removeAttr('disabled').text('Post Signal');
+		});
+	}
+	</script>
+	<?php } ?>
+
 	</body>
 </html>

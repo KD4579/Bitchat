@@ -35,6 +35,15 @@ if ($f == 'trdc_rewards') {
         Wo_SaveConfig('trdc_tip_custom_enabled', ($_POST['trdc_tip_custom_enabled'] == '1') ? '1' : '0');
     }
 
+    // Save trading signals settings
+    if (isset($_POST['trading_signals_enabled'])) {
+        Wo_SaveConfig('trading_signals_enabled', ($_POST['trading_signals_enabled'] == '1') ? '1' : '0');
+    }
+    if (isset($_POST['trading_signals_pairs'])) {
+        $pairs = preg_replace('/[^A-Za-z0-9\/,]/', '', $_POST['trading_signals_pairs']);
+        Wo_SaveConfig('trading_signals_pairs', $pairs);
+    }
+
     // Save token gate settings
     if (isset($_POST['trdc_gate_enabled'])) {
         Wo_SaveConfig('trdc_gate_enabled', ($_POST['trdc_gate_enabled'] == '1') ? '1' : '0');

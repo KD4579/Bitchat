@@ -247,6 +247,11 @@ if (!empty($_GET['url'])) {
 								</div>
 							<?php } ?>
 							<?php } ?>
+							<?php if ($wo['loggedin'] && !empty($wo['config']['trading_signals_enabled']) && $wo['config']['trading_signals_enabled'] == '1') { ?>
+							<span class="btn tag_pub_btn_hasat bc-signal-btn" onclick="bcOpenSignalModal()" title="Trading Signal">
+								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M3.5,18.49L9.5,12.48L13.5,16.48L22,6.92L20.59,5.51L13.5,13.48L9.5,9.48L2,16.99L3.5,18.49Z"/></svg>
+							</span>
+							<?php } ?>
 							<?php if ($wo['loggedin'] && !empty($wo['config']['trdc_gate_enabled']) && $wo['config']['trdc_gate_enabled'] == '1') { ?>
 							<div class="bc-token-gate-toggle">
 								<div class="dropup">
