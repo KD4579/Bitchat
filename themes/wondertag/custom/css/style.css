@@ -8582,3 +8582,94 @@ body.night_mode .bc-signal-type-btn { border-color: #444; color: #ccc; }
 html:has(link#night-mode-css) .bc-signal-type-btn.active,
 html.bc-dark-mode .bc-signal-type-btn.active,
 body.night_mode .bc-signal-type-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
+
+/* ===== Portfolio Tracker Widget ===== */
+.bc-portfolio-widget .wo_page_hdng { padding: 10px 14px; }
+.bc-pf-add-btn { background: none; border: none; color: #3b82f6; padding: 2px 6px; }
+.bc-pf-add-btn:hover { color: #2563eb; }
+
+.bc-pf-list { max-height: 240px; overflow-y: auto; }
+.bc-pf-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 8px;
+}
+.bc-pf-item:last-child { border-bottom: none; }
+.bc-pf-coin { flex: 1; min-width: 0; }
+.bc-pf-coin strong { font-size: 13px; display: block; color: #1a1a2e; }
+.bc-pf-coin small { font-size: 11px; color: #888; }
+.bc-pf-val { text-align: right; }
+.bc-pf-val span { font-size: 13px; font-weight: 600; color: #1a1a2e; display: block; }
+.bc-pf-val small { font-size: 11px; }
+.bc-pf-up { color: #22c55e; }
+.bc-pf-down { color: #ef4444; }
+.bc-pf-rm {
+  background: none; border: none; color: #ccc; font-size: 16px;
+  cursor: pointer; padding: 0 4px; line-height: 1;
+}
+.bc-pf-rm:hover { color: #ef4444; }
+
+.bc-pf-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-top: 2px solid #f0f0f0;
+  background: #fafafa;
+  border-radius: 0 0 10px 10px;
+}
+.bc-pf-total span { font-size: 12px; color: #666; }
+.bc-pf-total strong { font-size: 16px; color: #1a1a2e; }
+
+.bc-pf-coin-results {
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+.bc-pf-coin-results:empty { border: none; }
+.bc-pf-coin-opt {
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.bc-pf-coin-opt:hover { background: #f0f7ff; }
+.bc-pf-coin-opt:last-child { border-bottom: none; }
+.bc-pf-coin-opt strong { margin-right: 4px; }
+
+/* Dark mode */
+html:has(link#night-mode-css) .bc-pf-item,
+html.bc-dark-mode .bc-pf-item,
+body.night_mode .bc-pf-item { border-bottom-color: #2a2a3a; }
+
+html:has(link#night-mode-css) .bc-pf-coin strong,
+html.bc-dark-mode .bc-pf-coin strong,
+body.night_mode .bc-pf-coin strong { color: #e5e5e5; }
+
+html:has(link#night-mode-css) .bc-pf-val span,
+html.bc-dark-mode .bc-pf-val span,
+body.night_mode .bc-pf-val span { color: #e5e5e5; }
+
+html:has(link#night-mode-css) .bc-pf-total,
+html.bc-dark-mode .bc-pf-total,
+body.night_mode .bc-pf-total { background: #1a1a2e; border-top-color: #2a2a3a; }
+
+html:has(link#night-mode-css) .bc-pf-total strong,
+html.bc-dark-mode .bc-pf-total strong,
+body.night_mode .bc-pf-total strong { color: #e5e5e5; }
+
+html:has(link#night-mode-css) .bc-pf-coin-results,
+html.bc-dark-mode .bc-pf-coin-results,
+body.night_mode .bc-pf-coin-results { border-color: #333; background: #1e1e2e; }
+
+html:has(link#night-mode-css) .bc-pf-coin-opt,
+html.bc-dark-mode .bc-pf-coin-opt,
+body.night_mode .bc-pf-coin-opt { border-bottom-color: #2a2a3a; color: #ccc; }
+
+html:has(link#night-mode-css) .bc-pf-coin-opt:hover,
+html.bc-dark-mode .bc-pf-coin-opt:hover,
+body.night_mode .bc-pf-coin-opt:hover { background: #2a2a3a; }

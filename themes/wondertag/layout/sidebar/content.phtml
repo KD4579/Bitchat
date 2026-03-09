@@ -116,6 +116,185 @@ if (!empty($user_stories)) {
 		<a href="<?php echo Wo_SeoLink('index.php?link1=wallet'); ?>" class="bc-trdc-card-link">View Wallet &rarr;</a>
 	</div>
 
+	<!-- Part 7: Portfolio Tracker Widget -->
+	<?php if ($wo['loggedin'] && !empty($wo['config']['portfolio_tracker_enabled']) && $wo['config']['portfolio_tracker_enabled'] == '1') { ?>
+	<div class="wow_content mb-15 tag_sidebar_widget bc-portfolio-widget">
+		<div class="valign wo_page_hdng" style="justify-content:space-between;">
+			<span style="display:flex;align-items:center;gap:6px;">
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+				<b>Portfolio</b>
+			</span>
+			<button class="btn btn-xs btn-mat bc-pf-add-btn" onclick="bcOpenPortfolioAdd()" title="Add holding">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>
+			</button>
+		</div>
+		<div class="bc-pf-list" id="bc-pf-list">
+			<div class="bc-pf-loading" style="text-align:center;padding:15px;color:#888;">Loading...</div>
+		</div>
+		<div class="bc-pf-total" id="bc-pf-total" style="display:none;">
+			<span>Total Value</span>
+			<strong id="bc-pf-total-val">$0.00</strong>
+		</div>
+	</div>
+	<!-- Portfolio Add Modal (inline) -->
+	<div class="bc-pf-add-form" id="bc-pf-add-form" style="display:none;">
+		<div class="wow_content mb-15 tag_sidebar_widget">
+			<div class="valign wo_page_hdng"><b>Add Holding</b></div>
+			<div style="padding:10px;">
+				<input type="text" id="bc-pf-coin-search" class="form-control input-sm" placeholder="Search coin (e.g. bitcoin, eth)" autocomplete="off">
+				<div id="bc-pf-coin-results" class="bc-pf-coin-results"></div>
+				<input type="hidden" id="bc-pf-coin-id">
+				<input type="hidden" id="bc-pf-coin-symbol">
+				<input type="hidden" id="bc-pf-coin-name">
+				<div class="row" style="margin-top:8px;">
+					<div class="col-xs-6">
+						<input type="number" step="any" id="bc-pf-quantity" class="form-control input-sm" placeholder="Quantity">
+					</div>
+					<div class="col-xs-6">
+						<input type="number" step="any" id="bc-pf-avg-price" class="form-control input-sm" placeholder="Avg price $">
+					</div>
+				</div>
+				<div style="margin-top:8px;display:flex;gap:6px;">
+					<button class="btn btn-xs btn-main" onclick="bcSaveHolding()">Save</button>
+					<button class="btn btn-xs btn-default" onclick="$('#bc-pf-add-form').hide()">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	(function() {
+		var pfPrices = {};
+		var pfHoldings = [];
+		var pfSearchTimer = null;
+
+		function bcLoadPortfolio() {
+			$.post(Wo_Ajax_Requests_File() + '?f=portfolio', {
+				hash: $('.main_session').val(),
+				action: 'list'
+			}, function(data) {
+				if (data.status == 200) {
+					pfHoldings = data.holdings || [];
+					if (pfHoldings.length == 0) {
+						$('#bc-pf-list').html('<div style="text-align:center;padding:12px;color:#888;font-size:12px;">No holdings yet. Tap + to add.</div>');
+						$('#bc-pf-total').hide();
+						return;
+					}
+					var coinIds = pfHoldings.map(function(h) { return h.coin_id; }).join(',');
+					bcFetchPrices(coinIds);
+				}
+			}, 'json');
+		}
+
+		function bcFetchPrices(coinIds) {
+			$.getJSON('https://api.coingecko.com/api/v3/simple/price?ids=' + coinIds + '&vs_currencies=usd&include_24hr_change=true', function(prices) {
+				pfPrices = prices;
+				bcRenderPortfolio();
+			}).fail(function() {
+				bcRenderPortfolio();
+			});
+		}
+
+		function bcRenderPortfolio() {
+			var html = '';
+			var total = 0;
+			for (var i = 0; i < pfHoldings.length; i++) {
+				var h = pfHoldings[i];
+				var price = pfPrices[h.coin_id] ? pfPrices[h.coin_id].usd : 0;
+				var change = pfPrices[h.coin_id] ? (pfPrices[h.coin_id].usd_24h_change || 0) : 0;
+				var value = h.quantity * price;
+				total += value;
+				var changeClass = change >= 0 ? 'bc-pf-up' : 'bc-pf-down';
+				var changeSign = change >= 0 ? '+' : '';
+				html += '<div class="bc-pf-item">';
+				html += '<div class="bc-pf-coin"><strong>' + h.coin_symbol + '</strong><small>' + h.quantity.toFixed(4) + '</small></div>';
+				html += '<div class="bc-pf-val">';
+				html += '<span>$' + value.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span>';
+				html += '<small class="' + changeClass + '">' + changeSign + change.toFixed(1) + '%</small>';
+				html += '</div>';
+				html += '<button class="bc-pf-rm" onclick="bcRemoveHolding(' + h.id + ')" title="Remove">&times;</button>';
+				html += '</div>';
+			}
+			$('#bc-pf-list').html(html);
+			$('#bc-pf-total').show();
+			$('#bc-pf-total-val').text('$' + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}));
+		}
+
+		window.bcOpenPortfolioAdd = function() {
+			$('#bc-pf-add-form').toggle();
+			$('#bc-pf-coin-search').val('').focus();
+			$('#bc-pf-coin-results').html('');
+			$('#bc-pf-coin-id, #bc-pf-coin-symbol, #bc-pf-coin-name').val('');
+			$('#bc-pf-quantity, #bc-pf-avg-price').val('');
+		};
+
+		$('#bc-pf-coin-search').on('input', function() {
+			var q = $(this).val().trim();
+			clearTimeout(pfSearchTimer);
+			if (q.length < 2) { $('#bc-pf-coin-results').html(''); return; }
+			pfSearchTimer = setTimeout(function() {
+				$.getJSON('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(q), function(data) {
+					var coins = (data.coins || []).slice(0, 6);
+					var html = '';
+					for (var i = 0; i < coins.length; i++) {
+						html += '<div class="bc-pf-coin-opt" onclick="bcSelectCoin(\'' + coins[i].id + '\',\'' + coins[i].symbol.toUpperCase() + '\',\'' + coins[i].name.replace(/'/g,"") + '\')">';
+						html += '<strong>' + coins[i].symbol.toUpperCase() + '</strong> ' + coins[i].name;
+						html += '</div>';
+					}
+					$('#bc-pf-coin-results').html(html || '<div style="padding:6px;color:#888;font-size:12px;">No results</div>');
+				});
+			}, 400);
+		});
+
+		window.bcSelectCoin = function(id, sym, name) {
+			$('#bc-pf-coin-id').val(id);
+			$('#bc-pf-coin-symbol').val(sym);
+			$('#bc-pf-coin-name').val(name);
+			$('#bc-pf-coin-search').val(sym + ' - ' + name);
+			$('#bc-pf-coin-results').html('');
+		};
+
+		window.bcSaveHolding = function() {
+			var coinId = $('#bc-pf-coin-id').val();
+			var coinSymbol = $('#bc-pf-coin-symbol').val();
+			var coinName = $('#bc-pf-coin-name').val();
+			var qty = parseFloat($('#bc-pf-quantity').val()) || 0;
+			var avgPrice = parseFloat($('#bc-pf-avg-price').val()) || 0;
+			if (!coinId || qty <= 0) { alert('Select a coin and enter quantity'); return; }
+			$.post(Wo_Ajax_Requests_File() + '?f=portfolio', {
+				hash: $('.main_session').val(),
+				action: 'add',
+				coin_id: coinId,
+				coin_symbol: coinSymbol,
+				coin_name: coinName,
+				quantity: qty,
+				avg_buy_price: avgPrice
+			}, function(data) {
+				if (data.status == 200) {
+					$('#bc-pf-add-form').hide();
+					bcLoadPortfolio();
+				} else {
+					alert(data.message || 'Error');
+				}
+			}, 'json');
+		};
+
+		window.bcRemoveHolding = function(id) {
+			if (!confirm('Remove this holding?')) return;
+			$.post(Wo_Ajax_Requests_File() + '?f=portfolio', {
+				hash: $('.main_session').val(),
+				action: 'remove',
+				holding_id: id
+			}, function(data) {
+				if (data.status == 200) bcLoadPortfolio();
+			}, 'json');
+		};
+
+		bcLoadPortfolio();
+		setInterval(bcLoadPortfolio, 120000);
+	})();
+	</script>
+	<?php } ?>
+
 	<!-- Part 6: Trending Tags (styled version) -->
 	<div class="wow_content mb-15 tag_sidebar_widget bc-trending-tags-widget">
 		<div class="bc-tw-title">Trending</div>

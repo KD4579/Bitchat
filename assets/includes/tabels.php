@@ -158,6 +158,9 @@ define('T_TRDC_REWARDS', 'Wo_TRDC_Rewards');
 // Trading Signals
 define('T_TRADING_SIGNALS', 'Wo_Trading_Signals');
 
+// Portfolio Tracker
+define('T_USER_PORTFOLIO', 'Wo_User_Portfolio');
+
 // Nearby Users Enhancements
 define('T_NEARBY_NOTIFICATIONS', 'Wo_Nearby_Notifications');
 define('T_WAVES', 'Wo_Waves');
