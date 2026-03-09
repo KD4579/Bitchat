@@ -60,27 +60,55 @@
          * Optimize image loading in feed
          */
         lazyLoadImages: function() {
-            const images = document.querySelectorAll('img[data-src]');
-            if (images.length === 0) return;
-
-            if ('IntersectionObserver' in window) {
-                const imageObserver = new IntersectionObserver(function(entries) {
+            // 1. Handle data-src images with IntersectionObserver
+            var dataSrcImages = document.querySelectorAll('img[data-src]');
+            if (dataSrcImages.length > 0 && 'IntersectionObserver' in window) {
+                var imageObserver = new IntersectionObserver(function(entries) {
                     entries.forEach(function(entry) {
                         if (entry.isIntersecting) {
-                            const img = entry.target;
+                            var img = entry.target;
                             img.src = img.dataset.src;
                             img.removeAttribute('data-src');
                             imageObserver.unobserve(img);
                         }
                     });
                 });
-
-                images.forEach(function(img) {
-                    imageObserver.observe(img);
-                });
-
-                this.log('Lazy image loading enabled for ' + images.length + ' images');
+                dataSrcImages.forEach(function(img) { imageObserver.observe(img); });
             }
+
+            // 2. Add native lazy loading to all feed/post images
+            this._applyNativeLazy(document);
+
+            // 3. Watch for dynamically loaded posts (infinite scroll, AJAX)
+            if ('MutationObserver' in window) {
+                var self = this;
+                var feedObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) self._applyNativeLazy(node);
+                        });
+                    });
+                });
+                var feedContainer = document.getElementById('posts') || document.querySelector('.tag_posts');
+                if (feedContainer) {
+                    feedObserver.observe(feedContainer, { childList: true, subtree: true });
+                }
+            }
+
+            this.log('Lazy image loading enabled');
+        },
+
+        _applyNativeLazy: function(root) {
+            // Apply loading="lazy" to post/feed images that don't already have it
+            var imgs = root.querySelectorAll('.tag_post_full_img img, .tag_post_full_albm img, .tag_post_full_stick img, .post-map img, .shared_post img, .wo_shared_doc_file img');
+            var count = 0;
+            imgs.forEach(function(img) {
+                if (!img.getAttribute('loading')) {
+                    img.setAttribute('loading', 'lazy');
+                    count++;
+                }
+            });
+            if (count > 0 && this.debug) this.log('Applied native lazy to ' + count + ' images');
         },
 
         /**

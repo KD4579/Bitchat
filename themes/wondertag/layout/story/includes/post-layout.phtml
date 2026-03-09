@@ -150,7 +150,7 @@ $current_post = $wo['current_post'] = $wo['story'];
 
 					<?php if (Wo_IsUrl($wo['story']['postPhoto'])): ?>
 						<div class="valign tag_post_full_img">
-							<img src="<?php echo $wo['story']['postPhoto']; ?>" alt="Picture">
+							<img src="<?php echo $wo['story']['postPhoto']; ?>" alt="Picture" loading="lazy">
 						</div>
 					<?php endif; ?>
 
