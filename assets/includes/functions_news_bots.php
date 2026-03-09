@@ -588,6 +588,21 @@ function bc_download_article_image($imageUrl, $wo) {
         mkdir($fullDir, 0755, true);
     }
 
+    // Convert to WebP for smaller file sizes (if GD supports it)
+    if ($ext !== 'gif' && $ext !== 'webp' && function_exists('imagewebp')) {
+        $srcImage = @imagecreatefromstring($imageData);
+        if ($srcImage) {
+            $filename = 'bot_' . md5($imageUrl . time()) . '.webp';
+            $filepath = $fullDir . '/' . $filename;
+            if (imagewebp($srcImage, $filepath, 80)) {
+                imagedestroy($srcImage);
+                return $uploadDir . '/' . $filename;
+            }
+            imagedestroy($srcImage);
+        }
+    }
+
+    // Fallback: save original format
     $filename = 'bot_' . md5($imageUrl . time()) . '.' . $ext;
     $filepath = $fullDir . '/' . $filename;
 
