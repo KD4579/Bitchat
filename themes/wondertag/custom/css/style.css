@@ -8354,3 +8354,77 @@ body.night_mode .bc-tip-amount-btn.active {
   background: #f39c12;
   color: #fff;
 }
+
+/* ==========================================================================
+   Token-Gated Content
+   ========================================================================== */
+.post-container {
+  position: relative;
+}
+.bc-gate-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.15);
+  border-radius: inherit;
+}
+.bc-gate-lock {
+  text-align: center;
+  background: rgba(255,255,255,0.95);
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.bc-gate-lock svg {
+  color: #f39c12;
+  margin-bottom: 8px;
+}
+.bc-gate-lock p {
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0 0 4px;
+  color: #333;
+}
+.bc-gate-lock span {
+  font-size: 13px;
+  color: #888;
+}
+.bc-gate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #f39c12;
+  background: rgba(243,156,18,0.1);
+  border-radius: 4px;
+  margin: 8px 12px 0;
+}
+.bc-gate-dropdown {
+  min-width: 220px;
+  padding: 0;
+  border-radius: 10px;
+}
+.bc-gate-trigger.active,
+.bc-gate-trigger:hover {
+  color: #f39c12 !important;
+}
+
+/* Dark mode gate */
+html:has(link#night-mode-css) .bc-gate-lock,
+html.bc-dark-mode .bc-gate-lock,
+body.night_mode .bc-gate-lock {
+  background: rgba(30,30,40,0.95);
+}
+html:has(link#night-mode-css) .bc-gate-lock p,
+html.bc-dark-mode .bc-gate-lock p,
+body.night_mode .bc-gate-lock p {
+  color: #eee;
+}

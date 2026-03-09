@@ -35,6 +35,18 @@ if ($f == 'trdc_rewards') {
         Wo_SaveConfig('trdc_tip_custom_enabled', ($_POST['trdc_tip_custom_enabled'] == '1') ? '1' : '0');
     }
 
+    // Save token gate settings
+    if (isset($_POST['trdc_gate_enabled'])) {
+        Wo_SaveConfig('trdc_gate_enabled', ($_POST['trdc_gate_enabled'] == '1') ? '1' : '0');
+    }
+    if (isset($_POST['trdc_gate_default_amount'])) {
+        Wo_SaveConfig('trdc_gate_default_amount', max(0, floatval($_POST['trdc_gate_default_amount'])));
+    }
+    if (isset($_POST['trdc_gate_amounts'])) {
+        $gateAmounts = preg_replace('/[^0-9.,]/', '', $_POST['trdc_gate_amounts']);
+        Wo_SaveConfig('trdc_gate_amounts', $gateAmounts);
+    }
+
     // Save reward engine configs (new engine)
     if (!empty($_POST['reward_configs']) && function_exists('Wo_UpdateRewardConfig')) {
         $configs = json_decode($_POST['reward_configs'], true);

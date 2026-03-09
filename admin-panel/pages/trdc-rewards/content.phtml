@@ -64,6 +64,34 @@
                 </div>
 
                 <hr>
+                <h4>Token-Gated Content</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Token Gating Enabled</label>
+                            <select name="trdc_gate_enabled" class="form-control">
+                                <option value="0" <?php echo (($wo['config']['trdc_gate_enabled'] ?? '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo (($wo['config']['trdc_gate_enabled'] ?? '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                            <small class="text-muted">Allow users to gate posts behind a TRDC balance requirement</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Default Gate Amount (TRDC)</label>
+                            <input type="number" step="0.01" min="0" name="trdc_gate_default_amount" class="form-control" value="<?php echo htmlspecialchars($wo['config']['trdc_gate_default_amount'] ?? '10'); ?>">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Gate Amount Presets (comma-separated)</label>
+                            <input type="text" name="trdc_gate_amounts" class="form-control" value="<?php echo htmlspecialchars($wo['config']['trdc_gate_amounts'] ?? '5,10,25,50,100'); ?>">
+                            <small class="text-muted">Amount options shown to users when gating a post</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
                 <h4>Reward Configuration</h4>
                 <p class="text-muted">Edit each reward type below. Set amount to 0 or toggle off to disable a specific reward.</p>
 
@@ -278,7 +306,10 @@ $(document).ready(function() {
             trdc_boost_duration_hours: form.find('[name=trdc_boost_duration_hours]').val(),
             trdc_tip_enabled: form.find('[name=trdc_tip_enabled]').val(),
             trdc_tip_amounts: form.find('[name=trdc_tip_amounts]').val(),
-            trdc_tip_custom_enabled: form.find('[name=trdc_tip_custom_enabled]').val()
+            trdc_tip_custom_enabled: form.find('[name=trdc_tip_custom_enabled]').val(),
+            trdc_gate_enabled: form.find('[name=trdc_gate_enabled]').val(),
+            trdc_gate_default_amount: form.find('[name=trdc_gate_default_amount]').val(),
+            trdc_gate_amounts: form.find('[name=trdc_gate_amounts]').val()
         };
 
         // Collect reward config rows (if engine table exists)

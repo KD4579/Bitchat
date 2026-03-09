@@ -607,6 +607,17 @@ if ($f == 'posts') {
                 'multi_image_post' => 0,
                 'active' => $post_active
             );
+            // TRDC Token Gate
+            $post_data['trdc_gated'] = 0;
+            $post_data['trdc_gate_amount'] = 0;
+            if (!empty($wo['config']['trdc_gate_enabled']) && $wo['config']['trdc_gate_enabled'] == '1' && !empty($_POST['trdc_gated']) && $_POST['trdc_gated'] == '1') {
+                $gateAmount = floatval($_POST['trdc_gate_amount'] ?? $wo['config']['trdc_gate_default_amount'] ?? 10);
+                if ($gateAmount > 0) {
+                    $post_data['trdc_gated'] = 1;
+                    $post_data['trdc_gate_amount'] = $gateAmount;
+                }
+            }
+
             $post_data['ai_post'] = 0;
             if (($wo['config']['ai_post_system'] == 1 || $wo['config']['ai_image_system'] == 1) && !empty($_POST['ai_post']) && $_POST['ai_post'] == 'on') {
                 $post_data['ai_post'] = 1;
