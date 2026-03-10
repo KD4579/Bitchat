@@ -583,6 +583,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'affiliates':
                         include('sources/affiliates.php');
                         break;
+                    case 'staking':
+                        include('sources/staking.php');
+                        break;
                 }
             } else {
                 switch ($page) {
@@ -618,6 +621,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                         break;
                     case 'affiliates':
                         include('sources/affiliates.php');
+                        break;
+                    case 'staking':
+                        include('sources/staking.php');
                         break;
                     case 'register':
                         include('sources/register.php');
@@ -1199,6 +1205,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                 break;
             case 'affiliates':
                 include('sources/affiliates.php');
+                break;
+            case 'staking':
+                include('sources/staking.php');
                 break;
         }
     }
