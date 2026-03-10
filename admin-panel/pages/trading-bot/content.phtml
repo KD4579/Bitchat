@@ -1,0 +1,365 @@
+<?php
+// Load current bot config values from Wo_Options
+$botConfig = array(
+    'bot_enabled'           => $wo['config']['bot_enabled'] ?? '0',
+    'bot_rpc_url'           => $wo['config']['bot_rpc_url'] ?? 'https://bsc-dataseed1.binance.org',
+    'bot_mode'              => $wo['config']['bot_mode'] ?? 'both',
+    // Market Making
+    'bot_spread_percent'    => $wo['config']['bot_spread_percent'] ?? '1.5',
+    'bot_grid_levels'       => $wo['config']['bot_grid_levels'] ?? '8',
+    'bot_grid_spacing'      => $wo['config']['bot_grid_spacing'] ?? '2',
+    'bot_order_size_trdc'   => $wo['config']['bot_order_size_trdc'] ?? '5000',
+    // Risk Management
+    'bot_max_slippage'      => $wo['config']['bot_max_slippage'] ?? '2',
+    'bot_daily_loss_limit'  => $wo['config']['bot_daily_loss_limit'] ?? '20',
+    'bot_cooldown_seconds'  => $wo['config']['bot_cooldown_seconds'] ?? '30',
+    'bot_max_trade_percent' => $wo['config']['bot_max_trade_percent'] ?? '5',
+    'bot_min_tvl'           => $wo['config']['bot_min_tvl'] ?? '100',
+    // Arbitrage
+    'bot_min_arb_profit'    => $wo['config']['bot_min_arb_profit'] ?? '0.5',
+    'bot_arb_max_size'      => $wo['config']['bot_arb_max_size'] ?? '10000',
+    // Gas
+    'bot_max_gas_gwei'      => $wo['config']['bot_max_gas_gwei'] ?? '5',
+    // Monitoring
+    'bot_lp_exit_alert'     => $wo['config']['bot_lp_exit_alert'] ?? '50',
+    'bot_tvl_drop_alert'    => $wo['config']['bot_tvl_drop_alert'] ?? '20',
+    // Pool addresses
+    'bot_pool_trdc_usdt'    => $wo['config']['bot_pool_trdc_usdt'] ?? '0x7b57fa13cca5093f5d724823d58503dfd02ff07c',
+    'bot_pool_trdc_wbnb'    => $wo['config']['bot_pool_trdc_wbnb'] ?? '0x0b5e165fcb524fbb2d313f3d573d79372913788b',
+    'bot_pool_usdt_fee'     => $wo['config']['bot_pool_usdt_fee'] ?? '100',
+    'bot_pool_wbnb_fee'     => $wo['config']['bot_pool_wbnb_fee'] ?? '2500',
+);
+?>
+
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">TRDC Trading Bot — Configuration</h3>
+            <p class="text-muted">Configure all trading bot parameters. Changes take effect on the next bot cycle.</p>
+        </div>
+        <div class="panel-body">
+            <form id="trading-bot-form">
+
+                <!-- Master Switch -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Bot Status</label>
+                            <select name="bot_enabled" class="form-control">
+                                <option value="0" <?php echo ($botConfig['bot_enabled'] == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo ($botConfig['bot_enabled'] == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                            <small class="text-muted">Master switch to enable/disable the trading bot.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Trading Mode</label>
+                            <select name="bot_mode" class="form-control">
+                                <option value="both" <?php echo ($botConfig['bot_mode'] == 'both') ? 'selected' : ''; ?>>Both (Market Making + Arbitrage)</option>
+                                <option value="market_making" <?php echo ($botConfig['bot_mode'] == 'market_making') ? 'selected' : ''; ?>>Market Making Only</option>
+                                <option value="arbitrage" <?php echo ($botConfig['bot_mode'] == 'arbitrage') ? 'selected' : ''; ?>>Arbitrage Only</option>
+                            </select>
+                            <small class="text-muted">Which strategies to run.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>BSC RPC URL</label>
+                            <input type="text" name="bot_rpc_url" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_rpc_url']); ?>">
+                            <small class="text-muted">Binance Smart Chain RPC endpoint.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4><i class="material-icons" style="font-size:18px; vertical-align:middle;">grid_on</i> Market Making — Grid Trading</h4>
+                <p class="text-muted">Configure the grid trading strategy for the TRDC/USDT pool.</p>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Spread %</label>
+                            <div class="input-group">
+                                <input type="number" step="0.1" min="0.1" max="20" name="bot_spread_percent" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_spread_percent']); ?>">
+                                <span class="input-group-addon">%</span>
+                            </div>
+                            <small class="text-muted">Spread between buy/sell levels.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Grid Levels</label>
+                            <input type="number" step="1" min="2" max="50" name="bot_grid_levels" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_grid_levels']); ?>">
+                            <small class="text-muted">Total grid levels (buy + sell).</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Grid Spacing %</label>
+                            <div class="input-group">
+                                <input type="number" step="0.1" min="0.1" max="20" name="bot_grid_spacing" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_grid_spacing']); ?>">
+                                <span class="input-group-addon">%</span>
+                            </div>
+                            <small class="text-muted">% gap between grid levels.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Order Size</label>
+                            <div class="input-group">
+                                <input type="number" step="100" min="100" name="bot_order_size_trdc" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_order_size_trdc']); ?>">
+                                <span class="input-group-addon">TRDC</span>
+                            </div>
+                            <small class="text-muted">TRDC per grid order.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4><i class="material-icons" style="font-size:18px; vertical-align:middle;">swap_horiz</i> Arbitrage</h4>
+                <p class="text-muted">Cross-pool arbitrage between TRDC/USDT and TRDC/WBNB.</p>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Min Arb Profit %</label>
+                            <div class="input-group">
+                                <input type="number" step="0.1" min="0.1" max="20" name="bot_min_arb_profit" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_min_arb_profit']); ?>">
+                                <span class="input-group-addon">%</span>
+                            </div>
+                            <small class="text-muted">Minimum price gap to trigger arb.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Max Arb Size</label>
+                            <div class="input-group">
+                                <input type="number" step="500" min="100" name="bot_arb_max_size" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_arb_max_size']); ?>">
+                                <span class="input-group-addon">TRDC</span>
+                            </div>
+                            <small class="text-muted">Max TRDC per arb trade.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4><i class="material-icons" style="font-size:18px; vertical-align:middle;">security</i> Risk Management</h4>
+                <p class="text-muted">Safety limits and trade controls.</p>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Max Slippage %</label>
+                            <div class="input-group">
+                                <input type="number" step="0.1" min="0.1" max="50" name="bot_max_slippage" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_max_slippage']); ?>">
+                                <span class="input-group-addon">%</span>
+                            </div>
+                            <small class="text-muted">Max tolerated slippage per swap.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Daily Loss Limit</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">$</span>
+                                <input type="number" step="1" min="1" name="bot_daily_loss_limit" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_daily_loss_limit']); ?>">
+                            </div>
+                            <small class="text-muted">Stop trading after this USD loss.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Cooldown</label>
+                            <div class="input-group">
+                                <input type="number" step="5" min="5" max="600" name="bot_cooldown_seconds" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_cooldown_seconds']); ?>">
+                                <span class="input-group-addon">sec</span>
+                            </div>
+                            <small class="text-muted">Seconds between trade cycles.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Max Trade % of Pool</label>
+                            <div class="input-group">
+                                <input type="number" step="0.5" min="0.5" max="50" name="bot_max_trade_percent" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_max_trade_percent']); ?>">
+                                <span class="input-group-addon">%</span>
+                            </div>
+                            <small class="text-muted">Max single trade as % of pool TVL.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Min Pool TVL</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">$</span>
+                                <input type="number" step="10" min="0" name="bot_min_tvl" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_min_tvl']); ?>">
+                            </div>
+                            <small class="text-muted">Don't trade if pool TVL below this.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Max Gas Price</label>
+                            <div class="input-group">
+                                <input type="number" step="1" min="1" max="100" name="bot_max_gas_gwei" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_max_gas_gwei']); ?>">
+                                <span class="input-group-addon">Gwei</span>
+                            </div>
+                            <small class="text-muted">Skip trades when gas exceeds this.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4><i class="material-icons" style="font-size:18px; vertical-align:middle;">visibility</i> LP Monitoring & Alerts</h4>
+                <p class="text-muted">Liquidity health monitoring thresholds.</p>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>LP Exit Alert %</label>
+                            <div class="input-group">
+                                <input type="number" step="5" min="5" max="100" name="bot_lp_exit_alert" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_lp_exit_alert']); ?>">
+                                <span class="input-group-addon">%</span>
+                            </div>
+                            <small class="text-muted">Alert if liquidity drops by this % (possible LP exit).</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>TVL Drop Alert %</label>
+                            <div class="input-group">
+                                <input type="number" step="5" min="5" max="100" name="bot_tvl_drop_alert" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_tvl_drop_alert']); ?>">
+                                <span class="input-group-addon">%</span>
+                            </div>
+                            <small class="text-muted">Alert if TVL drops by this %.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <h4><i class="material-icons" style="font-size:18px; vertical-align:middle;">link</i> Pool Addresses</h4>
+                <p class="text-muted">PancakeSwap V3 pool contract addresses and fee tiers.</p>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>TRDC/USDT Pool Address</label>
+                            <input type="text" name="bot_pool_trdc_usdt" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_pool_trdc_usdt']); ?>" style="font-family:monospace; font-size:12px;">
+                            <small class="text-muted">Main market-making pool.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>TRDC/USDT Fee Tier</label>
+                            <select name="bot_pool_usdt_fee" class="form-control">
+                                <option value="100" <?php echo ($botConfig['bot_pool_usdt_fee'] == '100') ? 'selected' : ''; ?>>0.01% (100)</option>
+                                <option value="500" <?php echo ($botConfig['bot_pool_usdt_fee'] == '500') ? 'selected' : ''; ?>>0.05% (500)</option>
+                                <option value="2500" <?php echo ($botConfig['bot_pool_usdt_fee'] == '2500') ? 'selected' : ''; ?>>0.25% (2500)</option>
+                                <option value="10000" <?php echo ($botConfig['bot_pool_usdt_fee'] == '10000') ? 'selected' : ''; ?>>1% (10000)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>TRDC/WBNB Pool Address</label>
+                            <input type="text" name="bot_pool_trdc_wbnb" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_pool_trdc_wbnb']); ?>" style="font-family:monospace; font-size:12px;">
+                            <small class="text-muted">Arbitrage pool.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>TRDC/WBNB Fee Tier</label>
+                            <select name="bot_pool_wbnb_fee" class="form-control">
+                                <option value="100" <?php echo ($botConfig['bot_pool_wbnb_fee'] == '100') ? 'selected' : ''; ?>>0.01% (100)</option>
+                                <option value="500" <?php echo ($botConfig['bot_pool_wbnb_fee'] == '500') ? 'selected' : ''; ?>>0.05% (500)</option>
+                                <option value="2500" <?php echo ($botConfig['bot_pool_wbnb_fee'] == '2500') ? 'selected' : ''; ?>>0.25% (2500)</option>
+                                <option value="10000" <?php echo ($botConfig['bot_pool_wbnb_fee'] == '10000') ? 'selected' : ''; ?>>1% (10000)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <button type="submit" class="btn btn-primary btn-lg" style="margin-top:10px;">
+                    <i class="material-icons" style="font-size:16px; vertical-align:middle;">save</i> Save Bot Configuration
+                </button>
+                <button type="button" class="btn btn-default btn-lg" id="reset-defaults" style="margin-top:10px; margin-left:10px;">
+                    <i class="material-icons" style="font-size:16px; vertical-align:middle;">refresh</i> Reset to Defaults
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#trading-bot-form').on('submit', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var postData = {};
+
+        // Collect all form fields
+        form.find('input, select').each(function() {
+            var name = $(this).attr('name');
+            if (name) {
+                postData[name] = $(this).val();
+            }
+        });
+
+        $.post(Wo_Ajax_Requests_File() + '?f=trading_bot', postData, function(data) {
+            if (data.status == 200) {
+                Wo_ShowNotifications('success', 'Bot configuration saved successfully!');
+            } else {
+                Wo_ShowNotifications('error', data.message || 'Failed to save configuration');
+            }
+        }, 'json').fail(function(xhr, status, error) {
+            Wo_ShowNotifications('error', 'Request failed: ' + error);
+        });
+    });
+
+    $('#reset-defaults').on('click', function() {
+        if (!confirm('Reset all bot parameters to defaults? This cannot be undone.')) return;
+
+        var defaults = {
+            bot_enabled: '0',
+            bot_mode: 'both',
+            bot_rpc_url: 'https://bsc-dataseed1.binance.org',
+            bot_spread_percent: '1.5',
+            bot_grid_levels: '8',
+            bot_grid_spacing: '2',
+            bot_order_size_trdc: '5000',
+            bot_max_slippage: '2',
+            bot_daily_loss_limit: '20',
+            bot_cooldown_seconds: '30',
+            bot_max_trade_percent: '5',
+            bot_min_tvl: '100',
+            bot_min_arb_profit: '0.5',
+            bot_arb_max_size: '10000',
+            bot_max_gas_gwei: '5',
+            bot_lp_exit_alert: '50',
+            bot_tvl_drop_alert: '20',
+            bot_pool_trdc_usdt: '0x7b57fa13cca5093f5d724823d58503dfd02ff07c',
+            bot_pool_trdc_wbnb: '0x0b5e165fcb524fbb2d313f3d573d79372913788b',
+            bot_pool_usdt_fee: '100',
+            bot_pool_wbnb_fee: '2500'
+        };
+
+        $.each(defaults, function(key, val) {
+            var el = $('[name="' + key + '"]');
+            if (el.is('select')) {
+                el.val(val);
+            } else {
+                el.val(val);
+            }
+        });
+
+        Wo_ShowNotifications('success', 'Defaults restored. Click Save to apply.');
+    });
+});
+</script>

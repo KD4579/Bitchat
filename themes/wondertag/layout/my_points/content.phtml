@@ -80,6 +80,59 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- How it Works -->
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-default btn-block" id="how-it-works-toggle" style="border:1px solid #e0e0e0; border-radius:8px; padding:12px 20px; font-size:14px; font-weight:600; color:#333; background:#f9f9f9; text-align:left; display:flex; align-items:center; justify-content:space-between;">
+                            <span>How the TRDC Staking Program Works</span>
+                            <svg id="hiw-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="transition:transform 0.3s;"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
+                        </button>
+                        <div id="how-it-works-content" style="display:none; border:1px solid #e0e0e0; border-top:none; border-radius:0 0 8px 8px; padding:20px 24px; background:#fff;">
+                            <h4 style="margin-top:0; color:#333; font-weight:600;">Earn TRDC Tokens by Being Active on Bitchat</h4>
+                            <p style="color:#666; line-height:1.7;">
+                                TRDC is the native utility token of Bitchat. You earn TRDC by creating content, engaging with posts, and contributing to the community. Here's how:
+                            </p>
+
+                            <div style="margin:15px 0;">
+                                <h5 style="font-weight:600; color:#0073CE;">1. Activity Rewards</h5>
+                                <p style="color:#666; line-height:1.6; margin-left:10px;">
+                                    Every time you create a post, like, comment, react, or write a blog article, you earn TRDC tokens automatically. The amount depends on the activity type (shown above). These rewards are credited instantly to your TRDC balance.
+                                </p>
+                            </div>
+
+                            <div style="margin:15px 0;">
+                                <h5 style="font-weight:600; color:#0073CE;">2. Creator Milestones</h5>
+                                <p style="color:#666; line-height:1.6; margin-left:10px;">
+                                    Hit engagement milestones (100, 500, or 1000 reactions on your posts) and earn bonus TRDC. The more popular your content, the bigger the reward. First video post also earns a special bonus.
+                                </p>
+                            </div>
+
+                            <div style="margin:15px 0;">
+                                <h5 style="font-weight:600; color:#0073CE;">3. TRDC Token Value</h5>
+                                <p style="color:#666; line-height:1.6; margin-left:10px;">
+                                    TRDC is a real BEP-20 token on BNB Smart Chain. It is traded on PancakeSwap and other decentralized exchanges. The value of TRDC is determined by market demand. You can hold, trade, or use your TRDC within the Bitchat ecosystem.
+                                </p>
+                            </div>
+
+                            <div style="margin:15px 0;">
+                                <h5 style="font-weight:600; color:#0073CE;">4. How to Use Your TRDC</h5>
+                                <ul style="color:#666; line-height:1.8; padding-left:30px;">
+                                    <li><strong>Hold</strong> &mdash; Keep your TRDC and watch your balance grow as you stay active</li>
+                                    <li><strong>Trade</strong> &mdash; Swap TRDC for USDT or BNB on PancakeSwap using the "Buy TRDC Now" button above</li>
+                                    <li><strong>Spend</strong> &mdash; Use TRDC for premium features, gifts, and services on Bitchat</li>
+                                </ul>
+                            </div>
+
+                            <div style="margin:15px 0; padding:12px 16px; background:#f0f7ff; border-radius:6px; border-left:3px solid #0073CE;">
+                                <p style="color:#555; margin:0; line-height:1.6;">
+                                    <strong>Daily Caps & Cooldowns:</strong> To keep the reward system fair, each activity type has a daily earning limit and cooldown period. Keep engaging consistently to maximize your earnings over time.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <br>
                 <div class="row">
                     <div class="col-md-6">
@@ -107,3 +160,18 @@
         </div>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    $('#how-it-works-toggle').on('click', function() {
+        var content = $('#how-it-works-content');
+        var arrow = $('#hiw-arrow');
+        content.slideToggle(300);
+        if (content.is(':visible')) {
+            arrow.css('transform', 'rotate(180deg)');
+        } else {
+            arrow.css('transform', 'rotate(0deg)');
+        }
+    });
+});
+</script>
