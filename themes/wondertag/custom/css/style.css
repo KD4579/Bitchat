@@ -8584,7 +8584,9 @@ html.bc-dark-mode .bc-signal-type-btn.active,
 body.night_mode .bc-signal-type-btn.active { border-color: #3b82f6; background: #1e3a5f; color: #60a5fa; }
 
 /* ===== Portfolio Tracker Widget ===== */
-.bc-portfolio-widget .wo_page_hdng { padding: 10px 14px; }
+.bc-portfolio-widget { overflow: hidden; }
+.bc-portfolio-widget .wo_page_hdng { padding: 10px 14px; min-width: 0; }
+.bc-portfolio-widget .wo_page_hdng > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bc-pf-add-btn { background: none; border: none; color: #3b82f6; padding: 2px 6px; }
 .bc-pf-add-btn:hover { color: #2563eb; }
 
