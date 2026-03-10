@@ -1,0 +1,426 @@
+<div class="container">
+	<h2 class="tag_page_title">TRDC Staking</h2>
+	<div class="page-margin">
+		<div class="page-margin wow_content">
+
+			<!-- Back to Wallet -->
+			<a href="<?php echo Wo_SeoLink('index.php?link1=wallet');?>" style="display:inline-flex;align-items:center;gap:6px;color:var(--bc-text-secondary,#64748b);font-size:13px;text-decoration:none;margin-bottom:18px;">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+				Back to Wallet
+			</a>
+
+			<!-- Balance Banner -->
+			<div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:14px;padding:24px 28px;color:#fff;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+				<div>
+					<p style="font-size:12px;color:#94a3b8;margin:0 0 4px;">Available TRDC Balance</p>
+					<h3 style="font-size:32px;font-weight:700;margin:0;color:#fcd535;" id="staking-available-balance"><?php echo number_format($wo['staking_balance'], 4); ?></h3>
+				</div>
+				<div style="text-align:right;">
+					<p style="font-size:12px;color:#94a3b8;margin:0 0 4px;">Active Stakes</p>
+					<h3 style="font-size:32px;font-weight:700;margin:0;color:#60a5fa;"><?php echo count($wo['active_stakes']); ?></h3>
+				</div>
+			</div>
+
+			<!-- Staking Method Selection -->
+			<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:30px;">
+
+				<!-- Onchain Staking Card -->
+				<div id="card-onchain" style="flex:1;min-width:280px;border:2px solid #e2e8f0;border-radius:14px;padding:28px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('onchain')">
+					<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+						<div style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;">
+							<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+						</div>
+						<div>
+							<h4 style="margin:0;font-weight:700;color:#1e293b;font-size:18px;">Onchain Staking</h4>
+							<p style="margin:4px 0 0;font-size:13px;color:#64748b;">Stake directly on BNB Smart Chain</p>
+						</div>
+					</div>
+					<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#64748b;line-height:2;">
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#10b981" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Fully decentralized &amp; trustless</li>
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#10b981" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Smart contract secured</li>
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#10b981" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Requires BNB for gas fees</li>
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#10b981" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Connect MetaMask or WalletConnect</li>
+					</ul>
+					<div style="margin-top:18px;text-align:center;">
+						<span style="display:inline-block;padding:10px 28px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:600;font-size:14px;">Connect Wallet</span>
+					</div>
+				</div>
+
+				<!-- Offchain Staking Card -->
+				<div id="card-offchain" style="flex:1;min-width:280px;border:2px solid #e2e8f0;border-radius:14px;padding:28px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('offchain')">
+					<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+						<div style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;">
+							<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+						</div>
+						<div>
+							<h4 style="margin:0;font-weight:700;color:#1e293b;font-size:18px;">Offchain Staking</h4>
+							<p style="margin:4px 0 0;font-size:13px;color:#64748b;">Stake from your Bitchat balance</p>
+						</div>
+					</div>
+					<ul style="list-style:none;padding:0;margin:0;font-size:13px;color:#64748b;line-height:2;">
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#3b82f6" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#3b82f6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> No wallet or gas fees needed</li>
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#3b82f6" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#3b82f6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Stake directly from TRDC balance</li>
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#3b82f6" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#3b82f6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Simple one-click staking</li>
+						<li style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#3b82f6" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="#3b82f6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg> Vesting schedule with rewards</li>
+					</ul>
+					<div style="margin-top:18px;text-align:center;">
+						<span style="display:inline-block;padding:10px 28px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:600;font-size:14px;">Stake from Balance</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Offchain Staking Form (hidden by default) -->
+			<div id="offchain-staking-panel" style="display:none;border:2px solid #3b82f6;border-radius:14px;padding:28px;background:#fff;margin-bottom:24px;">
+				<h4 style="margin:0 0 20px;font-weight:700;color:#1e293b;">Offchain Staking</h4>
+
+				<!-- Staking Plans -->
+				<p style="font-size:13px;color:#64748b;margin:0 0 12px;font-weight:600;">Select Staking Period</p>
+				<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;" id="staking-plans">
+					<label class="staking-plan-option" data-days="30" data-apy="5">
+						<input type="radio" name="lock_days" value="30" style="display:none;">
+						<div class="staking-plan-card">
+							<div class="plan-duration">30 Days</div>
+							<div class="plan-apy">5% APY</div>
+						</div>
+					</label>
+					<label class="staking-plan-option" data-days="90" data-apy="8">
+						<input type="radio" name="lock_days" value="90" style="display:none;">
+						<div class="staking-plan-card">
+							<div class="plan-duration">90 Days</div>
+							<div class="plan-apy">8% APY</div>
+						</div>
+					</label>
+					<label class="staking-plan-option" data-days="180" data-apy="12">
+						<input type="radio" name="lock_days" value="180" style="display:none;">
+						<div class="staking-plan-card">
+							<div class="plan-duration">180 Days</div>
+							<div class="plan-apy">12% APY</div>
+						</div>
+					</label>
+					<label class="staking-plan-option" data-days="365" data-apy="18">
+						<input type="radio" name="lock_days" value="365" style="display:none;">
+						<div class="staking-plan-card">
+							<div class="plan-duration">365 Days</div>
+							<div class="plan-apy">18% APY</div>
+							<div class="plan-badge">Best Value</div>
+						</div>
+					</label>
+				</div>
+
+				<!-- Amount Input -->
+				<p style="font-size:13px;color:#64748b;margin:0 0 8px;font-weight:600;">Stake Amount (TRDC)</p>
+				<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+					<input type="number" id="stake-amount" min="100" step="1" placeholder="Min. 100 TRDC" style="flex:1;padding:12px 16px;border:1px solid #e2e8f0;border-radius:8px;font-size:15px;outline:none;">
+					<button type="button" onclick="document.getElementById('stake-amount').value=Math.floor(<?php echo $wo['staking_balance']; ?>);" style="padding:12px 16px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;font-weight:600;color:#3b82f6;white-space:nowrap;">MAX</button>
+				</div>
+				<p style="font-size:12px;color:#94a3b8;margin:0 0 20px;">Available: <strong style="color:#fcd535;"><?php echo number_format($wo['staking_balance'], 4); ?></strong> TRDC</p>
+
+				<!-- Estimated Reward Preview -->
+				<div id="reward-preview" style="display:none;background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:10px;padding:18px;margin-bottom:20px;color:#fff;">
+					<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+						<div>
+							<p style="font-size:11px;color:#94a3b8;margin:0;">Staking Amount</p>
+							<p style="font-size:18px;font-weight:700;margin:4px 0 0;color:#fcd535;" id="preview-amount">0</p>
+						</div>
+						<div>
+							<p style="font-size:11px;color:#94a3b8;margin:0;">APY Rate</p>
+							<p style="font-size:18px;font-weight:700;margin:4px 0 0;color:#60a5fa;" id="preview-apy">0%</p>
+						</div>
+						<div>
+							<p style="font-size:11px;color:#94a3b8;margin:0;">Est. Reward</p>
+							<p style="font-size:18px;font-weight:700;margin:4px 0 0;color:#10b981;" id="preview-reward">0</p>
+						</div>
+						<div>
+							<p style="font-size:11px;color:#94a3b8;margin:0;">Unlock Date</p>
+							<p style="font-size:18px;font-weight:700;margin:4px 0 0;color:#fff;" id="preview-unlock">—</p>
+						</div>
+					</div>
+				</div>
+
+				<button type="button" id="btn-stake-offchain" onclick="submitOffchainStake();" disabled style="width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-size:15px;font-weight:700;cursor:pointer;opacity:0.5;transition:opacity 0.2s;">
+					Confirm Stake
+				</button>
+			</div>
+
+			<!-- Active Stakes Table -->
+			<?php if (!empty($wo['active_stakes'])) { ?>
+			<div style="margin-bottom:24px;">
+				<h4 style="font-weight:700;color:#1e293b;margin:0 0 14px;">Active Stakes</h4>
+				<div style="overflow-x:auto;">
+					<table style="width:100%;border-collapse:collapse;font-size:13px;">
+						<thead>
+							<tr style="background:#f8fafc;color:#64748b;text-align:left;">
+								<th style="padding:10px 14px;font-weight:600;">Type</th>
+								<th style="padding:10px 14px;font-weight:600;">Amount</th>
+								<th style="padding:10px 14px;font-weight:600;">APY</th>
+								<th style="padding:10px 14px;font-weight:600;">Lock Period</th>
+								<th style="padding:10px 14px;font-weight:600;">Started</th>
+								<th style="padding:10px 14px;font-weight:600;">Unlocks</th>
+								<th style="padding:10px 14px;font-weight:600;">Progress</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ($wo['active_stakes'] as $stake) {
+								$total     = intval($stake['unlock_at']) - intval($stake['started_at']);
+								$elapsed   = time() - intval($stake['started_at']);
+								$progress  = $total > 0 ? min(100, round(($elapsed / $total) * 100, 1)) : 0;
+								$estReward = floatval($stake['amount']) * (floatval($stake['apy_rate']) / 100) * (intval($stake['lock_days']) / 365);
+							?>
+							<tr style="border-bottom:1px solid #f1f5f9;">
+								<td style="padding:12px 14px;">
+									<span style="display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:<?php echo $stake['stake_type'] == 'onchain' ? '#fef3c7;color:#92400e' : '#dbeafe;color:#1e40af'; ?>;">
+										<?php echo ucfirst($stake['stake_type']); ?>
+									</span>
+								</td>
+								<td style="padding:12px 14px;font-weight:700;color:#1e293b;"><?php echo number_format(floatval($stake['amount']), 2); ?> TRDC</td>
+								<td style="padding:12px 14px;color:#10b981;font-weight:600;"><?php echo $stake['apy_rate']; ?>%</td>
+								<td style="padding:12px 14px;"><?php echo $stake['lock_days']; ?> days</td>
+								<td style="padding:12px 14px;"><?php echo date('M j, Y', intval($stake['started_at'])); ?></td>
+								<td style="padding:12px 14px;"><?php echo date('M j, Y', intval($stake['unlock_at'])); ?></td>
+								<td style="padding:12px 14px;min-width:120px;">
+									<div style="background:#e2e8f0;border-radius:6px;height:8px;overflow:hidden;">
+										<div style="background:linear-gradient(90deg,#3b82f6,#10b981);height:100%;width:<?php echo $progress; ?>%;border-radius:6px;transition:width 0.3s;"></div>
+									</div>
+									<span style="font-size:11px;color:#64748b;"><?php echo $progress; ?>% (est. +<?php echo number_format($estReward, 2); ?> TRDC)</span>
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<?php } ?>
+
+			<!-- Stake History -->
+			<?php if (!empty($wo['stake_history'])) { ?>
+			<div>
+				<h4 style="font-weight:700;color:#1e293b;margin:0 0 14px;">Staking History</h4>
+				<div style="overflow-x:auto;">
+					<table style="width:100%;border-collapse:collapse;font-size:13px;">
+						<thead>
+							<tr style="background:#f8fafc;color:#64748b;text-align:left;">
+								<th style="padding:10px 14px;font-weight:600;">Type</th>
+								<th style="padding:10px 14px;font-weight:600;">Amount</th>
+								<th style="padding:10px 14px;font-weight:600;">APY</th>
+								<th style="padding:10px 14px;font-weight:600;">Period</th>
+								<th style="padding:10px 14px;font-weight:600;">Status</th>
+								<th style="padding:10px 14px;font-weight:600;">Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ($wo['stake_history'] as $stake) { ?>
+							<tr style="border-bottom:1px solid #f1f5f9;">
+								<td style="padding:10px 14px;">
+									<span style="display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:<?php echo $stake['stake_type'] == 'onchain' ? '#fef3c7;color:#92400e' : '#dbeafe;color:#1e40af'; ?>;">
+										<?php echo ucfirst($stake['stake_type']); ?>
+									</span>
+								</td>
+								<td style="padding:10px 14px;font-weight:600;"><?php echo number_format(floatval($stake['amount']), 2); ?> TRDC</td>
+								<td style="padding:10px 14px;color:#10b981;"><?php echo $stake['apy_rate']; ?>%</td>
+								<td style="padding:10px 14px;"><?php echo $stake['lock_days']; ?> days</td>
+								<td style="padding:10px 14px;">
+									<?php
+									$statusColors = array('active' => '#dbeafe;color:#1e40af', 'completed' => '#dcfce7;color:#166534', 'cancelled' => '#fee2e2;color:#991b1b');
+									$sc = $statusColors[$stake['status']] ?? '#f1f5f9;color:#64748b';
+									?>
+									<span style="display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:<?php echo $sc; ?>;"><?php echo ucfirst($stake['status']); ?></span>
+								</td>
+								<td style="padding:10px 14px;"><?php echo date('M j, Y', intval($stake['created_at'])); ?></td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<?php } ?>
+
+			<?php if (empty($wo['active_stakes']) && empty($wo['stake_history'])) { ?>
+			<div style="text-align:center;padding:40px 20px;color:#94a3b8;">
+				<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#cbd5e1" viewBox="0 0 24 24" style="margin-bottom:12px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z"/></svg>
+				<p style="font-size:15px;margin:0;">No staking activity yet. Choose a staking method above to get started!</p>
+			</div>
+			<?php } ?>
+
+		</div>
+	</div>
+</div>
+
+<style>
+.staking-plan-card {
+	position:relative;
+	min-width:110px;
+	padding:16px 20px;
+	border:2px solid #e2e8f0;
+	border-radius:10px;
+	text-align:center;
+	cursor:pointer;
+	transition:all 0.2s;
+	background:#fff;
+}
+.staking-plan-card:hover {
+	border-color:#3b82f6;
+	background:#f0f7ff;
+}
+.staking-plan-option input:checked + .staking-plan-card {
+	border-color:#3b82f6;
+	background:#eff6ff;
+	box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+}
+.plan-duration {
+	font-size:16px;
+	font-weight:700;
+	color:#1e293b;
+}
+.plan-apy {
+	font-size:13px;
+	font-weight:600;
+	color:#10b981;
+	margin-top:4px;
+}
+.plan-badge {
+	position:absolute;
+	top:-10px;
+	right:-10px;
+	background:linear-gradient(135deg,#f59e0b,#d97706);
+	color:#fff;
+	font-size:10px;
+	font-weight:700;
+	padding:3px 8px;
+	border-radius:6px;
+}
+</style>
+
+<script>
+var selectedMethod = null;
+var selectedDays = 0;
+var selectedApy = 0;
+
+function selectStakingMethod(method) {
+	selectedMethod = method;
+
+	// Reset card styles
+	$('#card-onchain').css({'border-color':'#e2e8f0','box-shadow':'none'});
+	$('#card-offchain').css({'border-color':'#e2e8f0','box-shadow':'none'});
+
+	if (method === 'onchain') {
+		$('#card-onchain').css({'border-color':'#f59e0b','box-shadow':'0 0 0 3px rgba(245,158,11,0.15)'});
+		$('#offchain-staking-panel').slideUp(300);
+
+		// Onchain: redirect to wallet connect
+		if (typeof window.ethereum !== 'undefined') {
+			connectWalletForStaking();
+		} else {
+			Wo_Confirm('MetaMask or a Web3 wallet is required for onchain staking. Please install MetaMask extension or use a Web3-enabled browser.', function(){
+				window.open('https://metamask.io/download/', '_blank');
+			});
+		}
+	} else {
+		$('#card-offchain').css({'border-color':'#3b82f6','box-shadow':'0 0 0 3px rgba(59,130,246,0.15)'});
+		$('#offchain-staking-panel').slideDown(300);
+	}
+}
+
+async function connectWalletForStaking() {
+	try {
+		const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+		if (accounts && accounts.length > 0) {
+			// Check if on BSC (chain ID 56)
+			const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+			if (chainId !== '0x38') {
+				try {
+					await window.ethereum.request({
+						method: 'wallet_switchEthereumChain',
+						params: [{ chainId: '0x38' }]
+					});
+				} catch (switchError) {
+					if (switchError.code === 4902) {
+						await window.ethereum.request({
+							method: 'wallet_addEthereumChain',
+							params: [{
+								chainId: '0x38',
+								chainName: 'BNB Smart Chain',
+								nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+								rpcUrls: ['https://bsc-dataseed.binance.org/'],
+								blockExplorerUrls: ['https://bscscan.com/']
+							}]
+						});
+					} else {
+						alert('Please switch to BNB Smart Chain to continue.');
+						return;
+					}
+				}
+			}
+			alert('Wallet connected: ' + accounts[0].substring(0, 6) + '...' + accounts[0].substring(38) + '\n\nOnchain staking smart contract integration coming soon!');
+		}
+	} catch (err) {
+		alert('Wallet connection failed: ' + (err.message || err));
+	}
+}
+
+// Offchain staking plan selection
+$('#staking-plans input[name="lock_days"]').on('change', function() {
+	selectedDays = parseInt($(this).val());
+	selectedApy = parseFloat($(this).closest('.staking-plan-option').data('apy'));
+	updateRewardPreview();
+});
+
+$('#stake-amount').on('input', function() {
+	updateRewardPreview();
+});
+
+function updateRewardPreview() {
+	var amount = parseFloat($('#stake-amount').val()) || 0;
+	if (amount >= 100 && selectedDays > 0) {
+		var reward = amount * (selectedApy / 100) * (selectedDays / 365);
+		var unlockDate = new Date();
+		unlockDate.setDate(unlockDate.getDate() + selectedDays);
+
+		$('#preview-amount').text(amount.toLocaleString(undefined, {maximumFractionDigits:2}) + ' TRDC');
+		$('#preview-apy').text(selectedApy + '%');
+		$('#preview-reward').text('+' + reward.toFixed(2) + ' TRDC');
+		$('#preview-unlock').text(unlockDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}));
+		$('#reward-preview').slideDown(200);
+		$('#btn-stake-offchain').prop('disabled', false).css('opacity', '1');
+	} else {
+		$('#reward-preview').slideUp(200);
+		$('#btn-stake-offchain').prop('disabled', true).css('opacity', '0.5');
+	}
+}
+
+function submitOffchainStake() {
+	var amount = parseFloat($('#stake-amount').val()) || 0;
+	if (amount < 100) {
+		alert('Minimum stake amount is 100 TRDC');
+		return;
+	}
+	if (selectedDays <= 0) {
+		alert('Please select a staking period');
+		return;
+	}
+
+	var reward = amount * (selectedApy / 100) * (selectedDays / 365);
+
+	if (!confirm('Confirm staking ' + amount.toLocaleString() + ' TRDC for ' + selectedDays + ' days at ' + selectedApy + '% APY?\n\nEstimated reward: +' + reward.toFixed(2) + ' TRDC\n\nYour TRDC will be locked until the unlock date.')) {
+		return;
+	}
+
+	$('#btn-stake-offchain').prop('disabled', true).text('Processing...');
+
+	$.post(Wo_Ajax_Requests_File() + '?f=staking', {
+		action: 'create_offchain',
+		amount: amount,
+		lock_days: selectedDays
+	}, function(data) {
+		if (data.status === 200) {
+			alert(data.message);
+			window.location.reload();
+		} else {
+			alert(data.message || 'Staking failed. Please try again.');
+			$('#btn-stake-offchain').prop('disabled', false).text('Confirm Stake');
+		}
+	}, 'json').fail(function() {
+		alert('Network error. Please try again.');
+		$('#btn-stake-offchain').prop('disabled', false).text('Confirm Stake');
+	});
+}
+</script>

@@ -113,6 +113,7 @@ RewriteRule ^welcome-setup(/?|)$ index.php?link1=welcome-setup [NC,QSA]
 RewriteRule ^creator-dashboard(/?|)$ index.php?link1=creator-dashboard [NC,QSA]
 RewriteRule ^my-points(/?|)$ index.php?link1=my-points [NC,QSA]
 RewriteRule ^affiliates(/?|)$ index.php?link1=affiliates [NC,QSA]
+RewriteRule ^staking(/?|)$ index.php?link1=staking [NC,QSA]
 RewriteRule ^leaderboard(/?|)$ index.php?link1=leaderboard [NC,QSA]
 
 # **** FORUM ****
