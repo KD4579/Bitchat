@@ -1,7 +1,19 @@
+<?php
+$_sc = $wo['staking_config'];
+$_plans = $wo['staking_plans'];
+$_minAmt = $_sc['min_amount'];
+$_maxAmt = $_sc['max_amount'];
+$_lastPlan = end($_plans); // highest APY plan for "Best Value" badge
+reset($_plans);
+?>
 <div class="container">
 	<h2 class="tag_page_title">TRDC Staking</h2>
 	<div class="page-margin">
 		<div class="page-margin wow_content">
+
+			<?php if (!$_sc['enabled']) { ?>
+			<div class="alert alert-warning">Staking is currently disabled. Please check back later.</div>
+			<?php } ?>
 
 			<!-- Back to Wallet -->
 			<a href="<?php echo Wo_SeoLink('index.php?link1=wallet');?>" style="display:inline-flex;align-items:center;gap:6px;color:var(--bc-text-secondary,#64748b);font-size:13px;text-decoration:none;margin-bottom:18px;">
@@ -21,9 +33,11 @@
 				</div>
 			</div>
 
+			<?php if ($_sc['enabled']) { ?>
 			<!-- Staking Method Selection -->
 			<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:30px;">
 
+				<?php if ($_sc['onchain_enabled']) { ?>
 				<!-- Onchain Staking Card -->
 				<div id="card-onchain" style="flex:1;min-width:280px;border:2px solid #e2e8f0;border-radius:14px;padding:28px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('onchain')">
 					<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
@@ -45,7 +59,9 @@
 						<span style="display:inline-block;padding:10px 28px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:600;font-size:14px;">Connect Wallet</span>
 					</div>
 				</div>
+				<?php } ?>
 
+				<?php if ($_sc['offchain_enabled']) { ?>
 				<!-- Offchain Staking Card -->
 				<div id="card-offchain" style="flex:1;min-width:280px;border:2px solid #e2e8f0;border-radius:14px;padding:28px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('offchain')">
 					<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
@@ -67,53 +83,41 @@
 						<span style="display:inline-block;padding:10px 28px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:600;font-size:14px;">Stake from Balance</span>
 					</div>
 				</div>
+				<?php } ?>
 			</div>
 
+			<?php if ($_sc['offchain_enabled'] && !empty($_plans)) { ?>
 			<!-- Offchain Staking Form (hidden by default) -->
 			<div id="offchain-staking-panel" style="display:none;border:2px solid #3b82f6;border-radius:14px;padding:28px;background:#fff;margin-bottom:24px;">
 				<h4 style="margin:0 0 20px;font-weight:700;color:#1e293b;">Offchain Staking</h4>
 
-				<!-- Staking Plans -->
+				<!-- Staking Plans (dynamic from config) -->
 				<p style="font-size:13px;color:#64748b;margin:0 0 12px;font-weight:600;">Select Staking Period</p>
 				<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;" id="staking-plans">
-					<label class="staking-plan-option" data-days="30" data-apy="5">
-						<input type="radio" name="lock_days" value="30" style="display:none;">
+					<?php foreach ($_plans as $idx => $plan) { ?>
+					<label class="staking-plan-option" data-days="<?php echo $plan['days']; ?>" data-apy="<?php echo $plan['apy']; ?>">
+						<input type="radio" name="lock_days" value="<?php echo $plan['days']; ?>" style="display:none;">
 						<div class="staking-plan-card">
-							<div class="plan-duration">30 Days</div>
-							<div class="plan-apy">5% APY</div>
+							<div class="plan-duration"><?php echo $plan['days']; ?> Days</div>
+							<div class="plan-apy"><?php echo $plan['apy']; ?>% APY</div>
+							<?php if ($plan === $_lastPlan && count($_plans) > 1) { ?>
+								<div class="plan-badge">Best Value</div>
+							<?php } ?>
 						</div>
 					</label>
-					<label class="staking-plan-option" data-days="90" data-apy="8">
-						<input type="radio" name="lock_days" value="90" style="display:none;">
-						<div class="staking-plan-card">
-							<div class="plan-duration">90 Days</div>
-							<div class="plan-apy">8% APY</div>
-						</div>
-					</label>
-					<label class="staking-plan-option" data-days="180" data-apy="12">
-						<input type="radio" name="lock_days" value="180" style="display:none;">
-						<div class="staking-plan-card">
-							<div class="plan-duration">180 Days</div>
-							<div class="plan-apy">12% APY</div>
-						</div>
-					</label>
-					<label class="staking-plan-option" data-days="365" data-apy="18">
-						<input type="radio" name="lock_days" value="365" style="display:none;">
-						<div class="staking-plan-card">
-							<div class="plan-duration">365 Days</div>
-							<div class="plan-apy">18% APY</div>
-							<div class="plan-badge">Best Value</div>
-						</div>
-					</label>
+					<?php } ?>
 				</div>
 
 				<!-- Amount Input -->
 				<p style="font-size:13px;color:#64748b;margin:0 0 8px;font-weight:600;">Stake Amount (TRDC)</p>
 				<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-					<input type="number" id="stake-amount" min="100" step="1" placeholder="Min. 100 TRDC" style="flex:1;padding:12px 16px;border:1px solid #e2e8f0;border-radius:8px;font-size:15px;outline:none;">
-					<button type="button" onclick="document.getElementById('stake-amount').value=Math.floor(<?php echo $wo['staking_balance']; ?>);" style="padding:12px 16px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;font-weight:600;color:#3b82f6;white-space:nowrap;">MAX</button>
+					<input type="number" id="stake-amount" min="<?php echo $_minAmt; ?>" step="1" placeholder="Min. <?php echo number_format($_minAmt, 0); ?> TRDC" style="flex:1;padding:12px 16px;border:1px solid #e2e8f0;border-radius:8px;font-size:15px;outline:none;">
+					<button type="button" onclick="document.getElementById('stake-amount').value=Math.floor(<?php echo $wo['staking_balance']; ?>);$('#stake-amount').trigger('input');" style="padding:12px 16px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;font-size:13px;font-weight:600;color:#3b82f6;white-space:nowrap;">MAX</button>
 				</div>
-				<p style="font-size:12px;color:#94a3b8;margin:0 0 20px;">Available: <strong style="color:#fcd535;"><?php echo number_format($wo['staking_balance'], 4); ?></strong> TRDC</p>
+				<p style="font-size:12px;color:#94a3b8;margin:0 0 20px;">
+					Available: <strong style="color:#fcd535;"><?php echo number_format($wo['staking_balance'], 4); ?></strong> TRDC
+					<?php if ($_maxAmt > 0) { ?> &bull; Max per stake: <strong><?php echo number_format($_maxAmt, 0); ?></strong> TRDC<?php } ?>
+				</p>
 
 				<!-- Estimated Reward Preview -->
 				<div id="reward-preview" style="display:none;background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:10px;padding:18px;margin-bottom:20px;color:#fff;">
@@ -141,6 +145,8 @@
 					Confirm Stake
 				</button>
 			</div>
+			<?php } ?>
+			<?php } ?>
 
 			<!-- Active Stakes Table -->
 			<?php if (!empty($wo['active_stakes'])) { ?>
@@ -294,11 +300,12 @@
 var selectedMethod = null;
 var selectedDays = 0;
 var selectedApy = 0;
+var stakingMinAmount = <?php echo $_minAmt; ?>;
+var stakingMaxAmount = <?php echo $_maxAmt; ?>;
 
 function selectStakingMethod(method) {
 	selectedMethod = method;
 
-	// Reset card styles
 	$('#card-onchain').css({'border-color':'#e2e8f0','box-shadow':'none'});
 	$('#card-offchain').css({'border-color':'#e2e8f0','box-shadow':'none'});
 
@@ -306,7 +313,6 @@ function selectStakingMethod(method) {
 		$('#card-onchain').css({'border-color':'#f59e0b','box-shadow':'0 0 0 3px rgba(245,158,11,0.15)'});
 		$('#offchain-staking-panel').slideUp(300);
 
-		// Onchain: redirect to wallet connect
 		if (typeof window.ethereum !== 'undefined') {
 			connectWalletForStaking();
 		} else {
@@ -324,7 +330,6 @@ async function connectWalletForStaking() {
 	try {
 		const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 		if (accounts && accounts.length > 0) {
-			// Check if on BSC (chain ID 56)
 			const chainId = await window.ethereum.request({ method: 'eth_chainId' });
 			if (chainId !== '0x38') {
 				try {
@@ -357,7 +362,6 @@ async function connectWalletForStaking() {
 	}
 }
 
-// Offchain staking plan selection
 $('#staking-plans input[name="lock_days"]').on('change', function() {
 	selectedDays = parseInt($(this).val());
 	selectedApy = parseFloat($(this).closest('.staking-plan-option').data('apy'));
@@ -370,7 +374,7 @@ $('#stake-amount').on('input', function() {
 
 function updateRewardPreview() {
 	var amount = parseFloat($('#stake-amount').val()) || 0;
-	if (amount >= 100 && selectedDays > 0) {
+	if (amount >= stakingMinAmount && selectedDays > 0) {
 		var reward = amount * (selectedApy / 100) * (selectedDays / 365);
 		var unlockDate = new Date();
 		unlockDate.setDate(unlockDate.getDate() + selectedDays);
@@ -389,8 +393,12 @@ function updateRewardPreview() {
 
 function submitOffchainStake() {
 	var amount = parseFloat($('#stake-amount').val()) || 0;
-	if (amount < 100) {
-		alert('Minimum stake amount is 100 TRDC');
+	if (amount < stakingMinAmount) {
+		alert('Minimum stake amount is ' + stakingMinAmount + ' TRDC');
+		return;
+	}
+	if (stakingMaxAmount > 0 && amount > stakingMaxAmount) {
+		alert('Maximum stake amount is ' + stakingMaxAmount + ' TRDC');
 		return;
 	}
 	if (selectedDays <= 0) {

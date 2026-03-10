@@ -186,17 +186,22 @@ function Wo_TriggerReward($userId, $rewardKey, $context = array()) {
 }
 
 /**
- * Award the referrer 10% of a user's staking/activity reward.
+ * Award the referrer a percentage of a user's staking/activity reward.
+ * Percentage is configurable via admin panel (staking_affiliate_percent).
  *
  * @param int    $userId    The user who earned the reward
  * @param float  $amount    The reward amount earned
  * @param string $rewardKey The reward type key
  */
 function Wo_AwardAffiliateStaking($userId, $amount, $rewardKey) {
-    global $sqlConnect;
+    global $sqlConnect, $wo;
 
     $userId = intval($userId);
     if ($userId <= 0 || $amount <= 0) return;
+
+    // Get affiliate commission percentage from admin config (default 10%)
+    $affiliatePercent = floatval($wo['config']['staking_affiliate_percent'] ?? 10);
+    if ($affiliatePercent <= 0) return;
 
     // Look up referrer
     $q = mysqli_query($sqlConnect, "SELECT referrer FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1");
@@ -205,12 +210,12 @@ function Wo_AwardAffiliateStaking($userId, $amount, $rewardKey) {
     $referrerId = intval($row['referrer']);
     if ($referrerId <= 0 || $referrerId === $userId) return;
 
-    // Calculate 10% affiliate commission
-    $commission = round($amount * 0.10, 4);
+    // Calculate affiliate commission
+    $commission = round($amount * ($affiliatePercent / 100), 4);
     if ($commission <= 0) return;
 
     // Use a unique reason per reward instance to allow tracking
-    $reasonSafe = mysqli_real_escape_string($sqlConnect, "10% affiliate reward ({$rewardKey} by user #{$userId})");
+    $reasonSafe = mysqli_real_escape_string($sqlConnect, "{$affiliatePercent}% affiliate reward ({$rewardKey} by user #{$userId})");
     $now = time();
 
     // Insert into TRDC rewards (no unique constraint conflict since milestone_type + post_id combo is unique per event)

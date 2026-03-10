@@ -5,29 +5,53 @@ if ($f == 'staking') {
         exit();
     }
 
+    // Check master switch
+    if (empty($wo['config']['staking_enabled']) || $wo['config']['staking_enabled'] != '1') {
+        echo json_encode(array('status' => 400, 'message' => 'Staking is currently disabled'));
+        exit();
+    }
+
     $action = isset($_POST['action']) ? Wo_Secure($_POST['action']) : '';
+
+    // Build valid plans from admin config
+    $validPlans = array();
+    for ($i = 1; $i <= 4; $i++) {
+        $enabled = $wo['config']["staking_plan_{$i}_enabled"] ?? '1';
+        if ($enabled != '1') continue;
+        $days = intval($wo['config']["staking_plan_{$i}_days"] ?? 0);
+        $apy  = floatval($wo['config']["staking_plan_{$i}_apy"] ?? 0);
+        if ($days > 0 && $apy > 0) {
+            $validPlans[$days] = $apy;
+        }
+    }
 
     // ---- CREATE OFFCHAIN STAKE ----
     if ($action === 'create_offchain') {
+        // Check offchain method enabled
+        if (empty($wo['config']['staking_offchain_enabled']) || $wo['config']['staking_offchain_enabled'] != '1') {
+            echo json_encode(array('status' => 400, 'message' => 'Offchain staking is currently disabled'));
+            exit();
+        }
+
         $amount   = floatval($_POST['amount'] ?? 0);
         $lockDays = intval($_POST['lock_days'] ?? 0);
         $userId   = intval($wo['user']['user_id']);
-
-        // Validate lock period and APY
-        $validPlans = array(
-            30  => 5.00,
-            90  => 8.00,
-            180 => 12.00,
-            365 => 18.00,
-        );
 
         if (!isset($validPlans[$lockDays])) {
             echo json_encode(array('status' => 400, 'message' => 'Invalid staking period'));
             exit();
         }
 
-        if ($amount < 100) {
-            echo json_encode(array('status' => 400, 'message' => 'Minimum stake is 100 TRDC'));
+        $minAmount = floatval($wo['config']['staking_min_amount'] ?? 100);
+        $maxAmount = floatval($wo['config']['staking_max_amount'] ?? 0);
+
+        if ($amount < $minAmount) {
+            echo json_encode(array('status' => 400, 'message' => 'Minimum stake is ' . number_format($minAmount, 0) . ' TRDC'));
+            exit();
+        }
+
+        if ($maxAmount > 0 && $amount > $maxAmount) {
+            echo json_encode(array('status' => 400, 'message' => 'Maximum stake is ' . number_format($maxAmount, 0) . ' TRDC'));
             exit();
         }
 
@@ -51,13 +75,11 @@ if ($f == 'staking') {
         // Deduct from wallet and create stake record
         mysqli_begin_transaction($sqlConnect);
         try {
-            // Deduct balance
             $deductQ = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet - {$amount} WHERE user_id = {$userId} AND wallet >= {$amount}");
             if (!$deductQ || mysqli_affected_rows($sqlConnect) == 0) {
                 throw new Exception('Balance deduction failed');
             }
 
-            // Insert stake record
             $insertQ = mysqli_query($sqlConnect, "INSERT INTO Wo_Staking (user_id, stake_type, amount, apy_rate, lock_days, status, started_at, unlock_at, created_at)
                 VALUES ({$userId}, 'offchain', {$amount}, {$apyRate}, {$lockDays}, 'active', {$now}, {$unlockAt}, {$now})");
             if (!$insertQ) {
@@ -66,8 +88,6 @@ if ($f == 'staking') {
 
             $stakeId = mysqli_insert_id($sqlConnect);
             mysqli_commit($sqlConnect);
-
-            // Clear user cache
             cache($userId, 'users', 'delete');
 
             echo json_encode(array(
@@ -79,6 +99,23 @@ if ($f == 'staking') {
             mysqli_rollback($sqlConnect);
             echo json_encode(array('status' => 400, 'message' => $e->getMessage()));
         }
+        exit();
+    }
+
+    // ---- GET PLANS (for frontend) ----
+    if ($action === 'get_plans') {
+        $plans = array();
+        foreach ($validPlans as $days => $apy) {
+            $plans[] = array('days' => $days, 'apy' => $apy);
+        }
+        echo json_encode(array(
+            'status' => 200,
+            'plans'  => $plans,
+            'min_amount' => floatval($wo['config']['staking_min_amount'] ?? 100),
+            'max_amount' => floatval($wo['config']['staking_max_amount'] ?? 0),
+            'onchain_enabled'  => ($wo['config']['staking_onchain_enabled'] ?? '1') == '1',
+            'offchain_enabled' => ($wo['config']['staking_offchain_enabled'] ?? '1') == '1',
+        ));
         exit();
     }
 

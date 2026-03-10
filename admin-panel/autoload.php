@@ -85,6 +85,7 @@ $pages = array(
     'announcement-banner',
     'trdc-rewards',
     'trading-bot',
+    'staking-settings',
     'creator-mode',
     'news-bots',
     'growth-intelligence',
@@ -1342,7 +1343,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     </li>
                     <?php } ?>
                     <?php if ($is_admin) { ?>
-                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','trading-bot','creator-mode','news-bots']) ? 'class="open"' : ''; ?>>
+                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','trading-bot','staking-settings','creator-mode','news-bots']) ? 'class="open"' : ''; ?>>
                         <a href="#">
                             <span class="nav-link-icon">
                                 <i class="material-icons">trending_up</i>
@@ -1373,6 +1374,9 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             </li>
                             <li>
                                 <a <?php echo ($page == 'trading-bot') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('trading-bot'); ?>" data-ajax="?path=trading-bot">Trading Bot</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'staking-settings') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('staking-settings'); ?>" data-ajax="?path=staking-settings">Staking Settings</a>
                             </li>
                             <li>
                                 <a <?php echo ($page == 'creator-mode') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('creator-mode'); ?>" data-ajax="?path=creator-mode">Creator Mode</a>

@@ -1,0 +1,227 @@
+<?php
+// Load current staking config from Wo_Options
+$stakingConfig = array(
+    'staking_enabled'       => $wo['config']['staking_enabled'] ?? '1',
+    'staking_min_amount'    => $wo['config']['staking_min_amount'] ?? '100',
+    'staking_max_amount'    => $wo['config']['staking_max_amount'] ?? '0',
+    'staking_plan_1_days'   => $wo['config']['staking_plan_1_days'] ?? '30',
+    'staking_plan_1_apy'    => $wo['config']['staking_plan_1_apy'] ?? '5',
+    'staking_plan_1_enabled'=> $wo['config']['staking_plan_1_enabled'] ?? '1',
+    'staking_plan_2_days'   => $wo['config']['staking_plan_2_days'] ?? '90',
+    'staking_plan_2_apy'    => $wo['config']['staking_plan_2_apy'] ?? '8',
+    'staking_plan_2_enabled'=> $wo['config']['staking_plan_2_enabled'] ?? '1',
+    'staking_plan_3_days'   => $wo['config']['staking_plan_3_days'] ?? '180',
+    'staking_plan_3_apy'    => $wo['config']['staking_plan_3_apy'] ?? '12',
+    'staking_plan_3_enabled'=> $wo['config']['staking_plan_3_enabled'] ?? '1',
+    'staking_plan_4_days'   => $wo['config']['staking_plan_4_days'] ?? '365',
+    'staking_plan_4_apy'    => $wo['config']['staking_plan_4_apy'] ?? '18',
+    'staking_plan_4_enabled'=> $wo['config']['staking_plan_4_enabled'] ?? '1',
+    'staking_onchain_enabled'  => $wo['config']['staking_onchain_enabled'] ?? '1',
+    'staking_offchain_enabled' => $wo['config']['staking_offchain_enabled'] ?? '1',
+    'staking_affiliate_percent'=> $wo['config']['staking_affiliate_percent'] ?? '10',
+);
+?>
+
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">TRDC Staking — Settings</h3>
+            <p class="text-muted">Configure staking plans, APY rates, limits, and methods. Changes take effect immediately.</p>
+        </div>
+        <div class="panel-body">
+            <form id="staking-settings-form">
+
+                <!-- Master Switch & General -->
+                <h4 style="border-bottom:1px solid #eee;padding-bottom:8px;margin-top:0;">General Settings</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Staking System</label>
+                            <select name="staking_enabled" class="form-control">
+                                <option value="0" <?php echo ($stakingConfig['staking_enabled'] == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo ($stakingConfig['staking_enabled'] == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Minimum Stake (TRDC)</label>
+                            <input type="number" name="staking_min_amount" class="form-control" value="<?php echo $stakingConfig['staking_min_amount']; ?>" min="1" step="1">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Maximum Stake (0 = no limit)</label>
+                            <input type="number" name="staking_max_amount" class="form-control" value="<?php echo $stakingConfig['staking_max_amount']; ?>" min="0" step="1">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Affiliate Commission (%)</label>
+                            <input type="number" name="staking_affiliate_percent" class="form-control" value="<?php echo $stakingConfig['staking_affiliate_percent']; ?>" min="0" max="100" step="0.1">
+                            <small class="text-muted">% of activity rewards given to referrer</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staking Methods -->
+                <h4 style="border-bottom:1px solid #eee;padding-bottom:8px;">Staking Methods</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Onchain Staking (Wallet Connect)</label>
+                            <select name="staking_onchain_enabled" class="form-control">
+                                <option value="0" <?php echo ($stakingConfig['staking_onchain_enabled'] == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo ($stakingConfig['staking_onchain_enabled'] == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Offchain Staking (Balance)</label>
+                            <select name="staking_offchain_enabled" class="form-control">
+                                <option value="0" <?php echo ($stakingConfig['staking_offchain_enabled'] == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo ($stakingConfig['staking_offchain_enabled'] == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staking Plans -->
+                <h4 style="border-bottom:1px solid #eee;padding-bottom:8px;">Staking Plans</h4>
+                <p class="text-muted">Configure up to 4 staking plans. Disable unused plans by setting them to Disabled.</p>
+
+                <?php for ($i = 1; $i <= 4; $i++) { ?>
+                <div class="row" style="background:<?php echo ($i % 2 == 0) ? '#f9f9f9' : '#fff'; ?>;padding:12px 0;margin:0 -15px;border-radius:4px;">
+                    <div class="col-md-1" style="padding-top:28px;">
+                        <strong>Plan <?php echo $i; ?></strong>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Lock Period (Days)</label>
+                            <input type="number" name="staking_plan_<?php echo $i; ?>_days" class="form-control" value="<?php echo $stakingConfig["staking_plan_{$i}_days"]; ?>" min="1" step="1">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>APY Rate (%)</label>
+                            <input type="number" name="staking_plan_<?php echo $i; ?>_apy" class="form-control" value="<?php echo $stakingConfig["staking_plan_{$i}_apy"]; ?>" min="0" max="999" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="staking_plan_<?php echo $i; ?>_enabled" class="form-control">
+                                <option value="0" <?php echo ($stakingConfig["staking_plan_{$i}_enabled"] == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                <option value="1" <?php echo ($stakingConfig["staking_plan_{$i}_enabled"] == '1') ? 'selected' : ''; ?>>Enabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2" style="padding-top:28px;">
+                        <?php
+                        $days = intval($stakingConfig["staking_plan_{$i}_days"]);
+                        $apy  = floatval($stakingConfig["staking_plan_{$i}_apy"]);
+                        $estPer1000 = 1000 * ($apy / 100) * ($days / 365);
+                        ?>
+                        <small class="text-muted">Est. +<?php echo number_format($estPer1000, 2); ?> TRDC<br>per 1,000 staked</small>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <hr>
+
+                <!-- Staking Stats (read-only) -->
+                <h4 style="border-bottom:1px solid #eee;padding-bottom:8px;">Staking Overview</h4>
+                <?php
+                $totalStaked = 0;
+                $activeCount = 0;
+                $totalEarned = 0;
+                $statsQ = @mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt, COALESCE(SUM(amount),0) as total_staked, COALESCE(SUM(earned_reward),0) as total_earned FROM Wo_Staking WHERE status = 'active'");
+                if ($statsQ && ($sRow = mysqli_fetch_assoc($statsQ))) {
+                    $activeCount = intval($sRow['cnt']);
+                    $totalStaked = floatval($sRow['total_staked']);
+                    $totalEarned = floatval($sRow['total_earned']);
+                }
+                $completedCount = 0;
+                $compQ = @mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM Wo_Staking WHERE status = 'completed'");
+                if ($compQ && ($cRow = mysqli_fetch_assoc($compQ))) {
+                    $completedCount = intval($cRow['cnt']);
+                }
+                ?>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h3 style="margin:0;color:#3b82f6;"><?php echo $activeCount; ?></h3>
+                            <small class="text-muted">Active Stakes</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h3 style="margin:0;color:#f59e0b;"><?php echo number_format($totalStaked, 2); ?></h3>
+                            <small class="text-muted">Total TRDC Staked</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h3 style="margin:0;color:#10b981;"><?php echo number_format($totalEarned, 2); ?></h3>
+                            <small class="text-muted">Total Rewards Paid</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="well text-center">
+                            <h3 style="margin:0;color:#64748b;"><?php echo $completedCount; ?></h3>
+                            <small class="text-muted">Completed Stakes</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:20px;">
+                    <button type="submit" class="btn btn-primary btn-lg">Save Staking Settings</button>
+                    <button type="button" class="btn btn-default btn-lg" onclick="resetDefaults();">Reset to Defaults</button>
+                </div>
+
+            </form>
+
+            <div id="staking-save-result" style="margin-top:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#staking-settings-form').on('submit', function(e) {
+    e.preventDefault();
+    var $btn = $(this).find('button[type=submit]');
+    $btn.prop('disabled', true).text('Saving...');
+
+    $.post(Wo_Ajax_Requests_File() + '?f=staking_admin', $(this).serialize(), function(data) {
+        if (data.status == 200) {
+            $('#staking-save-result').html('<div class="alert alert-success">' + data.message + '</div>');
+        } else {
+            $('#staking-save-result').html('<div class="alert alert-danger">' + (data.message || 'Error saving settings') + '</div>');
+        }
+        $btn.prop('disabled', false).text('Save Staking Settings');
+        setTimeout(function(){ $('#staking-save-result .alert').fadeOut(); }, 4000);
+    }, 'json').fail(function() {
+        $('#staking-save-result').html('<div class="alert alert-danger">Network error</div>');
+        $btn.prop('disabled', false).text('Save Staking Settings');
+    });
+});
+
+function resetDefaults() {
+    if (!confirm('Reset all staking settings to defaults?')) return;
+    var defaults = {
+        staking_enabled: '1', staking_min_amount: '100', staking_max_amount: '0',
+        staking_affiliate_percent: '10',
+        staking_onchain_enabled: '1', staking_offchain_enabled: '1',
+        staking_plan_1_days: '30', staking_plan_1_apy: '5', staking_plan_1_enabled: '1',
+        staking_plan_2_days: '90', staking_plan_2_apy: '8', staking_plan_2_enabled: '1',
+        staking_plan_3_days: '180', staking_plan_3_apy: '12', staking_plan_3_enabled: '1',
+        staking_plan_4_days: '365', staking_plan_4_apy: '18', staking_plan_4_enabled: '1',
+    };
+    for (var key in defaults) {
+        var el = $('[name="' + key + '"]');
+        if (el.is('select')) el.val(defaults[key]);
+        else el.val(defaults[key]);
+    }
+}
+</script>
