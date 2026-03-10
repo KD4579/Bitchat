@@ -1995,7 +1995,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	<?php } ?>
 
 	<?php if ($wo['loggedin'] && !empty($wo['config']['trading_signals_enabled']) && $wo['config']['trading_signals_enabled'] == '1') { ?>
-	<div class="modal fade" id="bc-signal-modal" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="bc-signal-modal" role="dialog" aria-hidden="true" style="z-index:1060;">
 		<div class="modal-dialog modal-sm">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -2101,8 +2101,19 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	}
 	function bcOpenSignalModal() {
 		$('#bc-signal-error').hide();
-		$('#bc-signal-modal').modal('show');
+		// Hide the publisher post box first to avoid double popup
+		$('#tagPostBox').modal('hide');
+		setTimeout(function() {
+			$('#bc-signal-modal').modal('show');
+		}, 300);
 	}
+	// Clean up backdrop when signal modal closes
+	$('#bc-signal-modal').on('hidden.bs.modal', function() {
+		if (!$('.modal.in, .modal.show').length) {
+			$('.modal-backdrop').remove();
+			$('body').removeClass('modal-open');
+		}
+	});
 	$('.bc-signal-type-btn').on('click', function() {
 		$('.bc-signal-type-btn').removeClass('active');
 		$(this).addClass('active');
