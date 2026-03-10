@@ -2,6 +2,94 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-11 — Staking Page, GameSpot Bot & Signal Popup Fix
+
+### TRDC Staking System
+
+- **Dedicated staking page** (`/staking`): New page with balance banner, two staking methods (onchain wallet connect + offchain balance), dynamic plan selection, reward preview calculator, active stakes table with progress bars, and stake history.
+- **Offchain staking backend** (`xhr/staking.php`): Atomic balance deduction + stake record creation with `mysqli_begin_transaction`. Validates plans, min/max amounts, and balance. Actions: `create_offchain`, `get_plans`, `get_stakes`.
+- **Admin staking settings** (`admin-panel/pages/staking-settings/`): Configure master switch, min/max amounts, affiliate commission %, onchain/offchain toggles, and up to 4 staking plans (days, APY, enable/disable). Live staking overview stats.
+- **Admin XHR handler** (`xhr/staking_admin.php`): Validates 19 config keys (bool, int, float) via `Wo_SaveConfig()`.
+- **Database**: `Wo_Staking` table with user_id, stake_type (onchain/offchain), amount, apy_rate, lock_days, earned_reward, status (active/completed/cancelled), timestamps, tx_hash.
+- **Stake Now button on wallet page**: Amber-colored button with staking icon, navigates to `/staking`.
+- **URL rewriting**: Added `/staking` rules to `.htaccess` and `nginx.conf`.
+- **Page routing**: Added `case 'staking'` to all three switch blocks in `index.php`.
+- **How it Works section**: Expandable toggle matching affiliates page style — covers method choice, plan selection, amount entry, rewards, and affiliate bonus.
+
+### Affiliate Staking Rewards
+
+- **10% affiliate commission on activity rewards**: When referred users earn TRDC through activity (posting, commenting, liking, etc.), the referrer receives a configurable percentage (default 10%) as passive income.
+- **`Wo_AwardAffiliateStaking()` function**: Added to reward engine (`functions_reward_engine.php`). Reads `staking_affiliate_percent` from config, looks up referrer, calculates commission, inserts `referral_staking` record.
+- **Affiliates page updates**: Added staking commission stat card, "Staking Rewards 10% Commission" section in How it Works, updated earnings queries to include `referral_staking` type.
+
+### Affiliates Page Fixes
+
+- **404 on hard refresh**: Added missing URL rewrite rules for `/affiliates` in `.htaccess` and `nginx.conf`. The catch-all rule was treating "affiliates" as a username.
+- **How it Works section**: Added expandable toggle with 5 subsections (Share Link, Sign Up, Earn Rewards, Staking Rewards, Multi-Level Referrals).
+
+### GameSpot News Bot
+
+- **New bot**: GameSpot News (`gamespot`, bot_id=20, user_id=33692) — Gaming news, reviews, trailers, and guides.
+- **RSS feed**: `https://www.gamespot.com/feeds/mashup/` — posts every 30 minutes, up to 20/day with thumbnails.
+- **Auto-followed by 5,000 users** for immediate feed visibility.
+
+### Bug Fixes
+
+- **Stake Now button not navigating**: Removed `data-ajax` attribute that caused WoWonder's AJAX page loader to intercept the click and fail silently. Now does full page navigation.
+- **Trading signal double popup**: When clicking the signal button inside the post composer, both the post box and signal modal opened simultaneously with the signal modal behind. Fixed by: hiding `#tagPostBox` before opening signal modal, adding `z-index: 1060` to signal modal, adding `event.stopPropagation()` on signal button, and cleaning up modal backdrop on close.
+
+### Files Modified
+
+- `sources/staking.php` (new), `xhr/staking.php` (new), `xhr/staking_admin.php` (new)
+- `admin-panel/pages/staking-settings/content.phtml` (new), `admin-panel/autoload.php`
+- `themes/wondertag/layout/staking/content.phtml` (new)
+- `themes/wondertag/layout/ads/wallet.phtml`, `themes/wondertag/layout/affiliates/content.phtml`
+- `themes/wondertag/layout/container.phtml`, `themes/wondertag/layout/story/publisher-box.phtml`
+- `assets/includes/functions_reward_engine.php`
+- `index.php`, `.htaccess`, `nginx.conf`
+- `sql/006_staking_table.sql` (new)
+
+---
+
+## 2026-03-09 — Security Hardening & DRM Removal
+
+### Security
+
+- **Removed WoWonder DRM backdoors**: Removed `setSQLType()` backdoor from `Wo_Secure()` and remote site lockdown mechanisms.
+- **Hardened XSS, CSRF, session, headers**: Tightened security across payment handlers, upload handlers, file-write operations, and API key exposure.
+- **Removed dev artifacts**: Cleaned TASKS.md and other development files from production.
+
+### New Features
+
+- **7-level creator verification badges**: Badge tiers based on TRDC holding thresholds (Bronze → Diamond → Legend → Mythic).
+- **Percentage-based referral rewards v2**: Upgraded from flat rewards to percentage-based with transaction logging.
+- **Weekly email digest**: Activity stats and trending posts sent to users.
+- **Portfolio tracker sidebar widget**: Live crypto prices in sidebar.
+- **Trading signals feed**: Signal cards integrated into post stream.
+- **Token-gated content**: Blur posts behind TRDC balance requirement.
+- **TRDC tip posts**: Dynamic admin boost/tip amounts.
+- **Text-only stories**: Colored gradient backgrounds for stories.
+- **Mobile bottom nav**: FAB button and notification badges.
+- **Trading reactions**: Fire, Insightful, Bullish, Bearish reaction types.
+
+### Bug Fixes
+
+- **Dark mode inconsistencies**: Fixed modals, dropdowns, forms, cards, tooltips.
+- **TRDC ticker**: Switched to GeckoTerminal API for BSC token (was pointing to wrong chain).
+- **Feed boost**: +3 real user bonus, +4 following bonus to prioritize real content over bots.
+- **Bot images**: Convert to WebP format for smaller file sizes.
+- **Redis translation proxy**: Server-side caching for translations.
+- **Lazy loading**: Native + MutationObserver for feed images.
+- **Composite indexes**: Fixed table names in feed optimization migration.
+- **HTTPS mixed content**: Upgraded all HTTP API calls and dynamic URLs.
+- **Rate limiting**: Hourly cap + burst protection (3 per 60s).
+- **Anti-spam registration**: Honeypot field + IP rate limit 3/day.
+- **Translate feature**: Replaced dead Yandex API with MyMemory.
+- **White gap**: Fixed gap between ticker strip and hero banner.
+- **Duplicate posts**: Block duplicate posts and fix new-posts counter.
+
+---
+
 ## 2026-03-08 — Ghost Activity, Play Store Prep & Cleanup
 
 ### Ghost Activity
