@@ -174,9 +174,55 @@ function Wo_TriggerReward($userId, $rewardKey, $context = array()) {
     // Queue toast notification for the user
     if ($awarded) {
         Wo_QueueRewardToast($userId, $amount, $rewardKey, $config);
+
+        // Affiliate staking reward: give referrer 10% of the earned reward
+        // Skip if this is already a referral-type reward to prevent loops
+        if (!in_array($rewardKey, ['referral_signup', 'referral_staking'])) {
+            Wo_AwardAffiliateStaking($userId, $amount, $rewardKey);
+        }
     }
 
     return $awarded;
+}
+
+/**
+ * Award the referrer 10% of a user's staking/activity reward.
+ *
+ * @param int    $userId    The user who earned the reward
+ * @param float  $amount    The reward amount earned
+ * @param string $rewardKey The reward type key
+ */
+function Wo_AwardAffiliateStaking($userId, $amount, $rewardKey) {
+    global $sqlConnect;
+
+    $userId = intval($userId);
+    if ($userId <= 0 || $amount <= 0) return;
+
+    // Look up referrer
+    $q = mysqli_query($sqlConnect, "SELECT referrer FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1");
+    if (!$q || !($row = mysqli_fetch_assoc($q))) return;
+
+    $referrerId = intval($row['referrer']);
+    if ($referrerId <= 0 || $referrerId === $userId) return;
+
+    // Calculate 10% affiliate commission
+    $commission = round($amount * 0.10, 4);
+    if ($commission <= 0) return;
+
+    // Use a unique reason per reward instance to allow tracking
+    $reasonSafe = mysqli_real_escape_string($sqlConnect, "10% affiliate reward ({$rewardKey} by user #{$userId})");
+    $now = time();
+
+    // Insert into TRDC rewards (no unique constraint conflict since milestone_type + post_id combo is unique per event)
+    $sql = "INSERT INTO " . T_TRDC_REWARDS . " (user_id, amount, reason, milestone_type, post_id, created_at)
+            VALUES ({$referrerId}, {$commission}, '{$reasonSafe}', 'referral_staking', NULL, {$now})";
+    $result = mysqli_query($sqlConnect, $sql);
+
+    if ($result && mysqli_affected_rows($sqlConnect) > 0) {
+        // Update referrer's wallet
+        mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$commission} WHERE user_id = {$referrerId}");
+        cache($referrerId, 'users', 'delete');
+    }
 }
 
 /**

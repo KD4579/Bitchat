@@ -33,11 +33,17 @@
 	<?php
 	// Query actual referral earnings from TRDC rewards log
 	$_ref_total_earned = 0;
-	$_ref_earned_q = @mysqli_query($wo['sqlConnect'], "SELECT COALESCE(SUM(amount), 0) AS total FROM " . T_TRDC_REWARDS . " WHERE user_id = " . intval($wo['setting']['user_id']) . " AND milestone_type IN ('referral_fixed','referral_percent')");
+	$_ref_earned_q = @mysqli_query($wo['sqlConnect'], "SELECT COALESCE(SUM(amount), 0) AS total FROM " . T_TRDC_REWARDS . " WHERE user_id = " . intval($wo['setting']['user_id']) . " AND milestone_type IN ('referral_fixed','referral_percent','referral_signup','referral_staking')");
 	if ($_ref_earned_q && ($_ref_row = mysqli_fetch_assoc($_ref_earned_q))) {
 		$_ref_total_earned = floatval($_ref_row['total']);
 	}
 	$_ref_is_percent = ($wo['config']['amount_percent_ref'] > 0);
+	// Query staking commission earned separately
+	$_ref_staking_earned = 0;
+	$_ref_staking_q = @mysqli_query($wo['sqlConnect'], "SELECT COALESCE(SUM(amount), 0) AS total FROM " . T_TRDC_REWARDS . " WHERE user_id = " . intval($wo['setting']['user_id']) . " AND milestone_type = 'referral_staking'");
+	if ($_ref_staking_q && ($_stk_row = mysqli_fetch_assoc($_ref_staking_q))) {
+		$_ref_staking_earned = floatval($_stk_row['total']);
+	}
 	?>
 	<div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">
 		<div style="flex:1;min-width:140px;background:var(--bc-card-bg,#f8f9fa);border-radius:12px;padding:18px;text-align:center;">
@@ -59,6 +65,10 @@
 		<div style="flex:1;min-width:140px;background:var(--bc-card-bg,#f8f9fa);border-radius:12px;padding:18px;text-align:center;">
 			<div style="font-size:28px;font-weight:700;color:#f5a623;"><?php echo ($_ref_total_earned >= 1) ? number_format($_ref_total_earned, 2) : number_format($_ref_total_earned, 4); ?></div>
 			<div style="font-size:13px;color:var(--bc-text-secondary,#666);margin-top:4px;">Total TRDC Earned</div>
+		</div>
+		<div style="flex:1;min-width:140px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:12px;padding:18px;text-align:center;">
+			<div style="font-size:28px;font-weight:700;color:#fcd535;"><?php echo ($_ref_staking_earned >= 1) ? number_format($_ref_staking_earned, 2) : number_format($_ref_staking_earned, 4); ?></div>
+			<div style="font-size:13px;color:#94a3b8;margin-top:4px;">Staking Commission (10%)</div>
 		</div>
 	</div>
 	<?php if ($_ref_is_percent) { ?>
@@ -94,7 +104,11 @@
 			</p>
 		</div>
 		<div style="margin:15px 0;">
-			<h5 style="font-weight:600;color:#0073CE;">4. Multi-Level Referrals</h5>
+			<h5 style="font-weight:600;color:#0073CE;">4. Staking Rewards (10% Commission)</h5>
+			<p style="color:#64748b;line-height:1.6;margin-left:10px;">Every time your referred users earn TRDC through activity rewards (posting, commenting, liking, daily login, etc.), you automatically receive <strong>10% of their reward</strong> as affiliate commission. For example, if your referral earns 50 TRDC for creating a post, you get 5 TRDC credited to your wallet instantly. This is passive income that grows as your referrals stay active!</p>
+		</div>
+		<div style="margin:15px 0;">
+			<h5 style="font-weight:600;color:#0073CE;">5. Multi-Level Referrals</h5>
 			<p style="color:#64748b;line-height:1.6;margin-left:10px;">Bitchat supports a multi-level referral tree. When your invitees invite others, you can see the full chain in your referral tree below. This helps you track how your network is growing across multiple levels.</p>
 		</div>
 		<div style="background:#f0f7ff;border-radius:8px;padding:14px 18px;margin-top:10px;">
