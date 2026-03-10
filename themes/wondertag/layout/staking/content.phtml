@@ -33,6 +33,40 @@ reset($_plans);
 				</div>
 			</div>
 
+			<!-- How it Works Toggle -->
+			<button type="button" id="staking-how-it-works-toggle" style="width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:14px 20px;font-size:14px;font-weight:600;color:#334155;background:#fff;text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.2s;margin-bottom:18px;">
+				<span>How Staking Works</span>
+				<svg id="staking-hiw-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="transition:transform 0.3s;"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
+			</button>
+			<div id="staking-how-it-works-content" style="display:none;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;padding:22px 26px;background:#fff;margin-top:-18px;margin-bottom:18px;">
+				<h4 style="margin-top:0;color:#1e293b;font-weight:600;">Earn Rewards by Staking Your TRDC Tokens</h4>
+				<p style="color:#64748b;line-height:1.7;">Lock your TRDC tokens for a fixed period and earn APY rewards. The longer you stake, the higher your returns. Choose between onchain (wallet) or offchain (balance) staking.</p>
+				<div style="margin:15px 0;">
+					<h5 style="font-weight:600;color:#0073CE;">1. Choose Your Method</h5>
+					<p style="color:#64748b;line-height:1.6;margin-left:10px;"><strong>Onchain Staking</strong> — Connect your MetaMask or Web3 wallet and stake directly on the BNB Smart Chain. Fully decentralized and secured by smart contract. Requires BNB for gas fees.<br>
+					<strong>Offchain Staking</strong> — Stake directly from your Bitchat TRDC balance. No wallet or gas fees needed. Simple one-click process.</p>
+				</div>
+				<div style="margin:15px 0;">
+					<h5 style="font-weight:600;color:#0073CE;">2. Select a Staking Plan</h5>
+					<p style="color:#64748b;line-height:1.6;margin-left:10px;">Choose from available lock periods (e.g. 30, 90, 180, or 365 days). Each plan offers a different APY rate — longer lock periods give higher returns. You can preview your estimated reward before confirming.</p>
+				</div>
+				<div style="margin:15px 0;">
+					<h5 style="font-weight:600;color:#0073CE;">3. Enter Amount &amp; Confirm</h5>
+					<p style="color:#64748b;line-height:1.6;margin-left:10px;">Enter the amount of TRDC you want to stake (minimum <?php echo number_format($_minAmt, 0); ?> TRDC<?php if ($_maxAmt > 0) { ?>, maximum <?php echo number_format($_maxAmt, 0); ?> TRDC<?php } ?>). Review the estimated reward and unlock date, then confirm your stake. Your TRDC will be locked until the unlock date.</p>
+				</div>
+				<div style="margin:15px 0;">
+					<h5 style="font-weight:600;color:#0073CE;">4. Earn Rewards</h5>
+					<p style="color:#64748b;line-height:1.6;margin-left:10px;">Once your lock period ends, your staked TRDC plus earned rewards are returned to your balance. APY rewards are calculated based on the lock duration and rate. The longer you stake, the more you earn!</p>
+				</div>
+				<div style="margin:15px 0;">
+					<h5 style="font-weight:600;color:#0073CE;">5. Affiliate Bonus</h5>
+					<p style="color:#64748b;line-height:1.6;margin-left:10px;">Referred a friend? When your referrals earn activity rewards, you automatically receive a commission as part of the affiliate program. Staking grows your balance while your network earns you passive income.</p>
+				</div>
+				<div style="background:#f0f7ff;border-radius:8px;padding:14px 18px;margin-top:10px;">
+					<p style="margin:0;font-size:13px;color:#334155;"><strong>Important:</strong> Staked TRDC cannot be withdrawn until the lock period ends. Make sure you're comfortable with the lock duration before staking. All APY rates are annualized — actual rewards are proportional to the lock period.</p>
+				</div>
+			</div>
+
 			<?php if ($_sc['enabled']) { ?>
 			<!-- Staking Method Selection -->
 			<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:30px;">
@@ -297,6 +331,12 @@ reset($_plans);
 </style>
 
 <script>
+$('#staking-how-it-works-toggle').on('click', function(){
+	$('#staking-how-it-works-content').slideToggle(300);
+	$('#staking-hiw-arrow').toggleClass('rotated');
+});
+$('<style>#staking-hiw-arrow.rotated{transform:rotate(180deg)}</style>').appendTo('head');
+
 var selectedMethod = null;
 var selectedDays = 0;
 var selectedApy = 0;
