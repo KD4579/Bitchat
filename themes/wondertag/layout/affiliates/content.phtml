@@ -66,6 +66,42 @@
 		You earn <strong><?php echo $wo['config']['amount_percent_ref']; ?>%</strong> of every purchase made by users you refer. The more they spend, the more you earn!
 	</div>
 	<?php } ?>
+
+	<!-- How it Works Toggle -->
+	<button type="button" id="aff-how-it-works-toggle" style="width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:14px 20px;font-size:14px;font-weight:600;color:#334155;background:#fff;text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.2s;margin-bottom:18px;">
+		<span>How the Affiliate Program Works</span>
+		<svg id="aff-hiw-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="transition:transform 0.3s;"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
+	</button>
+	<div id="aff-how-it-works-content" style="display:none;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;padding:22px 26px;background:#fff;margin-top:-18px;margin-bottom:18px;">
+		<h4 style="margin-top:0;color:#1e293b;font-weight:600;">Earn TRDC by Inviting Friends to Bitchat</h4>
+		<p style="color:#64748b;line-height:1.7;">The Bitchat Affiliate Program rewards you for growing our community. Share your unique referral link and earn TRDC tokens when your invitees join and engage.</p>
+		<div style="margin:15px 0;">
+			<h5 style="font-weight:600;color:#0073CE;">1. Share Your Link</h5>
+			<p style="color:#64748b;line-height:1.6;margin-left:10px;">Copy your personal referral link below and share it with friends via social media, messaging apps, or anywhere online. When someone clicks your link, a 30-day tracking cookie is set so you get credit even if they sign up later.</p>
+		</div>
+		<div style="margin:15px 0;">
+			<h5 style="font-weight:600;color:#0073CE;">2. They Sign Up</h5>
+			<p style="color:#64748b;line-height:1.6;margin-left:10px;">When someone registers on Bitchat through your referral link, they are permanently linked to your account in the referral tree. You can see all your invited users in the tree view at the bottom of this page.</p>
+		</div>
+		<div style="margin:15px 0;">
+			<h5 style="font-weight:600;color:#0073CE;">3. Earn Rewards</h5>
+			<p style="color:#64748b;line-height:1.6;margin-left:10px;">
+				<?php if ($_ref_is_percent) { ?>
+					You earn <strong><?php echo $wo['config']['amount_percent_ref']; ?>%</strong> commission on every purchase your referrals make (Pro upgrades, promoted posts, etc.). The more active your referrals are, the more you earn &mdash; there's no cap!
+				<?php } else { ?>
+					You earn a fixed reward of <strong><?php echo number_format(floatval($wo['config']['amount_ref']), 2); ?> TRDC</strong> for each new user who signs up through your link. Rewards are credited automatically to your TRDC balance.
+				<?php } ?>
+			</p>
+		</div>
+		<div style="margin:15px 0;">
+			<h5 style="font-weight:600;color:#0073CE;">4. Multi-Level Referrals</h5>
+			<p style="color:#64748b;line-height:1.6;margin-left:10px;">Bitchat supports a multi-level referral tree. When your invitees invite others, you can see the full chain in your referral tree below. This helps you track how your network is growing across multiple levels.</p>
+		</div>
+		<div style="background:#f0f7ff;border-radius:8px;padding:14px 18px;margin-top:10px;">
+			<p style="margin:0;font-size:13px;color:#334155;"><strong>Anti-Fraud Protection:</strong> Referral rewards are protected by automated fraud detection. Duplicate accounts, self-referrals, and suspicious patterns are automatically flagged and won't earn rewards.</p>
+		</div>
+	</div>
+
 	<p class="bold"><?php echo $wo['lang']['your_ref_link'];?></p>
 	<div style="display:flex;gap:8px;align-items:center;">
 		<input type="text" readonly value="<?php echo $link;?>" onclick="this.select();" class="tag_aff_usr_link" id="ref-link-input" style="flex:1;">
@@ -138,6 +174,13 @@
 </div>
 
 <script>
+	$('#aff-how-it-works-toggle').on('click', function(){
+		$('#aff-how-it-works-content').slideToggle(300);
+		$('#aff-hiw-arrow').toggleClass('rotated');
+	});
+	// Arrow rotation style
+	$('<style>#aff-hiw-arrow.rotated{transform:rotate(180deg)}</style>').appendTo('head');
+
 	function GetNextUsers(self){
 		next_users = $(self).attr('users_data');
 		$.post( Wo_Ajax_Requests_File() + '?f=next_users', {user_id:"<?php echo $wo['setting']['user_id']; ?>",next_users:next_users}, function(data, textStatus, xhr) {
