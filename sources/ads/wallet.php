@@ -18,5 +18,13 @@ $wo['page']        = 'ads';
 $wo['ap']          = 'wallet';
 $wo['title']       = $wo['lang']['wallet'];
 $wo['ads']         = Wo_GetMyAds();
+
+// Load data needed for Earn & Rewards section (merged from my_points)
+if (!isset($wo['setting']) || !is_array($wo['setting'])) {
+    $wo['setting'] = array();
+}
+$wo['setting']['balance'] = floatval($wo['user']['wallet'] ?? 0);
+$wo['setting']['points']  = intval($wo['user']['points'] ?? 0);
+
 $wo['content']     = Wo_LoadPage('ads/wallet');
  ?>
