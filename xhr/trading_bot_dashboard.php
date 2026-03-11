@@ -1,12 +1,17 @@
 <?php
 if ($f == 'trading_bot_dashboard') {
+    header("Content-type: application/json");
+
     if (!Wo_IsAdmin()) {
-        header("Content-type: application/json");
         echo json_encode(array('status' => 403));
         exit();
     }
 
     $action = isset($_GET['action']) ? $_GET['action'] : 'trades';
+
+    // Check if Wo_Bot_Trades table exists
+    $tableCheck = mysqli_query($sqlConnect, "SHOW TABLES LIKE 'Wo_Bot_Trades'");
+    $tableExists = ($tableCheck && mysqli_num_rows($tableCheck) > 0);
 
     if ($action === 'status') {
         // Get bot status stats from Wo_Config
@@ -18,35 +23,53 @@ if ($f == 'trading_bot_dashboard') {
             $stats[$k] = isset($wo['config'][$k]) ? $wo['config'][$k] : '';
         }
 
-        // Get today's trade count and total gas
-        $today = date('Y-m-d');
-        $q = mysqli_query($sqlConnect,
-            "SELECT COUNT(*) as cnt, COALESCE(SUM(gas_cost_bnb),0) as total_gas,
-                    COALESCE(SUM(CASE WHEN strategy='grid' THEN 1 ELSE 0 END),0) as grid_cnt,
-                    COALESCE(SUM(CASE WHEN strategy='arbitrage' THEN 1 ELSE 0 END),0) as arb_cnt
-             FROM Wo_Bot_Trades WHERE DATE(created_at) = '{$today}'");
-        $row = mysqli_fetch_assoc($q);
-        $stats['today_trades'] = $row['cnt'];
-        $stats['today_gas_bnb'] = $row['total_gas'];
-        $stats['today_grid'] = $row['grid_cnt'];
-        $stats['today_arb'] = $row['arb_cnt'];
+        if ($tableExists) {
+            // Get today's trade count and total gas
+            $today = date('Y-m-d');
+            $q = mysqli_query($sqlConnect,
+                "SELECT COUNT(*) as cnt, COALESCE(SUM(gas_cost_bnb),0) as total_gas,
+                        COALESCE(SUM(CASE WHEN strategy='grid' THEN 1 ELSE 0 END),0) as grid_cnt,
+                        COALESCE(SUM(CASE WHEN strategy='arbitrage' THEN 1 ELSE 0 END),0) as arb_cnt
+                 FROM Wo_Bot_Trades WHERE DATE(created_at) = '{$today}'");
+            if ($q) {
+                $row = mysqli_fetch_assoc($q);
+                $stats['today_trades'] = $row['cnt'];
+                $stats['today_gas_bnb'] = $row['total_gas'];
+                $stats['today_grid'] = $row['grid_cnt'];
+                $stats['today_arb'] = $row['arb_cnt'];
+            }
 
-        // Total all-time stats
-        $q2 = mysqli_query($sqlConnect,
-            "SELECT COUNT(*) as cnt, COALESCE(SUM(gas_cost_bnb),0) as total_gas,
-                    COALESCE(SUM(pnl_usd),0) as total_pnl
-             FROM Wo_Bot_Trades");
-        $row2 = mysqli_fetch_assoc($q2);
-        $stats['all_trades'] = $row2['cnt'];
-        $stats['all_gas_bnb'] = $row2['total_gas'];
-        $stats['all_pnl_usd'] = $row2['total_pnl'];
+            // Total all-time stats
+            $q2 = mysqli_query($sqlConnect,
+                "SELECT COUNT(*) as cnt, COALESCE(SUM(gas_cost_bnb),0) as total_gas,
+                        COALESCE(SUM(pnl_usd),0) as total_pnl
+                 FROM Wo_Bot_Trades");
+            if ($q2) {
+                $row2 = mysqli_fetch_assoc($q2);
+                $stats['all_trades'] = $row2['cnt'];
+                $stats['all_gas_bnb'] = $row2['total_gas'];
+                $stats['all_pnl_usd'] = $row2['total_pnl'];
+            }
+        } else {
+            $stats['today_trades'] = '0';
+            $stats['today_gas_bnb'] = '0';
+            $stats['today_grid'] = '0';
+            $stats['today_arb'] = '0';
+            $stats['all_trades'] = '0';
+            $stats['all_gas_bnb'] = '0';
+            $stats['all_pnl_usd'] = '0';
+        }
 
-        header("Content-type: application/json");
         echo json_encode(array('status' => 200, 'data' => $stats));
         exit();
     }
 
     if ($action === 'trades') {
+        if (!$tableExists) {
+            echo json_encode(array('status' => 200, 'trades' => array(), 'total' => 0, 'page' => 1, 'pages' => 0));
+            exit();
+        }
+
         $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
         $limit = 25;
         $offset = ($page - 1) * $limit;
@@ -56,18 +79,25 @@ if ($f == 'trading_bot_dashboard') {
         if ($filter === 'grid') $where = "WHERE strategy = 'grid'";
         elseif ($filter === 'arbitrage') $where = "WHERE strategy = 'arbitrage'";
 
+        $trades = array();
         $q = mysqli_query($sqlConnect,
             "SELECT * FROM Wo_Bot_Trades {$where} ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}");
-        $trades = array();
-        while ($row = mysqli_fetch_assoc($q)) {
-            $trades[] = $row;
+        if ($q) {
+            while ($row = mysqli_fetch_assoc($q)) {
+                $trades[] = $row;
+            }
         }
 
+        $total = 0;
         $q2 = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM Wo_Bot_Trades {$where}");
-        $total = mysqli_fetch_assoc($q2)['cnt'];
+        if ($q2) {
+            $total = mysqli_fetch_assoc($q2)['cnt'];
+        }
 
-        header("Content-type: application/json");
-        echo json_encode(array('status' => 200, 'trades' => $trades, 'total' => $total, 'page' => $page, 'pages' => ceil($total / $limit)));
+        echo json_encode(array('status' => 200, 'trades' => $trades, 'total' => $total, 'page' => $page, 'pages' => ceil($total / max(1, $limit))));
         exit();
     }
+
+    echo json_encode(array('status' => 400, 'message' => 'Invalid action'));
+    exit();
 }

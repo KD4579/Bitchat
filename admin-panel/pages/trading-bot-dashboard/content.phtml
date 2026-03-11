@@ -88,7 +88,7 @@
                     <button class="btn btn-default" data-filter="arbitrage">Arbitrage</button>
                 </div>
                 <button class="btn btn-sm btn-primary" id="refresh-btn" style="margin-left:10px;">
-                    <i class="material-icons" style="font-size:14px; vertical-align:middle;">refresh</i> Refresh
+                    <i class="fa fa-refresh" style="font-size:14px;"></i> Refresh
                 </button>
             </div>
 
@@ -173,7 +173,9 @@ $(document).ready(function() {
             var allPnl = parseFloat(d.all_pnl_usd) || 0;
             var allPnlColor = allPnl >= 0 ? '#22c55e' : '#ef4444';
             $('#ds-all-pnl').html('<span style="color:' + allPnlColor + ';">$' + allPnl.toFixed(4) + '</span>');
-        }, 'json');
+        }, 'json').fail(function(xhr) {
+            console.error('Dashboard status error:', xhr.status, xhr.responseText);
+        });
     }
 
     function updateCountdown() {
@@ -247,7 +249,10 @@ $(document).ready(function() {
                 html += '</ul></nav>';
                 pag.html(html);
             }
-        }, 'json');
+        }, 'json').fail(function(xhr) {
+            console.error('Dashboard trades error:', xhr.status, xhr.responseText);
+            $('#trades-tbody').html('<tr><td colspan="13" class="text-center text-danger">Failed to load trades. Check console.</td></tr>');
+        });
     }
 
     // Filter buttons
@@ -265,9 +270,15 @@ $(document).ready(function() {
     });
 
     // Refresh button
-    $('#refresh-btn').on('click', function() {
+    $('#refresh-btn').on('click', function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        btn.prop('disabled', true).text('Refreshing...');
         loadStatus();
         loadTrades(currentPage);
+        setTimeout(function() {
+            btn.prop('disabled', false).html('<i class="fa fa-refresh" style="font-size:14px;"></i> Refresh');
+        }, 1500);
     });
 
     // Initial load

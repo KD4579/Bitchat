@@ -13,25 +13,25 @@ const CONTRACTS = {
     PANCAKE_QUOTER: '0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997',  // PancakeSwap V3 QuoterV2
 };
 
-// Default bot config (matches admin panel defaults)
+// Default bot config (recommended settings for ~$551 TVL pool)
 const DEFAULTS = {
     bot_enabled:           '0',
     bot_mode:              'both',
     bot_rpc_url:           'https://bsc-dataseed1.binance.org',
-    bot_spread_percent:    '1.5',
-    bot_grid_levels:       '8',
+    bot_spread_percent:    '3',
+    bot_grid_levels:       '4',
     bot_grid_spacing:      '2',
-    bot_order_size_trdc:   '5000',
-    bot_min_arb_profit:    '0.5',
-    bot_arb_max_size:      '10000',
-    bot_max_slippage:      '2',
-    bot_daily_loss_limit:  '20',
-    bot_cooldown_seconds:  '30',
-    bot_max_trade_percent: '5',
+    bot_order_size_trdc:   '2000',
+    bot_min_arb_profit:    '0.3',
+    bot_arb_max_size:      '5000',
+    bot_max_slippage:      '3',
+    bot_daily_loss_limit:  '5',
+    bot_cooldown_seconds:  '300',
+    bot_max_trade_percent: '3',
     bot_min_tvl:           '100',
-    bot_max_gas_gwei:      '5',
-    bot_lp_exit_alert:     '50',
-    bot_tvl_drop_alert:    '20',
+    bot_max_gas_gwei:      '10',
+    bot_lp_exit_alert:     '30',
+    bot_tvl_drop_alert:    '15',
     bot_pool_trdc_usdt:    '0x7b57fa13cca5093f5d724823d58503dfd02ff07c',
     bot_pool_trdc_wbnb:    '0x0b5e165fcb524fbb2d313f3d573d79372913788b',
     bot_pool_usdt_fee:     '100',
