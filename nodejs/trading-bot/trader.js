@@ -11,6 +11,17 @@ const routerAbi  = require('./abis/routerV3.json');
 // All BSC tokens are 18 decimals (TRDC, USDT, WBNB)
 const DEC = 18;
 
+/**
+ * Randomize a value by ±25% to make trade sizes look natural on-chain.
+ * E.g. base=2000 → returns random value between 1500 and 2500.
+ */
+function randomizeSize(base) {
+    const variation = 0.25;
+    const min = base * (1 - variation);
+    const max = base * (1 + variation);
+    return min + Math.random() * (max - min);
+}
+
 // Daily P&L tracker (resets at midnight UTC)
 let dailyPnl = 0;
 let dailyPnlDate = new Date().toISOString().slice(0, 10);
@@ -146,10 +157,11 @@ async function runGridTrading(wallet, provider, cfg) {
         return;
     }
 
-    // Cap trade size by pool TVL percentage
+    // Randomize order size (±25%) then cap by pool TVL percentage
+    const randomizedSize = randomizeSize(orderSize);
     const maxTradeUsd = tvl * maxTradePct;
     const maxTrdcByTvl = maxTradeUsd / price;
-    const tradeSize = Math.min(orderSize, maxTrdcByTvl);
+    const tradeSize = Math.min(randomizedSize, maxTrdcByTvl);
     const tradeValueUsd = tradeSize * price;
 
     log.info(`Trade size: ${tradeSize.toFixed(2)} TRDC (~$${tradeValueUsd.toFixed(4)})`);
@@ -301,7 +313,8 @@ async function runArbitrage(wallet, provider, cfg) {
         WBNB: CONTRACTS.WBNB,
     });
 
-    const tradeSize = Math.min(maxSize, parseFloat(balances.TRDC) * 0.5);
+    const randomizedMaxSize = randomizeSize(maxSize);
+    const tradeSize = Math.min(randomizedMaxSize, parseFloat(balances.TRDC) * 0.5);
     if (tradeSize < 100) {
         log.warn('Trade size too small for arb.');
         return;

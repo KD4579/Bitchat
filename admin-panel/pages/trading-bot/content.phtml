@@ -111,7 +111,7 @@ foreach ($botDefaults as $key => $default) {
                                 <input type="number" step="100" min="100" name="bot_order_size_trdc" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_order_size_trdc']); ?>">
                                 <span class="input-group-addon">TRDC</span>
                             </div>
-                            <small class="text-muted">TRDC per grid order.</small>
+                            <small class="text-muted">Base TRDC per order (actual size randomized ±25%).</small>
                         </div>
                     </div>
                 </div>
@@ -138,7 +138,7 @@ foreach ($botDefaults as $key => $default) {
                                 <input type="number" step="500" min="100" name="bot_arb_max_size" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_arb_max_size']); ?>">
                                 <span class="input-group-addon">TRDC</span>
                             </div>
-                            <small class="text-muted">Max TRDC per arb trade.</small>
+                            <small class="text-muted">Max base TRDC per arb trade (randomized ±25%).</small>
                         </div>
                     </div>
                 </div>
@@ -172,10 +172,10 @@ foreach ($botDefaults as $key => $default) {
                         <div class="form-group">
                             <label>Cooldown</label>
                             <div class="input-group">
-                                <input type="number" step="5" min="5" max="600" name="bot_cooldown_seconds" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_cooldown_seconds']); ?>">
+                                <input type="number" step="60" min="60" max="86400" name="bot_cooldown_seconds" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_cooldown_seconds']); ?>">
                                 <span class="input-group-addon">sec</span>
                             </div>
-                            <small class="text-muted">Seconds between trade cycles.</small>
+                            <small class="text-muted">Seconds between trade cycles (3600 = 1 hour).</small>
                         </div>
                     </div>
                     <div class="col-md-3">
