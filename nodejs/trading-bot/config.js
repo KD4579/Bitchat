@@ -26,7 +26,7 @@ const DEFAULTS = {
     bot_arb_max_size:      '5000',
     bot_max_slippage:      '3',
     bot_daily_loss_limit:  '5',
-    bot_cooldown_seconds:  '300',
+    bot_cooldown_seconds:  '3600',
     bot_max_trade_percent: '3',
     bot_min_tvl:           '100',
     bot_max_gas_gwei:      '10',
