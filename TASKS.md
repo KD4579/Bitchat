@@ -2404,3 +2404,35 @@ ALTER TABLE Wo_Users
 ## Task 76: Vesting Schedule for Staking
 **Status:** [ ] Not Started
 **Summary:** Create vesting schedule system for staking rewards. To be discussed — user said "we will discuss in next task".
+
+---
+
+## Task 77: TRDC Trading Bot Randomization
+**Status:** [x] Completed
+**Date:** 2026-03-12
+**Summary:** Randomized trading bot behavior to appear more natural: (1) Trade sizes now vary ±25% from configured base using `randomizeSize()` helper, applied to both grid trading and arbitrage strategies. (2) Cooldown timing randomized between 1x–2x configured value (e.g., 3600s config = 60–120 min actual delay). (3) Admin panel updated: cooldown input limits changed from max 600 to max 86400, help text updated to reflect randomization.
+**Files Modified:** `nodejs/trading-bot/trader.js`, `nodejs/trading-bot/index.js`, `admin-panel/pages/trading-bot/content.phtml`
+
+---
+
+## Task 78: Fix Sidebar Vertical Text Bug (Invite & Earn Widget)
+**Status:** [x] Completed
+**Date:** 2026-03-12
+**Summary:** PHP undefined index warning on `$wo['user_setting']` injected error HTML into flex containers, breaking horizontal layout and rendering text vertically. Variable only defined in `setting/content.phtml` but referenced in 5 other templates. Fixed by removing the unnecessary variable from affiliate links across all affected templates.
+**Files Modified:** `themes/wondertag/layout/sidebar/content.phtml`, `themes/wondertag/layout/creator_dashboard/content.phtml`, `themes/wondertag/layout/ads/wallet.phtml`, `themes/wondertag/layout/timeline/insights.phtml`, `themes/wondertag/layout/my_points/content.phtml`
+
+---
+
+## Task 79: Location Popup Smart Dismissal
+**Status:** [x] Completed
+**Date:** 2026-03-12
+**Summary:** Location permission popup was appearing on every page refresh, annoying users. Implemented three-tier localStorage approach: (1) If user grants permission → `bc_loc_granted` stored permanently, never ask again. (2) If user clicks "Not Now" → `bc_loc_dismissed` with 24h TTL, re-ask after 24 hours. (3) If user revokes browser permission → clears `bc_loc_granted`, resumes 24h cycle.
+**Files Modified:** `themes/wondertag/layout/container.phtml`
+
+---
+
+## Task 80: Go Pro Page Fixes & Admin Alignment
+**Status:** [x] Completed
+**Date:** 2026-03-12
+**Summary:** Fixed multiple issues on Go Pro page (/go-pro): (1) Fixed `$_COOKIE['mode']` accessed without `isset()` check — caused PHP notices that could break page layout (same class of bug as Task 78). (2) Disabled "Upgrade Now" button on user's current plan — was clickable before, now shows "Current" as disabled. (3) Cleaned up max upload display — replaced 24-line if/elseif chain with array lookup, added green checkmark icon and "Max Upload" label. (4) Removed dead commented wallet/renewal code from featured users loop. Affiliate system verified untouched.
+**Files Modified:** `themes/wondertag/layout/go-pro/content.phtml`

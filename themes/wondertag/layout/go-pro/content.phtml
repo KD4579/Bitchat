@@ -23,18 +23,9 @@
 			<div class="featured-users-innr">
 				<div class="valign tag_pro_users">
 					<?php $users = Wo_FeaturedUsers(11); ?>
-					<?php 
+					<?php
 						foreach ($users as $wo['user-list']) {
-						echo Wo_LoadPage('home/user-list');
-				            // $balance = get_user_wallet($user['id']);
-                //             $plan_price = get_weekly_plan_price($user['pro_type']);
-                //             if ($balance >= $plan_price) {
-                //                 update_user_wallet($user['id'], $balance - $plan_price);
-                //                 // Optionally, notify the user of successful renewal
-                //             } else {
-                //                 downgrade_user_pro($user['id']);
-                //                 // Optionally, notify the user of failed renewal
-                //             }
+							echo Wo_LoadPage('home/user-list');
 						}
 					?>
 				</div>
@@ -52,9 +43,10 @@
 					<div class="wow_content">
 						<div class="tag_plan_hdr">
 							<div>
-								<?php if (!empty($value['image']) && $_COOKIE['mode'] == 'day') { ?>
+								<?php $current_mode = isset($_COOKIE['mode']) ? $_COOKIE['mode'] : 'day'; ?>
+								<?php if (!empty($value['image']) && $current_mode == 'day') { ?>
 									<img src="<?php echo($value['image']) ?>" class="pro_packages_icon">
-								<?php }else if (!empty($value['night_image']) && $_COOKIE['mode'] == 'night') { ?>
+								<?php }else if (!empty($value['night_image']) && $current_mode == 'night') { ?>
 									<img src="<?php echo($value['night_image']) ?>" class="pro_packages_icon">
 								<?php }else if ($value['id'] == 1) { ?>
 									<span style="color: <?php echo !empty($value['color']) ? $value['color'] : '#4c7737' ?>;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg></span>
@@ -79,7 +71,11 @@
 							</div>
 						</div>
 						<?php if (!empty($value['price']) && is_numeric($value['price']) && $value['price'] > 0) { ?>
-							<button type="button" class="btn btn-mat btn-main-rev btn_week" onclick="Wo_GetPaymentLink('<?php echo $value['id']; ?>','<?php echo $value['price']; ?>','pro','hide');" <?php echo($wo['user']['pro_type'] == $value['id'] ? '' : ''); ?>><?php echo ($wo['user']['pro_type'] == $value['id'] ? $wo['lang']['current'] : $wo['lang']['upgrade_now']);?></button>
+							<?php if ($wo['user']['pro_type'] == $value['id']) { ?>
+								<button type="button" class="btn btn-mat btn-main-rev btn_week" disabled style="opacity:0.6;cursor:default;"><?php echo $wo['lang']['current'];?></button>
+							<?php } else { ?>
+								<button type="button" class="btn btn-mat btn-main-rev btn_week" onclick="Wo_GetPaymentLink('<?php echo $value['id']; ?>','<?php echo $value['price']; ?>','pro','hide');"><?php echo $wo['lang']['upgrade_now'];?></button>
+							<?php } ?>
 						<?php } ?>
 						<p>
 							<?php if ($value['featured_member']) { ?>
@@ -134,33 +130,17 @@
 						</p>
 						<p>
 							<?php if (!empty($value['max_upload'])) { ?>
-								<?php   
-    								    if ($value['max_upload'] == '2000000') {
-										echo "2 MB";
-									} elseif ($value['max_upload'] == '6000000') {
-										echo "6 MB";
-									} elseif ($value['max_upload'] == '12000000') {
-										echo "12 MB";
-									} elseif ($value['max_upload'] == '24000000') {
-										echo "24 MB";
-									} elseif ($value['max_upload'] == '48000000') {
-										echo "48 MB";
-									} elseif ($value['max_upload'] == '96000000') {
-										echo "96 MB";
-									} elseif ($value['max_upload'] == '256000000') {
-										echo "256 MB";
-									} elseif ($value['max_upload'] == '512000000') {
-										echo "512 MB";
-									} elseif ($value['max_upload'] == '1000000000') {
-										echo "1 GB";
-									} elseif ($value['max_upload'] == '5000000000') {
-										echo "5 GB";
-									} elseif ($value['max_upload'] == '10000000000') {
-										echo "10 GB";
-									} elseif ($value['max_upload'] == '1000000000000') {
-										echo $wo['lang']['unlimited'];
-									} else{
-										echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#bababa" d="M13.41406,12l3.293-3.293A.99989.99989,0,0,0,15.293,7.293L12,10.58594,8.707,7.293A.99989.99989,0,0,0,7.293,8.707L10.58594,12,7.293,15.293A.99989.99989,0,0,0,8.707,16.707L12,13.41406l3.293,3.293A.99989.99989,0,0,0,16.707,15.293Z"></path><path fill="#bababa" opacity="0.2" d="M19.0708,4.9292A9.99962,9.99962,0,1,0,4.9292,19.0708,9.99962,9.99962,0,1,0,19.0708,4.9292ZM16.707,15.293A.99989.99989,0,1,1,15.293,16.707L12,13.41406,8.707,16.707A.99989.99989,0,0,1,7.293,15.293L10.58594,12,7.293,8.707A.99989.99989,0,0,1,8.707,7.293L12,10.58594l3.293-3.293A.99989.99989,0,0,1,16.707,8.707L13.41406,12Z"></path></svg>';
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="#4CAF50" d="M10.3125,16.09375a.99676.99676,0,0,1-.707-.293L6.793,12.98828A.99989.99989,0,0,1,8.207,11.57422l2.10547,2.10547L15.793,8.19922A.99989.99989,0,0,1,17.207,9.61328l-6.1875,6.1875A.99676.99676,0,0,1,10.3125,16.09375Z" opacity=".99"></path><path fill="#4CAF50" opacity="0.2" d="M12,2A10,10,0,1,0,22,12,10.01146,10.01146,0,0,0,12,2Zm5.207,7.61328-6.1875,6.1875a.99963.99963,0,0,1-1.41406,0L6.793,12.98828A.99989.99989,0,0,1,8.207,11.57422l2.10547,2.10547L15.793,8.19922A.99989.99989,0,0,1,17.207,9.61328Z"></path></svg>
+								<?php
+									$upload_sizes = array(
+										'2000000' => '2 MB', '6000000' => '6 MB', '12000000' => '12 MB',
+										'24000000' => '24 MB', '48000000' => '48 MB', '96000000' => '96 MB',
+										'256000000' => '256 MB', '512000000' => '512 MB', '1000000000' => '1 GB',
+										'5000000000' => '5 GB', '10000000000' => '10 GB',
+										'1000000000000' => $wo['lang']['unlimited']
+									);
+									if (isset($upload_sizes[$value['max_upload']])) {
+										echo $upload_sizes[$value['max_upload']] . ' ' . ($wo['lang']['max_upload'] ?? 'Max Upload');
 									}
 								?>
 							<?php }else{ ?>

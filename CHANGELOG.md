@@ -2,6 +2,40 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-12 — Trading Bot Randomization, Go Pro Fixes & UX Improvements
+
+### TRDC Trading Bot Randomization
+
+- **Trade size randomization**: ±25% variation via `randomizeSize()` helper applied to both grid trading and arbitrage strategies. Makes trading patterns appear more natural.
+- **Cooldown randomization**: 1x–2x configured value via `randomizeCooldown()` (e.g., 3600s config = 60–120 min actual delay).
+- **Admin panel updates**: Cooldown input max raised from 600 to 86400, step changed to 60, help text updated to reflect randomization behavior.
+
+### Go Pro Page Fixes
+
+- **Fixed `$_COOKIE['mode']` PHP notice**: Added `isset()` check with `'day'` default — prevented PHP warnings that could break page layout when mode cookie not set.
+- **Disabled "Upgrade Now" on current plan**: Button now shows "Current" as disabled with reduced opacity instead of being clickable.
+- **Cleaned up max upload display**: Replaced 24-line if/elseif chain with array lookup, added green checkmark icon and "Max Upload" label for clarity.
+- **Removed dead code**: Cleaned up commented-out wallet/renewal code from featured users loop.
+
+### Bug Fixes
+
+- **Sidebar vertical text (Invite & Earn widget)**: Removed undefined `$wo['user_setting']` reference from 5 templates. PHP error output was injecting HTML into flex containers, breaking horizontal layout and rendering text vertically.
+- **Location popup on every page refresh**: Implemented localStorage-based smart dismissal — permanent memory for granted permission (`bc_loc_granted`), 24h cooldown for "Not Now" (`bc_loc_dismissed`), revoke-aware cycle that resumes prompting.
+
+### Files Modified
+
+- `nodejs/trading-bot/trader.js`, `nodejs/trading-bot/index.js`
+- `admin-panel/pages/trading-bot/content.phtml`
+- `themes/wondertag/layout/go-pro/content.phtml`
+- `themes/wondertag/layout/sidebar/content.phtml`
+- `themes/wondertag/layout/creator_dashboard/content.phtml`
+- `themes/wondertag/layout/ads/wallet.phtml`
+- `themes/wondertag/layout/timeline/insights.phtml`
+- `themes/wondertag/layout/my_points/content.phtml`
+- `themes/wondertag/layout/container.phtml`
+
+---
+
 ## 2026-03-11 — Staking Page, GameSpot Bot & Signal Popup Fix
 
 ### TRDC Staking System
