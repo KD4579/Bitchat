@@ -342,7 +342,10 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 								Wo_UpdateLocation,
 								function(err) {
 									if (navigator.userAgent.indexOf('BitchatApp') === -1) {
-										$('#bc-location-modal').modal('show');
+										var dismissed = localStorage.getItem('bc_loc_dismissed');
+										if (!dismissed || (Date.now() - parseInt(dismissed)) > 86400000) {
+											$('#bc-location-modal').modal('show');
+										}
 									}
 								},
 								{enableHighAccuracy: true, timeout: 5000}
@@ -1530,7 +1533,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 						</p>
 					</div>
 					<div class="bc-loc-actions">
-						<button type="button" class="btn bc-loc-btn-skip" data-dismiss="modal">Not Now</button>
+						<button type="button" class="btn bc-loc-btn-skip" data-dismiss="modal" onclick="localStorage.setItem('bc_loc_dismissed', Date.now())">Not Now</button>
 						<button type="button" class="bc-loc-btn-allow" id="bc-location-allow-btn">Allow Location</button>
 					</div>
 				</div>
@@ -1539,6 +1542,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<script>
 		document.getElementById('bc-location-allow-btn').addEventListener('click', function() {
 			$('#bc-location-modal').modal('hide');
+			localStorage.removeItem('bc_loc_dismissed');
 			navigator.geolocation.getCurrentPosition(
 				Wo_UpdateLocation,
 				function(err) {
