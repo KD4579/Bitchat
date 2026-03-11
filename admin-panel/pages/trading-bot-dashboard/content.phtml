@@ -1,0 +1,284 @@
+<div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Trading Bot Dashboard</h3>
+            <p class="text-muted">Live bot status, trade history, and performance metrics.</p>
+        </div>
+        <div class="panel-body">
+
+            <!-- Status Cards -->
+            <div class="row" id="bot-status-cards">
+                <div class="col-md-2">
+                    <div class="well text-center" style="margin-bottom:10px;">
+                        <small class="text-muted">Status</small><br>
+                        <strong id="ds-status" style="font-size:18px;">--</strong>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="well text-center" style="margin-bottom:10px;">
+                        <small class="text-muted">Mode</small><br>
+                        <strong id="ds-mode" style="font-size:14px;">--</strong>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="well text-center" style="margin-bottom:10px;">
+                        <small class="text-muted">Daily P&L</small><br>
+                        <strong id="ds-pnl" style="font-size:18px;">--</strong>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="well text-center" style="margin-bottom:10px;">
+                        <small class="text-muted">Next Trade</small><br>
+                        <strong id="ds-next-dir" style="font-size:18px;">--</strong>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="well text-center" style="margin-bottom:10px;">
+                        <small class="text-muted">Next Cycle In</small><br>
+                        <strong id="ds-countdown" style="font-size:18px;">--</strong>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="well text-center" style="margin-bottom:10px;">
+                        <small class="text-muted">Cycle #</small><br>
+                        <strong id="ds-cycle" style="font-size:18px;">--</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today Stats -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="well text-center">
+                        <small class="text-muted">Today's Trades</small><br>
+                        <span id="ds-today-trades" style="font-size:20px; font-weight:600;">--</span>
+                        <br><small><span id="ds-today-grid">0</span> grid / <span id="ds-today-arb">0</span> arb</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="well text-center">
+                        <small class="text-muted">Today's Gas Spent</small><br>
+                        <span id="ds-today-gas" style="font-size:20px; font-weight:600;">--</span>
+                        <small>BNB</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="well text-center">
+                        <small class="text-muted">All-Time Trades</small><br>
+                        <span id="ds-all-trades" style="font-size:20px; font-weight:600;">--</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="well text-center">
+                        <small class="text-muted">All-Time P&L</small><br>
+                        <span id="ds-all-pnl" style="font-size:20px; font-weight:600;">--</span>
+                        <small>USD</small>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Trade Filter -->
+            <div style="margin-bottom:15px;">
+                <strong>Trade History</strong>
+                <div class="btn-group btn-group-sm" style="margin-left:15px;">
+                    <button class="btn btn-default active" data-filter="all">All</button>
+                    <button class="btn btn-default" data-filter="grid">Grid</button>
+                    <button class="btn btn-default" data-filter="arbitrage">Arbitrage</button>
+                </div>
+                <button class="btn btn-sm btn-primary" id="refresh-btn" style="margin-left:10px;">
+                    <i class="material-icons" style="font-size:14px; vertical-align:middle;">refresh</i> Refresh
+                </button>
+            </div>
+
+            <!-- Trades Table -->
+            <div class="table-responsive">
+                <table class="table table-striped table-condensed" style="font-size:12px;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Time</th>
+                            <th>Strategy</th>
+                            <th>Side</th>
+                            <th>In</th>
+                            <th>Out</th>
+                            <th>TRDC Price</th>
+                            <th>Value</th>
+                            <th>Gas (BNB)</th>
+                            <th>P&L</th>
+                            <th>Daily P&L</th>
+                            <th>TVL</th>
+                            <th>Tx</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trades-tbody">
+                        <tr><td colspan="13" class="text-center text-muted">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="text-center" id="pagination-wrap"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    var currentFilter = 'all';
+    var currentPage = 1;
+    var nextCycleTime = null;
+    var countdownInterval = null;
+
+    function loadStatus() {
+        $.get(Wo_Ajax_Requests_File() + '?f=trading_bot_dashboard&action=status', function(data) {
+            if (data.status !== 200) return;
+            var d = data.data;
+
+            // Status
+            var enabled = d.bot_enabled === '1';
+            $('#ds-status').html(enabled ?
+                '<span style="color:#22c55e;">RUNNING</span>' :
+                '<span style="color:#ef4444;">STOPPED</span>');
+            $('#ds-mode').text((d.bot_mode || '--').replace('_', ' ').toUpperCase());
+
+            // P&L
+            var pnl = parseFloat(d.bot_daily_pnl) || 0;
+            var pnlColor = pnl >= 0 ? '#22c55e' : '#ef4444';
+            $('#ds-pnl').html('<span style="color:' + pnlColor + ';">$' + pnl.toFixed(4) + '</span>');
+
+            // Next direction
+            var dir = d.bot_next_direction || 'auto';
+            var dirColor = dir === 'buy' ? '#22c55e' : dir === 'sell' ? '#ef4444' : '#888';
+            $('#ds-next-dir').html('<span style="color:' + dirColor + ';">' + dir.toUpperCase() + '</span>');
+
+            // Cycle count
+            $('#ds-cycle').text(d.bot_cycle_count || '0');
+
+            // Countdown
+            if (d.bot_next_cycle) {
+                nextCycleTime = new Date(d.bot_next_cycle).getTime();
+            }
+
+            // Today stats
+            $('#ds-today-trades').text(d.today_trades || '0');
+            $('#ds-today-grid').text(d.today_grid || '0');
+            $('#ds-today-arb').text(d.today_arb || '0');
+            $('#ds-today-gas').text(parseFloat(d.today_gas_bnb || 0).toFixed(6));
+
+            // All-time stats
+            $('#ds-all-trades').text(d.all_trades || '0');
+            var allPnl = parseFloat(d.all_pnl_usd) || 0;
+            var allPnlColor = allPnl >= 0 ? '#22c55e' : '#ef4444';
+            $('#ds-all-pnl').html('<span style="color:' + allPnlColor + ';">$' + allPnl.toFixed(4) + '</span>');
+        }, 'json');
+    }
+
+    function updateCountdown() {
+        if (!nextCycleTime) { $('#ds-countdown').text('--'); return; }
+        var now = Date.now();
+        var diff = Math.max(0, Math.floor((nextCycleTime - now) / 1000));
+        var min = Math.floor(diff / 60);
+        var sec = diff % 60;
+        $('#ds-countdown').text(min + 'm ' + (sec < 10 ? '0' : '') + sec + 's');
+        if (diff <= 0) {
+            $('#ds-countdown').text('NOW');
+            // Reload status after a few seconds
+            setTimeout(loadStatus, 5000);
+        }
+    }
+
+    function loadTrades(page) {
+        currentPage = page || 1;
+        $.get(Wo_Ajax_Requests_File() + '?f=trading_bot_dashboard&action=trades&filter=' + currentFilter + '&page=' + currentPage, function(data) {
+            if (data.status !== 200) return;
+            var tbody = $('#trades-tbody');
+            tbody.empty();
+
+            if (!data.trades || data.trades.length === 0) {
+                tbody.html('<tr><td colspan="13" class="text-center text-muted">No trades yet.</td></tr>');
+                $('#pagination-wrap').empty();
+                return;
+            }
+
+            data.trades.forEach(function(t) {
+                var sideColor = t.direction === 'buy' ? '#22c55e' : '#ef4444';
+                var stratBadge = t.strategy === 'grid' ?
+                    '<span class="label label-info">GRID</span>' :
+                    '<span class="label label-warning">ARB</span>';
+                var pnlVal = parseFloat(t.pnl_usd) || 0;
+                var pnlColor = pnlVal >= 0 ? '#22c55e' : '#ef4444';
+                var dpnlVal = parseFloat(t.daily_pnl_usd) || 0;
+                var dpnlColor = dpnlVal >= 0 ? '#22c55e' : '#ef4444';
+                var time = t.created_at ? t.created_at.replace('T', ' ').slice(0, 19) : '';
+                var txShort = t.tx_hash ? t.tx_hash.slice(0, 10) + '...' : '--';
+                var txLink = t.tx_hash ? '<a href="https://bscscan.com/tx/' + t.tx_hash + '" target="_blank">' + txShort + '</a>' : '--';
+
+                tbody.append(
+                    '<tr>' +
+                    '<td>' + t.id + '</td>' +
+                    '<td style="white-space:nowrap;">' + time + '</td>' +
+                    '<td>' + stratBadge + '</td>' +
+                    '<td><strong style="color:' + sideColor + ';">' + t.direction.toUpperCase() + '</strong></td>' +
+                    '<td>' + parseFloat(t.amount_in).toFixed(4) + ' ' + t.token_in + '</td>' +
+                    '<td>' + parseFloat(t.amount_out).toFixed(4) + ' ' + t.token_out + '</td>' +
+                    '<td>$' + parseFloat(t.price_usd).toFixed(8) + '</td>' +
+                    '<td>$' + parseFloat(t.trade_value_usd).toFixed(4) + '</td>' +
+                    '<td>' + parseFloat(t.gas_cost_bnb).toFixed(6) + '</td>' +
+                    '<td style="color:' + pnlColor + ';">$' + pnlVal.toFixed(4) + '</td>' +
+                    '<td style="color:' + dpnlColor + ';">$' + dpnlVal.toFixed(4) + '</td>' +
+                    '<td>$' + parseFloat(t.pool_tvl).toFixed(0) + '</td>' +
+                    '<td>' + txLink + '</td>' +
+                    '</tr>'
+                );
+            });
+
+            // Pagination
+            var pag = $('#pagination-wrap');
+            pag.empty();
+            if (data.pages > 1) {
+                var html = '<nav><ul class="pagination pagination-sm">';
+                for (var i = 1; i <= data.pages; i++) {
+                    html += '<li class="' + (i === data.page ? 'active' : '') + '">';
+                    html += '<a href="#" data-page="' + i + '">' + i + '</a></li>';
+                }
+                html += '</ul></nav>';
+                pag.html(html);
+            }
+        }, 'json');
+    }
+
+    // Filter buttons
+    $('[data-filter]').on('click', function() {
+        $('[data-filter]').removeClass('active');
+        $(this).addClass('active');
+        currentFilter = $(this).data('filter');
+        loadTrades(1);
+    });
+
+    // Pagination
+    $(document).on('click', '#pagination-wrap a', function(e) {
+        e.preventDefault();
+        loadTrades($(this).data('page'));
+    });
+
+    // Refresh button
+    $('#refresh-btn').on('click', function() {
+        loadStatus();
+        loadTrades(currentPage);
+    });
+
+    // Initial load
+    loadStatus();
+    loadTrades(1);
+
+    // Auto-refresh status every 15s, trades every 60s
+    setInterval(loadStatus, 15000);
+    setInterval(function() { loadTrades(currentPage); }, 60000);
+
+    // Countdown timer every second
+    countdownInterval = setInterval(updateCountdown, 1000);
+});
+</script>

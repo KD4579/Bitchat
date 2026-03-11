@@ -104,6 +104,25 @@ async function saveBotStat(key, value) {
     );
 }
 
+/**
+ * Save a trade record to Wo_Bot_Trades.
+ */
+async function saveTrade(trade) {
+    const db = getDbPool();
+    await db.execute(
+        `INSERT INTO Wo_Bot_Trades
+         (strategy, direction, token_in, token_out, amount_in, amount_out,
+          price_usd, trade_value_usd, gas_used, gas_cost_bnb, tx_hash, pnl_usd, daily_pnl_usd, pool_tvl)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            trade.strategy, trade.direction, trade.tokenIn, trade.tokenOut,
+            trade.amountIn, trade.amountOut, trade.priceUsd, trade.tradeValueUsd,
+            trade.gasUsed, trade.gasCostBnb, trade.txHash, trade.pnlUsd,
+            trade.dailyPnlUsd, trade.poolTvl
+        ]
+    );
+}
+
 async function closeDb() {
     if (pool) {
         await pool.end();
@@ -111,4 +130,4 @@ async function closeDb() {
     }
 }
 
-module.exports = { CONTRACTS, DEFAULTS, loadBotConfig, saveBotStat, closeDb, getDbPool };
+module.exports = { CONTRACTS, DEFAULTS, loadBotConfig, saveBotStat, saveTrade, closeDb, getDbPool };

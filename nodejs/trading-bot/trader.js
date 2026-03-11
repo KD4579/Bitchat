@@ -2,7 +2,7 @@
 
 const { ethers } = require('ethers');
 const log = require('./logger');
-const { CONTRACTS } = require('./config');
+const { CONTRACTS, saveTrade } = require('./config');
 const { getPoolPrice, getBalances, estimatePoolTVL } = require('./prices');
 
 const erc20Abi   = require('./abis/erc20.json');
@@ -209,9 +209,19 @@ async function runGridTrading(wallet, provider, cfg) {
         if (result) {
             const gotTrdc = parseFloat(ethers.formatUnits(result.amountOut, DEC));
             const valueUsd = gotTrdc * price;
-            dailyPnl += (valueUsd - usdtNeeded);
+            const tradePnl = valueUsd - usdtNeeded;
+            dailyPnl += tradePnl;
             lastTradeDirection = 'buy';
+            const gasCostBnb = parseFloat(ethers.formatUnits(result.gasUsed * 3000000000n, 'ether'));
             log.trade(`Grid BUY done. Got ${gotTrdc.toFixed(2)} TRDC (~$${valueUsd.toFixed(4)}). P&L: $${dailyPnl.toFixed(4)}`);
+            await saveTrade({
+                strategy: 'grid', direction: 'buy', tokenIn: 'USDT', tokenOut: 'TRDC',
+                amountIn: usdtNeeded.toFixed(6), amountOut: gotTrdc.toFixed(4),
+                priceUsd: price.toFixed(10), tradeValueUsd: valueUsd.toFixed(6),
+                gasUsed: result.gasUsed.toString(), gasCostBnb: gasCostBnb.toFixed(8),
+                txHash: result.txHash, pnlUsd: tradePnl.toFixed(6),
+                dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: tvl.toFixed(2),
+            });
         }
     } else {
         const amountIn = ethers.parseUnits(tradeSize.toFixed(DEC), DEC);
@@ -222,9 +232,19 @@ async function runGridTrading(wallet, provider, cfg) {
         if (result) {
             const gotUsdt = parseFloat(ethers.formatUnits(result.amountOut, DEC));
             const costUsd = tradeSize * price;
-            dailyPnl += (gotUsdt - costUsd);
+            const tradePnl = gotUsdt - costUsd;
+            dailyPnl += tradePnl;
             lastTradeDirection = 'sell';
+            const gasCostBnb = parseFloat(ethers.formatUnits(result.gasUsed * 3000000000n, 'ether'));
             log.trade(`Grid SELL done. Got $${gotUsdt.toFixed(4)} USDT. P&L: $${dailyPnl.toFixed(4)}`);
+            await saveTrade({
+                strategy: 'grid', direction: 'sell', tokenIn: 'TRDC', tokenOut: 'USDT',
+                amountIn: tradeSize.toFixed(4), amountOut: gotUsdt.toFixed(6),
+                priceUsd: price.toFixed(10), tradeValueUsd: gotUsdt.toFixed(6),
+                gasUsed: result.gasUsed.toString(), gasCostBnb: gasCostBnb.toFixed(8),
+                txHash: result.txHash, pnlUsd: tradePnl.toFixed(6),
+                dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: tvl.toFixed(2),
+            });
         }
     }
 }
@@ -305,7 +325,17 @@ async function runArbitrage(wallet, provider, cfg) {
 
         const profitEst = priceDiff * tradeSize;
         dailyPnl += profitEst;
+        const gasCostBnb1 = parseFloat(ethers.formatUnits((buyResult.gasUsed + sellResult.gasUsed) * 3000000000n, 'ether'));
         log.trade(`Arb done. Est. profit: $${profitEst.toFixed(4)}. P&L: $${dailyPnl.toFixed(4)}`);
+        await saveTrade({
+            strategy: 'arbitrage', direction: 'buy', tokenIn: 'USDT', tokenOut: 'WBNB',
+            amountIn: usdtNeeded.toFixed(6), amountOut: ethers.formatUnits(sellResult.amountOut, DEC),
+            priceUsd: priceUsdt.toFixed(10), tradeValueUsd: (usdtNeeded).toFixed(6),
+            gasUsed: (buyResult.gasUsed + sellResult.gasUsed).toString(),
+            gasCostBnb: gasCostBnb1.toFixed(8),
+            txHash: sellResult.txHash, pnlUsd: profitEst.toFixed(6),
+            dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: '0',
+        });
     } else {
         const wbnbNeeded = tradeSize * priceWbnb * 1.01;
         if (parseFloat(balances.WBNB) < wbnbNeeded) {
@@ -324,8 +354,23 @@ async function runArbitrage(wallet, provider, cfg) {
 
         const profitEst = priceDiff * tradeSize;
         dailyPnl += profitEst;
+        const gasCostBnb2 = parseFloat(ethers.formatUnits((buyResult.gasUsed + sellResult.gasUsed) * 3000000000n, 'ether'));
         log.trade(`Arb done. Est. profit: $${profitEst.toFixed(4)}. P&L: $${dailyPnl.toFixed(4)}`);
+        await saveTrade({
+            strategy: 'arbitrage', direction: 'buy', tokenIn: 'WBNB', tokenOut: 'USDT',
+            amountIn: wbnbNeeded.toFixed(8), amountOut: ethers.formatUnits(sellResult.amountOut, DEC),
+            priceUsd: priceUsdt.toFixed(10), tradeValueUsd: (wbnbNeeded * bnbPriceUsd).toFixed(6),
+            gasUsed: (buyResult.gasUsed + sellResult.gasUsed).toString(),
+            gasCostBnb: gasCostBnb2.toFixed(8),
+            txHash: sellResult.txHash, pnlUsd: profitEst.toFixed(6),
+            dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: '0',
+        });
     }
 }
 
-module.exports = { runGridTrading, runArbitrage, dailyPnl: () => dailyPnl, resetDailyPnlIfNeeded };
+module.exports = {
+    runGridTrading, runArbitrage,
+    dailyPnl: () => dailyPnl,
+    nextDirection: () => lastTradeDirection === 'buy' ? 'sell' : lastTradeDirection === 'sell' ? 'buy' : 'auto',
+    resetDailyPnlIfNeeded,
+};

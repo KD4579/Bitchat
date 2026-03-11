@@ -5,7 +5,7 @@ require('dotenv').config({ path: __dirname + '/.env' });
 const { ethers } = require('ethers');
 const log = require('./logger');
 const { loadBotConfig, saveBotStat, closeDb, CONTRACTS } = require('./config');
-const { runGridTrading, runArbitrage, dailyPnl, resetDailyPnlIfNeeded } = require('./trader');
+const { runGridTrading, runArbitrage, dailyPnl, nextDirection, resetDailyPnlIfNeeded } = require('./trader');
 const { checkPoolHealth } = require('./monitor');
 const { getPoolPrice } = require('./prices');
 
@@ -102,7 +102,7 @@ async function main() {
             }
 
             // Get current TRDC price for monitoring
-            const trdcPrice = await getPoolPrice(provider, cfg.bot_pool_trdc_usdt, 8, 18);
+            const trdcPrice = await getPoolPrice(provider, cfg.bot_pool_trdc_usdt, 18, 18);
 
             // Run pool health check every 5 cycles
             if (cycleCount % 5 === 0) {
@@ -122,12 +122,16 @@ async function main() {
                 await runArbitrage(wallet, provider, cfg);
             }
 
-            // Save daily P&L to database
+            // Save stats to database
+            const cooldown = parseInt(cfg.bot_cooldown_seconds);
+            const nextCycleAt = new Date(Date.now() + cooldown * 1000).toISOString();
             await saveBotStat('bot_daily_pnl', dailyPnl().toFixed(4));
             await saveBotStat('bot_last_cycle', new Date().toISOString());
+            await saveBotStat('bot_next_cycle', nextCycleAt);
             await saveBotStat('bot_cycle_count', cycleCount);
+            await saveBotStat('bot_next_direction', nextDirection());
 
-            log.info(`Cycle ${cycleCount} done. Daily P&L: $${dailyPnl().toFixed(2)}. Sleeping ${cfg.bot_cooldown_seconds}s...`);
+            log.info(`Cycle ${cycleCount} done. P&L: $${dailyPnl().toFixed(2)}. Next: ${nextDirection()} at ${nextCycleAt.slice(11,19)} UTC`);
 
         } catch (e) {
             log.error(`Cycle ${cycleCount} error: ${e.message}`, { stack: e.stack?.split('\n').slice(0, 3) });
