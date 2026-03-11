@@ -1,0 +1,17 @@
+[Unit]
+Description=Bitchat TRDC Trading Bot
+After=network.target mysql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/KamalDave/web/bitchat.live/public_html/nodejs/trading-bot
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=trading-bot
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
