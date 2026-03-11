@@ -339,9 +339,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 					<?php if ($wo['loggedin'] == true && $wo['config']['find_friends'] == 1) {?>
 						if (navigator.geolocation) {
 							navigator.geolocation.getCurrentPosition(
-								Wo_UpdateLocation,
+								function(pos) {
+									localStorage.setItem('bc_loc_granted', '1');
+									Wo_UpdateLocation(pos);
+								},
 								function(err) {
 									if (navigator.userAgent.indexOf('BitchatApp') === -1) {
+										if (localStorage.getItem('bc_loc_granted') === '1') return;
 										var dismissed = localStorage.getItem('bc_loc_dismissed');
 										if (!dismissed || (Date.now() - parseInt(dismissed)) > 86400000) {
 											$('#bc-location-modal').modal('show');
@@ -1544,9 +1548,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			$('#bc-location-modal').modal('hide');
 			localStorage.removeItem('bc_loc_dismissed');
 			navigator.geolocation.getCurrentPosition(
-				Wo_UpdateLocation,
+				function(pos) {
+					localStorage.setItem('bc_loc_granted', '1');
+					Wo_UpdateLocation(pos);
+				},
 				function(err) {
 					console.warn('[Bitchat] Location denied:', err.message);
+					localStorage.removeItem('bc_loc_granted');
 					if (err.code === 1) {
 						if (navigator.userAgent.indexOf('BitchatApp') !== -1) {
 							/* Native app handles permissions — skip alert */
