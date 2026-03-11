@@ -175,7 +175,7 @@ foreach ($botDefaults as $key => $default) {
                                 <input type="number" step="60" min="60" max="86400" name="bot_cooldown_seconds" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_cooldown_seconds']); ?>">
                                 <span class="input-group-addon">sec</span>
                             </div>
-                            <small class="text-muted">Seconds between trade cycles (3600 = 1 hour).</small>
+                            <small class="text-muted">Base cooldown in seconds (actual delay randomized 1x–2x, e.g. 3600 = 60–120 min).</small>
                         </div>
                     </div>
                     <div class="col-md-3">

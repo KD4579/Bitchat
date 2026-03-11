@@ -66,6 +66,7 @@ async function main() {
     const CONFIG_RELOAD_CYCLES = 10; // Reload config every N cycles
 
     while (true) {
+        let cooldown = randomizeCooldown(parseInt(cfg.bot_cooldown_seconds));
         try {
             cycleCount++;
             resetDailyPnlIfNeeded();
@@ -88,8 +89,9 @@ async function main() {
             const maxGas = parseFloat(cfg.bot_max_gas_gwei);
 
             if (gasGwei > maxGas) {
-                log.warn(`Gas ${gasGwei.toFixed(1)} gwei > max ${maxGas} gwei. Skipping cycle.`);
-                await sleep(parseInt(cfg.bot_cooldown_seconds) * 1000);
+                const gasCooldown = randomizeCooldown(parseInt(cfg.bot_cooldown_seconds));
+                log.warn(`Gas ${gasGwei.toFixed(1)} gwei > max ${maxGas} gwei. Skipping cycle. Retry in ${(gasCooldown/60).toFixed(0)}min.`);
+                await sleep(gasCooldown * 1000);
                 continue;
             }
 
@@ -122,8 +124,8 @@ async function main() {
                 await runArbitrage(wallet, provider, cfg);
             }
 
-            // Save stats to database
-            const cooldown = parseInt(cfg.bot_cooldown_seconds);
+            // Save stats to database — use the randomized cooldown from loop top
+            cooldown = randomizeCooldown(parseInt(cfg.bot_cooldown_seconds));
             const nextCycleAt = new Date(Date.now() + cooldown * 1000).toISOString();
             await saveBotStat('bot_daily_pnl', dailyPnl().toFixed(4));
             await saveBotStat('bot_last_cycle', new Date().toISOString());
@@ -131,13 +133,13 @@ async function main() {
             await saveBotStat('bot_cycle_count', cycleCount);
             await saveBotStat('bot_next_direction', nextDirection());
 
-            log.info(`Cycle ${cycleCount} done. P&L: $${dailyPnl().toFixed(2)}. Next: ${nextDirection()} at ${nextCycleAt.slice(11,19)} UTC`);
+            log.info(`Cycle ${cycleCount} done. P&L: $${dailyPnl().toFixed(2)}. Next: ${nextDirection()} in ${(cooldown/60).toFixed(0)}min at ${nextCycleAt.slice(11,19)} UTC`);
 
         } catch (e) {
             log.error(`Cycle ${cycleCount} error: ${e.message}`, { stack: e.stack?.split('\n').slice(0, 3) });
         }
 
-        await sleep(parseInt(cfg.bot_cooldown_seconds) * 1000);
+        await sleep(cooldown * 1000);
     }
 }
 
@@ -161,6 +163,16 @@ async function standbyLoop() {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Randomize cooldown between 1x and 2x the configured value.
+ * E.g. 3600s config → random delay between 3600s (60min) and 7200s (120min).
+ */
+function randomizeCooldown(baseSec) {
+    const min = baseSec;
+    const max = baseSec * 2;
+    return Math.floor(min + Math.random() * (max - min));
 }
 
 // ── Graceful shutdown ──────────────────────────────────
