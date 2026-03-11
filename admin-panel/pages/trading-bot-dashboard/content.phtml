@@ -131,10 +131,33 @@ $(document).ready(function() {
     var currentPage = 1;
     var nextCycleTime = null;
     var countdownInterval = null;
+    var ajaxUrl = Wo_Ajax_Requests_File();
+
+    function apiCall(params, onSuccess, onError) {
+        $.ajax({
+            url: ajaxUrl,
+            type: 'GET',
+            data: params,
+            dataType: 'json',
+            success: function(data) {
+                if (data.status === 200) {
+                    onSuccess(data);
+                } else {
+                    var msg = 'API returned status ' + data.status + (data.message ? ': ' + data.message : '');
+                    console.warn(msg);
+                    if (onError) onError(msg);
+                }
+            },
+            error: function(xhr, status, error) {
+                var msg = 'AJAX error: ' + status + ' ' + error + ' (HTTP ' + xhr.status + ')';
+                console.error(msg, xhr.responseText);
+                if (onError) onError(msg);
+            }
+        });
+    }
 
     function loadStatus() {
-        $.get(Wo_Ajax_Requests_File() + '?f=trading_bot_dashboard&action=status', function(data) {
-            if (data.status !== 200) return;
+        apiCall({f: 'trading_bot_dashboard', action: 'status'}, function(data) {
             var d = data.data;
 
             // Status
@@ -173,8 +196,8 @@ $(document).ready(function() {
             var allPnl = parseFloat(d.all_pnl_usd) || 0;
             var allPnlColor = allPnl >= 0 ? '#22c55e' : '#ef4444';
             $('#ds-all-pnl').html('<span style="color:' + allPnlColor + ';">$' + allPnl.toFixed(4) + '</span>');
-        }, 'json').fail(function(xhr) {
-            console.error('Dashboard status error:', xhr.status, xhr.responseText);
+        }, function(msg) {
+            $('#ds-status').html('<span style="color:#ef4444;">ERROR</span>');
         });
     }
 
@@ -187,15 +210,13 @@ $(document).ready(function() {
         $('#ds-countdown').text(min + 'm ' + (sec < 10 ? '0' : '') + sec + 's');
         if (diff <= 0) {
             $('#ds-countdown').text('NOW');
-            // Reload status after a few seconds
             setTimeout(loadStatus, 5000);
         }
     }
 
     function loadTrades(page) {
         currentPage = page || 1;
-        $.get(Wo_Ajax_Requests_File() + '?f=trading_bot_dashboard&action=trades&filter=' + currentFilter + '&page=' + currentPage, function(data) {
-            if (data.status !== 200) return;
+        apiCall({f: 'trading_bot_dashboard', action: 'trades', filter: currentFilter, page: currentPage}, function(data) {
             var tbody = $('#trades-tbody');
             tbody.empty();
 
@@ -249,9 +270,8 @@ $(document).ready(function() {
                 html += '</ul></nav>';
                 pag.html(html);
             }
-        }, 'json').fail(function(xhr) {
-            console.error('Dashboard trades error:', xhr.status, xhr.responseText);
-            $('#trades-tbody').html('<tr><td colspan="13" class="text-center text-danger">Failed to load trades. Check console.</td></tr>');
+        }, function(msg) {
+            $('#trades-tbody').html('<tr><td colspan="13" class="text-center text-danger">' + msg + '</td></tr>');
         });
     }
 
