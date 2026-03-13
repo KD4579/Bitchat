@@ -2,7 +2,7 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
-## 2026-03-13 — Buy TRDC Links & Admin Fix
+## 2026-03-13 — Buy TRDC Links, Admin Fix & PHP Deprecation Fix
 
 ### Buy TRDC Deep Links
 
@@ -12,12 +12,14 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 ### Bug Fixes
 
 - **Trading bot admin Max Arb Size input**: Changed `step` from 500 to 100 — was rejecting round values like 5000 (nearest valid were 4600/5100 due to `min="100" step="500"` mismatch).
+- **FILTER_SANITIZE_STRING deprecation**: Replaced deprecated `FILTER_SANITIZE_STRING` with `htmlspecialchars()` in `FilterStripTags()` (functions_one.php:9595). Was showing PHP deprecation notice at top of every page on PHP 8.1+.
 
 ### Files Modified
 
 - `themes/wondertag/layout/sidebar/content.phtml`
 - `themes/wondertag/layout/go-pro/content.phtml`
 - `admin-panel/pages/trading-bot/content.phtml`
+- `assets/includes/functions_one.php`
 
 ---
 

@@ -2479,3 +2479,11 @@ ALTER TABLE Wo_Users
 **Priority:** Low (future)
 **Summary:** Research requirements for getting TRDC listed as a PancakeSwap farm (CAKE rewards for TRDC LP providers). This would significantly boost TRDC liquidity. Requires governance vote or incentive program. Steps: (1) Check PancakeSwap farm listing criteria, (2) Assess TRDC liquidity/volume requirements, (3) Prepare proposal if eligible. The farming-planner skill from PancakeSwap AI can automate staking/harvesting once a farm exists.
 **Reference:** https://pancakeswap.ai/getting-started/ (farming-planner skill)
+
+---
+
+## Task 86: Fix FILTER_SANITIZE_STRING Deprecation Warning
+**Status:** [x] Completed
+**Date:** 2026-03-13
+**Summary:** PHP deprecation warning "FILTER_SANITIZE_STRING is deprecated" was visible at the top of every page. Replaced `filter_var(strip_tags($string), FILTER_SANITIZE_STRING)` with `htmlspecialchars(strip_tags($string), ENT_QUOTES, 'UTF-8')` in `FilterStripTags()` function. Same sanitization behavior, no deprecation warning on PHP 8.1+. Also checked `xhr/resend_two_factor.php` — already has a PHP version check that avoids the deprecated constant on 8.0+.
+**Files Modified:** `assets/includes/functions_one.php`
