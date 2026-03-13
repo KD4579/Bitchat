@@ -113,7 +113,23 @@ if (!empty($user_stories)) {
 		<div class="bc-trdc-card-label">Your TRDC Earnings</div>
 		<div class="bc-trdc-card-amount"><?php echo ($_trdc_balance >= 1) ? number_format($_trdc_balance, 2) : number_format($_trdc_balance, 4); ?></div>
 		<div class="bc-trdc-card-unit">TRDC Tokens</div>
-		<a href="<?php echo Wo_SeoLink('index.php?link1=wallet'); ?>" class="bc-trdc-card-link">View Wallet &rarr;</a>
+		<div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+			<a href="<?php echo Wo_SeoLink('index.php?link1=wallet'); ?>" class="bc-trdc-card-link" style="margin:0;">View Wallet &rarr;</a>
+			<div class="dropdown" style="display:inline-block;">
+				<button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" style="background:#fcd535; color:#1a1a2e; font-size:10px; font-weight:600; border:none; border-radius:5px; padding:4px 10px;">
+					Buy TRDC
+				</button>
+				<div class="dropdown-menu">
+					<a class="dropdown-item" href="https://pancakeswap.finance/swap?outputCurrency=0x39006641db2d9c3618523a1778974c0d7e98e39d&chain=bsc&inputCurrency=0x55d398326f99059fF775485246999027B3197955" target="_blank">PancakeSwap</a>
+					<a class="dropdown-item" href="https://app.uniswap.org/swap?chain=bnb&inputCurrency=0x55d398326f99059fF775485246999027B3197955&outputCurrency=0x39006641db2d9c3618523a1778974c0d7e98e39d" target="_blank">Uniswap</a>
+					<a class="dropdown-item" href="https://tokpie.com/dashboard/make_reqcauest/trdc-usdt/" target="_blank">Tokpie</a>
+					<a class="dropdown-item" href="https://bankcex.com/exchange?symbol=TRDC_USDT" target="_blank">BankCEX</a>
+					<a class="dropdown-item" href="https://kyberswap.com/swap/bnb/usdt-to-0x39006641db2d9c3618523a1778974c0d7e98e39d" target="_blank">KyberSwap</a>
+					<a class="dropdown-item" href="https://www.sushi.com/bsc/swap?token0=0x55d398326f99059fF775485246999027B3197955&token1=0x39006641dB2d9C3618523a1778974c0D7e98e39d&swapAmount=1" target="_blank">SushiSwap</a>
+					<a class="dropdown-item" href="https://app.1inch.io/56/advanced/limit-order/USDT/TRDC" target="_blank">1inch Exchange</a>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<!-- Part 7: Portfolio Tracker Widget -->

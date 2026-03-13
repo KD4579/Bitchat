@@ -135,7 +135,7 @@ foreach ($botDefaults as $key => $default) {
                         <div class="form-group">
                             <label>Max Arb Size</label>
                             <div class="input-group">
-                                <input type="number" step="500" min="100" name="bot_arb_max_size" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_arb_max_size']); ?>">
+                                <input type="number" step="100" min="100" name="bot_arb_max_size" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_arb_max_size']); ?>">
                                 <span class="input-group-addon">TRDC</span>
                             </div>
                             <small class="text-muted">Max base TRDC per arb trade (randomized ±25%).</small>

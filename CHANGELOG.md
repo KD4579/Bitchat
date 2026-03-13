@@ -2,6 +2,25 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-13 — Buy TRDC Links & Admin Fix
+
+### Buy TRDC Deep Links
+
+- **Sidebar TRDC Earnings card**: Added "Buy TRDC" dropdown button (7 exchanges: PancakeSwap, Uniswap, Tokpie, BankCEX, KyberSwap, SushiSwap, 1inch) next to "View Wallet" link — visible on every page.
+- **Go Pro page**: Added "Buy TRDC Now" section below plan cards with same 7-exchange dropdown, dark-themed styling matching the page.
+
+### Bug Fixes
+
+- **Trading bot admin Max Arb Size input**: Changed `step` from 500 to 100 — was rejecting round values like 5000 (nearest valid were 4600/5100 due to `min="100" step="500"` mismatch).
+
+### Files Modified
+
+- `themes/wondertag/layout/sidebar/content.phtml`
+- `themes/wondertag/layout/go-pro/content.phtml`
+- `admin-panel/pages/trading-bot/content.phtml`
+
+---
+
 ## 2026-03-12 — Trading Bot Randomization, Go Pro Fixes & UX Improvements
 
 ### TRDC Trading Bot Randomization

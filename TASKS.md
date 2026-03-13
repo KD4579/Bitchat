@@ -2436,3 +2436,46 @@ ALTER TABLE Wo_Users
 **Date:** 2026-03-12
 **Summary:** Fixed multiple issues on Go Pro page (/go-pro): (1) Fixed `$_COOKIE['mode']` accessed without `isset()` check — caused PHP notices that could break page layout (same class of bug as Task 78). (2) Disabled "Upgrade Now" button on user's current plan — was clickable before, now shows "Current" as disabled. (3) Cleaned up max upload display — replaced 24-line if/elseif chain with array lookup, added green checkmark icon and "Max Upload" label. (4) Removed dead commented wallet/renewal code from featured users loop. Affiliate system verified untouched.
 **Files Modified:** `themes/wondertag/layout/go-pro/content.phtml`
+
+---
+
+## Task 81: Cloudflare Integration for Bitchat
+**Status:** [ ] Not Started
+**Date:** 2026-03-12
+**Summary:** Evaluate and implement Cloudflare for DDoS protection, global CDN, free SSL, and bot protection. Requires staged rollout: (1) DNS-only mode first, (2) configure server-side real IP restoration (Apache mod_remoteip + Nginx set_real_ip_from), disable Rocket Loader/Auto Minify, set Page Rules to bypass cache on PHP/AJAX endpoints, (3) handle 100MB upload limit (upload subdomain or Pro plan), (4) verify WebSocket/Socket.io compatibility on allowed ports, (5) WAF rules to skip challenges for mobile app API paths. Use Full (Strict) SSL mode with HestiaCP.
+**Key Risks:** Real IP masking breaks SecurityHelpers rate limiting, 100MB free plan upload cap vs 256MB PHP config, Rocket Loader can break WoWonder SPA navigation, API challenge pages break mobile app.
+**Files to Modify:** Nginx vhost config (set_real_ip_from), Apache vhost config (mod_remoteip), potentially create upload.bitchat.live subdomain.
+
+---
+
+## Task 82: Add "Buy TRDC" Deep Link on Bitchat
+**Status:** [x] Completed
+**Date:** 2026-03-13
+**Summary:** Added "Buy TRDC" dropdown buttons (same 7-exchange pattern from wallet/my_points pages) to: (1) Sidebar TRDC Earnings card — visible on every page, compact button next to "View Wallet" link. (2) Go Pro page — centered section below plan cards with styled button matching dark theme. Also fixed trading bot admin Max Arb Size input step from 500→100 (was rejecting round numbers like 5000).
+**Files Modified:** `themes/wondertag/layout/sidebar/content.phtml`, `themes/wondertag/layout/go-pro/content.phtml`, `admin-panel/pages/trading-bot/content.phtml`
+
+---
+
+## Task 83: Evaluate PancakeSwap Smart Router SDK for Trading Bot
+**Status:** [x] Evaluated — Not Needed
+**Date:** 2026-03-13
+**Summary:** Evaluated @pancakeswap/smart-router and @pancakeswap/universal-router-sdk against current direct V3 contract calls. **Verdict: Keep current approach.** Current bot uses single-pool swaps (TRDC/USDT, TRDC/WBNB) with direct quoter→router calls — SDK adds multi-hop routing complexity without benefit for fixed-pool strategy. SDK would only help if bot needed dynamic pool discovery or multi-hop routes. Current 20-line swap implementation is lightweight, transparent, and optimal for grid/arb use case.
+**Reference:** https://pancakeswap.ai/getting-started/, https://developer.pancakeswap.finance/
+
+---
+
+## Task 84: Build TRDC Liquidity Dashboard on Bitchat
+**Status:** [ ] Not Started
+**Date:** 2026-03-13
+**Priority:** Low (future)
+**Summary:** Build a page on Bitchat showing TRDC liquidity health: current TRDC/USDT and TRDC/WBNB pool stats, TVL, APY estimates for LP providers, and one-click deep links to add liquidity on PancakeSwap. Uses PancakeSwap pool APIs and the liquidity-planner skill approach. Incentivizes Bitchat users to provide TRDC liquidity.
+**Reference:** https://pancakeswap.ai/getting-started/ (liquidity-planner skill)
+
+---
+
+## Task 85: Explore PancakeSwap Farm Listing for TRDC
+**Status:** [ ] Not Started
+**Date:** 2026-03-13
+**Priority:** Low (future)
+**Summary:** Research requirements for getting TRDC listed as a PancakeSwap farm (CAKE rewards for TRDC LP providers). This would significantly boost TRDC liquidity. Requires governance vote or incentive program. Steps: (1) Check PancakeSwap farm listing criteria, (2) Assess TRDC liquidity/volume requirements, (3) Prepare proposal if eligible. The farming-planner skill from PancakeSwap AI can automate staking/harvesting once a farm exists.
+**Reference:** https://pancakeswap.ai/getting-started/ (farming-planner skill)
