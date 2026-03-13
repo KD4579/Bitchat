@@ -12,7 +12,7 @@
 	<?php } ?>
 	<div class="message <?php echo ($wo['chatMessage']['onwer'] == 1) ? 'outgoing' : 'incoming';?>">
 		<?php if (!empty($wo['chatMessage']['text'])): ?>
-			<p class="message-text" dir="auto" style="background: <?php echo ($wo['chatMessage']['onwer'] == 1 && isset($wo['chat']['color'])) ? $wo['chat']['color'] . ' !important;' : '';?>;<?php echo ($wo['chatMessage']['onwer'] == 1) ? ' color:#fff !important;' : '';?>">
+			<p class="message-text" dir="auto" style="background: <?php echo ($wo['chatMessage']['onwer'] == 1 && isset($wo['chat']['color']) && !empty($wo['chat']['color'])) ? $wo['chat']['color'] . ' !important;' : '';?>;<?php echo ($wo['chatMessage']['onwer'] == 1 && isset($wo['chat']['color']) && !empty($wo['chat']['color'])) ? ' color:' . (Wo_IsLightColor($wo['chat']['color']) ? '#000' : '#fff') . ' !important;' : '';?>">
 				<?php if($wo['chatMessage']['type_two'] == 'contact'): 
 					$json = json_decode(trim(htmlspecialchars_decode($wo['chatMessage']['text'])), true);
 					echo $json['Value'] . ' (' . $json['Key'] . ')';

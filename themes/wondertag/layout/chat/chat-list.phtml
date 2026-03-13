@@ -69,7 +69,7 @@ if ($wo['chatMessage']['from_id'] != $wo['user']['user_id']) {
 		<?php } ?>
 		
 		<?php if (!empty($wo['chatMessage']['text'])): ?>
-			<p class="message-text" id="message_text_reply_<?php echo $wo['chatMessage']['id'] ?>" dir="auto" style="background: <?php echo ($wo['chatMessage']['onwer'] == 1 && isset($wo['chat']['color'])) ? $wo['chat']['color'] . ' !important;' : '';?>;<?php echo ($wo['chatMessage']['onwer'] == 1) ? ' color:#fff !important;' : '';?>">
+			<p class="message-text" id="message_text_reply_<?php echo $wo['chatMessage']['id'] ?>" dir="auto" style="background: <?php echo ($wo['chatMessage']['onwer'] == 1 && isset($wo['chat']['color']) && !empty($wo['chat']['color'])) ? $wo['chat']['color'] . ' !important;' : '';?>;<?php echo ($wo['chatMessage']['onwer'] == 1 && isset($wo['chat']['color']) && !empty($wo['chat']['color'])) ? ' color:' . (Wo_IsLightColor($wo['chat']['color']) ? '#000' : '#fff') . ' !important;' : '';?>">
 				<?php if($wo['chatMessage']['type_two'] == 'contact'): 
 					$json = json_decode(trim(htmlspecialchars_decode($wo['chatMessage']['text'])), true);
 					echo $json['Value'] . ' (' . $json['Key'] . ')';

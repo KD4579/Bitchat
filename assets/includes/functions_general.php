@@ -8,6 +8,18 @@
 // | WoWonder - The Ultimate Social Networking Platform
 // | Copyright (c) 2022 WoWonder. All rights reserved.
 // +------------------------------------------------------------------------+
+function Wo_IsLightColor($hex) {
+    $hex = ltrim($hex, '#');
+    if (strlen($hex) == 3) {
+        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+    }
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    $luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
+    return $luminance > 0.5;
+}
+
 function sanitize_output($buffer) {
     $search  = array(
         '/\>[^\S ]+/s', // strip whitespaces after tags, except space

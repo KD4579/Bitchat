@@ -138,6 +138,13 @@ if ($wo['chat']['page']['is_page_onwer'] == 1) {
 </div>
 
 <script type="text/javascript">
+function getContrastColor(hex) {
+    if (!hex) return '';
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    var r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+    return ((0.299*r + 0.587*g + 0.114*b) / 255) > 0.5 ? '#000' : '#fff';
+}
 jQuery(document).ready(function($) {
 
 	var chat_messages_wrapper = $('.page-messages-wrapper-<?php echo $wo['chat']['page']['page_id'];?>');
@@ -159,7 +166,7 @@ jQuery(document).ready(function($) {
         success: function(data){
           if (data['status'] == 200) {
              $(".chat_page_" + page_id).find('.outgoing').css('background', data['color']);
-             $(".chat_page_" + page_id).find('.outgoing').css('color', '#fff');
+             $(".chat_page_" + page_id).find('.outgoing').css('color', getContrastColor(data['color']));
              $(".chat_page_" + page_id).find('.select-color').css('color', data['color']);
              $(".chat_page_" + page_id).find('#color').val(data['color']);
           }
