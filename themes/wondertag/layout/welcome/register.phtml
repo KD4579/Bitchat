@@ -101,8 +101,8 @@
 									<circle cx="12" cy="13" r="4"></circle>
 								</svg>
 							</div>
-							<div id="upload-text" style="color: #666; margin-bottom: 5px;"><?php echo $wo['lang']['click_to_upload'] ?></div>
-							<small class="text-muted"><?php echo $wo['lang']['max_file_size'] ?>: <?php echo Wo_SizeUnits(($wo['config']['maxUpload'] * 1000)) ?></small>
+							<div id="upload-text" style="color: #666; margin-bottom: 5px;"><?php echo $wo['lang']['click_to_upload'] ?? 'Click to upload'; ?></div>
+							<small class="text-muted"><?php echo $wo['lang']['max_file_size'] ?? 'Max file size'; ?>: <?php echo Wo_SizeUnits(($wo['config']['maxUpload'] * 1000)) ?></small>
 							<div id="image-preview" style="display: none; margin-top: 10px;">
 								<img src="" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 8px;">
 							</div>
