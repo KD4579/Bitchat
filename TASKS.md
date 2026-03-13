@@ -2487,3 +2487,27 @@ ALTER TABLE Wo_Users
 **Date:** 2026-03-13
 **Summary:** PHP deprecation warning "FILTER_SANITIZE_STRING is deprecated" was visible at the top of every page. Replaced `filter_var(strip_tags($string), FILTER_SANITIZE_STRING)` with `htmlspecialchars(strip_tags($string), ENT_QUOTES, 'UTF-8')` in `FilterStripTags()` function. Same sanitization behavior, no deprecation warning on PHP 8.1+. Also checked `xhr/resend_two_factor.php` — already has a PHP version check that avoids the deprecated constant on 8.0+.
 **Files Modified:** `assets/includes/functions_one.php`
+
+---
+
+## Task 87: Fix Floating Label Overlap on Form Inputs
+**Status:** [x] Completed
+**Date:** 2026-03-13
+**Summary:** Floating labels (`.tag_field`) were overlapping input text on Profile Settings and all form pages across desktop, mobile, and webview. The label's unfocused position sat too close to the input text due to insufficient `border-top` spacing. Fixed by increasing `border-top` to 26px, adjusting label font sizes, and tuning padding for all states (focused/unfocused) in custom CSS.
+**Files Modified:** `themes/wondertag/custom/css/style.css`
+
+---
+
+## Task 88: Add Send Button to Messenger Chat
+**Status:** [x] Completed
+**Date:** 2026-03-13
+**Summary:** Messenger had no visible send button — users could only press Enter to send messages. Added a send button (paper plane icon) to all three chat tabs (1-on-1, group, page). Button is positioned inside the textarea area next to the emoji picker, sized to match (21x21px container, 18x18 SVG). Uses existing `Wo_SubmitChatForm()` / `Wo_SubmitChatGroupForm()` / `Wo_SubmitChatPageForm()` functions via synthetic keyCode 13 event.
+**Files Modified:** `themes/wondertag/layout/chat/chat-tab.phtml`, `themes/wondertag/layout/chat/group-tab.phtml`, `themes/wondertag/layout/chat/page-tab.phtml`, `themes/wondertag/custom/css/style.css`
+
+---
+
+## Task 89: Fix postFile_image Navigation Trap (WebP Support)
+**Status:** [x] Completed
+**Date:** 2026-03-13
+**Summary:** Clicking on post file images (especially from news bot posts) opened the raw image URL with no back button, trapping users. Root cause: `Wo_DisplaySharedFile()` only checked `jpg|jpeg|png|gif` extensions for inline image rendering with lightbox — `.webp` images fell through to the generic file handler, rendering as `<a href=...>` links that navigate to the raw URL. Fixed by adding `webp` to the image extension check at line 5191 of functions_one.php.
+**Files Modified:** `assets/includes/functions_one.php`

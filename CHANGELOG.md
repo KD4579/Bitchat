@@ -9,10 +9,21 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 - **Sidebar TRDC Earnings card**: Added "Buy TRDC" dropdown button (7 exchanges: PancakeSwap, Uniswap, Tokpie, BankCEX, KyberSwap, SushiSwap, 1inch) next to "View Wallet" link — visible on every page.
 - **Go Pro page**: Added "Buy TRDC Now" section below plan cards with same 7-exchange dropdown, dark-themed styling matching the page.
 
+### Messenger Send Button
+
+- Added visible send button (paper plane icon) to all chat tabs (1-on-1, group, page) — previously users could only press Enter to send.
+- Button sized at 21x21px, positioned inline with emoji picker inside textarea area.
+
+### Floating Label Overlap Fix
+
+- Fixed `.tag_field` floating labels overlapping input text on Profile Settings and all form pages across desktop/mobile/webview.
+- Increased `border-top` to 26px and tuned label sizing for focused/unfocused states.
+
 ### Bug Fixes
 
 - **Trading bot admin Max Arb Size input**: Changed `step` from 500 to 100 — was rejecting round values like 5000 (nearest valid were 4600/5100 due to `min="100" step="500"` mismatch).
 - **FILTER_SANITIZE_STRING deprecation**: Replaced deprecated `FILTER_SANITIZE_STRING` with `htmlspecialchars()` in `FilterStripTags()` (functions_one.php:9595). Was showing PHP deprecation notice at top of every page on PHP 8.1+.
+- **postFile_image navigation trap**: Added `.webp` to image extension whitelist in `Wo_DisplaySharedFile()` — webp images (from news bots) were rendering as file download links that opened raw URLs with no back button instead of inline images with lightbox.
 
 ### Files Modified
 
@@ -20,6 +31,10 @@ All notable changes to the Bitchat platform are documented here. Entries are gro
 - `themes/wondertag/layout/go-pro/content.phtml`
 - `admin-panel/pages/trading-bot/content.phtml`
 - `assets/includes/functions_one.php`
+- `themes/wondertag/custom/css/style.css`
+- `themes/wondertag/layout/chat/chat-tab.phtml`
+- `themes/wondertag/layout/chat/group-tab.phtml`
+- `themes/wondertag/layout/chat/page-tab.phtml`
 
 ---
 

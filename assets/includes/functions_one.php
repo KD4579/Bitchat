@@ -5188,7 +5188,7 @@ function Wo_DisplaySharedFile($media, $placement = '', $cache = false, $is_video
         if (!empty($cache)) {
             $wo['media']['filename'] = $wo['media']['filename'] . "?cache=" . $cache;
         }
-        if ($file_extension == 'jpg' || $file_extension == 'jpeg' || $file_extension == 'png' || $file_extension == 'gif') {
+        if ($file_extension == 'jpg' || $file_extension == 'jpeg' || $file_extension == 'png' || $file_extension == 'gif' || $file_extension == 'webp') {
             if ($placement == 'api') {
                 $media_file .= "<img src='" . $wo['media']['filename'] . "' alt='image' class='image-file pointer' onclick=\"InjectAPI('{&quot;type&quot; : &quot;lightbox&quot;, &quot;image_url&quot;:&quot;" . $wo['media']['filename'] . "&quot;}');\">";
             } else {
