@@ -9592,7 +9592,7 @@ function coinpayments_api_call($req = array()) {
 }
 function FilterStripTags($string='')
 {
-    return filter_var(strip_tags($string), FILTER_SANITIZE_STRING);
+    return htmlspecialchars(strip_tags($string), ENT_QUOTES, 'UTF-8');
 }
 function GetIso()
 {
