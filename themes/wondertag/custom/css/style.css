@@ -167,6 +167,32 @@ body.night_mode {
   background-color: var(--bc-surface-primary);
 }
 
+/* Fix floating label overlap on pre-filled inputs.
+   Increase border-top to create clear gap between floated label and input text.
+   Also ensure the "sunk" label (empty input) moves down enough to not clash. */
+.tag_field > input,
+.tag_field > textarea {
+  border-top: solid 26px transparent !important;
+  padding-top: 2px;
+}
+.tag_field > input,
+.tag_field > select {
+  height: 60px;
+}
+/* Floated label (input has value or is focused): small, clearly above text */
+.tag_field > input + span,
+.tag_field > textarea + span,
+.tag_field > select + span {
+  padding: 5px 16px 0;
+  font-size: 12px;
+}
+/* Sunk label (empty input, unfocused): larger, centered in input */
+.tag_field > input:not(:focus):placeholder-shown + span,
+.tag_field > textarea:not(:focus):placeholder-shown + span {
+  font-size: 15px;
+  padding: 18px 16px;
+}
+
 /* Login button — pill shaped, full width */
 .tag_wel_btn {
   border-radius: var(--bc-radius-full);
