@@ -84,4 +84,20 @@ async function estimatePoolTVL(provider, poolAddress, trdcPriceUsd) {
     }
 }
 
-module.exports = { getPoolPrice, getPoolLiquidity, getBalances, estimatePoolTVL };
+/**
+ * Get BNB price in USD by comparing TRDC price across both pools.
+ * BNB/USD = (TRDC-in-USDT) / (TRDC-in-WBNB)
+ */
+async function getBnbPriceUsd(provider, usdtPoolAddress, wbnbPoolAddress) {
+    try {
+        const priceUsdt = await getPoolPrice(provider, usdtPoolAddress, 18, 18);
+        const priceWbnb = await getPoolPrice(provider, wbnbPoolAddress, 18, 18);
+        if (priceUsdt > 0 && priceWbnb > 0) {
+            const bnbPrice = priceUsdt / priceWbnb;
+            if (isFinite(bnbPrice) && bnbPrice > 0) return bnbPrice;
+        }
+    } catch (e) { /* fall through */ }
+    return 600; // Fallback estimate if pools unavailable
+}
+
+module.exports = { getPoolPrice, getPoolLiquidity, getBalances, estimatePoolTVL, getBnbPriceUsd };

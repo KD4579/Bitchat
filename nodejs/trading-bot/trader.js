@@ -3,7 +3,7 @@
 const { ethers } = require('ethers');
 const log = require('./logger');
 const { CONTRACTS, saveTrade } = require('./config');
-const { getPoolPrice, getBalances, estimatePoolTVL } = require('./prices');
+const { getPoolPrice, getBalances, estimatePoolTVL, getBnbPriceUsd } = require('./prices');
 
 const erc20Abi   = require('./abis/erc20.json');
 const routerAbi  = require('./abis/routerV3.json');
@@ -111,12 +111,14 @@ async function executeSwap(wallet, tokenIn, tokenOut, fee, amountIn, maxSlippage
         });
 
         const receipt = await tx.wait();
-        log.trade(`Swap confirmed`, { txHash: tx.hash, gasUsed: receipt.gasUsed.toString() });
+        const gasPrice = receipt.gasPrice || 3000000000n; // actual gas price from receipt
+        log.trade(`Swap confirmed`, { txHash: tx.hash, gasUsed: receipt.gasUsed.toString(), gasPriceGwei: ethers.formatUnits(gasPrice, 'gwei') });
 
         return {
             amountOut: expectedOut,
             txHash: tx.hash,
             gasUsed: receipt.gasUsed,
+            gasPrice,
         };
     } catch (e) {
         log.error('Swap transaction failed', { error: e.message });
@@ -217,15 +219,17 @@ async function runGridTrading(wallet, provider, cfg) {
         const amountIn = ethers.parseUnits(usdtNeeded.toFixed(DEC), DEC);
         log.trade(`Grid BUY: spending $${usdtNeeded.toFixed(4)} USDT for ~${tradeSize.toFixed(2)} TRDC`);
 
+        const bnbPriceUsd = await getBnbPriceUsd(provider, cfg.bot_pool_trdc_usdt, cfg.bot_pool_trdc_wbnb);
         const result = await executeSwap(wallet, CONTRACTS.USDT, CONTRACTS.TRDC, fee, amountIn, maxSlippage);
         if (result) {
             const gotTrdc = parseFloat(ethers.formatUnits(result.amountOut, DEC));
             const valueUsd = gotTrdc * price;
-            const tradePnl = valueUsd - usdtNeeded;
+            const gasCostBnb = parseFloat(ethers.formatUnits(result.gasUsed * result.gasPrice, 'ether'));
+            const gasCostUsd = gasCostBnb * bnbPriceUsd;
+            const tradePnl = (valueUsd - usdtNeeded) - gasCostUsd;
             dailyPnl += tradePnl;
             lastTradeDirection = 'buy';
-            const gasCostBnb = parseFloat(ethers.formatUnits(result.gasUsed * 3000000000n, 'ether'));
-            log.trade(`Grid BUY done. Got ${gotTrdc.toFixed(2)} TRDC (~$${valueUsd.toFixed(4)}). P&L: $${dailyPnl.toFixed(4)}`);
+            log.trade(`Grid BUY done. Got ${gotTrdc.toFixed(2)} TRDC (~$${valueUsd.toFixed(4)}). Gas: ${gasCostBnb.toFixed(6)} BNB (~$${gasCostUsd.toFixed(4)}). P&L: $${tradePnl.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
             await saveTrade({
                 strategy: 'grid', direction: 'buy', tokenIn: 'USDT', tokenOut: 'TRDC',
                 amountIn: usdtNeeded.toFixed(6), amountOut: gotTrdc.toFixed(4),
@@ -240,15 +244,17 @@ async function runGridTrading(wallet, provider, cfg) {
         const expectedUsdt = tradeSize * sellPrice;
         log.trade(`Grid SELL: selling ${tradeSize.toFixed(2)} TRDC for ~$${expectedUsdt.toFixed(4)} USDT`);
 
+        const bnbPriceUsd = await getBnbPriceUsd(provider, cfg.bot_pool_trdc_usdt, cfg.bot_pool_trdc_wbnb);
         const result = await executeSwap(wallet, CONTRACTS.TRDC, CONTRACTS.USDT, fee, amountIn, maxSlippage);
         if (result) {
             const gotUsdt = parseFloat(ethers.formatUnits(result.amountOut, DEC));
             const costUsd = tradeSize * price;
-            const tradePnl = gotUsdt - costUsd;
+            const gasCostBnb = parseFloat(ethers.formatUnits(result.gasUsed * result.gasPrice, 'ether'));
+            const gasCostUsd = gasCostBnb * bnbPriceUsd;
+            const tradePnl = (gotUsdt - costUsd) - gasCostUsd;
             dailyPnl += tradePnl;
             lastTradeDirection = 'sell';
-            const gasCostBnb = parseFloat(ethers.formatUnits(result.gasUsed * 3000000000n, 'ether'));
-            log.trade(`Grid SELL done. Got $${gotUsdt.toFixed(4)} USDT. P&L: $${dailyPnl.toFixed(4)}`);
+            log.trade(`Grid SELL done. Got $${gotUsdt.toFixed(4)} USDT. Gas: ${gasCostBnb.toFixed(6)} BNB (~$${gasCostUsd.toFixed(4)}). P&L: $${tradePnl.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
             await saveTrade({
                 strategy: 'grid', direction: 'sell', tokenIn: 'TRDC', tokenOut: 'USDT',
                 amountIn: tradeSize.toFixed(4), amountOut: gotUsdt.toFixed(6),
@@ -336,15 +342,18 @@ async function runArbitrage(wallet, provider, cfg) {
         const sellResult = await executeSwap(wallet, CONTRACTS.TRDC, CONTRACTS.WBNB, wbnbFee, buyResult.amountOut, maxSlippage);
         if (!sellResult) return;
 
-        const profitEst = priceDiff * tradeSize;
+        const totalGasUsed1 = buyResult.gasUsed + sellResult.gasUsed;
+        const avgGasPrice1 = (buyResult.gasPrice + sellResult.gasPrice) / 2n;
+        const gasCostBnb1 = parseFloat(ethers.formatUnits(totalGasUsed1 * avgGasPrice1, 'ether'));
+        const gasCostUsd1 = gasCostBnb1 * bnbPriceUsd;
+        const profitEst = (priceDiff * tradeSize) - gasCostUsd1;
         dailyPnl += profitEst;
-        const gasCostBnb1 = parseFloat(ethers.formatUnits((buyResult.gasUsed + sellResult.gasUsed) * 3000000000n, 'ether'));
-        log.trade(`Arb done. Est. profit: $${profitEst.toFixed(4)}. P&L: $${dailyPnl.toFixed(4)}`);
+        log.trade(`Arb done. Spread profit: $${(priceDiff * tradeSize).toFixed(4)}, Gas: $${gasCostUsd1.toFixed(4)}. Net P&L: $${profitEst.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
         await saveTrade({
             strategy: 'arbitrage', direction: 'buy', tokenIn: 'USDT', tokenOut: 'WBNB',
             amountIn: usdtNeeded.toFixed(6), amountOut: ethers.formatUnits(sellResult.amountOut, DEC),
             priceUsd: priceUsdt.toFixed(10), tradeValueUsd: (usdtNeeded).toFixed(6),
-            gasUsed: (buyResult.gasUsed + sellResult.gasUsed).toString(),
+            gasUsed: totalGasUsed1.toString(),
             gasCostBnb: gasCostBnb1.toFixed(8),
             txHash: sellResult.txHash, pnlUsd: profitEst.toFixed(6),
             dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: '0',
@@ -365,15 +374,18 @@ async function runArbitrage(wallet, provider, cfg) {
         const sellResult = await executeSwap(wallet, CONTRACTS.TRDC, CONTRACTS.USDT, usdtFee, buyResult.amountOut, maxSlippage);
         if (!sellResult) return;
 
-        const profitEst = priceDiff * tradeSize;
+        const totalGasUsed2 = buyResult.gasUsed + sellResult.gasUsed;
+        const avgGasPrice2 = (buyResult.gasPrice + sellResult.gasPrice) / 2n;
+        const gasCostBnb2 = parseFloat(ethers.formatUnits(totalGasUsed2 * avgGasPrice2, 'ether'));
+        const gasCostUsd2 = gasCostBnb2 * bnbPriceUsd;
+        const profitEst = (priceDiff * tradeSize) - gasCostUsd2;
         dailyPnl += profitEst;
-        const gasCostBnb2 = parseFloat(ethers.formatUnits((buyResult.gasUsed + sellResult.gasUsed) * 3000000000n, 'ether'));
-        log.trade(`Arb done. Est. profit: $${profitEst.toFixed(4)}. P&L: $${dailyPnl.toFixed(4)}`);
+        log.trade(`Arb done. Spread profit: $${(priceDiff * tradeSize).toFixed(4)}, Gas: $${gasCostUsd2.toFixed(4)}. Net P&L: $${profitEst.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
         await saveTrade({
             strategy: 'arbitrage', direction: 'buy', tokenIn: 'WBNB', tokenOut: 'USDT',
             amountIn: wbnbNeeded.toFixed(8), amountOut: ethers.formatUnits(sellResult.amountOut, DEC),
             priceUsd: priceUsdt.toFixed(10), tradeValueUsd: (wbnbNeeded * bnbPriceUsd).toFixed(6),
-            gasUsed: (buyResult.gasUsed + sellResult.gasUsed).toString(),
+            gasUsed: totalGasUsed2.toString(),
             gasCostBnb: gasCostBnb2.toFixed(8),
             txHash: sellResult.txHash, pnlUsd: profitEst.toFixed(6),
             dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: '0',
