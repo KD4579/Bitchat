@@ -239,7 +239,7 @@ $(function() {
          window.location.href = data.location;
         }, 1000);
       } else {
-        var errors = data.errors.join("<br>");
+        var errors = Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors;
       $this.find('button').attr("disabled", false);
       $this.find('.add_wow_loader').removeClass('btn-loading');
         $state.html(errors);

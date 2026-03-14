@@ -376,15 +376,6 @@ if ($f == 'register') {
                 $random_activation = Wo_Secure(rand(11111, 99999));
                 $message           = "Your confirmation code is: {$random_activation}";
                 if (Wo_SendSMSMessage($_POST['phone_num'], $message) === true) {
-                    $register = Wo_RegisterUser($re_data, $in_code);
-                    if ($wo['config']['auto_username'] == 1) {
-                        $r_id              = Wo_UserIdFromUsername($_POST['username']);
-                        $_POST['username'] = $_POST['username'] . "_" . $r_id;
-                        $db->where('user_id', $r_id)->update(T_USERS, array(
-                            'username' => $_POST['username']
-                        ));
-                        cache($r_id, 'users', 'delete');
-                    }
                     $user_id = Wo_UserIdFromUsername($_POST['username']);
                     $query   = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$random_activation}' WHERE `user_id` = {$user_id}");
                     cache($user_id, 'users', 'delete');

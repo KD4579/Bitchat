@@ -17,8 +17,8 @@ if ($f == 'google_login') {
         $json_data        = json_decode($get_user_details);
         if (!empty($json_data->error)) {
             $data['message'] = $error_icon . $json_data->error;
-        } else if (!empty($json_data->kid)) {
-            $social_id    = $json_data->kid;
+        } else if (!empty($json_data->sub)) {
+            $social_id    = $json_data->sub;
             $social_email = $json_data->email;
             $social_name  = $json_data->name;
             if (empty($social_email)) {

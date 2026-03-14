@@ -275,11 +275,10 @@ function activateButton(element) {
 
 	function hasClass(el, className) {
 		if (el.classList) {
-			console.log(el.classList);
 			return el.classList.contains(className);
 		}
 		else {
-			new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+			return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
 		}
 	}
 
