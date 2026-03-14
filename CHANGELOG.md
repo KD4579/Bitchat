@@ -2,6 +2,38 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-14 — Crypto Blog Bot & Registration Fixes
+
+### Crypto Trading Views Blog Bot
+
+- **New bot account**: "Crypto Trading Views" (`cryptotradingviews`) — auto-posts cryptocurrency news as blog articles.
+- Scrapes TradingView crypto news page + RSS feeds from Cointelegraph, NewsBTC, Coinpedia, The Block.
+- Creates full blog posts in `Wo_Blog` with thumbnails (1200x600 WebP), source attribution, and accompanying feed posts.
+- Posts 1 blog per cron run, max 10/day, every 60 minutes. New users auto-follow.
+- Run `php setup_crypto_blog_bot.php` on server to create the bot account, then delete the script.
+
+### Registration — Critical Fixes
+
+- **Fixed: Profile picture upload ignored during registration** — `xhr/register.php` now processes `$_FILES['avatar']` via `Wo_UploadImage()` and marks `startup_image` complete so users skip that onboarding step.
+- **Fixed: Avatar upload blocking registration** — wondertag theme required a profile picture before the submit button would enable. Made avatar upload optional (users can still upload during registration or in the startup wizard).
+- **Added honeypot anti-bot fields** to wowonder and sunshine registration forms (was only on wondertag).
+- **Added `enctype="multipart/form-data"`** to wowonder and sunshine registration forms for avatar upload support.
+- **Fixed XSS vulnerability** in wallet login error display — changed `.html()` to `.text()` for error messages from MetaMask.
+
+### Files Modified
+
+- `assets/includes/functions_crypto_blog_bot.php` (new)
+- `setup_crypto_blog_bot.php` (new — delete after running)
+- `assets/includes/functions_news_bots.php`
+- `cron-job.php`
+- `xhr/register.php`
+- `themes/wondertag/layout/welcome/register.phtml`
+- `themes/wowonder/layout/welcome/register.phtml`
+- `themes/sunshine/layout/welcome/register.phtml`
+- `themes/wondertag/layout/welcome/content-simple.phtml`
+
+---
+
 ## 2026-03-13 — Buy TRDC Links, Admin Fix & PHP Deprecation Fix
 
 ### Buy TRDC Deep Links

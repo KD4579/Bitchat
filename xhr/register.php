@@ -286,6 +286,23 @@ if ($f == 'register') {
         }
         if ($register === true) {
             $r_id = Wo_UserIdFromUsername($_POST['username']);
+
+            // Process avatar upload if provided during registration
+            if (!empty($_FILES['avatar']['tmp_name']) && is_uploaded_file($_FILES['avatar']['tmp_name'])) {
+                $avatarUpload = Wo_UploadImage(
+                    $_FILES['avatar']['tmp_name'],
+                    $_FILES['avatar']['name'],
+                    'avatar',
+                    $_FILES['avatar']['type'],
+                    $r_id
+                );
+                if ($avatarUpload === true) {
+                    // Mark startup_image as complete so user skips that step
+                    $db->where('user_id', $r_id)->update(T_USERS, array('startup_image' => '1'));
+                    cache($r_id, 'users', 'delete');
+                }
+            }
+
             if (!empty($re_data['referrer']) && is_numeric($wo['config']['affiliate_level']) && $wo['config']['affiliate_level'] > 1) {
                 AddNewRef($re_data['referrer'], $r_id, $wo['config']['amount_ref']);
             }

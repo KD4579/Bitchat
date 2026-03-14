@@ -372,7 +372,7 @@ window.onload = function () {
             var msg = (err.code === 4001 || err.code === -32603)
                 ? 'You rejected the wallet connection.'
                 : 'Wallet error: ' + (err.message || 'Unknown error');
-            $errors.html(msg);
+            $errors.text(msg);
             btn.disabled = false;
             btn.querySelector('span').textContent = 'Connect Wallet';
         }
