@@ -335,6 +335,12 @@ require_once(__DIR__ . '/assets/includes/functions_news_bots.php');
 bc_run_all_bots($sqlConnect, $wo);
 // ********** News Bots Auto-Posting **********
 
+// ********** Crypto Blog Bot **********
+_cron_log_section('crypto_blog_bot');
+require_once(__DIR__ . '/assets/includes/functions_crypto_blog_bot.php');
+bc_run_crypto_blog_bot($sqlConnect, $wo);
+// ********** Crypto Blog Bot **********
+
 // ********** Session Cleanup **********
 _cron_log_section('session_cleanup');
 // Remove DB login sessions older than 30 days (matches PHP session gc_maxlifetime)

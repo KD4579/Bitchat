@@ -48,6 +48,9 @@ function bc_run_single_bot($bot_id, $sqlConnect, $wo) {
     if ($contentType === 'template') {
         return bc_run_template_bot($bot, $db, $sqlConnect, $wo, $postsToday, $remaining);
     }
+    if ($contentType === 'blog_scraper') {
+        return 0; // Handled by functions_crypto_blog_bot.php
+    }
 
     // --- RSS bot flow ---
     $feedUrls = array_filter(array_map('trim', explode("\n", $bot->news_sources)));
