@@ -242,48 +242,93 @@ function fetchTRDC() {
     var trdcEl = document.getElementById('bc-tick-trdc');
     if (!trdcEl) return;
 
-    // TRDC is a BEP-20 token on BSC — contract: 0x39006641dB2d9C3618523a1778974c0D7e98e39d
-    var apiUrl = 'https://api.geckoterminal.com/api/v2/networks/bsc/tokens/0x39006641dB2d9C3618523a1778974c0D7e98e39d/pools?page=1';
+    var geckoUrl = 'https://api.geckoterminal.com/api/v2/networks/bsc/tokens/0x39006641dB2d9C3618523a1778974c0D7e98e39d/pools?page=1';
+    var dexScreenerUrl = 'https://api.dexscreener.com/latest/dex/pairs/bsc/0x7b57fa13cca5093f5d724823d58503dfd02ff07c';
 
+    function formatPrice(priceUSD) {
+        if (priceUSD >= 1) return '$' + priceUSD.toFixed(2);
+        if (priceUSD >= 0.01) return '$' + priceUSD.toFixed(4);
+        if (priceUSD >= 0.0001) return '$' + priceUSD.toFixed(6);
+        return '$' + priceUSD.toFixed(8);
+    }
+
+    function showTicker(priceUSD, change24h) {
+        trdcEl.style.display = '';
+        var prevSep = trdcEl.previousElementSibling;
+        if (prevSep && prevSep.classList.contains('bc-ticker-sep')) prevSep.style.display = '';
+        updateTicker(trdcEl, 'TRDC', formatPrice(priceUSD), change24h, change24h >= 0);
+    }
+
+    function fetchFromDexScreener() {
+        var xhr2 = new XMLHttpRequest();
+        xhr2.open('GET', dexScreenerUrl, true);
+        xhr2.timeout = 10000;
+        xhr2.ontimeout = function() {
+            console.warn('[Bitchat] TRDC DexScreener request timed out, falling back to Gecko data');
+        };
+        xhr2.onload = function() {
+            if (xhr2.status === 200) {
+                try {
+                    var d = JSON.parse(xhr2.responseText);
+                    var pair = d.pair || (d.pairs && d.pairs[0]);
+                    if (!pair) { console.warn('[Bitchat] TRDC DexScreener: no pair data'); return; }
+                    var priceUSD = parseFloat(pair.priceUsd);
+                    if (isNaN(priceUSD) || priceUSD <= 0) { console.warn('[Bitchat] TRDC DexScreener: invalid price'); return; }
+                    var change24h = (pair.priceChange && pair.priceChange.h24 != null) ? parseFloat(pair.priceChange.h24) : 0;
+                    showTicker(priceUSD, change24h);
+                    console.log('[Bitchat] TRDC price from DexScreener: ' + priceUSD);
+                } catch(e) {
+                    console.warn('[Bitchat] TRDC DexScreener parse error:', e.message);
+                }
+            }
+        };
+        xhr2.onerror = function() {
+            console.warn('[Bitchat] TRDC DexScreener request failed');
+        };
+        xhr2.send();
+    }
+
+    // Primary: GeckoTerminal
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', apiUrl, true);
+    xhr.open('GET', geckoUrl, true);
     xhr.timeout = 10000;
     xhr.ontimeout = function() {
-        console.warn('[Bitchat] TRDC ticker request timed out');
+        console.warn('[Bitchat] TRDC Gecko timed out, trying DexScreener');
+        fetchFromDexScreener();
     };
     xhr.onload = function() {
         if (xhr.status === 200) {
             try {
                 var d = JSON.parse(xhr.responseText);
                 var pools = d.data;
-                if (!pools || pools.length === 0) return;
+                if (!pools || pools.length === 0) { fetchFromDexScreener(); return; }
                 var pool = pools[0].attributes;
                 var priceUSD = parseFloat(pool.base_token_price_usd);
-                if (isNaN(priceUSD) || priceUSD <= 0) return;
+                if (isNaN(priceUSD) || priceUSD <= 0) { fetchFromDexScreener(); return; }
                 var change24h = (pool.price_change_percentage && pool.price_change_percentage.h24 != null) ? parseFloat(pool.price_change_percentage.h24) : 0;
 
-                var priceStr;
-                if (priceUSD >= 1) {
-                    priceStr = '$' + priceUSD.toFixed(2);
-                } else if (priceUSD >= 0.01) {
-                    priceStr = '$' + priceUSD.toFixed(4);
-                } else if (priceUSD >= 0.0001) {
-                    priceStr = '$' + priceUSD.toFixed(6);
-                } else {
-                    priceStr = '$' + priceUSD.toFixed(8);
+                // If Gecko shows 0% change in 24h, try DexScreener for fresher data
+                if (change24h === 0) {
+                    console.log('[Bitchat] TRDC Gecko shows 0% 24h change, trying DexScreener');
+                    // Show Gecko data first as fallback, then try DexScreener
+                    showTicker(priceUSD, change24h);
+                    fetchFromDexScreener();
+                    return;
                 }
 
-                trdcEl.style.display = '';
-                var prevSep = trdcEl.previousElementSibling;
-                if (prevSep && prevSep.classList.contains('bc-ticker-sep')) prevSep.style.display = '';
-                updateTicker(trdcEl, 'TRDC', priceStr, change24h, change24h >= 0);
+                showTicker(priceUSD, change24h);
+                console.log('[Bitchat] TRDC price from GeckoTerminal: ' + priceUSD);
             } catch(e) {
-                console.warn('[Bitchat] TRDC ticker parse error:', e.message);
+                console.warn('[Bitchat] TRDC Gecko parse error:', e.message);
+                fetchFromDexScreener();
             }
+        } else {
+            fetchFromDexScreener();
         }
     };
     xhr.onerror = function() {
-        console.warn('[Bitchat] TRDC ticker request failed');
+        console.warn('[Bitchat] TRDC Gecko request failed, trying DexScreener');
+        fetchFromDexScreener();
     };
     xhr.send();
 }
