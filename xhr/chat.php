@@ -156,7 +156,7 @@ if ($f == 'chat') {
             $data['can_seen']    = 0;
             if (!empty($_GET['last_id']) && $wo['config']['message_seen'] == 1) {
                 $message_id = Wo_Secure($_GET['last_id']);
-                if (!empty($message_id) || is_numeric($message_id) || $message_id > 0) {
+                if (!empty($message_id) && is_numeric($message_id) && $message_id > 0) {
                     $seen = Wo_SeenMessage($message_id);
                     if ($seen > 0) {
                         $data['can_seen'] = 1;

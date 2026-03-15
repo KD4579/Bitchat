@@ -15,10 +15,12 @@ if ($f == 'posts') {
                         $thumbnail = $json_decode->items[0]->snippet->thumbnails->medium->url;
                     }
                     $info        = $json_decode->items[0]->snippet;
-                    $title       = $info->title;
-                    $description = $info->description;
+                    $title       = !empty($info->title) ? $info->title : '';
+                    $description = !empty($info->description) ? $info->description : '';
+                    $tags        = '';
                     if (!empty($json_decode->items[0]->snippet->tags)) {
                         if (is_array($json_decode->items[0]->snippet->tags)) {
+                            $tags_array = array();
                             foreach ($json_decode->items[0]->snippet->tags as $key => $tag) {
                                 $tags_array[] = $tag;
                             }

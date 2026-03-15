@@ -113,7 +113,8 @@ $(function() {
 			} else {
 				$this.find('button').attr("disabled", false);
 				if (data && data.errors) {
-					$state.html(data.errors);
+					var errorMsg = Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors;
+					$state.html(errorMsg);
 				} else {
 					$state.html('<div class="alert alert-danger">Session expired. Please <a href="<?php echo Wo_SeoLink("index.php?link1=welcome");?>">login again</a>.</div>');
 				}

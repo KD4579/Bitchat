@@ -191,7 +191,8 @@ $(function() {
 				});
 			} else {
 				$this.find('button').attr("disabled", false);
-				$state.html(data.errors);
+				var errorMsg = Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors;
+				$state.html(errorMsg);
 			} 
 			working = false;
 		}
@@ -284,11 +285,10 @@ function activateButton(element) {
 	}
 	function hasClass(el, className) {
 		if (el.classList) {
-			console.log(el.classList);
-			return el.classList.contains(className);	
+			return el.classList.contains(className);
 		}
 		else {
-			new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);	
+			return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
 		}
 	}
 })();

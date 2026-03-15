@@ -55,7 +55,8 @@ $(function() {
 				}, 1000);
 			} else {
 				$this.find('button').attr("disabled", false);
-				$state.html(data.errors);
+				var errorMsg = Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors;
+				$state.html(errorMsg);
 			}
 			working = false;
 		}

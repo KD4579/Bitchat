@@ -25,7 +25,7 @@ function Wo_RegisterPoint($post_id, $type, $action = '+', $user_id = 0) {
     } else {
         $user_id = Wo_Secure($wo["user"]["id"]);
         if (empty($user_id) || !is_numeric($user_id) || $user_id < 1) {
-            return fasle;
+            return false;
         }
     }
     if (empty($wo["user"]["point_day_expire"])) {
@@ -89,7 +89,7 @@ function Wo_RegisterPoint($post_id, $type, $action = '+', $user_id = 0) {
     if ($points == 0) {
         return false;
     }
-    $wallet         = $points / $dollar_to_point_cost;
+    $wallet         = ($dollar_to_point_cost > 0) ? ($points / $dollar_to_point_cost) : 0;
     $user_data      = Wo_UserData($user_id);
     $converted_points  = 0;
     $points_amount  = 0;

@@ -42,11 +42,9 @@ function Wo_GetUserFromSessionID($session_id, $platform = 'web') {
         $fetched_data = mysqli_fetch_assoc($query);
         if (empty($fetched_data['platform_details']) && $fetched_data['platform'] == 'web') {
             $ua = json_encode(getBrowser());
-            if (isset($fetched_data['platform_details'])) {
-                $update_session = $db->where('id', $fetched_data['id'])->update(T_APP_SESSIONS, array(
-                    'platform_details' => $ua
-                ));
-            }
+            $update_session = $db->where('id', $fetched_data['id'])->update(T_APP_SESSIONS, array(
+                'platform_details' => $ua
+            ));
         }
         return $fetched_data['user_id'];
     }
@@ -109,9 +107,9 @@ function Wo_GetAllSessionsFromUserID($user_id = 0,$limit = 10,$offset = array())
             }
             if (!empty($row['platform_details'])) {
                 $uns               = (Array) json_decode($row['platform_details']);
-                $row['browser']    = $uns['name'];
-                $row['platform']   = ucfirst($uns['platform']);
-                $row['ip_address'] = $uns['ip_address'];
+                $row['browser']    = $uns['name'] ?? $row['browser'];
+                $row['platform']   = ucfirst($uns['platform'] ?? $row['platform']);
+                $row['ip_address'] = $uns['ip_address'] ?? '';
             }
             $data[] = $row;
         }

@@ -24,6 +24,9 @@ $wo['total_final_price'] = 0;
 $wo['address_id']        = 0;
 foreach ($wo['orders'] as $key => $wo['order']) {
     $wo['order']->product = Wo_GetProduct($wo['order']->product_id);
+    if (empty($wo['order']->product)) {
+        continue;
+    }
     $wo['total'] += $wo['order']->price;
     $wo['total_commission'] += $wo['order']->commission;
     $wo['total_final_price'] += $wo['order']->final_price;

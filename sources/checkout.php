@@ -13,6 +13,9 @@ $wo['total'] = 0;
 if (!empty($wo['items'])) {
     foreach ($wo['items'] as $key => $wo['item']) {
         $wo['product'] = Wo_GetProduct($wo['item']->product_id);
+        if (empty($wo['product'])) {
+            continue;
+        }
         if (!empty($wo['currencies']) && !empty($wo['currencies'][$wo['product']['currency']]) && $wo['currencies'][$wo['product']['currency']]['text'] != $wo['config']['currency'] && !empty($wo['config']['exchange']) && !empty($wo['config']['exchange'][$wo['currencies'][$wo['product']['currency']]['text']])) {
             $wo['total'] += (($wo['product']['price'] / $wo['config']['exchange'][$wo['currencies'][$wo['product']['currency']]['text']]) * $wo['item']->units);
         } else {
