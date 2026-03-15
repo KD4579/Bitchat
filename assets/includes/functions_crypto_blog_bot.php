@@ -735,7 +735,7 @@ function bc_download_blog_thumbnail($imageUrl, $wo) {
     }
 
     // Verify it's actually an image
-    if (strpos($contentType, 'image') === false) {
+    if (empty($contentType) || strpos($contentType, 'image') === false) {
         return false;
     }
 
@@ -754,6 +754,12 @@ function bc_download_blog_thumbnail($imageUrl, $wo) {
             $origH = imagesy($srcImage);
             $targetW = 1200;
             $targetH = 600;
+
+            if ($origW <= 0 || $origH <= 0) {
+                imagedestroy($srcImage);
+                file_put_contents($filePath, $imageData);
+                return $filePath;
+            }
 
             $resized = imagecreatetruecolor($targetW, $targetH);
             // Preserve transparency for PNG

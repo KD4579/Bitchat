@@ -136,7 +136,7 @@ if ($f == 'register') {
                 if (empty($_POST[$field['fid']])) {
                     $errors = $error_icon . $field['name'] . ' is required';
                 }
-                if (mb_strlen($_POST[$field['fid']]) > $field['length']) {
+                if (!empty($_POST[$field['fid']]) && mb_strlen($_POST[$field['fid']]) > $field['length']) {
                     $errors = $error_icon . $field['name'] . ' field max characters is ' . $field['length'];
                 }
             }

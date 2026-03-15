@@ -393,9 +393,9 @@ $(function() {
         	window.location.href = data.location;
         }, 1000);
       } else {
-        var errors = data.errors.join("<br>");
+        var errors = Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors;
         $state.html(errors);
-      } 
+      }
       working = false;
 	  $this.find('.disable_btn').attr("disabled", false);
     }

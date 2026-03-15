@@ -576,7 +576,9 @@ function bc_download_article_image($imageUrl, $wo) {
 
     // Determine extension from content type
     $ext = 'jpg';
-    if (strpos($contentType, 'png') !== false) {
+    if (empty($contentType)) {
+        // contentType unavailable, default to jpg
+    } elseif (strpos($contentType, 'png') !== false) {
         $ext = 'png';
     } elseif (strpos($contentType, 'gif') !== false) {
         $ext = 'gif';
