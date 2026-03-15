@@ -24,10 +24,13 @@ if ($f == 'trading_bot_dashboard') {
         }
 
         if ($tableExists) {
-            // Get today's trade count and total gas
+            // Get today's trade count, gas, and P&L (including gas cost in USD)
             $today = date('Y-m-d');
             $q = mysqli_query($sqlConnect,
-                "SELECT COUNT(*) as cnt, COALESCE(SUM(gas_cost_bnb),0) as total_gas,
+                "SELECT COUNT(*) as cnt,
+                        COALESCE(SUM(gas_cost_bnb),0) as total_gas,
+                        COALESCE(SUM(pnl_usd),0) as spread_pnl,
+                        COALESCE(SUM(gas_cost_bnb),0) as gas_bnb,
                         COALESCE(SUM(CASE WHEN strategy='grid' THEN 1 ELSE 0 END),0) as grid_cnt,
                         COALESCE(SUM(CASE WHEN strategy='arbitrage' THEN 1 ELSE 0 END),0) as arb_cnt
                  FROM Wo_Bot_Trades WHERE DATE(created_at) = '{$today}'");
@@ -37,11 +40,17 @@ if ($f == 'trading_bot_dashboard') {
                 $stats['today_gas_bnb'] = $row['total_gas'];
                 $stats['today_grid'] = $row['grid_cnt'];
                 $stats['today_arb'] = $row['arb_cnt'];
+                // P&L including gas: pnl_usd already includes gas for new trades,
+                // but for older trades recorded without gas, we also provide gas totals
+                // so the frontend can show both
+                $stats['today_pnl_usd'] = $row['spread_pnl'];
+                $stats['today_gas_bnb_total'] = $row['gas_bnb'];
             }
 
-            // Total all-time stats
+            // Total all-time stats (P&L + gas breakdown)
             $q2 = mysqli_query($sqlConnect,
-                "SELECT COUNT(*) as cnt, COALESCE(SUM(gas_cost_bnb),0) as total_gas,
+                "SELECT COUNT(*) as cnt,
+                        COALESCE(SUM(gas_cost_bnb),0) as total_gas,
                         COALESCE(SUM(pnl_usd),0) as total_pnl
                  FROM Wo_Bot_Trades");
             if ($q2) {
@@ -55,6 +64,8 @@ if ($f == 'trading_bot_dashboard') {
             $stats['today_gas_bnb'] = '0';
             $stats['today_grid'] = '0';
             $stats['today_arb'] = '0';
+            $stats['today_pnl_usd'] = '0';
+            $stats['today_gas_bnb_total'] = '0';
             $stats['all_trades'] = '0';
             $stats['all_gas_bnb'] = '0';
             $stats['all_pnl_usd'] = '0';

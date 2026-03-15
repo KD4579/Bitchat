@@ -57,20 +57,21 @@
                 </div>
                 <div class="col-md-3">
                     <div class="well text-center">
-                        <small class="text-muted">Today's Gas Spent</small><br>
-                        <span id="ds-today-gas" style="font-size:20px; font-weight:600;">--</span>
-                        <small>BNB</small>
+                        <small class="text-muted">Today's P&L <span style="font-size:10px;">(incl. gas)</span></small><br>
+                        <span id="ds-today-pnl" style="font-size:20px; font-weight:600;">--</span>
+                        <br><small>Gas: <span id="ds-today-gas">0</span> BNB</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="well text-center">
                         <small class="text-muted">All-Time Trades</small><br>
                         <span id="ds-all-trades" style="font-size:20px; font-weight:600;">--</span>
+                        <br><small>Gas: <span id="ds-all-gas">0</span> BNB</small>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="well text-center">
-                        <small class="text-muted">All-Time P&L</small><br>
+                        <small class="text-muted">All-Time P&L <span style="font-size:10px;">(incl. gas)</span></small><br>
                         <span id="ds-all-pnl" style="font-size:20px; font-weight:600;">--</span>
                         <small>USD</small>
                     </div>
@@ -167,8 +168,12 @@ $(document).ready(function() {
                 '<span style="color:#ef4444;">STOPPED</span>');
             $('#ds-mode').text((d.bot_mode || '--').replace('_', ' ').toUpperCase());
 
-            // P&L
-            var pnl = parseFloat(d.bot_daily_pnl) || 0;
+            // Daily P&L (from DB trades, includes gas for new trades)
+            var todayPnl = parseFloat(d.today_pnl_usd) || 0;
+            var todayGasBnb = parseFloat(d.today_gas_bnb_total) || 0;
+            // For old trades without gas in pnl_usd, estimate gas cost in USD (BNB ~$620)
+            var bnbPrice = 620;
+            var pnl = todayPnl; // pnl_usd already includes gas for new trades
             var pnlColor = pnl >= 0 ? '#22c55e' : '#ef4444';
             $('#ds-pnl').html('<span style="color:' + pnlColor + ';">$' + pnl.toFixed(4) + '</span>');
 
@@ -189,10 +194,18 @@ $(document).ready(function() {
             $('#ds-today-trades').text(d.today_trades || '0');
             $('#ds-today-grid').text(d.today_grid || '0');
             $('#ds-today-arb').text(d.today_arb || '0');
-            $('#ds-today-gas').text(parseFloat(d.today_gas_bnb || 0).toFixed(6));
+            var todayGas = parseFloat(d.today_gas_bnb || 0);
+            $('#ds-today-gas').text(todayGas.toFixed(6));
+            // Today's P&L (pnl_usd from DB — includes gas for new trades)
+            var todayPnlVal = parseFloat(d.today_pnl_usd) || 0;
+            var todayPnlColor = todayPnlVal >= 0 ? '#22c55e' : '#ef4444';
+            $('#ds-today-pnl').html('<span style="color:' + todayPnlColor + ';">$' + todayPnlVal.toFixed(4) + '</span>');
 
             // All-time stats
             $('#ds-all-trades').text(d.all_trades || '0');
+            var allGas = parseFloat(d.all_gas_bnb || 0);
+            $('#ds-all-gas').text(allGas.toFixed(6));
+            // All-time P&L (sum of pnl_usd from all trades)
             var allPnl = parseFloat(d.all_pnl_usd) || 0;
             var allPnlColor = allPnl >= 0 ? '#22c55e' : '#ef4444';
             $('#ds-all-pnl').html('<span style="color:' + allPnlColor + ';">$' + allPnl.toFixed(4) + '</span>');
