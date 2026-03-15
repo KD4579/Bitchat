@@ -1000,7 +1000,15 @@ function Wo_RequestNewPayment($user_id = 0, $amount = 0, $insert_array = array()
         "transfer_info" => "",
     );
     $args        = array_merge($options, $insert_array);
-    $query_text  = "INSERT INTO " . T_A_REQUESTS . " (`user_id`, `amount`, `full_amount`, `time`, `iban`, `country`, `full_name`, `swift_code`, `address`, `type`, `transfer_info`) VALUES ('$user_id', '$amount', '$full_amount', '$time', '" . $args['iban'] . "', '" . $args['country'] . "', '" . $args['full_name'] . "', '" . $args['swift_code'] . "', '" . $args['address'] . "', '" . $args['type'] . "', '" . $args['transfer_info'] . "')";
+    // Sanitize all user-provided fields
+    $safe_iban = Wo_Secure($args['iban']);
+    $safe_country = Wo_Secure($args['country']);
+    $safe_full_name = Wo_Secure($args['full_name']);
+    $safe_swift_code = Wo_Secure($args['swift_code']);
+    $safe_address = Wo_Secure($args['address']);
+    $safe_type = Wo_Secure($args['type']);
+    $safe_transfer_info = Wo_Secure($args['transfer_info']);
+    $query_text  = "INSERT INTO " . T_A_REQUESTS . " (`user_id`, `amount`, `full_amount`, `time`, `iban`, `country`, `full_name`, `swift_code`, `address`, `type`, `transfer_info`) VALUES ('$user_id', '$amount', '$full_amount', '$time', '" . $safe_iban . "', '" . $safe_country . "', '" . $safe_full_name . "', '" . $safe_swift_code . "', '" . $safe_address . "', '" . $safe_type . "', '" . $safe_transfer_info . "')";
     $query       = mysqli_query($sqlConnect, $query_text);
     if ($query) {
         $notification_data_array = array(
@@ -7160,9 +7168,15 @@ function Wo_InsertWalletPayment($inserted_data) {
     // Insert notification data if necessary
     $query_notification = mysqli_query($sqlConnect, "INSERT INTO " . T_NOTIFICATION . " (`recipient_id`, `type`, `time`, `admin`) VALUES ('{$notification_data_array['recipient_id']}', '{$notification_data_array['type']}', '{$notification_data_array['time']}', '{$notification_data_array['admin']}')");
 
-    $fields = '`' . implode('`, `', array_keys($inserted_data)) . '`';
-    $data   = '\'' . implode('\', \'', $inserted_data) . '\'';
-    $query  = mysqli_query($sqlConnect, "INSERT INTO " . T_WALLET_TRANSFER . " ({$fields}) VALUES ({$data}");
+    $safe_keys = array();
+    $safe_vals = array();
+    foreach ($inserted_data as $key => $value) {
+        $safe_keys[] = '`' . preg_replace('/[^a-zA-Z0-9_]/', '', $key) . '`';
+        $safe_vals[] = '\'' . Wo_Secure($value) . '\'';
+    }
+    $fields = implode(', ', $safe_keys);
+    $data   = implode(', ', $safe_vals);
+    $query  = mysqli_query($sqlConnect, "INSERT INTO " . T_WALLET_TRANSFER . " ({$fields}) VALUES ({$data})");
 
     if ($query && $query_notification) {
         return mysqli_insert_id($sqlConnect);

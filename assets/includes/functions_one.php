@@ -1446,6 +1446,15 @@ function Wo_UpdateUserData($user_id, $update_data, $unverify = false) {
     if (!isset($update_data['relationship_id'])) {
         $update_data['relationship_id'] = $wo['user']['relationship_id'];
     }
+    // Block protected fields from non-admin updates to prevent mass assignment
+    $protected_fields = array('balance', 'wallet', 'points', 'converted_points', 'is_pro', 'pro_type', 'verified', 'email_code', 'sms_code');
+    if ($is_admin === false) {
+        foreach ($protected_fields as $pf) {
+            if (isset($update_data[$pf])) {
+                unset($update_data[$pf]);
+            }
+        }
+    }
     $update = array();
     foreach ($update_data as $field => $data) {
         $filter = ['first_name', 'last_name', 'about'];
@@ -1455,7 +1464,7 @@ function Wo_UpdateUserData($user_id, $update_data, $unverify = false) {
             $finalData = Wo_Secure($data, 0);
         }
         if ($field != 'pro_') {
-            $update[] = '`' . $field . '` = \'' . $finalData . '\'';
+            $update[] = '`' . Wo_Secure($field) . '` = \'' . $finalData . '\'';
         }
     }
     $impload   = implode(', ', $update);

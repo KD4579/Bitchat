@@ -101,7 +101,14 @@ if ($f == 'login') {
                 'status' => 200
             );
             if (!empty($_POST['last_url'])) {
-                $data['location'] = $_POST['last_url'];
+                // Validate redirect is same-origin to prevent open redirect
+                $parsed = parse_url($_POST['last_url']);
+                $site_host = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+                if (empty($parsed['host']) || $parsed['host'] === $site_host) {
+                    $data['location'] = $_POST['last_url'];
+                } else {
+                    $data['location'] = $wo['config']['site_url'] . "/?cache=" . time();
+                }
             } else {
                 $data['location'] = $wo['config']['site_url'] . "/?cache=" . time();
             }

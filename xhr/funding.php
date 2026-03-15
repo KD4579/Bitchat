@@ -53,7 +53,7 @@ if ($f == 'funding' && $wo['config']['funding_system'] == 1) {
         if (!empty($_GET['id'])) {
             $id   = Wo_Secure($_GET['id']);
             $fund = $db->where('id', $id)->getOne(T_FUNDING);
-            if (!empty($fund) || ($wo['user']['user_id'] != $fund->user_id && Wo_IsAdmin() == false)) {
+            if (!empty($fund) && ($wo['user']['user_id'] == $fund->user_id || Wo_IsAdmin() == true)) {
                 @Wo_DeleteFromToS3($fund->image);
                 if (file_exists($fund->image)) {
                     try {
@@ -94,7 +94,7 @@ if ($f == 'funding' && $wo['config']['funding_system'] == 1) {
         if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0 && !empty($_POST['id'])) {
             $id   = Wo_Secure($_POST['id']);
             $fund = $db->where('id', $id)->getOne(T_FUNDING);
-            if (!empty($fund) || ($wo['user']['user_id'] != $fund->user_id && Wo_IsAdmin() == false)) {
+            if (!empty($fund) && ($wo['user']['user_id'] == $fund->user_id || Wo_IsAdmin() == true)) {
                 $insert_array = array(
                     'title' => Wo_Secure($_POST['title'],1),
                     'description' => Wo_Secure($_POST['description'],1),

@@ -16,6 +16,14 @@ if (empty($_POST['password'])) {
     $error_message = 'password (POST) is missing';
 }
 if (empty($error_code)) {
+    // Verify password before allowing account deletion
+    $userData = Wo_UserData($wo['user']['user_id']);
+    if (!Wo_HashPassword($_POST['password'], $userData['password'])) {
+        $error_code    = 5;
+        $error_message = 'incorrect password';
+    }
+}
+if (empty($error_code)) {
     $delete     = Wo_DeleteUser($wo['user']['user_id']);
     if ($delete) {
         $response_data = array(

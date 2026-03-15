@@ -33,6 +33,12 @@ if ($f == 'update_user_avatar_picture') {
         '30'
     );
     if (isset($_FILES['avatar']['name'])) {
+        // Only allow users to update their own avatar, or admins
+        if (!empty($_POST['user_id']) && $_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 403));
+            exit();
+        }
         $ai_post = 0;
         if ($wo['config']['ai_user_system'] == 1 && !empty($_POST['ai_post']) && $_POST['ai_post'] == 'on') {
             $ai_post = 1;

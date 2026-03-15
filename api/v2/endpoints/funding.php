@@ -93,7 +93,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
             $id = Wo_Secure($_POST['id']);
             $fund = $db->where('id',$id)->getOne(T_FUNDING);
-            if (!empty($fund) || ($wo['user']['user_id'] != $fund->user_id && Wo_IsAdmin() == false)) {
+            if (!empty($fund) && ($wo['user']['user_id'] == $fund->user_id || Wo_IsAdmin() == true)) {
                 $insert_array = array('title' => Wo_Secure($_POST['title']),
                                       'description'   => Wo_Secure($_POST['description']),
                                       'amount'   => Wo_Secure($_POST['amount']));
@@ -120,7 +120,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
         if (!empty($_POST['id'])) {
             $id = Wo_Secure($_POST['id']);
             $fund = $db->where('id',$id)->getOne(T_FUNDING);
-            if (!empty($fund) || ($wo['user']['user_id'] != $fund->user_id && Wo_IsAdmin() == false)) {
+            if (!empty($fund) && ($wo['user']['user_id'] == $fund->user_id || Wo_IsAdmin() == true)) {
 
                 @Wo_DeleteFromToS3($fund->image);
 

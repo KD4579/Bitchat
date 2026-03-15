@@ -1,7 +1,7 @@
 <?php 
 if ($f == 'send_gift') {
     if (!empty($_GET['from']) && !empty($_GET['to']) && !empty($_GET['gift_id']) && Wo_CheckMainSession($hash_id) === true) {
-        $from     = Wo_Secure($_GET['from']);
+        $from     = Wo_Secure($wo['user']['user_id']); // Always use logged-in user, not GET param
         $to       = Wo_Secure($_GET['to']);
         $gift_id  = Wo_Secure($_GET['gift_id']);
         $gift_img = Wo_Secure($_GET['gift_img']);
