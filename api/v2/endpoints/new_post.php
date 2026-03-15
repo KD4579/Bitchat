@@ -455,7 +455,7 @@ if (empty($error_message)) {
     if (!empty($ffmpeg_convert_video)) {
         $ffmpeg_b             = $wo['config']['ffmpeg_binary_file'];
         $video_file_full_path = dirname(__DIR__) . '/' . $ffmpeg_convert_video;
-        $video_info           = shell_exec("$ffmpeg_b -i " . $video_file_full_path . " 2>&1");
+        $video_info           = shell_exec("$ffmpeg_b -i " . escapeshellarg($video_file_full_path) . " 2>&1");
         $re                   = '/[0-9]{3}+x[0-9]{3}/m';
         preg_match_all($re, $video_info, $min_str);
         $resolution = 0;

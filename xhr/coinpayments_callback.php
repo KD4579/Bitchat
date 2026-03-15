@@ -22,10 +22,12 @@ if ($f == 'coinpayments_callback') {
                     $amount2   = floatval($_POST['amount2']); //  The total amount of the payment in the buyer's selected coin.
                     $status    = intval($_POST['status']);
                     //encrease wallet value with posted amount
-                    $result    = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount1 . " WHERE `user_id` = '$user_id'");
+                    $safe_amount = floatval($amount1);
+                    $safe_userid = intval($user_id);
+                    $result    = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $safe_amount . " WHERE `user_id` = '" . $safe_userid . "'");
                     if ($result) {
                         cache($user_id, 'users', 'delete');
-                        $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$user_id}, 'WALLET', {$amount1}, 'coinpayments')");
+                        $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'coinpayments')");
                         if (!empty($_COOKIE['redirect_page'])) {
                             $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
                             $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);

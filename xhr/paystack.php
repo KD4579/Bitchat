@@ -256,7 +256,9 @@ if ($f == 'paystack') {
         if ($payment) {
             if (Wo_ReplenishingUserBalance($_GET['amount'])) {
                 $_GET['amount']                 = floatval($_GET['amount']);
-                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $_GET['amount'] . "', 'Paystack')");
+                $safe_amount                    = floatval($_GET['amount']);
+                $safe_userid                    = intval($wo['user']['id']);
+                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Paystack')");
                 $_SESSION['replenished_amount'] = $_GET['amount'];
                 if (!empty($_COOKIE['redirect_page'])) {
                     $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);

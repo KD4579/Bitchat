@@ -57,7 +57,9 @@ if ($f == "iyzipay") {
                     'wallet' => $db->inc($amount)
                 ));
                 cache($_GET['user_id'], 'users', 'delete');
-                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $_GET['user_id'] . "', 'WALLET', '" . $amount . "', 'iyzipay')");
+                $safe_userid                    = intval($_GET['user_id']);
+                $safe_amount                    = floatval($amount);
+                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'iyzipay')");
                 $_SESSION['replenished_amount'] = $amount;
                 if (!empty($_COOKIE['redirect_page'])) {
                     $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);

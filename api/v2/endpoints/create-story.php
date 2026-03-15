@@ -135,7 +135,7 @@ if (empty($error_code)) {
                 $thumb_1_duration = (int) ($total_seconds > 10) ? 11 : 1;
                 $dir              = "upload/photos/" . date('Y') . '/' . date('m');
                 $image_thumb      = $dir . '/' . Wo_GenerateKey() . '_' . date('d') . '_' . md5(time()) . "_image.jpeg";
-                $output_thumb     = shell_exec("$ffmpeg_b -ss \"$thumb_1_duration\" -i " . $media['filename'] . " -vframes 1 -f mjpeg $image_thumb 2<&1");
+                $output_thumb     = shell_exec("$ffmpeg_b -ss " . escapeshellarg($thumb_1_duration) . " -i " . escapeshellarg($media['filename']) . " -vframes 1 -f mjpeg " . escapeshellarg($image_thumb) . " 2<&1");
                 if (file_exists($image_thumb) && !empty(getimagesize($image_thumb))) {
                     $crop_image                   = Wo_Resize_Crop_Image(400, 400, $image_thumb, $image_thumb, $wo['config']['images_quality']);
                     $wo['config']['amazone_s3']   = $amazone_s3;

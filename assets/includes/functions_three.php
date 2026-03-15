@@ -8433,7 +8433,7 @@ function FFMPEGUpload($data) {
     $video_output_full_path_1080 = $dir . "/" . $video_path_1080;
     $video_output_full_path_2048 = $dir . "/" . $video_path_2048;
     $video_output_full_path_4096 = $dir . "/" . $video_path_4096;
-    $video_info                  = shell_exec("$ffmpeg_b -i " . $video_file_full_path . " 2>&1");
+    $video_info                  = shell_exec("$ffmpeg_b -i " . escapeshellarg($video_file_full_path) . " 2>&1");
     $re                          = '/[0-9]{3}+x[0-9]{3}/m';
     preg_match_all($re, $video_info, $min_str);
     $resolution = 0;
@@ -8455,7 +8455,7 @@ function FFMPEGUpload($data) {
     if ($time > 1) {
         $time = (int) ($time / 2);
     }
-    $shell                         = shell_exec("$ffmpeg_b -y -i $video_file_full_path -vcodec libx264 -preset " . $wo['config']['convert_speed'] . " -filter:v scale=426:-2 -crf 26 $video_output_full_path_240 2>&1");
+    $shell                         = shell_exec("$ffmpeg_b -y -i " . escapeshellarg($video_file_full_path) . " -vcodec libx264 -preset " . escapeshellarg($wo['config']['convert_speed']) . " -filter:v scale=426:-2 -crf 26 " . escapeshellarg($video_output_full_path_240) . " 2>&1");
     $data['post_data']['postFile'] = $video_path_240;
     $data['id']                    = Wo_RegisterPost($data['post_data']);
     if (file_exists($video_output_full_path_240)) {
@@ -8485,7 +8485,7 @@ function FFMPEGUpload($data) {
         $hash       = sha1(time() + time() - rand(9999, 9999)) . Wo_GenerateKey();
         $file_thumb = "upload/photos/" . date('Y') . '/' . date('m') . "/$hash.video_thumb_$uniq_id" . ".jpeg";
         $thumb      = $dir . "/" . $file_thumb;
-        shell_exec("$ffmpeg_b -ss \"$time\" -i $video_file_full_path -vframes 1 -f mjpeg $thumb 2<&1");
+        shell_exec("$ffmpeg_b -ss " . escapeshellarg($time) . " -i " . escapeshellarg($video_file_full_path) . " -vframes 1 -f mjpeg " . escapeshellarg($thumb) . " 2<&1");
         if ($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1) {
             $upload_s3 = Wo_UploadToS3($file_thumb);
         }
@@ -8494,7 +8494,7 @@ function FFMPEGUpload($data) {
         ));
     }
     if ($resolution >= 640 || $resolution == 0) {
-        $shell = shell_exec("$ffmpeg_b -y -i $video_file_full_path -vcodec libx264 -preset " . $wo['config']['convert_speed'] . " -filter:v scale=640:-2 -crf 26 $video_output_full_path_360 2>&1");
+        $shell = shell_exec("$ffmpeg_b -y -i " . escapeshellarg($video_file_full_path) . " -vcodec libx264 -preset " . escapeshellarg($wo['config']['convert_speed']) . " -filter:v scale=640:-2 -crf 26 " . escapeshellarg($video_output_full_path_360) . " 2>&1");
         if (file_exists($video_output_full_path_360)) {
             if ($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1) {
                 $upload_s3 = Wo_UploadToS3($video_path_360);
@@ -8505,7 +8505,7 @@ function FFMPEGUpload($data) {
         }
     }
     if ($resolution >= 854 || $resolution == 0) {
-        $shell = shell_exec("$ffmpeg_b -y -i $video_file_full_path -vcodec libx264 -preset " . $wo['config']['convert_speed'] . " -filter:v scale=854:-2 -crf 26 $video_output_full_path_480 2>&1");
+        $shell = shell_exec("$ffmpeg_b -y -i " . escapeshellarg($video_file_full_path) . " -vcodec libx264 -preset " . escapeshellarg($wo['config']['convert_speed']) . " -filter:v scale=854:-2 -crf 26 " . escapeshellarg($video_output_full_path_480) . " 2>&1");
         if (file_exists($video_output_full_path_480)) {
             if ($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1) {
                 $upload_s3 = Wo_UploadToS3($video_path_480);
@@ -8516,7 +8516,7 @@ function FFMPEGUpload($data) {
         }
     }
     if ($resolution >= 1280 || $resolution == 0) {
-        $shell = shell_exec("$ffmpeg_b -y -i $video_file_full_path -vcodec libx264 -preset " . $wo['config']['convert_speed'] . " -filter:v scale=1280:-2 -crf 26 $video_output_full_path_720 2>&1");
+        $shell = shell_exec("$ffmpeg_b -y -i " . escapeshellarg($video_file_full_path) . " -vcodec libx264 -preset " . escapeshellarg($wo['config']['convert_speed']) . " -filter:v scale=1280:-2 -crf 26 " . escapeshellarg($video_output_full_path_720) . " 2>&1");
         if (file_exists($video_output_full_path_720)) {
             if ($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1) {
                 $upload_s3 = Wo_UploadToS3($video_path_720);
@@ -8527,7 +8527,7 @@ function FFMPEGUpload($data) {
         }
     }
     if ($resolution >= 1920 || $resolution == 0) {
-        $shell = shell_exec("$ffmpeg_b -y -i $video_file_full_path -vcodec libx264 -preset " . $wo['config']['convert_speed'] . " -filter:v scale=1920:-2 -crf 26 $video_output_full_path_1080 2>&1");
+        $shell = shell_exec("$ffmpeg_b -y -i " . escapeshellarg($video_file_full_path) . " -vcodec libx264 -preset " . escapeshellarg($wo['config']['convert_speed']) . " -filter:v scale=1920:-2 -crf 26 " . escapeshellarg($video_output_full_path_1080) . " 2>&1");
         if (file_exists($video_output_full_path_1080)) {
             if ($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1) {
                 $upload_s3 = Wo_UploadToS3($video_path_1080);
@@ -8538,7 +8538,7 @@ function FFMPEGUpload($data) {
         }
     }
     if ($resolution >= 2048 || $resolution == 0) {
-        $shell = shell_exec("$ffmpeg_b -y -i $video_file_full_path -vcodec libx264 -preset " . $wo['config']['convert_speed'] . " -filter:v scale=2048:-2 -crf 26 $video_output_full_path_2048 2>&1");
+        $shell = shell_exec("$ffmpeg_b -y -i " . escapeshellarg($video_file_full_path) . " -vcodec libx264 -preset " . escapeshellarg($wo['config']['convert_speed']) . " -filter:v scale=2048:-2 -crf 26 " . escapeshellarg($video_output_full_path_2048) . " 2>&1");
         if (file_exists($video_output_full_path_2048)) {
             if ($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1) {
                 $upload_s3 = Wo_UploadToS3($video_path_2048);
@@ -8549,7 +8549,7 @@ function FFMPEGUpload($data) {
         }
     }
     if ($resolution >= 3840 || $resolution == 0) {
-        $shell = shell_exec("$ffmpeg_b -y -i $video_file_full_path -vcodec libx264 -preset " . $wo['config']['convert_speed'] . " -filter:v scale=3840:-2 -crf 26 $video_output_full_path_4096 2>&1");
+        $shell = shell_exec("$ffmpeg_b -y -i " . escapeshellarg($video_file_full_path) . " -vcodec libx264 -preset " . escapeshellarg($wo['config']['convert_speed']) . " -filter:v scale=3840:-2 -crf 26 " . escapeshellarg($video_output_full_path_4096) . " 2>&1");
         if (file_exists($video_output_full_path_4096)) {
             if ($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1) {
                 $upload_s3 = Wo_UploadToS3($video_path_4096);
@@ -8581,7 +8581,7 @@ function Check_Recaptcha($recaptcha_data) {
 function ffmpeg_duration($filename = false) {
     global $wo;
     $ffmpeg_b = $wo['config']['ffmpeg_binary_file'];
-    $output   = shell_exec("$ffmpeg_b -i {$filename} 2>&1");
+    $output   = shell_exec("$ffmpeg_b -i " . escapeshellarg($filename) . " 2>&1");
     $ptrn     = '/Duration: ([0-9]{2}):([0-9]{2}):([^ ,])+/';
     $time     = 30;
     if (preg_match($ptrn, $output, $matches)) {

@@ -1,6 +1,12 @@
 <?php
 if ($f == "update_general_settings") {
     if (isset($_POST) && Wo_CheckSession($hash_id) === true) {
+        // Only allow users to update their own settings, or admins/mods
+        if (!empty($_POST['user_id']) && $_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin() && !Wo_IsModerator()) {
+            header("Content-type: application/json");
+            echo json_encode(array('errors' => array('Permission denied')));
+            exit();
+        }
         if (empty($_POST['username']) OR empty($_POST['email'])) {
             $errors[] = $error_icon . $wo['lang']['please_check_details'];
         } else {

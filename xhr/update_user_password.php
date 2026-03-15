@@ -1,14 +1,16 @@
 <?php 
 if ($f == "update_user_password") {
     if (isset($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && Wo_CheckSession($hash_id) === true) {
+        // Only allow users to change their own password, or admins to change any
+        if ($_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+            $errors[] = $wo['lang']['permission_denied'] ?? 'Permission denied';
+        }
         $Userdata = Wo_UserData($_POST['user_id']);
-        if (!empty($Userdata['user_id'])) {
-            if ($_POST['user_id'] != $wo['user']['user_id']) {
-                $_POST['current_password'] = 1;
-            }
+        if (!empty($Userdata['user_id']) && empty($errors)) {
             if (empty($_POST['current_password']) OR empty($_POST['new_password']) OR empty($_POST['repeat_new_password'])) {
                 $errors[] = $error_icon . $wo['lang']['please_check_details'];
             } else {
+                // Always verify current password for own account
                 if ($_POST['user_id'] == $wo['user']['user_id']) {
                     if (Wo_HashPassword($_POST['current_password'], $Userdata['password']) == false) {
                         $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];

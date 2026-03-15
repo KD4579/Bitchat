@@ -1,6 +1,12 @@
 <?php 
 if ($f == "update_socialinks_setting") {
     if (isset($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && Wo_CheckSession($hash_id) === true) {
+        // Only allow users to update their own social links, or admins
+        if ($_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+            header("Content-type: application/json");
+            echo json_encode(array('errors' => array('Permission denied')));
+            exit();
+        }
         $Userdata = Wo_UserData($_POST['user_id']);
         if (!empty($Userdata['user_id'])) {
             if (empty($errors)) {

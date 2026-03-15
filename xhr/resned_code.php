@@ -16,7 +16,7 @@ if ($f == 'resned_code') {
         if (empty($errors)) {
             $random_activation = Wo_Secure(rand(11111, 99999));
             $message           = "Your confirmation code is: {$random_activation}";
-            $user_id           = $_POST['user_id'];
+            $user_id           = intval($_POST['user_id']);
             $query             = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$random_activation}' WHERE `user_id` = {$user_id}");
             if ($query) {
                 cache($user_id, 'users', 'delete');

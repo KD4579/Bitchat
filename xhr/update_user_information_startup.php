@@ -1,6 +1,12 @@
 <?php
 if ($f == 'update_user_information_startup' && Wo_CheckSession($hash_id) === true) {
     if (isset($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0) {
+        // Only allow users to update their own info, or admins
+        if ($_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 403));
+            exit();
+        }
         $Userdata = Wo_UserData($_POST['user_id']);
         if (!empty($Userdata['user_id'])) {
             $age_data = '00-00-0000';

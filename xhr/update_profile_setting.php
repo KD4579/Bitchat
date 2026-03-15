@@ -1,6 +1,12 @@
 <?php
 if ($f == "update_profile_setting") {
     if (isset($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && Wo_CheckSession($hash_id) === true) {
+        // Only allow users to update their own profile, or admins
+        if ($_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+            header("Content-type: application/json");
+            echo json_encode(array('errors' => array('Permission denied')));
+            exit();
+        }
         $Userdata = Wo_UserData($_POST['user_id']);
         if (!empty($Userdata['user_id'])) {
             $pattern = '/^(http|https):\\/\\/[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{1,100}' . '((:[0-9]{1,5})?\\/.*)?$/i';

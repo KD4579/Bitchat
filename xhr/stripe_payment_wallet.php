@@ -21,10 +21,12 @@ if ($f == 'stripe_payment_wallet') {
             $user   = Wo_UserData($wo['user']['user_id']);
             //encrease wallet value with posted amount
             $_POST['amount'] = floatval($_POST['amount']);
-            $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $_POST['amount'] . " WHERE `user_id` = '" . $user['id'] . "'");
+            $safe_amount = floatval($_POST['amount']);
+            $safe_userid = intval($user['id']);
+            $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $safe_amount . " WHERE `user_id` = '" . $safe_userid . "'");
             if ($result) {
                 cache($user['id'], 'users', 'delete');
-                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $user['id'] . "', 'WALLET', '" . $_POST['amount'] . "', 'stripe')");
+                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'stripe')");
             }
             $data = array(
                 'status' => 200,

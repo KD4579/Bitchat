@@ -313,7 +313,9 @@ else{
     	if ($payment) {
             if (Wo_ReplenishingUserBalance($_POST['amount'])) {
                 $_POST['amount'] = floatval($_POST['amount']);
-                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $_POST['amount'] . "', 'Paystack')");
+                $safe_amount = floatval($_POST['amount']);
+                $safe_userid = intval($wo['user']['id']);
+                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Paystack')");
                 $_SESSION['replenished_amount'] = $_POST['amount'];
                 $response_data = array(
 	                                'api_status' => 200,
