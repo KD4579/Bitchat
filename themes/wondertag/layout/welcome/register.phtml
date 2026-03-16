@@ -16,11 +16,17 @@
 					<div class="errors"></div>
 
 					<!-- Signup Method Tabs -->
-					<div class="bc-signup-tabs" style="display:flex;margin-bottom:16px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
-						<button type="button" class="bc-signup-tab active" data-method="email" onclick="switchSignupMethod('email')" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s;background:var(--main-color,#2196F3);color:#fff;">
+					<style>
+						.bc-signup-tabs{display:flex;margin-bottom:16px;border-radius:8px;overflow:hidden;border:2px solid #1a73e8;}
+						.bc-signup-tab{flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s;}
+						.bc-signup-tab.active{background:#1a73e8!important;color:#fff!important;}
+						.bc-signup-tab:not(.active){background:transparent!important;color:#1a73e8!important;}
+					</style>
+					<div class="bc-signup-tabs">
+						<button type="button" class="bc-signup-tab active" data-method="email" onclick="switchSignupMethod('email')">
 							Sign up with Email
 						</button>
-						<button type="button" class="bc-signup-tab" data-method="phone" onclick="switchSignupMethod('phone')" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s;background:#f8fafc;color:#64748b;">
+						<button type="button" class="bc-signup-tab" data-method="phone" onclick="switchSignupMethod('phone')">
 							Sign up with Phone
 						</button>
 					</div>
@@ -373,12 +379,8 @@ function switchSignupMethod(method) {
 
 	tabs.forEach(function(tab) {
 		if (tab.getAttribute('data-method') === method) {
-			tab.style.background = 'var(--main-color, #2196F3)';
-			tab.style.color = '#fff';
 			tab.classList.add('active');
 		} else {
-			tab.style.background = '#f8fafc';
-			tab.style.color = '#64748b';
 			tab.classList.remove('active');
 		}
 	});
