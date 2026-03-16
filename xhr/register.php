@@ -70,6 +70,15 @@ if ($f == 'register') {
     $signup_method = isset($_POST['signup_method']) ? Wo_Secure($_POST['signup_method']) : 'email';
     if (!in_array($signup_method, ['email', 'phone'])) $signup_method = 'email';
 
+    // Prepend country code to phone number if provided separately
+    if (!empty($_POST['phone_num']) && !empty($_POST['country_code'])) {
+        $phone = preg_replace('/[^0-9]/', '', $_POST['phone_num']); // strip non-digits
+        $code = preg_replace('/[^0-9+]/', '', $_POST['country_code']); // keep + and digits
+        if (strpos($phone, '+') !== 0) { // only prepend if phone doesn't already have +
+            $_POST['phone_num'] = $code . $phone;
+        }
+    }
+
     // For phone signup: email is not required at signup (will be collected later)
     // For email signup: phone is not required at signup (will be collected later)
     if ($signup_method === 'phone') {

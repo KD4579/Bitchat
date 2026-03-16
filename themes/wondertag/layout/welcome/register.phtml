@@ -48,11 +48,100 @@
 						<span><?php echo $wo['lang']['email_address']?></span>
 					</label>
 
-					<!-- Phone field (shown by default for phone signup) -->
-					<label class="tag_field" id="signup-phone-field" style="display:none;">
-						<input name="phone_num" type="tel" autocomplete="off" placeholder=" ">
-						<span><?php echo $wo['lang']['phone_num_ex'] ?? 'Phone Number (e.g. +1234567890)'; ?></span>
-					</label>
+					<!-- Phone field (shown for phone signup) -->
+					<div id="signup-phone-field" style="display:none;margin-bottom:12px;">
+						<div style="display:flex;gap:8px;align-items:stretch;">
+							<div style="flex:0 0 120px;">
+								<select name="country_code" id="country_code" class="form-control" style="height:100%;padding:8px 4px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;background:#fff;cursor:pointer;">
+									<option value="+1">+1 US</option>
+									<option value="+44">+44 UK</option>
+									<option value="+91" selected>+91 IN</option>
+									<option value="+61">+61 AU</option>
+									<option value="+86">+86 CN</option>
+									<option value="+81">+81 JP</option>
+									<option value="+82">+82 KR</option>
+									<option value="+49">+49 DE</option>
+									<option value="+33">+33 FR</option>
+									<option value="+39">+39 IT</option>
+									<option value="+34">+34 ES</option>
+									<option value="+7">+7 RU</option>
+									<option value="+55">+55 BR</option>
+									<option value="+52">+52 MX</option>
+									<option value="+27">+27 ZA</option>
+									<option value="+234">+234 NG</option>
+									<option value="+254">+254 KE</option>
+									<option value="+971">+971 AE</option>
+									<option value="+966">+966 SA</option>
+									<option value="+20">+20 EG</option>
+									<option value="+92">+92 PK</option>
+									<option value="+880">+880 BD</option>
+									<option value="+62">+62 ID</option>
+									<option value="+60">+60 MY</option>
+									<option value="+65">+65 SG</option>
+									<option value="+63">+63 PH</option>
+									<option value="+66">+66 TH</option>
+									<option value="+84">+84 VN</option>
+									<option value="+90">+90 TR</option>
+									<option value="+48">+48 PL</option>
+									<option value="+31">+31 NL</option>
+									<option value="+46">+46 SE</option>
+									<option value="+47">+47 NO</option>
+									<option value="+45">+45 DK</option>
+									<option value="+358">+358 FI</option>
+									<option value="+41">+41 CH</option>
+									<option value="+43">+43 AT</option>
+									<option value="+32">+32 BE</option>
+									<option value="+351">+351 PT</option>
+									<option value="+30">+30 GR</option>
+									<option value="+353">+353 IE</option>
+									<option value="+64">+64 NZ</option>
+									<option value="+1">+1 CA</option>
+									<option value="+56">+56 CL</option>
+									<option value="+57">+57 CO</option>
+									<option value="+54">+54 AR</option>
+									<option value="+51">+51 PE</option>
+									<option value="+233">+233 GH</option>
+									<option value="+255">+255 TZ</option>
+									<option value="+256">+256 UG</option>
+									<option value="+251">+251 ET</option>
+									<option value="+212">+212 MA</option>
+									<option value="+216">+216 TN</option>
+									<option value="+974">+974 QA</option>
+									<option value="+973">+973 BH</option>
+									<option value="+968">+968 OM</option>
+									<option value="+965">+965 KW</option>
+									<option value="+962">+962 JO</option>
+									<option value="+961">+961 LB</option>
+									<option value="+964">+964 IQ</option>
+									<option value="+98">+98 IR</option>
+									<option value="+93">+93 AF</option>
+									<option value="+94">+94 LK</option>
+									<option value="+977">+977 NP</option>
+									<option value="+95">+95 MM</option>
+									<option value="+855">+855 KH</option>
+									<option value="+856">+856 LA</option>
+									<option value="+852">+852 HK</option>
+									<option value="+886">+886 TW</option>
+									<option value="+853">+853 MO</option>
+									<option value="+380">+380 UA</option>
+									<option value="+40">+40 RO</option>
+									<option value="+36">+36 HU</option>
+									<option value="+420">+420 CZ</option>
+									<option value="+421">+421 SK</option>
+									<option value="+385">+385 HR</option>
+									<option value="+381">+381 RS</option>
+									<option value="+359">+359 BG</option>
+									<option value="+370">+370 LT</option>
+									<option value="+371">+371 LV</option>
+									<option value="+372">+372 EE</option>
+								</select>
+							</div>
+							<label class="tag_field" style="flex:1;margin-bottom:0;">
+								<input name="phone_num" type="tel" autocomplete="off" placeholder=" " pattern="[0-9]*" inputmode="numeric">
+								<span><?php echo $wo['lang']['phone_number'] ?? 'Phone Number'; ?></span>
+							</label>
+						</div>
+					</div>
 					<label class="tag_field">
 						<input name="password" type="password" id="password" autocomplete="off" placeholder=" " required>
 						<span><?php echo $wo['lang']['password']?></span>
@@ -125,7 +214,7 @@
 					</div>
 
 					<div class="round-check">
-						<input type="checkbox" name="accept_terms" id="accept_terms" onchange="activateButton(this)">
+						<input type="checkbox" name="accept_terms" id="accept_terms" onchange="activateButton(this)" onclick="activateButton(this)">
 						<label for="accept_terms"> 
 							<?php echo $wo['lang']['terms_agreement'] ?> <a href="<?php echo Wo_SeoLink('index.php?link1=terms&type=terms');?>"><?php echo $wo['lang']['terms_of_use'] ?></a> & <a href="<?php echo Wo_SeoLink('index.php?link1=terms&type=privacy-policy');?>"><?php echo $wo['lang']['privacy_policy'] ?></a>
 						</label>
