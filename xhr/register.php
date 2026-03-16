@@ -306,9 +306,6 @@ if ($f == 'register') {
             $re_data['phone_number'] = Wo_Secure($_POST['phone_num']);
         }
 
-        // Store signup method so we know what's missing later
-        $re_data['signup_method'] = $signup_method;
-
         $in_code = (isset($_POST['invited'])) ? Wo_Secure($_POST['invited']) : false;
 
         // Always register the user first (creates DB record)
