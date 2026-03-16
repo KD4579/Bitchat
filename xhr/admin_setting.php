@@ -5962,6 +5962,76 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         exit();
     }
 
+    // ---- BSC Deposits: Save Settings ----
+    if ($s == 'save_deposit_settings' && Wo_CheckSession($hash_id) === true) {
+        $keys = ['deposit_enabled', 'deposit_confirmations', 'deposit_hot_wallet', 'deposit_min_bnb', 'deposit_min_usdt', 'deposit_min_trdc'];
+        foreach ($keys as $key) {
+            if (isset($_POST[$key])) {
+                $val = Wo_Secure($_POST[$key]);
+                mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '{$val}' WHERE `name` = '{$key}'");
+            }
+        }
+        $data = array('status' => 200, 'message' => 'Deposit settings saved');
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
+    // ---- BSC Deposits: Manual Credit ----
+    if ($s == 'manual_credit_deposit' && Wo_CheckSession($hash_id) === true) {
+        $depositId = isset($_POST['deposit_id']) ? intval($_POST['deposit_id']) : 0;
+        if ($depositId <= 0) {
+            $data = array('status' => 400, 'message' => 'Invalid deposit ID');
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
+
+        $depQ = mysqli_query($sqlConnect, "SELECT * FROM " . T_DEPOSITS . " WHERE id = {$depositId} AND status IN ('detected','confirmed','failed') LIMIT 1");
+        if (!$depQ || !($dep = mysqli_fetch_assoc($depQ))) {
+            $data = array('status' => 400, 'message' => 'Deposit not found or already credited');
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
+
+        $balCol = 'wallet';
+        if ($dep['token'] === 'USDT') $balCol = 'balance_usdt';
+        elseif ($dep['token'] === 'BNB') $balCol = 'balance_bnb';
+
+        $now = time();
+        mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET {$balCol} = {$balCol} + {$dep['amount']} WHERE user_id = {$dep['user_id']}");
+        mysqli_query($sqlConnect, "UPDATE " . T_DEPOSITS . " SET status = 'credited', credited_at = {$now}, updated_at = {$now} WHERE id = {$depositId}");
+
+        $notes = json_encode(['deposit_id' => $depositId, 'manual' => true, 'admin' => $wo['user']['user_id']]);
+        $notesEsc = Wo_Secure($notes);
+        mysqli_query($sqlConnect, "INSERT INTO Wo_Payment_Transactions (userid, kind, amount, notes) VALUES ({$dep['user_id']}, 'DEPOSIT_MANUAL_CREDIT', {$dep['amount']}, '{$notesEsc}')");
+
+        $data = array('status' => 200, 'message' => 'Deposit credited to user');
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
+    // ---- BSC Deposits: Retry Sweep ----
+    if ($s == 'retry_sweep' && Wo_CheckSession($hash_id) === true) {
+        $sweepId = isset($_POST['sweep_id']) ? intval($_POST['sweep_id']) : 0;
+        if ($sweepId <= 0) {
+            $data = array('status' => 400, 'message' => 'Invalid sweep ID');
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
+
+        $now = time();
+        mysqli_query($sqlConnect, "UPDATE " . T_SWEEP_QUEUE . " SET status = 'pending', retry_count = 0, failure_reason = NULL, updated_at = {$now} WHERE id = {$sweepId} AND status = 'failed'");
+
+        $data = array('status' => 200, 'message' => 'Sweep queued for retry');
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
+
     // ---- TRDC Withdrawal: Save Settings ----
     if ($s == 'save_withdrawal_settings' && Wo_CheckSession($hash_id) === true) {
         $configKeys = array('trdc_withdrawal_enabled', 'trdc_withdrawal_min', 'trdc_withdrawal_max', 'trdc_withdrawal_fee_percent', 'trdc_withdrawal_daily_limit', 'trdc_withdrawal_cooldown_hours', 'trdc_withdrawal_max_pending');

@@ -158,6 +158,11 @@ define('T_TRDC_REWARDS', 'Wo_TRDC_Rewards');
 // TRDC Withdrawals
 define('T_TRDC_WITHDRAWALS', 'Wo_TRDC_Withdrawals');
 
+// Deposit System
+define('T_DEPOSIT_ADDRESSES', 'Wo_Deposit_Addresses');
+define('T_DEPOSITS', 'Wo_Deposits');
+define('T_SWEEP_QUEUE', 'Wo_Sweep_Queue');
+
 // Trading Signals
 define('T_TRADING_SIGNALS', 'Wo_Trading_Signals');
 

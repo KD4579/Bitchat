@@ -420,6 +420,239 @@
 		</div>
 		<?php } ?>
 
+		<!-- BSC Deposit Section -->
+		<?php if (!empty($wo['config']['deposit_enabled']) && $wo['config']['deposit_enabled'] == '1') { ?>
+		<div class="page-margin wow_content" style="margin-top:15px;">
+			<div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+				<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="flex-shrink:0;">
+					<path fill="#3b82f6" d="M2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,17V13H7L12,8L17,13H13V17H11Z"/>
+				</svg>
+				<div>
+					<p class="bold" style="margin:0;">Deposit to Bitchat</p>
+					<p style="font-size:12px;color:#64748b;margin:2px 0 0;">Send BNB, USDT, or TRDC to your personal BSC deposit address</p>
+				</div>
+			</div>
+
+			<!-- Deposit Address -->
+			<div id="deposit-address-section" style="margin-bottom:20px;">
+				<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:18px;text-align:center;">
+					<p style="font-size:13px;color:#0369a1;margin:0 0 12px;">Your BSC Deposit Address</p>
+					<div id="deposit-address-display" style="display:none;">
+						<div id="deposit-qr-code" style="margin:0 auto 12px;width:200px;height:200px;background:#fff;border-radius:8px;padding:8px;display:flex;align-items:center;justify-content:center;">
+							<canvas id="deposit-qr-canvas"></canvas>
+						</div>
+						<div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+							<code id="deposit-address-text" style="font-size:13px;word-break:break-all;background:#fff;padding:8px 12px;border-radius:6px;border:1px solid #e2e8f0;"></code>
+							<button onclick="copyDepositAddress()" style="background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:12px;white-space:nowrap;">
+								Copy
+							</button>
+						</div>
+						<a id="deposit-bscscan-link" href="#" target="_blank" style="display:inline-block;margin-top:8px;font-size:11px;color:#0369a1;">View on BscScan</a>
+					</div>
+					<div id="deposit-address-loading">
+						<button onclick="getDepositAddress()" style="background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:600;">
+							Generate Deposit Address
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Min Deposit Info -->
+			<div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:18px;">
+				<p style="font-size:12px;color:#92400e;margin:0;font-weight:600;">Minimum Deposits:</p>
+				<div style="display:flex;gap:20px;margin-top:6px;font-size:12px;color:#78716c;">
+					<span>BNB: <?php echo $wo['config']['deposit_min_bnb'] ?? '0.001'; ?></span>
+					<span>USDT: <?php echo $wo['config']['deposit_min_usdt'] ?? '1'; ?></span>
+					<span>TRDC: <?php echo $wo['config']['deposit_min_trdc'] ?? '10'; ?></span>
+				</div>
+				<p style="font-size:11px;color:#a16207;margin:6px 0 0;">Requires <?php echo $wo['config']['deposit_confirmations'] ?? '15'; ?> block confirmations. Only send on BSC (BEP-20) network.</p>
+			</div>
+
+			<!-- Multi-Token Balances -->
+			<div style="margin-bottom:18px;">
+				<p class="bold" style="margin:0 0 10px;">Your Balances</p>
+				<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+					<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;text-align:center;">
+						<p style="font-size:11px;color:#16a34a;margin:0;">TRDC</p>
+						<p id="bal-trdc" class="bold" style="font-size:18px;margin:4px 0 0;color:#15803d;">--</p>
+					</div>
+					<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;text-align:center;">
+						<p style="font-size:11px;color:#2563eb;margin:0;">USDT</p>
+						<p id="bal-usdt" class="bold" style="font-size:18px;margin:4px 0 0;color:#1d4ed8;">--</p>
+					</div>
+					<div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:12px;text-align:center;">
+						<p style="font-size:11px;color:#ca8a04;margin:0;">BNB</p>
+						<p id="bal-bnb" class="bold" style="font-size:18px;margin:4px 0 0;color:#a16207;">--</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Deposit History -->
+			<div>
+				<p class="bold" style="margin:0 0 10px;">Deposit History</p>
+				<div id="deposit-history-table" style="overflow-x:auto;">
+					<p style="color:#94a3b8;font-size:13px;text-align:center;">Loading...</p>
+				</div>
+			</div>
+
+			<script>
+			function getDepositAddress() {
+				var btn = document.querySelector('#deposit-address-loading button');
+				btn.disabled = true;
+				btn.textContent = 'Generating...';
+
+				$.post('<?php echo $wo['config']['site_url']; ?>/requests.php?f=deposit_address', {
+					action: 'get_address',
+					hash: '<?php echo Wo_CreateMainSession(); ?>'
+				}, function(resp) {
+					if (resp.status === 200 && resp.address) {
+						document.getElementById('deposit-address-text').textContent = resp.address;
+						document.getElementById('deposit-bscscan-link').href = 'https://bscscan.com/address/' + resp.address;
+						document.getElementById('deposit-address-display').style.display = 'block';
+						document.getElementById('deposit-address-loading').style.display = 'none';
+						generateQR(resp.address);
+					} else {
+						btn.disabled = false;
+						btn.textContent = 'Generate Deposit Address';
+						Wo_ShowNotification(resp.message || 'Error generating address', 'error');
+					}
+				}, 'json').fail(function() {
+					btn.disabled = false;
+					btn.textContent = 'Generate Deposit Address';
+					Wo_ShowNotification('Network error', 'error');
+				});
+			}
+
+			function generateQR(address) {
+				var canvas = document.getElementById('deposit-qr-canvas');
+				if (typeof QRCode !== 'undefined') {
+					QRCode.toCanvas(canvas, address, { width: 184, margin: 0 }, function(err) {
+						if (err) console.error('QR error:', err);
+					});
+				} else {
+					// Load QRCode library dynamically
+					var script = document.createElement('script');
+					script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+					script.onload = function() {
+						QRCode.toCanvas(canvas, address, { width: 184, margin: 0 }, function(err) {
+							if (err) console.error('QR error:', err);
+						});
+					};
+					document.head.appendChild(script);
+				}
+			}
+
+			function copyDepositAddress() {
+				var addr = document.getElementById('deposit-address-text').textContent;
+				if (navigator.clipboard) {
+					navigator.clipboard.writeText(addr).then(function() {
+						Wo_ShowNotification('Address copied to clipboard', 'success');
+					});
+				} else {
+					var temp = document.createElement('input');
+					temp.value = addr;
+					document.body.appendChild(temp);
+					temp.select();
+					document.execCommand('copy');
+					document.body.removeChild(temp);
+					Wo_ShowNotification('Address copied to clipboard', 'success');
+				}
+			}
+
+			function loadDepositBalances() {
+				$.post('<?php echo $wo['config']['site_url']; ?>/requests.php?f=deposit_address', {
+					action: 'balances',
+					hash: '<?php echo Wo_CreateMainSession(); ?>'
+				}, function(resp) {
+					if (resp.status === 200 && resp.balances) {
+						document.getElementById('bal-trdc').textContent = resp.balances.trdc || '0';
+						document.getElementById('bal-usdt').textContent = resp.balances.usdt || '0';
+						document.getElementById('bal-bnb').textContent = resp.balances.bnb || '0';
+					}
+				}, 'json');
+			}
+
+			function loadDepositHistory(page) {
+				page = page || 1;
+				$.post('<?php echo $wo['config']['site_url']; ?>/requests.php?f=deposit_address', {
+					action: 'history',
+					page: page,
+					hash: '<?php echo Wo_CreateMainSession(); ?>'
+				}, function(resp) {
+					if (resp.status === 200) {
+						if (resp.deposits.length === 0) {
+							$('#deposit-history-table').html('<p style="color:#94a3b8;font-size:13px;text-align:center;">No deposits yet</p>');
+							return;
+						}
+						var html = '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+						html += '<tr style="background:#f1f5f9;"><th style="padding:8px;text-align:left;">Token</th><th style="padding:8px;text-align:right;">Amount</th><th style="padding:8px;text-align:center;">Status</th><th style="padding:8px;text-align:center;">Confirmations</th><th style="padding:8px;text-align:center;">TX</th><th style="padding:8px;text-align:right;">Date</th></tr>';
+						resp.deposits.forEach(function(d) {
+							var statusColors = {
+								'detected': '#f59e0b',
+								'confirmed': '#3b82f6',
+								'credited': '#10b981',
+								'swept': '#10b981',
+								'failed': '#ef4444'
+							};
+							var statusLabels = {
+								'detected': 'Pending',
+								'confirmed': 'Confirmed',
+								'credited': 'Credited',
+								'swept': 'Credited',
+								'failed': 'Failed'
+							};
+							var color = statusColors[d.status] || '#94a3b8';
+							var label = statusLabels[d.status] || d.status;
+							var txLink = d.tx_hash ? '<a href="https://bscscan.com/tx/' + d.tx_hash + '" target="_blank" style="color:#3b82f6;font-size:11px;">' + d.tx_hash.substring(0, 10) + '...</a>' : '-';
+							var date = new Date(d.created_at * 1000).toLocaleDateString();
+
+							html += '<tr style="border-bottom:1px solid #f1f5f9;">';
+							html += '<td style="padding:8px;">' + d.token + '</td>';
+							html += '<td style="padding:8px;text-align:right;font-weight:600;">' + d.amount + '</td>';
+							html += '<td style="padding:8px;text-align:center;"><span style="color:' + color + ';font-weight:600;font-size:11px;">' + label + '</span></td>';
+							html += '<td style="padding:8px;text-align:center;">' + d.confirmations + '</td>';
+							html += '<td style="padding:8px;text-align:center;">' + txLink + '</td>';
+							html += '<td style="padding:8px;text-align:right;color:#64748b;">' + date + '</td>';
+							html += '</tr>';
+						});
+						html += '</table>';
+
+						if (resp.pages > 1) {
+							html += '<div style="text-align:center;margin-top:10px;">';
+							for (var p = 1; p <= resp.pages; p++) {
+								html += '<button onclick="loadDepositHistory(' + p + ')" style="margin:0 2px;padding:4px 10px;border:1px solid ' + (p === resp.page ? '#3b82f6' : '#e2e8f0') + ';background:' + (p === resp.page ? '#3b82f6' : '#fff') + ';color:' + (p === resp.page ? '#fff' : '#334155') + ';border-radius:4px;cursor:pointer;font-size:11px;">' + p + '</button>';
+							}
+							html += '</div>';
+						}
+
+						$('#deposit-history-table').html(html);
+					}
+				}, 'json');
+			}
+
+			// Check if user already has a deposit address
+			$(document).ready(function() {
+				loadDepositBalances();
+				loadDepositHistory();
+
+				// Auto-check for existing address
+				$.post('<?php echo $wo['config']['site_url']; ?>/requests.php?f=deposit_address', {
+					action: 'get_address',
+					hash: '<?php echo Wo_CreateMainSession(); ?>'
+				}, function(resp) {
+					if (resp.status === 200 && resp.address) {
+						document.getElementById('deposit-address-text').textContent = resp.address;
+						document.getElementById('deposit-bscscan-link').href = 'https://bscscan.com/address/' + resp.address;
+						document.getElementById('deposit-address-display').style.display = 'block';
+						document.getElementById('deposit-address-loading').style.display = 'none';
+						generateQR(resp.address);
+					}
+				}, 'json');
+			});
+			</script>
+		</div>
+		<?php } ?>
+
 		<div class="page-margin wow_content" style="margin-top:15px;">
 			<?php
 				$wo['trans'] = Wo_GetMytransactions();

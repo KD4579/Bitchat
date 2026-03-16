@@ -1,0 +1,17 @@
+[Unit]
+Description=Bitchat BSC Deposit Monitor
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=KamalDave
+WorkingDirectory=/home/KamalDave/web/bitchat.live/public_html/nodejs/deposit-monitor
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
