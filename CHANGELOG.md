@@ -2,6 +2,71 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-16 — Critical Security Audit & TRDC Ticker Fallback
+
+### TRDC Ticker — Dual-Source Price Fetching
+
+- **Added DexScreener fallback** for TRDC price ticker when GeckoTerminal shows 0% 24h change (no trading activity).
+- Logic: GeckoTerminal (primary) → if 0% change or error → DexScreener (fallback) → if DexScreener also fails → Gecko data stays shown.
+- DexScreener API uses pair address `0x7b57fa13cca5093f5d724823d58503dfd02ff07c` (PancakeSwap V3 TRDC/USDT).
+- Console logs which source is active for debugging.
+
+### Security Audit — Round 1 (30+ Bug Fixes)
+
+- **Fixed `data.errors` crash** across 20 welcome template files (all 3 themes) — `$state.html(data.errors)` crashed when errors was an array. Now handles both string and array formats.
+- **Fixed `hasClass()` missing return** in pro_register and reset-password templates.
+- **Removed `console.log` debug statement** from reset-password template.
+- **Fixed fatal typo** `fasle` → `false` in functions_three.php.
+- **Fixed division by zero** in point-to-dollar conversion (functions_three.php).
+- **Removed dead code** — contradictory `isset()` after `empty()` check (functions_one.php).
+- **Fixed undefined array key warnings** with null coalescing operators (functions_one.php).
+- **Added NULL dereference guards** in order.php, customer_order.php, checkout.php.
+- **Fixed chat logic error** `||` → `&&` for message_id validation (xhr/chat.php).
+- **Fixed uninitialized variables** `$tags_array` and `$tags` (xhr/posts.php).
+
+### Security Audit — Round 2 (Critical Vulnerabilities)
+
+- **Deleted exposed credentials** — `test3.php` contained hardcoded Twilio Account SID and Auth Token.
+- **Fixed 10 FFmpeg command injection (RCE)** vulnerabilities — all `shell_exec()` calls now use `escapeshellarg()` for file paths (functions_three.php, xhr/posts.php, xhr/status.php, xhr/admin_setting.php, API endpoints).
+- **Fixed SQL injection** in xhr/resned_code.php — raw `$_POST['user_id']` used in query without sanitization. Now uses `intval()`.
+- **Fixed SQL injection in 8 payment handlers** — wallet.php, paystack.php, iyzipay.php, cashfree.php, aamarpay.php, stripe_payment_wallet.php, coinpayments_callback.php, API v2 paystack/iyzipay. All now use `intval()`/`floatval()`.
+- **Fixed critical IDOR in password change** — any user could change any other user's password (xhr/update_user_password.php). Added ownership + admin check.
+- **Fixed IDOR in 4 profile update handlers** — update_user_information_startup.php, update_profile_setting.php, update_socialinks_setting.php, update_general_settings.php. Added ownership verification.
+
+### Security Audit — Round 3 (Deep Audit)
+
+- **Fixed critical authorization bypass in funding** — `||` (OR) → `&&` (AND) logic error in ownership check allowed any user to edit/delete any fund (xhr/funding.php + api/v2/endpoints/funding.php).
+- **Fixed IDOR in avatar uploads** — user, group, and page avatar uploads now verify ownership before allowing changes.
+- **Fixed sender spoofing in gift system** — xhr/send_gift.php used attacker-controlled `$_GET['from']` as sender. Now uses `$wo['user']['user_id']`.
+- **Fixed SQL injection in Wo_RequestNewPayment()** — 7 unsanitized fields in INSERT query (functions_three.php).
+- **Fixed SQL injection in Wo_InsertWalletPayment()** — complete rewrite to sanitize dynamic key/value pairs (functions_three.php).
+- **Fixed mass assignment in Wo_UpdateUserData()** — protected sensitive fields (balance, wallet, points, is_pro, pro_type, verified) from non-admin updates.
+- **Fixed open redirect in login** — validated `last_url` redirect is same-origin (xhr/login.php).
+- **Added password verification for account deletion** via API (api/v2/endpoints/delete-user.php).
+
+### Files Modified
+
+- `themes/wondertag/custom/js/footer.js`
+- `assets/includes/functions_one.php`
+- `assets/includes/functions_three.php`
+- `xhr/chat.php`, `xhr/posts.php`, `xhr/status.php`, `xhr/admin_setting.php`
+- `xhr/resned_code.php`, `xhr/login.php`, `xhr/send_gift.php`
+- `xhr/update_user_password.php`, `xhr/update_user_information_startup.php`
+- `xhr/update_profile_setting.php`, `xhr/update_socialinks_setting.php`
+- `xhr/update_general_settings.php`
+- `xhr/update_user_avatar_picture.php`, `xhr/update_group_avatar_picture.php`
+- `xhr/update_page_avatar_picture.php`
+- `xhr/funding.php`, `xhr/wallet.php`, `xhr/paystack.php`, `xhr/iyzipay.php`
+- `xhr/cashfree.php`, `xhr/aamarpay.php`, `xhr/stripe_payment_wallet.php`
+- `xhr/coinpayments_callback.php`
+- `api/v2/endpoints/funding.php`, `api/v2/endpoints/delete-user.php`
+- `api/v2/endpoints/new_post.php`, `api/v2/endpoints/create-story.php`
+- `api/v2/endpoints/paystack.php`, `api/v2/endpoints/iyzipay.php`
+- `sources/order.php`, `sources/customer_order.php`, `sources/checkout.php`
+- 20 welcome template files across all 3 themes
+
+---
+
 ## 2026-03-14 — Crypto Blog Bot & Registration Fixes
 
 ### Crypto Trading Views Blog Bot
