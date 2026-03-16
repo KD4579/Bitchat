@@ -186,6 +186,235 @@
 			</div>
 		</div>
 
+		<!-- TRDC On-Chain Withdrawal Section -->
+		<?php if (!empty($wo['config']['trdc_withdrawal_enabled']) && $wo['config']['trdc_withdrawal_enabled'] == '1') { ?>
+		<div class="page-margin wow_content" style="margin-top:15px;">
+			<div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+				<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="flex-shrink:0;">
+					<path fill="#10b981" d="M21,18V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19A2,2 0 0,1 21,5V6H12A2,2 0 0,0 10,8V16A2,2 0 0,0 12,18M12,16H22V8H12M16,13.5A1.5,1.5 0 0,1 14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5Z"/>
+				</svg>
+				<div>
+					<p class="bold" style="margin:0;">Withdraw TRDC to Wallet</p>
+					<p style="font-size:12px;color:#64748b;margin:2px 0 0;">Send your TRDC tokens to your BSC wallet address</p>
+				</div>
+			</div>
+
+			<?php
+				$userWallet = mysqli_query($sqlConnect, "SELECT wallet_address, wallet_verified FROM " . T_USERS . " WHERE user_id = " . intval($wo['user']['user_id']) . " LIMIT 1");
+				$userWalletRow = $userWallet ? mysqli_fetch_assoc($userWallet) : null;
+				$hasVerifiedWallet = !empty($userWalletRow['wallet_address']) && !empty($userWalletRow['wallet_verified']);
+			?>
+
+			<?php if (!$hasVerifiedWallet) { ?>
+				<div style="background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius:10px; padding:20px 24px; text-align:center;">
+					<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" style="margin-bottom:10px;">
+						<path fill="#d97706" d="M21,18V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19A2,2 0 0,1 21,5V6H12A2,2 0 0,0 10,8V16A2,2 0 0,0 12,18M12,16H22V8H12M16,13.5A1.5,1.5 0 0,1 14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5Z"/>
+					</svg>
+					<h4 style="color:#92400e; margin:0 0 8px;">Connect Your Web3 Wallet First</h4>
+					<p style="color:#78350f; font-size:13px; margin:0 0 14px;">To withdraw TRDC tokens, you need to connect and verify your BSC wallet by logging in with your wallet.</p>
+					<a href="<?php echo $wo['config']['site_url']; ?>/welcome" class="btn btn-mat" style="background:#d97706; color:#fff; border:none; font-size:13px; padding:8px 24px;">
+						Connect Wallet
+					</a>
+				</div>
+			<?php } else { ?>
+				<?php
+					$feePercent = floatval($wo['config']['trdc_withdrawal_fee_percent'] ?? 2);
+					$minAmount = floatval($wo['config']['trdc_withdrawal_min'] ?? 100);
+					$maxAmount = floatval($wo['config']['trdc_withdrawal_max'] ?? 50000);
+					$walletAddr = $userWalletRow['wallet_address'];
+					$walletShort = substr($walletAddr, 0, 6) . '...' . substr($walletAddr, -4);
+				?>
+
+				<div style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius:12px; padding:24px; color:#fff; margin-bottom:16px;">
+					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+						<div>
+							<p style="font-size:12px; color:#94a3b8; margin:0 0 4px;">Withdraw To</p>
+							<p style="font-size:14px; color:#10b981; margin:0; font-family:monospace;" title="<?php echo htmlspecialchars($walletAddr); ?>">
+								<?php echo htmlspecialchars($walletShort); ?>
+								<a href="https://bscscan.com/address/<?php echo htmlspecialchars($walletAddr); ?>" target="_blank" style="color:#60a5fa; font-size:11px; text-decoration:none; margin-left:6px;">View on BSCScan</a>
+							</p>
+						</div>
+						<div style="text-align:right;">
+							<p style="font-size:12px; color:#94a3b8; margin:0 0 4px;">Available Balance</p>
+							<p style="font-size:18px; font-weight:700; color:#fcd535; margin:0;" id="withdrawal-balance"><?php echo number_format(floatval($wo['user']['wallet']), 4); ?> TRDC</p>
+						</div>
+					</div>
+
+					<div id="withdrawal-alert" style="display:none; margin-bottom:12px;"></div>
+
+					<form id="trdc-withdrawal-form" onsubmit="return false;">
+						<div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+							<div style="flex:1; min-width:180px;">
+								<label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;">Amount (TRDC)</label>
+								<input type="number" id="withdrawal-amount" name="amount" min="<?php echo $minAmount; ?>" max="<?php echo $maxAmount; ?>" step="0.0001" placeholder="<?php echo number_format($minAmount, 0); ?>"
+									style="width:100%; padding:10px 14px; border:1px solid #334155; border-radius:8px; background:#0f172a; color:#fff; font-size:15px; outline:none;" />
+								<p style="font-size:10px; color:#64748b; margin:4px 0 0;">Min: <?php echo number_format($minAmount, 0); ?> &bull; Max: <?php echo number_format($maxAmount, 0); ?> &bull; Fee: <?php echo $feePercent; ?>%</p>
+							</div>
+							<div style="flex-shrink:0;">
+								<button type="button" id="withdrawal-submit-btn" onclick="submitTRDCWithdrawal()" class="btn btn-mat" style="background:#10b981; color:#fff; border:none; padding:10px 28px; font-size:14px; font-weight:600; border-radius:8px;">
+									Withdraw
+								</button>
+							</div>
+						</div>
+						<div id="withdrawal-fee-preview" style="font-size:12px; color:#94a3b8; margin-top:8px;"></div>
+					</form>
+				</div>
+
+				<!-- Withdrawal History -->
+				<div id="withdrawal-history-section">
+					<p class="bold" style="margin-bottom:12px;">Withdrawal History</p>
+					<div id="withdrawal-history-table" style="font-size:13px;">
+						<p style="color:#94a3b8; text-align:center;">Loading...</p>
+					</div>
+				</div>
+
+				<script>
+				// Fee preview
+				document.getElementById('withdrawal-amount').addEventListener('input', function() {
+					var amount = parseFloat(this.value) || 0;
+					var feePercent = <?php echo $feePercent; ?>;
+					var fee = (amount * feePercent / 100).toFixed(4);
+					var net = (amount - fee).toFixed(4);
+					var el = document.getElementById('withdrawal-fee-preview');
+					if (amount > 0) {
+						el.innerHTML = 'Fee: ' + fee + ' TRDC &bull; You receive: <strong style="color:#10b981;">' + net + ' TRDC</strong>';
+					} else {
+						el.innerHTML = '';
+					}
+				});
+
+				// Submit withdrawal
+				function submitTRDCWithdrawal() {
+					var amount = parseFloat(document.getElementById('withdrawal-amount').value) || 0;
+					var alertEl = document.getElementById('withdrawal-alert');
+					var btn = document.getElementById('withdrawal-submit-btn');
+
+					if (amount <= 0) {
+						alertEl.style.display = 'block';
+						alertEl.innerHTML = '<div class="alert alert-danger" style="margin:0;font-size:13px;">Please enter a valid amount</div>';
+						return;
+					}
+
+					if (!confirm('Withdraw ' + amount.toFixed(4) + ' TRDC to your BSC wallet?\n\nThis action cannot be undone once processed.')) {
+						return;
+					}
+
+					btn.disabled = true;
+					btn.textContent = 'Processing...';
+					alertEl.style.display = 'none';
+
+					$.post(Wo_Ajax_Requests_File() + '?f=trdc_withdrawal', {
+						action: 'request',
+						amount: amount,
+						hash: $('input[name=hash]').val()
+					}, function(data) {
+						btn.disabled = false;
+						btn.textContent = 'Withdraw';
+
+						if (data.status == 200) {
+							alertEl.style.display = 'block';
+							alertEl.innerHTML = '<div class="alert alert-success" style="margin:0;font-size:13px;">' + data.message + '</div>';
+							document.getElementById('withdrawal-amount').value = '';
+							document.getElementById('withdrawal-fee-preview').innerHTML = '';
+							document.getElementById('withdrawal-balance').textContent = parseFloat(data.new_balance).toFixed(4) + ' TRDC';
+							// Update main wallet balance too
+							var mainBal = document.getElementById('wallet-balance-amount');
+							if (mainBal) mainBal.textContent = parseFloat(data.new_balance).toFixed(2);
+							loadWithdrawalHistory();
+						} else {
+							alertEl.style.display = 'block';
+							alertEl.innerHTML = '<div class="alert alert-danger" style="margin:0;font-size:13px;">' + (data.message || 'Error') + '</div>';
+						}
+					}, 'json').fail(function() {
+						btn.disabled = false;
+						btn.textContent = 'Withdraw';
+						alertEl.style.display = 'block';
+						alertEl.innerHTML = '<div class="alert alert-danger" style="margin:0;font-size:13px;">Network error. Please try again.</div>';
+					});
+				}
+
+				// Cancel withdrawal
+				function cancelWithdrawal(id) {
+					if (!confirm('Cancel this withdrawal? The full amount will be refunded to your balance.')) return;
+
+					$.post(Wo_Ajax_Requests_File() + '?f=trdc_withdrawal', {
+						action: 'cancel',
+						withdrawal_id: id,
+						hash: $('input[name=hash]').val()
+					}, function(data) {
+						if (data.status == 200) {
+							loadWithdrawalHistory();
+							// Refresh balance
+							var newBal = parseFloat(document.getElementById('withdrawal-balance').textContent) + data.refunded;
+							document.getElementById('withdrawal-balance').textContent = newBal.toFixed(4) + ' TRDC';
+							var mainBal = document.getElementById('wallet-balance-amount');
+							if (mainBal) mainBal.textContent = newBal.toFixed(2);
+						} else {
+							alert(data.message || 'Error');
+						}
+					}, 'json');
+				}
+
+				// Load history
+				function loadWithdrawalHistory() {
+					$.post(Wo_Ajax_Requests_File() + '?f=trdc_withdrawal', {
+						action: 'history',
+						hash: $('input[name=hash]').val()
+					}, function(data) {
+						var container = document.getElementById('withdrawal-history-table');
+						if (data.status != 200 || !data.withdrawals || data.withdrawals.length === 0) {
+							container.innerHTML = '<p style="color:#94a3b8; text-align:center;">No withdrawals yet</p>';
+							return;
+						}
+
+						var statusColors = {
+							pending: '#f59e0b', processing: '#3b82f6',
+							completed: '#10b981', failed: '#ef4444', cancelled: '#6b7280'
+						};
+
+						var html = '<table style="width:100%; border-collapse:collapse;">';
+						html += '<thead><tr style="border-bottom:2px solid #e2e8f0;">';
+						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">Amount</th>';
+						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">Fee</th>';
+						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">Net</th>';
+						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">Status</th>';
+						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">TX</th>';
+						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">Date</th>';
+						html += '<th style="padding:8px 6px;"></th>';
+						html += '</tr></thead><tbody>';
+
+						data.withdrawals.forEach(function(w) {
+							var statusColor = statusColors[w.status] || '#6b7280';
+							var txLink = w.tx_hash ? '<a href="https://bscscan.com/tx/' + w.tx_hash + '" target="_blank" style="color:#60a5fa;font-size:11px;text-decoration:none;">' + w.tx_hash.substring(0, 10) + '...</a>' : '-';
+							var cancelBtn = w.status === 'pending' ? '<button onclick="cancelWithdrawal(' + w.id + ')" style="font-size:11px;color:#ef4444;background:none;border:1px solid #ef4444;border-radius:4px;padding:2px 8px;cursor:pointer;">Cancel</button>' : '';
+
+							html += '<tr style="border-bottom:1px solid #f1f5f9;">';
+							html += '<td style="padding:10px 6px;">' + w.amount.toFixed(2) + '</td>';
+							html += '<td style="padding:10px 6px;">' + w.fee.toFixed(2) + '</td>';
+							html += '<td style="padding:10px 6px;font-weight:600;">' + w.net_amount.toFixed(2) + '</td>';
+							html += '<td style="padding:10px 6px;"><span style="color:' + statusColor + ';font-weight:600;text-transform:capitalize;">' + w.status + '</span></td>';
+							html += '<td style="padding:10px 6px;">' + txLink + '</td>';
+							html += '<td style="padding:10px 6px;font-size:12px;color:#64748b;">' + w.created_at_formatted + '</td>';
+							html += '<td style="padding:10px 6px;">' + cancelBtn + '</td>';
+							html += '</tr>';
+
+							if (w.status === 'failed' && w.failure_reason) {
+								html += '<tr><td colspan="7" style="padding:4px 6px 10px;font-size:11px;color:#ef4444;">Reason: ' + w.failure_reason + '</td></tr>';
+							}
+						});
+
+						html += '</tbody></table>';
+						container.innerHTML = html;
+					}, 'json');
+				}
+
+				// Load history on page load
+				$(document).ready(function() { loadWithdrawalHistory(); });
+				</script>
+			<?php } ?>
+		</div>
+		<?php } ?>
+
 		<div class="page-margin wow_content" style="margin-top:15px;">
 			<?php
 				$wo['trans'] = Wo_GetMytransactions();

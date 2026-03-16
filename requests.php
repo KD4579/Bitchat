@@ -46,6 +46,7 @@ $allow_array = array(
     'fdusd_bep20',
     'usdt_trc20',
     'trdc_bep20',
+    'trdc_withdrawal',
 );
 if ($f == 'certification' && $s == 'download_user_certification' && !empty($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0) {
     $allow_array[] = 'certification';

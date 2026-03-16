@@ -1,0 +1,15 @@
+{
+  "name": "bitchat-withdrawal-processor",
+  "version": "1.0.0",
+  "description": "TRDC BEP-20 on-chain withdrawal processor for Bitchat",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "ethers": "^6.13.0",
+    "mysql2": "^3.11.0"
+  }
+}

@@ -155,6 +155,9 @@ define('T_SCHEDULED_POSTS', 'Wo_Scheduled_Posts');
 define('T_GHOST_QUEUE', 'Wo_Ghost_Queue');
 define('T_TRDC_REWARDS', 'Wo_TRDC_Rewards');
 
+// TRDC Withdrawals
+define('T_TRDC_WITHDRAWALS', 'Wo_TRDC_Withdrawals');
+
 // Trading Signals
 define('T_TRADING_SIGNALS', 'Wo_Trading_Signals');
 

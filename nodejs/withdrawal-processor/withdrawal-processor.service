@@ -1,0 +1,16 @@
+[Unit]
+Description=Bitchat TRDC Withdrawal Processor
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=KamalDave
+WorkingDirectory=/home/KamalDave/web/bitchat.live/public_html/nodejs/withdrawal-processor
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
