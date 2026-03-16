@@ -67,24 +67,44 @@ if ($f == 'register') {
     }
 
     $fields = Wo_GetWelcomeFileds();
-    if (empty($_POST['email']) || empty($_POST['username']) || empty($_POST['password']) || empty($_POST['confirm_password']) || empty($_POST['gender'])) {
+    $signup_method = isset($_POST['signup_method']) ? Wo_Secure($_POST['signup_method']) : 'email';
+    if (!in_array($signup_method, ['email', 'phone'])) $signup_method = 'email';
+
+    // For phone signup: email is not required at signup (will be collected later)
+    // For email signup: phone is not required at signup (will be collected later)
+    if ($signup_method === 'phone') {
+        // Phone signup: require phone, generate placeholder email
+        if (empty($_POST['phone_num'])) {
+            $errors = $error_icon . ($wo['lang']['worng_phone_number'] ?? 'Please enter a valid phone number');
+        }
+        if (empty($_POST['email'])) {
+            // Generate a unique placeholder email so DB constraints are satisfied
+            $_POST['email'] = 'phone_' . time() . rand(1000,9999) . '@placeholder.bitchat.live';
+        }
+    } else {
+        // Email signup: require email
+        if (empty($_POST['email'])) {
+            $errors = $error_icon . $wo['lang']['please_check_details'];
+        }
+    }
+
+    if (empty($_POST['username']) || empty($_POST['password']) || empty($_POST['confirm_password']) || empty($_POST['gender'])) {
         $errors = $error_icon . $wo['lang']['please_check_details'];
     } else {
         $is_exist = Wo_IsNameExist($_POST['username'], 0);
-        if (empty($_POST['phone_num']) && $wo['config']['sms_or_email'] == 'sms') {
-            $errors = $error_icon . $wo['lang']['worng_phone_number'];
-        }
         if (in_array(true, $is_exist)) {
             $errors = $error_icon . $wo['lang']['username_exists'];
         }
         if (Wo_IsBanned($_POST['username'])) {
             $errors = $error_icon . $wo['lang']['username_is_banned'];
         }
-        if (Wo_IsBanned($_POST['email'])) {
-            $errors = $error_icon . $wo['lang']['email_is_banned'];
-        }
-        if (preg_match_all('~@(.*?)(.*)~', $_POST['email'], $matches) && !empty($matches[2]) && !empty($matches[2][0]) && Wo_IsBanned($matches[2][0])) {
-            $errors = $error_icon . $wo['lang']['email_provider_banned'];
+        if ($signup_method === 'email' && !empty($_POST['email'])) {
+            if (Wo_IsBanned($_POST['email'])) {
+                $errors = $error_icon . $wo['lang']['email_is_banned'];
+            }
+            if (preg_match_all('~@(.*?)(.*)~', $_POST['email'], $matches) && !empty($matches[2]) && !empty($matches[2][0]) && Wo_IsBanned($matches[2][0])) {
+                $errors = $error_icon . $wo['lang']['email_provider_banned'];
+            }
         }
         if (Wo_CheckIfUserCanRegister($wo['config']['user_limit']) === false) {
             $errors = $error_icon . $wo['lang']['limit_exceeded'];
@@ -103,18 +123,20 @@ if ($f == 'register') {
         }
         if (!empty($_POST['phone_num'])) {
             if (!preg_match('/^\+?\d+$/', $_POST['phone_num'])) {
-                $errors = $error_icon . $wo['lang']['worng_phone_number'];
+                $errors = $error_icon . ($wo['lang']['worng_phone_number'] ?? 'Invalid phone number format');
             } else {
                 if (Wo_PhoneExists($_POST['phone_num']) === true) {
-                    $errors = $error_icon . $wo['lang']['phone_already_used'];
+                    $errors = $error_icon . ($wo['lang']['phone_already_used'] ?? 'Phone number already in use');
                 }
             }
         }
-        if (Wo_EmailExists($_POST['email']) === true) {
-            $errors = $error_icon . $wo['lang']['email_exists'];
-        }
-        if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors = $error_icon . $wo['lang']['email_invalid_characters'];
+        if ($signup_method === 'email') {
+            if (Wo_EmailExists($_POST['email']) === true) {
+                $errors = $error_icon . $wo['lang']['email_exists'];
+            }
+            if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors = $error_icon . $wo['lang']['email_invalid_characters'];
+            }
         }
         if (strlen($_POST['password']) < 6) {
             $errors = $error_icon . $wo['lang']['password_short'];
@@ -274,16 +296,19 @@ if ($f == 'register') {
         if (!empty($_POST['phone_num'])) {
             $re_data['phone_number'] = Wo_Secure($_POST['phone_num']);
         }
+
+        // Store signup method so we know what's missing later
+        $re_data['signup_method'] = $signup_method;
+
         $in_code = (isset($_POST['invited'])) ? Wo_Secure($_POST['invited']) : false;
-        if (empty($_POST['phone_num'])) {
-            $register = Wo_RegisterUser($re_data, $in_code);
+
+        // For phone signup with validation enabled, we still register but activate via SMS
+        if ($signup_method === 'phone' && $activate == 0) {
+            $register = true; // Wo_RegisterUser will be called below after SMS
         } else {
-            if ($activate == 1) {
-                $register = Wo_RegisterUser($re_data, $in_code);
-            } else {
-                $register = true;
-            }
+            $register = Wo_RegisterUser($re_data, $in_code);
         }
+
         if ($register === true) {
             $r_id = Wo_UserIdFromUsername($_POST['username']);
 
@@ -297,7 +322,6 @@ if ($f == 'register') {
                     $r_id
                 );
                 if ($avatarUpload === true) {
-                    // Mark startup_image as complete so user skips that step
                     $db->where('user_id', $r_id)->update(T_USERS, array('startup_image' => '1'));
                     cache($r_id, 'users', 'delete');
                 }
@@ -306,7 +330,6 @@ if ($f == 'register') {
             if (!empty($re_data['referrer']) && is_numeric($wo['config']['affiliate_level']) && $wo['config']['affiliate_level'] > 1) {
                 AddNewRef($re_data['referrer'], $r_id, $wo['config']['amount_ref']);
             }
-            // Notify referrer that their invite joined
             if (!empty($re_data['referrer']) && function_exists('Wo_RegisterNotification')) {
                 $newUserName = !empty($_POST['first_name']) ? Wo_Secure($_POST['first_name']) : $_POST['username'];
                 Wo_RegisterNotification(array(
@@ -317,74 +340,85 @@ if ($f == 'register') {
                     'url'          => 'index.php?link1=timeline&u=' . $_POST['username']
                 ));
             }
-            if ($activate == 1 || ($wo['config']['sms_or_email'] == 'mail' && $activate != 1)) {
-                $wo['user'] = Wo_UserData($r_id);
-                if ($wo['config']['auto_username'] == 1) {
-                    $_POST['username'] = $_POST['username'] . "_" . $r_id;
-                    $db->where('user_id', $r_id)->update(T_USERS, array(
-                        'username' => $_POST['username']
-                    ));
-                    cache($r_id, 'users', 'delete');
-                }
-                if (!empty($wo['config']['auto_friend_users'])) {
-                    $autoFollow = Wo_AutoFollow(Wo_UserIdFromUsername($_POST['username']));
-                }
-                if (!empty($wo['config']['auto_page_like'])) {
-                    Wo_AutoPageLike(Wo_UserIdFromUsername($_POST['username']));
-                }
-                if (!empty($wo['config']['auto_group_join'])) {
-                    Wo_AutoGroupJoin(Wo_UserIdFromUsername($_POST['username']));
-                }
+
+            // Store signup_method in DB for complete-profile redirect
+            if ($r_id) {
+                mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `src` = '" . Wo_Secure($signup_method) . "_signup' WHERE `user_id` = {$r_id}");
+                cache($r_id, 'users', 'delete');
             }
-            if ($activate == 1) {
-                $data  = array(
-                    'status' => 200,
-                    'message' => $success_icon . $wo['lang']['successfully_joined_label']
-                );
-                $login = Wo_Login($_POST['username'], $_POST['password']);
-                if ($login === true) {
-                    $session             = Wo_CreateLoginSession(Wo_UserIdFromUsername($_POST['username']));
-                    $_SESSION['user_id'] = $session;
-                    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-                    setcookie("user_id", $session, [
-                        'expires'  => time() + (10 * 365 * 24 * 60 * 60),
-                        'path'     => '/',
-                        'secure'   => $isSecure,
-                        'samesite' => 'Lax'
-                    ]);
-                }
-                $data['location'] = $wo['config']['site_url'] . '/?cache=' . time();
-                if ($wo['config']['membership_system'] == 1) {
-                    $data['location'] = Wo_SeoLink('index.php?link1=go-pro');
-                }
-            } else if ($wo['config']['sms_or_email'] == 'mail') {
-                $wo['code']        = $code;
-                $body              = Wo_LoadPage('emails/activate');
-                $send_message_data = array(
-                    'from_email' => $wo['config']['siteEmail'],
-                    'from_name' => $wo['config']['siteName'],
-                    'to_email' => $_POST['email'],
-                    'to_name' => $_POST['username'],
-                    'subject' => $wo['lang']['account_activation'],
-                    'charSet' => 'utf-8',
-                    'message_body' => $body,
-                    'is_html' => true
-                );
-                $send              = Wo_SendMessage($send_message_data);
-                $errors            = $success_icon . $wo['lang']['successfully_joined_verify_label'];
-            } else if ($wo['config']['sms_or_email'] == 'sms' && !empty($_POST['phone_num'])) {
+
+            // Post-registration setup (auto-follow, auto-like, etc.)
+            $wo['user'] = Wo_UserData($r_id);
+            if ($wo['config']['auto_username'] == 1) {
+                $_POST['username'] = $_POST['username'] . "_" . $r_id;
+                $db->where('user_id', $r_id)->update(T_USERS, array('username' => $_POST['username']));
+                cache($r_id, 'users', 'delete');
+            }
+            if (!empty($wo['config']['auto_friend_users'])) {
+                $autoFollow = Wo_AutoFollow(Wo_UserIdFromUsername($_POST['username']));
+            }
+            if (!empty($wo['config']['auto_page_like'])) {
+                Wo_AutoPageLike(Wo_UserIdFromUsername($_POST['username']));
+            }
+            if (!empty($wo['config']['auto_group_join'])) {
+                Wo_AutoGroupJoin(Wo_UserIdFromUsername($_POST['username']));
+            }
+
+            // Verification flow depends on signup method
+            if ($signup_method === 'phone') {
+                // Phone signup: send SMS OTP for verification
                 $random_activation = Wo_Secure(rand(11111, 99999));
-                $message           = "Your confirmation code is: {$random_activation}";
+                $message = "Your Bitchat confirmation code is: {$random_activation}";
                 if (Wo_SendSMSMessage($_POST['phone_num'], $message) === true) {
                     $user_id = Wo_UserIdFromUsername($_POST['username']);
-                    $query   = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$random_activation}' WHERE `user_id` = {$user_id}");
+                    mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$random_activation}', `active` = '0' WHERE `user_id` = {$user_id}");
                     cache($user_id, 'users', 'delete');
-                    $data    = array(
+                    $data = array(
                         'status' => 300,
                         'location' => Wo_SeoLink('index.php?link1=confirm-sms?code=' . $code)
                     );
                 } else {
-                    $errors = $error_icon . $wo['lang']['failed_to_send_code_email'];
+                    $errors = $error_icon . ($wo['lang']['failed_to_send_code_email'] ?? 'Failed to send SMS code. Please try again.');
+                }
+            } else if ($signup_method === 'email') {
+                // Email signup: send verification email
+                if ($wo['config']['emailValidation'] == '1') {
+                    $wo['code'] = $code;
+                    $body = Wo_LoadPage('emails/activate');
+                    $send_message_data = array(
+                        'from_email' => $wo['config']['siteEmail'],
+                        'from_name' => $wo['config']['siteName'],
+                        'to_email' => $_POST['email'],
+                        'to_name' => $_POST['username'],
+                        'subject' => $wo['lang']['account_activation'],
+                        'charSet' => 'utf-8',
+                        'message_body' => $body,
+                        'is_html' => true
+                    );
+                    Wo_SendMessage($send_message_data);
+                    $errors = $success_icon . $wo['lang']['successfully_joined_verify_label'];
+                } else {
+                    // No email validation required — auto-login
+                    $data = array(
+                        'status' => 200,
+                        'message' => $success_icon . ($wo['lang']['successfully_joined_label'] ?? 'Registration successful!')
+                    );
+                    $login = Wo_Login($_POST['username'], $_POST['password']);
+                    if ($login === true) {
+                        $session = Wo_CreateLoginSession(Wo_UserIdFromUsername($_POST['username']));
+                        $_SESSION['user_id'] = $session;
+                        $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+                        setcookie("user_id", $session, [
+                            'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+                            'path'     => '/',
+                            'secure'   => $isSecure,
+                            'samesite' => 'Lax'
+                        ]);
+                    }
+                    $data['location'] = $wo['config']['site_url'] . '/?cache=' . time();
+                    if ($wo['config']['membership_system'] == 1) {
+                        $data['location'] = Wo_SeoLink('index.php?link1=go-pro');
+                    }
                 }
             }
         }

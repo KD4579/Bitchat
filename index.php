@@ -57,6 +57,19 @@ if ($wo['loggedin'] == true) {
         header("Location: " . Wo_SeoLink('index.php?link1=welcome-setup'));
         exit();
     }
+
+    // Complete-profile redirect: force users to add missing email or phone
+    if ($currentLink !== 'complete-profile' && $currentLink !== 'logout' && empty($_POST) && !isset($_GET['f'])) {
+        $needsEmail = (!empty($wo['user']['src']) && $wo['user']['src'] === 'phone_signup'
+            && (empty($wo['user']['email']) || strpos($wo['user']['email'], '@placeholder.bitchat.live') !== false));
+        $needsPhone = (!empty($wo['user']['src']) && $wo['user']['src'] === 'email_signup'
+            && empty($wo['user']['phone_number']));
+        if ($needsEmail || $needsPhone) {
+            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+            header("Location: " . Wo_SeoLink('index.php?link1=complete-profile'));
+            exit();
+        }
+    }
 } else if (!empty($_SERVER['HTTP_HOST'])) {
 }
 if (!empty($_GET)) {
@@ -180,6 +193,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                         break;
                     case 'confirm-sms':
                         include('sources/confirm_sms.php');
+                        break;
+                    case 'complete-profile':
+                        include('sources/complete_profile.php');
                         break;
                     case 'confirm-sms-password':
                         include('sources/confirm_sms_password.php');
@@ -631,6 +647,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     case 'confirm-sms':
                         include('sources/confirm_sms.php');
                         break;
+                    case 'complete-profile':
+                        include('sources/complete_profile.php');
+                        break;
                     case 'confirm-sms-password':
                         include('sources/confirm_sms_password.php');
                         break;
@@ -712,6 +731,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                     break;
                 case 'confirm-sms':
                     include('sources/confirm_sms.php');
+                    break;
+                case 'complete-profile':
+                    include('sources/complete_profile.php');
                     break;
                 case 'confirm-sms-password':
                     include('sources/confirm_sms_password.php');
@@ -803,6 +825,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
                 break;
             case 'confirm-sms':
                 include('sources/confirm_sms.php');
+                break;
+            case 'complete-profile':
+                include('sources/complete_profile.php');
                 break;
             case 'confirm-sms-password':
                 include('sources/confirm_sms_password.php');
@@ -1224,6 +1249,9 @@ if ((!$wo['loggedin'] || ($wo['loggedin'] && $wo['user']['banned'] != 1))) {
             break;
         case 'confirm-sms':
             include('sources/confirm_sms.php');
+            break;
+        case 'complete-profile':
+            include('sources/complete_profile.php');
             break;
         case 'confirm-sms-password':
             include('sources/confirm_sms_password.php');

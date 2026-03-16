@@ -14,6 +14,18 @@
 				<form id="register" method="post" enctype="multipart/form-data">
 					<p class="title"><?php echo $wo['lang']['sign_up']?></p>
 					<div class="errors"></div>
+
+					<!-- Signup Method Tabs -->
+					<div class="bc-signup-tabs" style="display:flex;margin-bottom:16px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+						<button type="button" class="bc-signup-tab active" data-method="email" onclick="switchSignupMethod('email')" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s;background:var(--main-color,#2196F3);color:#fff;">
+							Sign up with Email
+						</button>
+						<button type="button" class="bc-signup-tab" data-method="phone" onclick="switchSignupMethod('phone')" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s;background:#f8fafc;color:#64748b;">
+							Sign up with Phone
+						</button>
+					</div>
+					<input type="hidden" name="signup_method" id="signup_method" value="email">
+
 					<?php if ($wo['config']['auto_username'] == 1) { ?>
 						<label class="tag_field">
 							<input name="first_name" type="text" autocomplete="off" placeholder=" " autofocus>
@@ -29,16 +41,18 @@
 							<span><?php echo $wo['lang']['username']?></span>
 						</label>
 					<?php } ?>
-					<label class="tag_field">
+
+					<!-- Email field (shown by default for email signup) -->
+					<label class="tag_field" id="signup-email-field">
 						<input name="email" type="email" autocomplete="off" placeholder=" " required>
 						<span><?php echo $wo['lang']['email_address']?></span>
 					</label>
-					<?php if($wo['config']['sms_or_email'] == 'sms') {?>
-						<label class="tag_field">
-							<input name="phone_num" type="tel" autocomplete="off" placeholder=" " required>
-							<span><?php echo $wo['lang']['phone_num_ex']?></span>
-						</label>
-					<?php } ?>
+
+					<!-- Phone field (shown by default for phone signup) -->
+					<label class="tag_field" id="signup-phone-field" style="display:none;">
+						<input name="phone_num" type="tel" autocomplete="off" placeholder=" ">
+						<span><?php echo $wo['lang']['phone_num_ex'] ?? 'Phone Number (e.g. +1234567890)'; ?></span>
+					</label>
 					<label class="tag_field">
 						<input name="password" type="password" id="password" autocomplete="off" placeholder=" " required>
 						<span><?php echo $wo['lang']['password']?></span>
@@ -287,6 +301,43 @@ function activateButton(element) {
 		document.getElementById("sign_submit").disabled = true;
 	}
 };
+
+// Signup method switching (Email / Phone)
+function switchSignupMethod(method) {
+	var emailField = document.getElementById('signup-email-field');
+	var phoneField = document.getElementById('signup-phone-field');
+	var emailInput = emailField.querySelector('input');
+	var phoneInput = phoneField.querySelector('input');
+	var tabs = document.querySelectorAll('.bc-signup-tab');
+
+	document.getElementById('signup_method').value = method;
+
+	tabs.forEach(function(tab) {
+		if (tab.getAttribute('data-method') === method) {
+			tab.style.background = 'var(--main-color, #2196F3)';
+			tab.style.color = '#fff';
+			tab.classList.add('active');
+		} else {
+			tab.style.background = '#f8fafc';
+			tab.style.color = '#64748b';
+			tab.classList.remove('active');
+		}
+	});
+
+	if (method === 'email') {
+		emailField.style.display = '';
+		phoneField.style.display = 'none';
+		emailInput.required = true;
+		phoneInput.required = false;
+		phoneInput.value = '';
+	} else {
+		emailField.style.display = 'none';
+		phoneField.style.display = '';
+		emailInput.required = false;
+		phoneInput.required = true;
+		emailInput.value = '';
+	}
+}
 
 <?php if ($wo['config']['password_complexity_system'] == 1) { ?>
 (function(){

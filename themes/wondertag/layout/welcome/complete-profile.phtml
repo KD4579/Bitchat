@@ -1,0 +1,228 @@
+<div class="valign tag_welcome">
+	<div class="tag_wel_upper">
+		<?php echo Wo_LoadPage('welcome/welcome-header');?>
+	</div>
+	<div class="tag_wel_middle">
+		<div class="container">
+			<div class="wow_content tag_auth_box" style="max-width:480px;margin:0 auto;">
+				<div class="valign tag_auth_animation d-none">
+					<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 367.805 367.805" xml:space="preserve">
+						<g><path style="fill:#3BB54A;" d="M183.903,0.001c101.566,0,183.902,82.336,183.902,183.902s-82.336,183.902-183.902,183.902 S0.001,285.469,0.001,183.903l0,0C-0.288,82.625,81.579,0.29,182.856,0.001C183.205,0,183.554,0,183.903,0.001z"/><polygon style="fill:#fff;" points="285.78,133.225 155.168,263.837 82.025,191.217 111.805,161.96 155.168,204.801 256.001,103.968"/></g>
+					</svg>
+					Profile completed!
+				</div>
+
+				<?php if ($wo['complete_profile_need'] === 'email') { ?>
+				<!-- Phone user needs to add email -->
+				<div id="cp-step-email">
+					<p class="title" style="margin-bottom:8px;">Add Your Email Address</p>
+					<p style="font-size:13px;color:#64748b;margin-bottom:20px;">You signed up with your phone number. Please add and verify your email address to complete your profile.</p>
+					<div class="errors" id="cp-errors"></div>
+					<label class="tag_field">
+						<input name="cp_email" id="cp_email" type="email" autocomplete="off" placeholder=" " required>
+						<span><?php echo $wo['lang']['email_address'] ?? 'Email Address'; ?></span>
+					</label>
+					<button type="button" onclick="sendEmailCode()" class="btn btn-main btn-mat tag_wel_btn" id="cp-email-btn">
+						Send Verification Code
+					</button>
+				</div>
+
+				<div id="cp-step-email-verify" style="display:none;">
+					<p class="title" style="margin-bottom:8px;">Verify Your Email</p>
+					<p style="font-size:13px;color:#64748b;margin-bottom:20px;">We sent a 6-digit code to <strong id="cp-sent-email"></strong></p>
+					<div class="errors" id="cp-verify-errors"></div>
+					<label class="tag_field">
+						<input name="cp_email_code" id="cp_email_code" type="text" autocomplete="off" placeholder=" " maxlength="6" required style="font-size:24px;letter-spacing:8px;text-align:center;">
+						<span>Verification Code</span>
+					</label>
+					<button type="button" onclick="verifyEmailCode()" class="btn btn-main btn-mat tag_wel_btn" id="cp-verify-email-btn">
+						Verify & Continue
+					</button>
+					<div style="text-align:center;margin-top:12px;">
+						<span id="cp-email-timer" style="font-size:12px;color:#94a3b8;">Resend in <span id="cp-email-countdown">60</span>s</span>
+						<button type="button" onclick="sendEmailCode()" id="cp-email-resend" style="display:none;background:none;border:none;color:var(--main-color,#2196F3);cursor:pointer;font-size:13px;font-weight:600;">Resend Code</button>
+					</div>
+				</div>
+
+				<?php } elseif ($wo['complete_profile_need'] === 'phone') { ?>
+				<!-- Email user needs to add phone -->
+				<div id="cp-step-phone">
+					<p class="title" style="margin-bottom:8px;">Add Your Phone Number</p>
+					<p style="font-size:13px;color:#64748b;margin-bottom:20px;">You signed up with your email. Please add and verify your phone number to complete your profile.</p>
+					<div class="errors" id="cp-errors"></div>
+					<label class="tag_field">
+						<input name="cp_phone" id="cp_phone" type="tel" autocomplete="off" placeholder=" " required>
+						<span><?php echo $wo['lang']['phone_num_ex'] ?? 'Phone Number (e.g. +1234567890)'; ?></span>
+					</label>
+					<button type="button" onclick="sendPhoneCode()" class="btn btn-main btn-mat tag_wel_btn" id="cp-phone-btn">
+						Send SMS Code
+					</button>
+				</div>
+
+				<div id="cp-step-phone-verify" style="display:none;">
+					<p class="title" style="margin-bottom:8px;">Verify Your Phone</p>
+					<p style="font-size:13px;color:#64748b;margin-bottom:20px;">We sent a 5-digit code to <strong id="cp-sent-phone"></strong></p>
+					<div class="errors" id="cp-verify-errors"></div>
+					<label class="tag_field">
+						<input name="cp_phone_code" id="cp_phone_code" type="text" autocomplete="off" placeholder=" " maxlength="5" required style="font-size:24px;letter-spacing:8px;text-align:center;">
+						<span>SMS Code</span>
+					</label>
+					<button type="button" onclick="verifyPhoneCode()" class="btn btn-main btn-mat tag_wel_btn" id="cp-verify-phone-btn">
+						Verify & Continue
+					</button>
+					<div style="text-align:center;margin-top:12px;">
+						<span id="cp-phone-timer" style="font-size:12px;color:#94a3b8;">Resend in <span id="cp-phone-countdown">60</span>s</span>
+						<button type="button" onclick="sendPhoneCode()" id="cp-phone-resend" style="display:none;background:none;border:none;color:var(--main-color,#2196F3);cursor:pointer;font-size:13px;font-weight:600;">Resend Code</button>
+					</div>
+				</div>
+				<?php } ?>
+
+			</div>
+		</div>
+	</div>
+	<div class="tag_wel_bottom">
+		<?php echo Wo_LoadPage('footer/welcome');?>
+	</div>
+</div>
+
+<script>
+var cpHash = '<?php echo Wo_CreateMainSession(); ?>';
+var cpUrl = '<?php echo $wo['config']['site_url']; ?>/requests.php?f=complete_profile';
+
+// ---- EMAIL VERIFICATION ----
+function sendEmailCode() {
+	var email = document.getElementById('cp_email').value.trim();
+	if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+		document.getElementById('cp-errors').innerHTML = 'Please enter a valid email address';
+		return;
+	}
+	var btn = document.getElementById('cp-email-btn');
+	btn.disabled = true;
+	btn.textContent = 'Sending...';
+	document.getElementById('cp-errors').innerHTML = '';
+
+	$.post(cpUrl, { action: 'send_email_code', email: email, hash: cpHash }, function(resp) {
+		if (resp.status === 200) {
+			document.getElementById('cp-step-email').style.display = 'none';
+			document.getElementById('cp-step-email-verify').style.display = 'block';
+			document.getElementById('cp-sent-email').textContent = email;
+			startCountdown('email');
+		} else {
+			document.getElementById('cp-errors').innerHTML = resp.message || 'Error sending code';
+			btn.disabled = false;
+			btn.textContent = 'Send Verification Code';
+		}
+	}, 'json').fail(function() {
+		document.getElementById('cp-errors').innerHTML = 'Network error';
+		btn.disabled = false;
+		btn.textContent = 'Send Verification Code';
+	});
+}
+
+function verifyEmailCode() {
+	var code = document.getElementById('cp_email_code').value.trim();
+	if (!code || code.length < 6) {
+		document.getElementById('cp-verify-errors').innerHTML = 'Please enter the 6-digit code';
+		return;
+	}
+	var btn = document.getElementById('cp-verify-email-btn');
+	btn.disabled = true;
+	btn.textContent = 'Verifying...';
+	document.getElementById('cp-verify-errors').innerHTML = '';
+
+	$.post(cpUrl, { action: 'verify_email_code', code: code, hash: cpHash }, function(resp) {
+		if (resp.status === 200) {
+			$('.tag_auth_animation').removeClass('d-none');
+			setTimeout(function() {
+				window.location.href = '<?php echo $wo['config']['site_url']; ?>/?cache=' + Date.now();
+			}, 1200);
+		} else {
+			document.getElementById('cp-verify-errors').innerHTML = resp.message || 'Invalid code';
+			btn.disabled = false;
+			btn.textContent = 'Verify & Continue';
+		}
+	}, 'json').fail(function() {
+		btn.disabled = false;
+		btn.textContent = 'Verify & Continue';
+	});
+}
+
+// ---- PHONE VERIFICATION ----
+function sendPhoneCode() {
+	var phone = document.getElementById('cp_phone').value.trim();
+	if (!phone || !phone.match(/^\+?\d{7,15}$/)) {
+		document.getElementById('cp-errors').innerHTML = 'Please enter a valid phone number (e.g. +1234567890)';
+		return;
+	}
+	var btn = document.getElementById('cp-phone-btn');
+	btn.disabled = true;
+	btn.textContent = 'Sending...';
+	document.getElementById('cp-errors').innerHTML = '';
+
+	$.post(cpUrl, { action: 'send_phone_code', phone: phone, hash: cpHash }, function(resp) {
+		if (resp.status === 200) {
+			document.getElementById('cp-step-phone').style.display = 'none';
+			document.getElementById('cp-step-phone-verify').style.display = 'block';
+			document.getElementById('cp-sent-phone').textContent = phone;
+			startCountdown('phone');
+		} else {
+			document.getElementById('cp-errors').innerHTML = resp.message || 'Error sending code';
+			btn.disabled = false;
+			btn.textContent = 'Send SMS Code';
+		}
+	}, 'json').fail(function() {
+		document.getElementById('cp-errors').innerHTML = 'Network error';
+		btn.disabled = false;
+		btn.textContent = 'Send SMS Code';
+	});
+}
+
+function verifyPhoneCode() {
+	var code = document.getElementById('cp_phone_code').value.trim();
+	if (!code || code.length < 5) {
+		document.getElementById('cp-verify-errors').innerHTML = 'Please enter the 5-digit SMS code';
+		return;
+	}
+	var btn = document.getElementById('cp-verify-phone-btn');
+	btn.disabled = true;
+	btn.textContent = 'Verifying...';
+	document.getElementById('cp-verify-errors').innerHTML = '';
+
+	$.post(cpUrl, { action: 'verify_phone_code', code: code, hash: cpHash }, function(resp) {
+		if (resp.status === 200) {
+			$('.tag_auth_animation').removeClass('d-none');
+			setTimeout(function() {
+				window.location.href = '<?php echo $wo['config']['site_url']; ?>/?cache=' + Date.now();
+			}, 1200);
+		} else {
+			document.getElementById('cp-verify-errors').innerHTML = resp.message || 'Invalid code';
+			btn.disabled = false;
+			btn.textContent = 'Verify & Continue';
+		}
+	}, 'json').fail(function() {
+		btn.disabled = false;
+		btn.textContent = 'Verify & Continue';
+	});
+}
+
+// ---- COUNTDOWN TIMER ----
+function startCountdown(type) {
+	var seconds = 60;
+	var countdownEl = document.getElementById('cp-' + type + '-countdown');
+	var timerEl = document.getElementById('cp-' + type + '-timer');
+	var resendEl = document.getElementById('cp-' + type + '-resend');
+
+	timerEl.style.display = '';
+	resendEl.style.display = 'none';
+
+	var interval = setInterval(function() {
+		seconds--;
+		countdownEl.textContent = seconds;
+		if (seconds <= 0) {
+			clearInterval(interval);
+			timerEl.style.display = 'none';
+			resendEl.style.display = '';
+		}
+	}, 1000);
+}
+</script>
