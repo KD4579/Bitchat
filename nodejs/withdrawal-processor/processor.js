@@ -13,17 +13,17 @@ const MAX_GAS_GWEI = 15;
 async function processWithdrawals(wallet, provider) {
     const db = getDbPool();
 
-    // Fetch pending withdrawals (oldest first)
+    // Only fetch admin-approved withdrawals (not pending — those need admin approval first)
     const [rows] = await db.execute(
         `SELECT * FROM Wo_TRDC_Withdrawals
-         WHERE status = 'pending' AND retry_count < ?
+         WHERE status = 'approved' AND retry_count < ?
          ORDER BY created_at ASC LIMIT 5`,
         [MAX_RETRIES]
     );
 
     if (rows.length === 0) return 0;
 
-    log.info(`Found ${rows.length} pending withdrawal(s)`);
+    log.info(`Found ${rows.length} approved withdrawal(s) to process`);
 
     const trdcContract = new ethers.Contract(TRDC_CONTRACT, ERC20_ABI, wallet);
     let processed = 0;
@@ -49,7 +49,7 @@ async function processSingleWithdrawal(db, wallet, provider, trdcContract, withd
     // Mark as processing (prevents double-processing)
     const [updateResult] = await db.execute(
         `UPDATE Wo_TRDC_Withdrawals SET status = 'processing', processed_at = ?
-         WHERE id = ? AND status = 'pending'`,
+         WHERE id = ? AND status = 'approved'`,
         [now, withdrawal.id]
     );
 
@@ -72,7 +72,7 @@ async function processSingleWithdrawal(db, wallet, provider, trdcContract, withd
     if (gasGwei > MAX_GAS_GWEI) {
         log.warn(`Gas ${gasGwei.toFixed(1)} gwei > max ${MAX_GAS_GWEI}. Deferring withdrawal #${withdrawal.id}`);
         await db.execute(
-            `UPDATE Wo_TRDC_Withdrawals SET status = 'pending', processed_at = NULL WHERE id = ?`,
+            `UPDATE Wo_TRDC_Withdrawals SET status = 'approved', processed_at = NULL WHERE id = ?`,
             [withdrawal.id]
         );
         return;
@@ -137,7 +137,7 @@ async function processSingleWithdrawal(db, wallet, provider, trdcContract, withd
             log.warn(`Withdrawal #${withdrawal.id} attempt ${retryCount} failed: ${reason}. Will retry.`);
             await db.execute(
                 `UPDATE Wo_TRDC_Withdrawals
-                 SET status = 'pending', retry_count = ?, failure_reason = ?
+                 SET status = 'approved', retry_count = ?, failure_reason = ?
                  WHERE id = ?`,
                 [retryCount, reason, withdrawal.id]
             );

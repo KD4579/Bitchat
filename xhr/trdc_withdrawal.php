@@ -1,5 +1,5 @@
 <?php
-// TRDC On-Chain Withdrawal — request, history, cancel
+// TRDC On-Chain Withdrawal — claim, history, cancel
 if ($f == 'trdc_withdrawal') {
     $data = array('status' => 400, 'message' => 'Error');
 
@@ -21,7 +21,7 @@ if ($f == 'trdc_withdrawal') {
     $action = isset($_POST['action']) ? Wo_Secure($_POST['action']) : '';
     $userId = intval($wo['user']['user_id']);
 
-    // ---- REQUEST WITHDRAWAL ----
+    // ---- CLAIM (REQUEST) WITHDRAWAL ----
     if ($action === 'request') {
         $amount = isset($_POST['amount']) ? floatval($_POST['amount']) : 0;
 
@@ -49,14 +49,14 @@ if ($f == 'trdc_withdrawal') {
         $maxAmount = floatval($wo['config']['trdc_withdrawal_max'] ?? 50000);
 
         if ($amount < $minAmount) {
-            $data['message'] = 'Minimum withdrawal is ' . number_format($minAmount, 0) . ' TRDC';
+            $data['message'] = 'Minimum claim is ' . number_format($minAmount, 0) . ' TRDC';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
         }
 
         if ($amount > $maxAmount) {
-            $data['message'] = 'Maximum withdrawal is ' . number_format($maxAmount, 0) . ' TRDC';
+            $data['message'] = 'Maximum claim is ' . number_format($maxAmount, 0) . ' TRDC';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
@@ -70,35 +70,35 @@ if ($f == 'trdc_withdrawal') {
             exit();
         }
 
-        // Rate limit: max 3 withdrawal requests per hour
+        // Rate limit: max 3 claims per hour per user
         $rateLimitQ = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} AND created_at > " . (time() - 3600));
         if ($rateLimitQ) {
             $rateLimitRow = mysqli_fetch_assoc($rateLimitQ);
             if ($rateLimitRow['cnt'] >= 3) {
-                $data['message'] = 'Too many withdrawal requests. Try again later.';
+                $data['message'] = 'Too many claim requests. Try again later.';
                 header("Content-type: application/json");
                 echo json_encode($data);
                 exit();
             }
         }
 
-        // Check cooldown between withdrawals
+        // Check cooldown between claims
         $cooldownHours = intval($wo['config']['trdc_withdrawal_cooldown_hours'] ?? 24);
-        $cooldownQ = mysqli_query($sqlConnect, "SELECT id FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} AND status IN ('completed','processing') AND created_at > " . (time() - ($cooldownHours * 3600)) . " LIMIT 1");
+        $cooldownQ = mysqli_query($sqlConnect, "SELECT id FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} AND status IN ('completed','processing','approved') AND created_at > " . (time() - ($cooldownHours * 3600)) . " LIMIT 1");
         if ($cooldownQ && mysqli_num_rows($cooldownQ) > 0) {
-            $data['message'] = 'Please wait ' . $cooldownHours . ' hours between withdrawals';
+            $data['message'] = 'Please wait ' . $cooldownHours . ' hours between claims';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
         }
 
-        // Check max pending withdrawals
+        // Check max pending claims
         $maxPending = intval($wo['config']['trdc_withdrawal_max_pending'] ?? 1);
-        $pendingQ = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} AND status IN ('pending','processing')");
+        $pendingQ = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} AND status IN ('pending','approved','processing')");
         if ($pendingQ) {
             $pendingRow = mysqli_fetch_assoc($pendingQ);
             if ($pendingRow['cnt'] >= $maxPending) {
-                $data['message'] = 'You already have a pending withdrawal. Please wait for it to complete.';
+                $data['message'] = 'You already have a pending claim. Please wait for it to be processed.';
                 header("Content-type: application/json");
                 echo json_encode($data);
                 exit();
@@ -108,7 +108,7 @@ if ($f == 'trdc_withdrawal') {
         // Check global daily limit
         $dailyLimit = floatval($wo['config']['trdc_withdrawal_daily_limit'] ?? 100000);
         $todayStart = strtotime('today midnight');
-        $dailyQ = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(amount), 0) as total FROM " . T_TRDC_WITHDRAWALS . " WHERE status != 'cancelled' AND created_at >= {$todayStart}");
+        $dailyQ = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(amount), 0) as total FROM " . T_TRDC_WITHDRAWALS . " WHERE status NOT IN ('cancelled','failed') AND created_at >= {$todayStart}");
         if ($dailyQ) {
             $dailyRow = mysqli_fetch_assoc($dailyQ);
             if (floatval($dailyRow['total']) + $amount > $dailyLimit) {
@@ -131,7 +131,7 @@ if ($f == 'trdc_withdrawal') {
             exit();
         }
 
-        // Execute: deduct balance and create withdrawal record
+        // Execute: deduct balance and create claim record (pending admin approval)
         $safeAmount = floatval($amount);
         $safeFee = floatval($fee);
         $safeNet = floatval($netAmount);
@@ -146,16 +146,16 @@ if ($f == 'trdc_withdrawal') {
                 throw new Exception('Insufficient balance');
             }
 
-            // Insert withdrawal record
+            // Insert withdrawal record as 'pending' (awaiting admin approval)
             $q2 = mysqli_query($sqlConnect, "INSERT INTO " . T_TRDC_WITHDRAWALS . " (user_id, amount, fee, net_amount, wallet_address, status, created_at) VALUES ({$userId}, {$safeAmount}, {$safeFee}, {$safeNet}, '{$safeWalletAddress}', 'pending', {$now})");
             if (!$q2) {
-                throw new Exception('Could not create withdrawal request');
+                throw new Exception('Could not create claim request');
             }
 
             $withdrawalId = mysqli_insert_id($sqlConnect);
 
             // Log transaction
-            $note = Wo_Secure("Withdrawal #{$withdrawalId} to {$walletAddress}", 0);
+            $note = Wo_Secure("Claim #{$withdrawalId} to {$walletAddress}", 0);
             mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (userid, kind, amount, notes) VALUES ({$userId}, 'WITHDRAWAL_REQUESTED', {$safeAmount}, '{$note}')");
 
             mysqli_commit($sqlConnect);
@@ -169,10 +169,20 @@ if ($f == 'trdc_withdrawal') {
 
         cache($userId, 'users', 'delete');
 
+        // Notify admin
+        $notification_data_array = array(
+            'recipient_id' => 1,
+            'type' => 'admin_notification',
+            'url' => 'index.php?link1=admincp&page=trdc-withdrawals',
+            'text' => 'New TRDC withdrawal claim needs approval',
+            'type2' => 'no_name'
+        );
+        Wo_RegisterNotification($notification_data_array);
+
         $newBalance = $currentBalance - $safeAmount;
         $data = array(
             'status' => 200,
-            'message' => 'Withdrawal request submitted! ' . number_format($safeNet, 4) . ' TRDC will be sent to your wallet.',
+            'message' => 'Claim submitted! Your request is pending admin approval. You will be notified once approved.',
             'withdrawal_id' => $withdrawalId,
             'new_balance' => $newBalance,
             'fee' => $safeFee,
@@ -187,13 +197,14 @@ if ($f == 'trdc_withdrawal') {
     // ---- WITHDRAWAL HISTORY ----
     if ($action === 'history') {
         $withdrawals = array();
-        $q = mysqli_query($sqlConnect, "SELECT id, amount, fee, net_amount, wallet_address, status, tx_hash, failure_reason, created_at, completed_at FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} ORDER BY created_at DESC LIMIT 20");
+        $q = mysqli_query($sqlConnect, "SELECT id, amount, fee, net_amount, wallet_address, status, tx_hash, failure_reason, admin_note, created_at, approved_at, completed_at FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} ORDER BY created_at DESC LIMIT 20");
         if ($q) {
             while ($row = mysqli_fetch_assoc($q)) {
                 $row['amount'] = floatval($row['amount']);
                 $row['fee'] = floatval($row['fee']);
                 $row['net_amount'] = floatval($row['net_amount']);
                 $row['created_at_formatted'] = date('M j, Y g:i A', intval($row['created_at']));
+                $row['approved_at_formatted'] = !empty($row['approved_at']) ? date('M j, Y g:i A', intval($row['approved_at'])) : null;
                 $row['completed_at_formatted'] = !empty($row['completed_at']) ? date('M j, Y g:i A', intval($row['completed_at'])) : null;
                 $withdrawals[] = $row;
             }
@@ -205,12 +216,12 @@ if ($f == 'trdc_withdrawal') {
         exit();
     }
 
-    // ---- CANCEL PENDING WITHDRAWAL ----
+    // ---- CANCEL PENDING CLAIM ----
     if ($action === 'cancel') {
         $withdrawalId = isset($_POST['withdrawal_id']) ? intval($_POST['withdrawal_id']) : 0;
 
         if ($withdrawalId <= 0) {
-            $data['message'] = 'Invalid withdrawal ID';
+            $data['message'] = 'Invalid claim ID';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
@@ -219,14 +230,14 @@ if ($f == 'trdc_withdrawal') {
         // Get withdrawal — must be pending and owned by user
         $wQ = mysqli_query($sqlConnect, "SELECT id, amount, status FROM " . T_TRDC_WITHDRAWALS . " WHERE id = {$withdrawalId} AND user_id = {$userId} LIMIT 1");
         if (!$wQ || !($wRow = mysqli_fetch_assoc($wQ))) {
-            $data['message'] = 'Withdrawal not found';
+            $data['message'] = 'Claim not found';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
         }
 
         if ($wRow['status'] !== 'pending') {
-            $data['message'] = 'Only pending withdrawals can be cancelled';
+            $data['message'] = 'Only pending claims can be cancelled. Once approved by admin, it cannot be cancelled.';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
@@ -245,11 +256,11 @@ if ($f == 'trdc_withdrawal') {
             // Update withdrawal status
             $q2 = mysqli_query($sqlConnect, "UPDATE " . T_TRDC_WITHDRAWALS . " SET status = 'cancelled' WHERE id = {$withdrawalId}");
             if (!$q2) {
-                throw new Exception('Could not cancel withdrawal');
+                throw new Exception('Could not cancel claim');
             }
 
             // Log refund
-            $note = Wo_Secure("Withdrawal #{$withdrawalId} cancelled — refunded", 0);
+            $note = Wo_Secure("Claim #{$withdrawalId} cancelled — refunded", 0);
             mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (userid, kind, amount, notes) VALUES ({$userId}, 'WITHDRAWAL_CANCELLED', {$refundAmount}, '{$note}')");
 
             mysqli_commit($sqlConnect);
@@ -265,7 +276,7 @@ if ($f == 'trdc_withdrawal') {
 
         $data = array(
             'status' => 200,
-            'message' => 'Withdrawal cancelled. ' . number_format($refundAmount, 4) . ' TRDC refunded to your balance.',
+            'message' => 'Claim cancelled. ' . number_format($refundAmount, 4) . ' TRDC refunded to your balance.',
             'refunded' => $refundAmount
         );
 
@@ -276,7 +287,6 @@ if ($f == 'trdc_withdrawal') {
 
     // ---- GET CONFIG (for frontend) ----
     if ($action === 'config') {
-        // Check if user has verified wallet
         $walletQ = mysqli_query($sqlConnect, "SELECT wallet_address, wallet_verified FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1");
         $walletRow = $walletQ ? mysqli_fetch_assoc($walletQ) : null;
 

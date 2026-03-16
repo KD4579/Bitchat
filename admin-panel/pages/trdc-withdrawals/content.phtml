@@ -1,0 +1,363 @@
+<?php
+$page_id = (!empty($_GET['page-id']) && is_numeric($_GET['page-id'])) ? intval($_GET['page-id']) : 1;
+$filter_status = (!empty($_GET['filter'])) ? Wo_Secure($_GET['filter']) : 'pending';
+$per_page = 20;
+$offset = ($page_id - 1) * $per_page;
+
+// Count by status
+$counts = array('pending' => 0, 'approved' => 0, 'processing' => 0, 'completed' => 0, 'failed' => 0, 'cancelled' => 0);
+$countQ = mysqli_query($sqlConnect, "SELECT status, COUNT(*) as cnt FROM " . T_TRDC_WITHDRAWALS . " GROUP BY status");
+if ($countQ) {
+    while ($row = mysqli_fetch_assoc($countQ)) {
+        $counts[$row['status']] = intval($row['cnt']);
+    }
+}
+$totalAll = array_sum($counts);
+
+// Fetch withdrawals
+$statusFilter = '';
+if ($filter_status !== 'all') {
+    $safeStatus = Wo_Secure($filter_status);
+    $statusFilter = " WHERE w.status = '{$safeStatus}'";
+}
+
+$totalQ = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_TRDC_WITHDRAWALS . " w" . $statusFilter);
+$totalRows = $totalQ ? intval(mysqli_fetch_assoc($totalQ)['cnt']) : 0;
+$totalPages = max(1, ceil($totalRows / $per_page));
+
+$withdrawals = array();
+$q = mysqli_query($sqlConnect, "SELECT w.*, u.username, u.avatar, u.first_name, u.last_name FROM " . T_TRDC_WITHDRAWALS . " w LEFT JOIN " . T_USERS . " u ON w.user_id = u.user_id" . $statusFilter . " ORDER BY w.created_at DESC LIMIT {$per_page} OFFSET {$offset}");
+if ($q) {
+    while ($row = mysqli_fetch_assoc($q)) {
+        $withdrawals[] = $row;
+    }
+}
+
+// Load config values
+$cfg_enabled = $wo['config']['trdc_withdrawal_enabled'] ?? '0';
+$cfg_min = $wo['config']['trdc_withdrawal_min'] ?? '100';
+$cfg_max = $wo['config']['trdc_withdrawal_max'] ?? '50000';
+$cfg_fee = $wo['config']['trdc_withdrawal_fee_percent'] ?? '2';
+$cfg_daily = $wo['config']['trdc_withdrawal_daily_limit'] ?? '100000';
+$cfg_cooldown = $wo['config']['trdc_withdrawal_cooldown_hours'] ?? '24';
+$cfg_max_pending = $wo['config']['trdc_withdrawal_max_pending'] ?? '1';
+?>
+<div class="container-fluid">
+    <div>
+        <h3>TRDC Withdrawal Management</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Growth & Analytics</a></li>
+                <li class="breadcrumb-item active">TRDC Withdrawals</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row clearfix">
+        <div class="col-md-2">
+            <div class="card" style="cursor:pointer;" onclick="location.href='<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals'); ?>?filter=pending'">
+                <div class="card-body text-center">
+                    <h2 class="mt-0" style="color:#f59e0b;"><?php echo $counts['pending']; ?></h2>
+                    <h6 class="mb-0">Pending</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card" style="cursor:pointer;" onclick="location.href='<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals'); ?>?filter=approved'">
+                <div class="card-body text-center">
+                    <h2 class="mt-0" style="color:#8b5cf6;"><?php echo $counts['approved']; ?></h2>
+                    <h6 class="mb-0">Approved</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card" style="cursor:pointer;" onclick="location.href='<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals'); ?>?filter=processing'">
+                <div class="card-body text-center">
+                    <h2 class="mt-0" style="color:#3b82f6;"><?php echo $counts['processing']; ?></h2>
+                    <h6 class="mb-0">Processing</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card" style="cursor:pointer;" onclick="location.href='<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals'); ?>?filter=completed'">
+                <div class="card-body text-center">
+                    <h2 class="mt-0" style="color:#10b981;"><?php echo $counts['completed']; ?></h2>
+                    <h6 class="mb-0">Completed</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card" style="cursor:pointer;" onclick="location.href='<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals'); ?>?filter=failed'">
+                <div class="card-body text-center">
+                    <h2 class="mt-0" style="color:#ef4444;"><?php echo $counts['failed']; ?></h2>
+                    <h6 class="mb-0">Failed</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card" style="cursor:pointer;" onclick="location.href='<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals'); ?>?filter=all'">
+                <div class="card-body text-center">
+                    <h2 class="mt-0"><?php echo $totalAll; ?></h2>
+                    <h6 class="mb-0">Total</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawal Settings Card -->
+    <div class="row clearfix">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Withdrawal Settings</h6>
+                    <form id="withdrawal-settings-form">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Withdrawals Enabled</label>
+                                    <select name="trdc_withdrawal_enabled" class="form-control">
+                                        <option value="0" <?php echo ($cfg_enabled == '0') ? 'selected' : ''; ?>>Disabled</option>
+                                        <option value="1" <?php echo ($cfg_enabled == '1') ? 'selected' : ''; ?>>Enabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Minimum Amount (TRDC)</label>
+                                    <input type="number" name="trdc_withdrawal_min" class="form-control" value="<?php echo htmlspecialchars($cfg_min); ?>" step="1" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Maximum Amount (TRDC)</label>
+                                    <input type="number" name="trdc_withdrawal_max" class="form-control" value="<?php echo htmlspecialchars($cfg_max); ?>" step="1" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Fee Percent (%)</label>
+                                    <input type="number" name="trdc_withdrawal_fee_percent" class="form-control" value="<?php echo htmlspecialchars($cfg_fee); ?>" step="0.1" min="0" max="50">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Daily Global Limit (TRDC)</label>
+                                    <input type="number" name="trdc_withdrawal_daily_limit" class="form-control" value="<?php echo htmlspecialchars($cfg_daily); ?>" step="1" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Cooldown Between Claims (Hours)</label>
+                                    <input type="number" name="trdc_withdrawal_cooldown_hours" class="form-control" value="<?php echo htmlspecialchars($cfg_cooldown); ?>" step="1" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Max Pending Claims Per User</label>
+                                    <input type="number" name="trdc_withdrawal_max_pending" class="form-control" value="<?php echo htmlspecialchars($cfg_max_pending); ?>" step="1" min="1" max="10">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveWithdrawalSettings()">Save Settings</button>
+                        <span id="settings-save-status" style="margin-left:10px;"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawals Table -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <?php echo ucfirst($filter_status); ?> Withdrawals
+                        <?php if ($filter_status === 'pending' && $counts['pending'] > 0) { ?>
+                            <button class="btn btn-sm btn-success ml-3" onclick="approveAll()">Approve All Pending</button>
+                        <?php } ?>
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#ID</th>
+                                    <th>User</th>
+                                    <th>Amount</th>
+                                    <th>Fee</th>
+                                    <th>Net</th>
+                                    <th>Wallet Address</th>
+                                    <th>Status</th>
+                                    <th>TX Hash</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($withdrawals)) { ?>
+                                    <tr><td colspan="10" style="text-align:center;padding:40px;color:#999;">No <?php echo $filter_status; ?> withdrawals</td></tr>
+                                <?php } else { ?>
+                                    <?php foreach ($withdrawals as $w) {
+                                        $statusColors = array('pending' => '#f59e0b', 'approved' => '#8b5cf6', 'processing' => '#3b82f6', 'completed' => '#10b981', 'failed' => '#ef4444', 'cancelled' => '#6b7280');
+                                        $statusColor = $statusColors[$w['status']] ?? '#999';
+                                        $walletShort = substr($w['wallet_address'], 0, 6) . '...' . substr($w['wallet_address'], -4);
+                                        $userName = !empty($w['first_name']) ? $w['first_name'] . ' ' . $w['last_name'] : $w['username'];
+                                    ?>
+                                    <tr id="withdrawal-row-<?php echo $w['id']; ?>">
+                                        <td><?php echo $w['id']; ?></td>
+                                        <td>
+                                            <a href="<?php echo $wo['config']['site_url'] . '/' . $w['username']; ?>" target="_blank" style="text-decoration:none;">
+                                                <?php echo htmlspecialchars($userName); ?>
+                                            </a>
+                                            <br><small style="color:#999;">ID: <?php echo $w['user_id']; ?></small>
+                                        </td>
+                                        <td><strong><?php echo number_format(floatval($w['amount']), 2); ?></strong></td>
+                                        <td><?php echo number_format(floatval($w['fee']), 2); ?></td>
+                                        <td><strong><?php echo number_format(floatval($w['net_amount']), 2); ?></strong></td>
+                                        <td>
+                                            <a href="https://bscscan.com/address/<?php echo htmlspecialchars($w['wallet_address']); ?>" target="_blank" title="<?php echo htmlspecialchars($w['wallet_address']); ?>" style="font-family:monospace;font-size:12px;">
+                                                <?php echo $walletShort; ?>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span style="color:<?php echo $statusColor; ?>;font-weight:600;text-transform:capitalize;"><?php echo $w['status']; ?></span>
+                                            <?php if (!empty($w['failure_reason'])) { ?>
+                                                <br><small style="color:#ef4444;" title="<?php echo htmlspecialchars($w['failure_reason']); ?>"><?php echo htmlspecialchars(substr($w['failure_reason'], 0, 40)); ?>...</small>
+                                            <?php } ?>
+                                            <?php if (!empty($w['admin_note'])) { ?>
+                                                <br><small style="color:#6b7280;"><em><?php echo htmlspecialchars($w['admin_note']); ?></em></small>
+                                            <?php } ?>
+                                        </td>
+                                        <td>
+                                            <?php if (!empty($w['tx_hash'])) { ?>
+                                                <a href="https://bscscan.com/tx/<?php echo htmlspecialchars($w['tx_hash']); ?>" target="_blank" style="font-family:monospace;font-size:11px;">
+                                                    <?php echo substr($w['tx_hash'], 0, 10); ?>...
+                                                </a>
+                                            <?php } else { echo '-'; } ?>
+                                        </td>
+                                        <td style="font-size:12px;">
+                                            <?php echo date('M j, Y g:i A', intval($w['created_at'])); ?>
+                                            <?php if (!empty($w['approved_at'])) { ?>
+                                                <br><small style="color:#8b5cf6;">Approved: <?php echo date('M j g:i A', intval($w['approved_at'])); ?></small>
+                                            <?php } ?>
+                                            <?php if (!empty($w['completed_at'])) { ?>
+                                                <br><small style="color:#10b981;">Done: <?php echo date('M j g:i A', intval($w['completed_at'])); ?></small>
+                                            <?php } ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($w['status'] === 'pending') { ?>
+                                                <button class="btn btn-sm btn-success" onclick="approveWithdrawal(<?php echo $w['id']; ?>)" title="Approve">
+                                                    <i class="material-icons" style="font-size:16px;">check</i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="rejectWithdrawal(<?php echo $w['id']; ?>)" title="Reject & Refund">
+                                                    <i class="material-icons" style="font-size:16px;">close</i>
+                                                </button>
+                                            <?php } elseif ($w['status'] === 'failed') { ?>
+                                                <button class="btn btn-sm btn-warning" onclick="retryWithdrawal(<?php echo $w['id']; ?>)" title="Retry (Re-approve)">
+                                                    <i class="material-icons" style="font-size:16px;">refresh</i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="rejectWithdrawal(<?php echo $w['id']; ?>)" title="Refund">
+                                                    <i class="material-icons" style="font-size:16px;">undo</i>
+                                                </button>
+                                            <?php } elseif ($w['status'] === 'approved') { ?>
+                                                <span style="color:#8b5cf6;font-size:12px;">Queued for sending</span>
+                                            <?php } ?>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <?php if ($totalPages > 1) { ?>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;">
+                        <span>Page <?php echo $page_id; ?> of <?php echo $totalPages; ?></span>
+                        <nav>
+                            <ul class="pagination" style="margin:0;">
+                                <?php if ($page_id > 1) { ?>
+                                <li><a href="<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals?filter=' . $filter_status . '&page-id=' . ($page_id - 1)); ?>" data-ajax="?path=trdc-withdrawals&filter=<?php echo $filter_status; ?>&page-id=<?php echo ($page_id - 1); ?>"><i class="material-icons">chevron_left</i></a></li>
+                                <?php } ?>
+                                <?php for ($i = max(1, $page_id - 3); $i <= min($totalPages, $page_id + 3); $i++) { ?>
+                                <li class="<?php echo ($page_id == $i) ? 'active' : ''; ?>">
+                                    <a href="<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals?filter=' . $filter_status . '&page-id=' . $i); ?>" data-ajax="?path=trdc-withdrawals&filter=<?php echo $filter_status; ?>&page-id=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                </li>
+                                <?php } ?>
+                                <?php if ($page_id < $totalPages) { ?>
+                                <li><a href="<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals?filter=' . $filter_status . '&page-id=' . ($page_id + 1)); ?>" data-ajax="?path=trdc-withdrawals&filter=<?php echo $filter_status; ?>&page-id=<?php echo ($page_id + 1); ?>"><i class="material-icons">chevron_right</i></a></li>
+                                <?php } ?>
+                            </ul>
+                        </nav>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var hash_id = '<?php echo Wo_CreateSession(); ?>';
+
+function saveWithdrawalSettings() {
+    var formData = $('#withdrawal-settings-form').serializeArray();
+    formData.push({name: 'hash_id', value: hash_id});
+    $.post(Wo_Ajax_Requests_File() + '?f=admin_setting&s=save_withdrawal_settings', $.param(formData), function(data) {
+        if (data.status == 200) {
+            $('#settings-save-status').html('<span style="color:#10b981;">Saved!</span>');
+            setTimeout(function() { $('#settings-save-status').html(''); }, 3000);
+        } else {
+            $('#settings-save-status').html('<span style="color:#ef4444;">' + (data.message || 'Error') + '</span>');
+        }
+    }, 'json');
+}
+
+function approveWithdrawal(id) {
+    if (!confirm('Approve withdrawal #' + id + '? The processor will send tokens to the user\'s wallet.')) return;
+    $.get(Wo_Ajax_Requests_File(), {f: 'admin_setting', s: 'approve_withdrawal', withdrawal_id: id, hash_id: hash_id}, function(data) {
+        if (data.status == 200) {
+            $('#withdrawal-row-' + id).fadeOut(300, function() { $(this).remove(); });
+        } else {
+            alert(data.message || 'Error');
+        }
+    }, 'json');
+}
+
+function rejectWithdrawal(id) {
+    var note = prompt('Rejection reason (optional):');
+    if (note === null) return;
+    $.get(Wo_Ajax_Requests_File(), {f: 'admin_setting', s: 'reject_withdrawal', withdrawal_id: id, admin_note: note, hash_id: hash_id}, function(data) {
+        if (data.status == 200) {
+            $('#withdrawal-row-' + id).fadeOut(300, function() { $(this).remove(); });
+        } else {
+            alert(data.message || 'Error');
+        }
+    }, 'json');
+}
+
+function retryWithdrawal(id) {
+    if (!confirm('Re-approve withdrawal #' + id + ' for retry?')) return;
+    $.get(Wo_Ajax_Requests_File(), {f: 'admin_setting', s: 'approve_withdrawal', withdrawal_id: id, hash_id: hash_id}, function(data) {
+        if (data.status == 200) {
+            $('#withdrawal-row-' + id).fadeOut(300, function() { $(this).remove(); });
+        } else {
+            alert(data.message || 'Error');
+        }
+    }, 'json');
+}
+
+function approveAll() {
+    if (!confirm('Approve ALL pending withdrawals? This will queue them all for processing.')) return;
+    $.get(Wo_Ajax_Requests_File(), {f: 'admin_setting', s: 'approve_all_withdrawals', hash_id: hash_id}, function(data) {
+        if (data.status == 200) {
+            location.reload();
+        } else {
+            alert(data.message || 'Error');
+        }
+    }, 'json');
+}
+</script>

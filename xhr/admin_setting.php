@@ -5962,6 +5962,112 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         exit();
     }
 
+    // ---- TRDC Withdrawal: Save Settings ----
+    if ($s == 'save_withdrawal_settings' && Wo_CheckSession($hash_id) === true) {
+        $configKeys = array('trdc_withdrawal_enabled', 'trdc_withdrawal_min', 'trdc_withdrawal_max', 'trdc_withdrawal_fee_percent', 'trdc_withdrawal_daily_limit', 'trdc_withdrawal_cooldown_hours', 'trdc_withdrawal_max_pending');
+        foreach ($configKeys as $key) {
+            if (isset($_POST[$key])) {
+                $val = Wo_Secure($_POST[$key]);
+                $db->where('name', $key)->update(T_CONFIG, array('value' => $val));
+            }
+        }
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 200));
+        exit();
+    }
+
+    // ---- TRDC Withdrawal: Approve ----
+    if ($s == 'approve_withdrawal' && Wo_CheckSession($hash_id) === true) {
+        $wId = intval($_GET['withdrawal_id'] ?? 0);
+        if ($wId > 0) {
+            $w = $db->where('id', $wId)->getOne(T_TRDC_WITHDRAWALS);
+            if ($w && ($w->status === 'pending' || $w->status === 'failed')) {
+                $now = time();
+                $adminId = intval($wo['user']['user_id']);
+                $db->where('id', $wId)->update(T_TRDC_WITHDRAWALS, array(
+                    'status' => 'approved',
+                    'approved_by' => $adminId,
+                    'approved_at' => $now,
+                    'retry_count' => 0,
+                    'failure_reason' => null
+                ));
+                // Notify user
+                $notification_data_array = array(
+                    'recipient_id' => $w->user_id,
+                    'type' => 'admin_notification',
+                    'url' => 'index.php?link1=wallet',
+                    'text' => 'Your TRDC withdrawal claim has been approved and is being processed',
+                    'type2' => 'no_name'
+                );
+                Wo_RegisterNotification($notification_data_array);
+                header("Content-type: application/json");
+                echo json_encode(array('status' => 200));
+                exit();
+            }
+        }
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 400, 'message' => 'Withdrawal not found or cannot be approved'));
+        exit();
+    }
+
+    // ---- TRDC Withdrawal: Reject & Refund ----
+    if ($s == 'reject_withdrawal' && Wo_CheckSession($hash_id) === true) {
+        $wId = intval($_GET['withdrawal_id'] ?? 0);
+        $adminNote = Wo_Secure($_GET['admin_note'] ?? '');
+        if ($wId > 0) {
+            $w = $db->where('id', $wId)->getOne(T_TRDC_WITHDRAWALS);
+            if ($w && in_array($w->status, array('pending', 'failed'))) {
+                $refundAmount = floatval($w->amount);
+                $userId = intval($w->user_id);
+
+                // Refund full amount to user
+                mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$refundAmount} WHERE user_id = {$userId}");
+                cache($userId, 'users', 'delete');
+
+                // Update withdrawal status
+                $db->where('id', $wId)->update(T_TRDC_WITHDRAWALS, array(
+                    'status' => 'cancelled',
+                    'admin_note' => $adminNote,
+                    'failure_reason' => 'Rejected by admin'
+                ));
+
+                // Log refund
+                $note = Wo_Secure("Claim #{$wId} rejected by admin — refunded", 0);
+                mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (userid, kind, amount, notes) VALUES ({$userId}, 'WITHDRAWAL_REJECTED', {$refundAmount}, '{$note}')");
+
+                // Notify user
+                $notifText = 'Your TRDC withdrawal claim was rejected';
+                if (!empty($adminNote)) $notifText .= ': ' . $adminNote;
+                $notification_data_array = array(
+                    'recipient_id' => $userId,
+                    'type' => 'admin_notification',
+                    'url' => 'index.php?link1=wallet',
+                    'text' => $notifText,
+                    'type2' => 'no_name'
+                );
+                Wo_RegisterNotification($notification_data_array);
+
+                header("Content-type: application/json");
+                echo json_encode(array('status' => 200));
+                exit();
+            }
+        }
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 400, 'message' => 'Withdrawal not found or cannot be rejected'));
+        exit();
+    }
+
+    // ---- TRDC Withdrawal: Approve All Pending ----
+    if ($s == 'approve_all_withdrawals' && Wo_CheckSession($hash_id) === true) {
+        $now = time();
+        $adminId = intval($wo['user']['user_id']);
+        $updated = mysqli_query($sqlConnect, "UPDATE " . T_TRDC_WITHDRAWALS . " SET status = 'approved', approved_by = {$adminId}, approved_at = {$now} WHERE status = 'pending'");
+        $count = mysqli_affected_rows($sqlConnect);
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 200, 'approved_count' => $count));
+        exit();
+    }
+
     if ($s == 'run_news_bot_now' && Wo_CheckSession($hash_id) === true) {
         $bot_id = intval($_POST['bot_id'] ?? 0);
         $count = 0;
