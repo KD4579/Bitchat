@@ -166,81 +166,50 @@ function bcTogglePw(btn) {
 
 // Handle profile picture upload and preview
 document.addEventListener('DOMContentLoaded', function() {
-    const avatarInput = document.getElementById('avatar');
-    const uploadIcon = document.getElementById('upload-icon');
-    const uploadText = document.getElementById('upload-text');
-    const imagePreview = document.getElementById('image-preview');
-    const previewImg = imagePreview.querySelector('img');
-    const uploadContainer = document.getElementById('profile-upload-area');
-    const avatarError = document.getElementById('avatar-error');
-    const submitButton = document.getElementById('sign_submit');
-    let hasImage = false;
+    var avatarInput = document.getElementById('avatar');
+    var uploadIcon = document.getElementById('upload-icon');
+    var uploadText = document.getElementById('upload-text');
+    var imagePreview = document.getElementById('image-preview');
+    var uploadContainer = document.getElementById('profile-upload-area');
+
+    if (!avatarInput || !uploadContainer || !imagePreview) return;
+
+    var previewImg = imagePreview.querySelector('img');
 
     // Make the upload area clickable
     uploadContainer.addEventListener('click', function(e) {
-        if (e.target !== avatarInput) {
+        if (e.target.tagName !== 'INPUT') {
             avatarInput.click();
         }
     });
 
-    // Avatar is optional — always allow form submission
-    function checkImageUpload() {
-        avatarError.style.display = 'none';
-        uploadContainer.style.borderColor = '#ddd';
-        return true;
-    }
-
     // Handle file selection
     avatarInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            // Check file type
-            if (!file.type.match('image.*')) {
-                alert('<?php echo $wo["lang"]["file_not_supported"] ?>');
-                return false;
-            }
-            
-            // Check file size
-            const maxSize = <?php echo $wo['config']['maxUpload'] * 1000; ?>; // Convert to bytes
-            if (file.size > maxSize) {
-                alert('<?php echo $wo["lang"]["file_too_big"] ?>');
-                return false;
-            }
-            
-            // Show preview
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
-                imagePreview.style.display = 'block';
-                uploadIcon.style.display = 'none';
-                uploadText.textContent = '<?php echo $wo["lang"]["change_picture"] ?>';
-                hasImage = true;
-                checkImageUpload();
-            };
-            reader.readAsDataURL(file);
+        var file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.match('image.*')) {
+            alert('<?php echo $wo["lang"]["file_not_supported"] ?? "File not supported" ?>');
+            avatarInput.value = '';
+            return;
         }
-    });
-    
-    // Update form validation
-    const form = document.getElementById('register');
-    form.addEventListener('submit', function(e) {
-        if (!checkImageUpload()) {
-            e.preventDefault();
-            return false;
+
+        var maxSize = <?php echo intval($wo['config']['maxUpload'] ?? 2048) * 1000; ?>;
+        if (file.size > maxSize) {
+            alert('<?php echo $wo["lang"]["file_too_big"] ?? "File too big" ?>');
+            avatarInput.value = '';
+            return;
         }
+
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            if (previewImg) previewImg.src = ev.target.result;
+            imagePreview.style.display = 'block';
+            if (uploadIcon) uploadIcon.style.display = 'none';
+            if (uploadText) uploadText.textContent = '<?php echo $wo["lang"]["change_picture"] ?? "Change picture" ?>';
+        };
+        reader.readAsDataURL(file);
     });
-    
-    // Update button state — only terms required, avatar is optional
-    function updateButtonState() {
-        const termsChecked = document.getElementById('accept_terms').checked;
-        submitButton.disabled = !termsChecked;
-    }
-    
-    // Update button state when terms are accepted
-    document.getElementById('accept_terms').addEventListener('change', updateButtonState);
-    
-    // Initial button state
-    updateButtonState();
 });
 
 var working = false;
@@ -264,7 +233,7 @@ $(function() {
 			<?php if ($wo['config']['password_complexity_system'] == 1) { ?>
 				if ($('.helper-text .length').hasClass('valid') && $('.helper-text .lowercase').hasClass('valid') && $('.helper-text .uppercase').hasClass('valid') && $('.helper-text .special').hasClass('valid')) {
 					working = true;
-					$this.find('button').attr("disabled", true);
+					$('#sign_submit').attr("disabled", true);
 				}
 				else{
 					$state.html("<?php echo($wo['lang']['complexity_requirements']) ?>");
@@ -272,7 +241,7 @@ $(function() {
 				}
 			<?php } else{ ?>
 				working = true;
-				$this.find('button').attr("disabled", true);
+				$('#sign_submit').attr("disabled", true);
 			<?php } ?>
 		},
 		success: function(data) {
@@ -284,7 +253,8 @@ $(function() {
 			} else if (data.status == 300) {
 				window.location.href = data.location;
 			} else {
-				$this.find('button').attr("disabled", false);
+				var termsChecked = document.getElementById('accept_terms') && document.getElementById('accept_terms').checked;
+				$('#sign_submit').attr("disabled", !termsChecked);
 				var errorMsg = Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors;
 				$state.html(errorMsg);
 			} 

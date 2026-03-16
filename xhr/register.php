@@ -302,12 +302,8 @@ if ($f == 'register') {
 
         $in_code = (isset($_POST['invited'])) ? Wo_Secure($_POST['invited']) : false;
 
-        // For phone signup with validation enabled, we still register but activate via SMS
-        if ($signup_method === 'phone' && $activate == 0) {
-            $register = true; // Wo_RegisterUser will be called below after SMS
-        } else {
-            $register = Wo_RegisterUser($re_data, $in_code);
-        }
+        // Always register the user first (creates DB record)
+        $register = Wo_RegisterUser($re_data, $in_code);
 
         if ($register === true) {
             $r_id = Wo_UserIdFromUsername($_POST['username']);
