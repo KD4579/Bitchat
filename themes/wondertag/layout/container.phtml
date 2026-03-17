@@ -929,13 +929,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				$_bc_banner_text = htmlspecialchars($wo['config']['announcement_banner_text']);
 				$_bc_banner_url = !empty($wo['config']['announcement_banner_url']) ? htmlspecialchars($wo['config']['announcement_banner_url']) : '';
 			?>
-			<div class="bc-announce-banner" id="bc-announce-banner" style="background:<?php echo $_bc_banner_bg; ?>;color:<?php echo $_bc_banner_color; ?>;">
+			<div class="bc-announce-banner" id="bc-announce-banner">
 				<?php if (!empty($_bc_banner_url)): ?>
-					<a href="<?php echo $_bc_banner_url; ?>" class="bc-announce-link" style="color:<?php echo $_bc_banner_color; ?>;"><?php echo $_bc_banner_text; ?></a>
+					<a href="<?php echo $_bc_banner_url; ?>" class="bc-announce-link"><?php echo $_bc_banner_text; ?></a>
 				<?php else: ?>
 					<span><?php echo $_bc_banner_text; ?></span>
 				<?php endif; ?>
-				<button class="bc-announce-close" onclick="document.getElementById('bc-announce-banner').style.display='none';sessionStorage.setItem('bc_banner_closed','1');" style="color:<?php echo $_bc_banner_color; ?>;">&times;</button>
+				<button class="bc-announce-close" onclick="document.getElementById('bc-announce-banner').style.display='none';sessionStorage.setItem('bc_banner_closed','1');">&times;</button>
 			</div>
 			<script>if(sessionStorage.getItem('bc_banner_closed')==='1'){document.getElementById('bc-announce-banner').style.display='none';}</script>
 			<?php endif; ?>
