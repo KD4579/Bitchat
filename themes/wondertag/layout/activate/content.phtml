@@ -33,11 +33,10 @@
 
 			if ($activated === false) {
 				// Check if user is already active (link clicked again)
-				global $sqlConnect;
 				$checkQ = mysqli_query($sqlConnect, "SELECT user_id, active, email_code FROM " . T_USERS . " WHERE email = '" . Wo_Secure($email) . "'");
 				$checkR = $checkQ ? mysqli_fetch_assoc($checkQ) : null;
 
-				if ($checkR && $checkR['active'] == '1' && $checkR['email_code'] == Wo_Secure($code)) {
+				if ($checkR && $checkR['active'] == '1' && $checkR['email_code'] === $code) {
 					// Already activated — just log them in
 					$userId = intval($checkR['user_id']);
 				} else {
