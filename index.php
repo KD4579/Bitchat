@@ -59,7 +59,8 @@ if ($wo['loggedin'] == true) {
     }
 
     // Complete-profile redirect: force users to add missing email or phone
-    if ($currentLink !== 'complete-profile' && $currentLink !== 'logout' && empty($_POST) && !isset($_GET['f'])) {
+    $skipCompleteProfile = array('complete-profile', 'logout', 'activate', 'user-activation', 'confirm-sms', 'terms');
+    if (!in_array($currentLink, $skipCompleteProfile) && empty($_POST) && !isset($_GET['f'])) {
         $needsEmail = (!empty($wo['user']['src']) && $wo['user']['src'] === 'phone_signup'
             && (empty($wo['user']['email']) || strpos($wo['user']['email'], '@placeholder.bitchat.live') !== false));
         $needsPhone = (!empty($wo['user']['src']) && $wo['user']['src'] === 'email_signup'
