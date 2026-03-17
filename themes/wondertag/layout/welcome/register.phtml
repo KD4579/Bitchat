@@ -340,19 +340,25 @@ $(function() {
 			<?php } ?>
 		},
 		success: function(data) {
-			if (data.status == 200) {
+			if (data && data.status == 200) {
 				$login_anim.removeClass('d-none');
 				setTimeout(function () {
 					window.location.href = data.location;
 				}, 1000);
-			} else if (data.status == 300) {
+			} else if (data && data.status == 300) {
 				window.location.href = data.location;
 			} else {
 				var termsChecked = document.getElementById('accept_terms') && document.getElementById('accept_terms').checked;
 				$('#sign_submit').attr("disabled", !termsChecked);
-				var errorMsg = Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors;
+				var errorMsg = (data && data.errors) ? (Array.isArray(data.errors) ? data.errors.join("<br>") : data.errors) : 'Something went wrong. Please try again.';
 				$state.html(errorMsg);
-			} 
+			}
+			working = false;
+		},
+		error: function() {
+			var termsChecked = document.getElementById('accept_terms') && document.getElementById('accept_terms').checked;
+			$('#sign_submit').attr("disabled", !termsChecked);
+			$state.html('<?php echo $error_icon ?? ""; ?> Something went wrong. Please try again.');
 			working = false;
 		}
 	});

@@ -311,6 +311,9 @@ if ($f == 'register') {
         // Always register the user first (creates DB record)
         $register = Wo_RegisterUser($re_data, $in_code);
 
+        if ($register !== true) {
+            $errors = $error_icon . ($wo['lang']['registration_failed'] ?? 'Registration failed. Please try again.');
+        }
         if ($register === true) {
             $r_id = Wo_UserIdFromUsername($_POST['username']);
 
@@ -434,8 +437,12 @@ if ($f == 'register') {
         echo json_encode(array(
             'errors' => $errors
         ));
-    } else {
+    } else if (isset($data)) {
         echo json_encode($data);
+    } else {
+        echo json_encode(array(
+            'errors' => $error_icon . ($wo['lang']['registration_failed'] ?? 'Registration failed. Please try again.')
+        ));
     }
     exit();
 }
