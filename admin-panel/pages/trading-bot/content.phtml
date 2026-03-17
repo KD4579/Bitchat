@@ -40,6 +40,54 @@ foreach ($botDefaults as $key => $default) {
         <div class="panel-body">
             <form id="trading-bot-form">
 
+                <!-- Bot Service Controls -->
+                <?php
+                    $gridRunning = in_array($botConfig['bot_mode'], ['both', 'market_making']) && $botConfig['bot_enabled'] == '1';
+                    $arbRunning = in_array($botConfig['bot_mode'], ['both', 'arbitrage']) && $botConfig['bot_enabled'] == '1';
+                ?>
+                <div class="row" style="margin-bottom:20px;">
+                    <div class="col-md-6">
+                        <div class="panel panel-default" style="margin-bottom:0;border-left:4px solid <?php echo $gridRunning ? '#4CAF50' : '#f44336'; ?>;">
+                            <div class="panel-body" style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <h4 style="margin:0 0 4px 0;"><i class="material-icons" style="font-size:18px;vertical-align:middle;">grid_on</i> Grid Trading Bot</h4>
+                                    <span class="label label-<?php echo $gridRunning ? 'success' : 'danger'; ?>" id="grid-status-badge">
+                                        <?php echo $gridRunning ? 'RUNNING' : 'STOPPED'; ?>
+                                    </span>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-success btn-sm" id="btn-grid-start" <?php echo $gridRunning ? 'disabled' : ''; ?> onclick="controlBot('grid', 'start')">
+                                        <i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" id="btn-grid-stop" <?php echo !$gridRunning ? 'disabled' : ''; ?> onclick="controlBot('grid', 'stop')">
+                                        <i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="panel panel-default" style="margin-bottom:0;border-left:4px solid <?php echo $arbRunning ? '#4CAF50' : '#f44336'; ?>;">
+                            <div class="panel-body" style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <h4 style="margin:0 0 4px 0;"><i class="material-icons" style="font-size:18px;vertical-align:middle;">swap_horiz</i> Arbitrage Bot</h4>
+                                    <span class="label label-<?php echo $arbRunning ? 'success' : 'danger'; ?>" id="arb-status-badge">
+                                        <?php echo $arbRunning ? 'RUNNING' : 'STOPPED'; ?>
+                                    </span>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-success btn-sm" id="btn-arb-start" <?php echo $arbRunning ? 'disabled' : ''; ?> onclick="controlBot('arbitrage', 'start')">
+                                        <i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" id="btn-arb-stop" <?php echo !$arbRunning ? 'disabled' : ''; ?> onclick="controlBot('arbitrage', 'stop')">
+                                        <i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Master Switch -->
                 <div class="row">
                     <div class="col-md-4">
@@ -55,7 +103,7 @@ foreach ($botDefaults as $key => $default) {
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Trading Mode</label>
-                            <select name="bot_mode" class="form-control">
+                            <select name="bot_mode" class="form-control" id="bot_mode_select">
                                 <option value="both" <?php echo ($botConfig['bot_mode'] == 'both') ? 'selected' : ''; ?>>Both (Market Making + Arbitrage)</option>
                                 <option value="market_making" <?php echo ($botConfig['bot_mode'] == 'market_making') ? 'selected' : ''; ?>>Market Making Only</option>
                                 <option value="arbitrage" <?php echo ($botConfig['bot_mode'] == 'arbitrage') ? 'selected' : ''; ?>>Arbitrage Only</option>
@@ -298,6 +346,53 @@ foreach ($botDefaults as $key => $default) {
 </div>
 
 <script>
+function controlBot(bot, action) {
+    var btn = (bot === 'grid') ?
+        (action === 'start' ? '#btn-grid-start' : '#btn-grid-stop') :
+        (action === 'start' ? '#btn-arb-start' : '#btn-arb-stop');
+    $(btn).prop('disabled', true).text(action === 'start' ? 'Starting...' : 'Stopping...');
+
+    $.post(Wo_Ajax_Requests_File() + '?f=trading_bot', {
+        bot_control: bot,
+        bot_action: action
+    }, function(data) {
+        if (data.status === 200) {
+            Wo_ShowNotifications('success', data.message);
+            // Update badges and buttons
+            var isGridOn = data.grid_running;
+            var isArbOn = data.arb_running;
+
+            $('#grid-status-badge').text(isGridOn ? 'RUNNING' : 'STOPPED')
+                .removeClass('label-success label-danger').addClass(isGridOn ? 'label-success' : 'label-danger');
+            $('#arb-status-badge').text(isArbOn ? 'RUNNING' : 'STOPPED')
+                .removeClass('label-success label-danger').addClass(isArbOn ? 'label-success' : 'label-danger');
+
+            $('#btn-grid-start').prop('disabled', isGridOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
+            $('#btn-grid-stop').prop('disabled', !isGridOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
+            $('#btn-arb-start').prop('disabled', isArbOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
+            $('#btn-arb-stop').prop('disabled', !isArbOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
+
+            // Update the mode dropdown to match
+            if (data.bot_mode) {
+                $('#bot_mode_select').val(data.bot_mode);
+            }
+            $('[name="bot_enabled"]').val(data.bot_enabled);
+
+            // Update border colors
+            $('#btn-grid-start').closest('.panel').css('border-left-color', isGridOn ? '#4CAF50' : '#f44336');
+            $('#btn-arb-start').closest('.panel').css('border-left-color', isArbOn ? '#4CAF50' : '#f44336');
+        } else {
+            Wo_ShowNotifications('error', data.message || 'Failed');
+            $(btn).prop('disabled', false).html(action === 'start' ?
+                '<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start' :
+                '<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
+        }
+    }, 'json').fail(function() {
+        Wo_ShowNotifications('error', 'Request failed');
+        $(btn).prop('disabled', false);
+    });
+}
+
 $(document).ready(function() {
     $('#trading-bot-form').on('submit', function(e) {
         e.preventDefault();

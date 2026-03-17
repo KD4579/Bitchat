@@ -7,6 +7,71 @@ if ($f == 'trading_bot') {
         exit();
     }
 
+    // Handle bot start/stop controls
+    if (!empty($_POST['bot_control']) && !empty($_POST['bot_action'])) {
+        $bot = $_POST['bot_control'];
+        $action = $_POST['bot_action'];
+        if (!in_array($bot, ['grid', 'arbitrage']) || !in_array($action, ['start', 'stop'])) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 400, 'message' => 'Invalid parameters'));
+            exit();
+        }
+
+        $currentMode = Wo_GetConfig('bot_mode') ?: 'both';
+        $currentEnabled = Wo_GetConfig('bot_enabled') ?: '0';
+
+        // Determine which strategies should be active after this action
+        $gridActive = in_array($currentMode, ['both', 'market_making']);
+        $arbActive = in_array($currentMode, ['both', 'arbitrage']);
+
+        if ($bot === 'grid' && $action === 'start') {
+            $gridActive = true;
+        } elseif ($bot === 'grid' && $action === 'stop') {
+            $gridActive = false;
+        } elseif ($bot === 'arbitrage' && $action === 'start') {
+            $arbActive = true;
+        } elseif ($bot === 'arbitrage' && $action === 'stop') {
+            $arbActive = false;
+        }
+
+        // Determine new mode
+        if ($gridActive && $arbActive) {
+            $newMode = 'both';
+        } elseif ($gridActive) {
+            $newMode = 'market_making';
+        } elseif ($arbActive) {
+            $newMode = 'arbitrage';
+        } else {
+            $newMode = 'both'; // will be disabled via bot_enabled
+        }
+
+        // If both are stopped, disable the bot entirely
+        $newEnabled = ($gridActive || $arbActive) ? '1' : '0';
+
+        Wo_SaveConfig('bot_mode', $newMode);
+        Wo_SaveConfig('bot_enabled', $newEnabled);
+
+        // Restart or stop the systemd service
+        if ($newEnabled === '1') {
+            @shell_exec('sudo systemctl restart trading-bot 2>&1');
+            $msg = ucfirst($bot) . ' bot started. Mode: ' . $newMode;
+        } else {
+            @shell_exec('sudo systemctl stop trading-bot 2>&1');
+            $msg = 'Both bots stopped. Service disabled.';
+        }
+
+        header("Content-type: application/json");
+        echo json_encode(array(
+            'status' => 200,
+            'message' => $msg,
+            'grid_running' => $gridActive,
+            'arb_running' => $arbActive,
+            'bot_mode' => $newMode,
+            'bot_enabled' => $newEnabled
+        ));
+        exit();
+    }
+
     $data = array('status' => 200);
 
     // Allowed bot config keys and their validation rules
