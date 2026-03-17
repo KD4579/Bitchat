@@ -25,11 +25,12 @@
 			if (Wo_EmailExists($email) === false) {
 				header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
 				exit();
-			} else if (Wo_ActivateUser($email, $code) === false) {   
-				header("Location: " . Wo_SeoLink('index.php?link1=welcome'));   
-				exit();   
+			} else if (Wo_ActivateUser($email, $code) === false) {
+				header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
+				exit();
 			} else {
-				$session = Wo_CreateLoginSession(Wo_UserIdFromEmail($email));
+				$userId = Wo_UserIdFromEmail($email);
+				$session = Wo_CreateLoginSession($userId);
 				$_SESSION['user_id'] = $session;
 				$isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 				setcookie("user_id", $session, [
@@ -38,14 +39,18 @@
 					'secure'   => $isSecure,
 					'samesite' => 'Lax'
 				]);
+				// Clear signup src so complete-profile redirect doesn't block newly activated users
+				global $sqlConnect;
+				mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `src` = 'complete' WHERE `user_id` = " . intval($userId));
+				cache($userId, 'users', 'delete');
 				if (!empty($wo['config']['auto_friend_users'])) {
-					$autoFollow = Wo_AutoFollow(Wo_UserIdFromEmail($email));
+					$autoFollow = Wo_AutoFollow($userId);
 				}
 				if (!empty($wo['config']['auto_page_like'])) {
-					Wo_AutoPageLike(Wo_UserIdFromEmail($email));
+					Wo_AutoPageLike($userId);
 				}
 				if (!empty($wo['config']['auto_group_join'])) {
-					Wo_AutoGroupJoin(Wo_UserIdFromEmail($email));
+					Wo_AutoGroupJoin($userId);
 				}
 				header("Location: " . $wo['config']['site_url'] . '/?cache=' . time());
 				exit();

@@ -105,6 +105,11 @@ if (!empty($_GET['ref']) && $wo['loggedin'] == false) {
     if (!empty($user_date)) {
         $_SESSION['ref'] = $user_date['username'];
         @setcookie('ref', $user_date['username'], time() + 2592000, '/'); // 30-day referral cookie
+        // Redirect referral visitors to registration page
+        if (empty($_GET['link1'])) {
+            header("Location: " . Wo_SeoLink('index.php?link1=register'));
+            exit();
+        }
     }
 } elseif (!empty($_COOKIE['ref']) && empty($_SESSION['ref']) && $wo['loggedin'] == false) {
     // Restore referral from cookie if session was lost

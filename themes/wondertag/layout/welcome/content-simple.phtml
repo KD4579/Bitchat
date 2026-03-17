@@ -199,8 +199,12 @@
       <!--                 <?php echo $wo['lang']['forget_password']; ?>-->
       <!--              </a>-->
 					<?php if ($wo['config']['user_registration'] == 1): ?>
-					   
-						<div class="text-center tag_wel_register"><?php echo $wo['lang']['dont_have_account']?> <a class="dec" href="<?php echo Wo_SeoLink('index.php?link1=register');?>"><?php echo $wo['lang']['register']?></a></div>
+						<div class="text-center tag_wel_register" style="margin-top:15px;">
+							<?php echo $wo['lang']['dont_have_account']?>
+							<a class="btn btn-main btn-mat" href="<?php echo Wo_SeoLink('index.php?link1=register');?>" style="display:inline-block;margin-left:8px;padding:8px 28px;font-size:15px;font-weight:600;border-radius:8px;text-decoration:none;">
+								<?php echo $wo['lang']['register']?>
+							</a>
+						</div>
 					<?php endif ?>
 				</div>
 			</div>
