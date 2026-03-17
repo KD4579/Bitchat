@@ -1973,7 +1973,9 @@ body.night_mode #bc-market-strip {
 }
 
 /* ---- Part 3b: Install Guide Modal (non-PWA fallback) ---- */
-#bc-install-guide-modal {
+#bc-install-guide-modal,
+#bc-android-install-modal,
+#bc-apk-warn {
   position: fixed;
   inset: 0;
   z-index: 10000;
@@ -1983,10 +1985,14 @@ body.night_mode #bc-market-strip {
   background: rgba(0,0,0,0);
   transition: background 0.25s ease;
 }
-#bc-install-guide-modal.bc-ig-in {
+#bc-install-guide-modal.bc-ig-in,
+#bc-android-install-modal.bc-ig-in,
+#bc-apk-warn.bc-ig-in {
   background: rgba(0,0,0,0.6);
 }
-#bc-install-guide-modal.bc-ig-out {
+#bc-install-guide-modal.bc-ig-out,
+#bc-android-install-modal.bc-ig-out,
+#bc-apk-warn.bc-ig-out {
   background: rgba(0,0,0,0);
 }
 .bc-ig-card {

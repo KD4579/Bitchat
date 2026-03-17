@@ -500,15 +500,105 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(function() { overlay.classList.add('bc-ig-in'); });
     }
 
-    /* Install button — Android gets APK, iOS gets PWA, desktop gets PWA */
+    /* Android install choice modal — PWA-first approach with APK fallback */
+    function showAndroidInstallChoice() {
+        if (document.getElementById('bc-android-install-modal')) return;
+
+        var overlay = document.createElement('div');
+        overlay.id = 'bc-android-install-modal';
+        overlay.innerHTML =
+            '<div class="bc-ig-card">' +
+                '<button class="bc-ig-close" aria-label="Close">&times;</button>' +
+                '<div class="bc-ig-icon"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>' +
+                '<h3 class="bc-ig-title">Install Bitchat</h3>' +
+                '<p class="bc-ig-subtitle">Choose your preferred install method:</p>' +
+                '<div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">' +
+                    '<button class="bc-ig-done" id="bc-android-pwa-btn" style="background:#10b981;border:none;color:#fff;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' +
+                        'Add to Home Screen (Recommended)' +
+                    '</button>' +
+                    '<button class="bc-ig-done" id="bc-android-apk-btn" style="background:transparent;border:2px solid #ddd;color:#333;padding:14px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+                        'Download Android App (APK)' +
+                    '</button>' +
+                    '<p style="font-size:11px;color:#888;text-align:center;margin:4px 0 0;">Home Screen install is instant, no downloads needed, and no security warnings.</p>' +
+                '</div>' +
+            '</div>';
+
+        document.body.appendChild(overlay);
+
+        function closeModal() {
+            overlay.classList.add('bc-ig-out');
+            setTimeout(function() { overlay.remove(); }, 250);
+        }
+
+        overlay.querySelector('.bc-ig-close').addEventListener('click', closeModal);
+        overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+
+        /* PWA button — show browser's Add to Home Screen guide */
+        overlay.querySelector('#bc-android-pwa-btn').addEventListener('click', function() {
+            closeModal();
+            showInstallGuide();
+        });
+
+        /* APK button — download with warning */
+        overlay.querySelector('#bc-android-apk-btn').addEventListener('click', function() {
+            closeModal();
+            /* Brief warning then download */
+            var warn = document.createElement('div');
+            warn.id = 'bc-apk-warn';
+            warn.innerHTML =
+                '<div class="bc-ig-card" style="max-width:340px;">' +
+                    '<h3 class="bc-ig-title" style="font-size:17px;">Download APK</h3>' +
+                    '<div class="bc-ig-steps">' +
+                        '<div class="bc-ig-step"><span class="bc-ig-num">1</span><span>Tap <b>Download</b> below</span></div>' +
+                        '<div class="bc-ig-step"><span class="bc-ig-num">2</span><span>If Chrome warns, tap <b>"Download anyway"</b></span></div>' +
+                        '<div class="bc-ig-step"><span class="bc-ig-num">3</span><span>Open the downloaded file and tap <b>Install</b></span></div>' +
+                        '<div class="bc-ig-step"><span class="bc-ig-num">4</span><span>If asked, enable <b>"Install unknown apps"</b> for Chrome</span></div>' +
+                    '</div>' +
+                    '<button class="bc-ig-done" id="bc-apk-download-go" style="background:#6C5CFF;color:#fff;width:100%;margin-top:12px;">Download Bitchat App (2.5 MB)</button>' +
+                    '<button class="bc-ig-done" style="background:transparent;border:1px solid #ddd;color:#666;width:100%;margin-top:8px;" id="bc-apk-cancel">Cancel</button>' +
+                '</div>';
+            document.body.appendChild(warn);
+            requestAnimationFrame(function() { warn.classList.add('bc-ig-in'); });
+
+            warn.querySelector('#bc-apk-download-go').addEventListener('click', function() {
+                window.location.href = '/upload/Bitchat-v1.0.3.apk';
+                warn.classList.add('bc-ig-out');
+                setTimeout(function() { warn.remove(); }, 250);
+            });
+            warn.querySelector('#bc-apk-cancel').addEventListener('click', function() {
+                warn.classList.add('bc-ig-out');
+                setTimeout(function() { warn.remove(); }, 250);
+            });
+            warn.addEventListener('click', function(e) {
+                if (e.target === warn) { warn.classList.add('bc-ig-out'); setTimeout(function() { warn.remove(); }, 250); }
+            });
+        });
+
+        requestAnimationFrame(function() { overlay.classList.add('bc-ig-in'); });
+    }
+
+    /* Install button — Android gets PWA first (no warnings), APK as fallback.
+       iOS gets PWA, desktop gets PWA. */
     document.getElementById('bc-install-btn').addEventListener('click', function() {
         dismiss();
         var ua = navigator.userAgent.toLowerCase();
         var isAndroid = ua.indexOf('android') > -1;
 
-        if (isAndroid) {
-            /* Direct APK download for Android */
-            window.location.href = '/upload/Bitchat-v1.0.3.apk';
+        if (isAndroid && deferredPWAPrompt) {
+            /* Best: native PWA install — no warnings, no sideloading */
+            deferredPWAPrompt.prompt();
+            deferredPWAPrompt.userChoice.then(function(choice) {
+                deferredPWAPrompt = null;
+                if (choice.outcome === 'dismissed') {
+                    /* User declined PWA — offer APK as fallback */
+                    showAndroidInstallChoice();
+                }
+            });
+        } else if (isAndroid) {
+            /* No PWA prompt available — show choice modal */
+            showAndroidInstallChoice();
         } else if (deferredPWAPrompt) {
             /* Native PWA Add to Home Screen */
             deferredPWAPrompt.prompt();
