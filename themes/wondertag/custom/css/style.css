@@ -1894,6 +1894,21 @@ body.night_mode #bc-market-strip {
   .bc-ticker-change { margin-right: 12px; font-size: 13px; }
   .bc-ticker-label { font-size: 12px; }
 }
+/* Safari: smooth ticker animation (prevent blinking/jank) */
+@supports (-webkit-touch-callout: none) {
+  .bc-ticker-wrapper {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    animation-duration: 40s !important;
+  }
+  #bc-market-strip {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
 
 /* ============================================================
    Part 3: Native Notification Popup
@@ -9008,6 +9023,34 @@ html.bc-dark-mode .tag_sidebar_mobi .tag_sidebar_head,
 body.night_mode .tag_sidebar_mobi .tag_sidebar_head {
   color: #999 !important;
   background: rgba(255,255,255,0.05) !important;
+}
+
+/* ==========================================================================
+   Cookie Consent Banner — above bottom nav
+   ========================================================================== */
+.cc-window, .cc-banner, .cc-bottom {
+  z-index: 10000 !important;
+}
+@media (max-width: 768px) {
+  .cc-window, .cc-banner, .cc-bottom {
+    bottom: 60px !important;
+    padding-bottom: 8px !important;
+  }
+}
+
+/* ==========================================================================
+   Ticker — don't overlap page content
+   ========================================================================== */
+@media (max-width: 768px) {
+  #bc-market-strip {
+    position: relative !important;
+    z-index: 50 !important;
+  }
+  /* Ensure content below ticker is not overlapped */
+  #bc-market-strip + * {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 /* ==========================================================================
