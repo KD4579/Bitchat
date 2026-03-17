@@ -8931,3 +8931,81 @@ body.night_mode {
   .bc-hero-sub { font-size: 11px !important; }
   .bc-btn-primary, .bc-btn-ghost { font-size: 11px !important; padding: 6px 12px !important; }
 }
+
+/* ==========================================================================
+   MOBILE SIDEBAR — Restore desktop grid layout with collapsible groups
+   Override WoWonder's .tag_sidebar_mobi rules that flatten the sidebar
+   into a full-width list and hide group headers.
+   ========================================================================== */
+.tag_sidebar_mobi .tag_sidebar_head {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  padding: 8px 14px !important;
+  margin: 0 4px 4px !important;
+  color: var(--header-color, #666) !important;
+  border-radius: 8px !important;
+  background: rgba(128,128,128,0.08) !important;
+}
+.tag_sidebar_mobi .tag_sidebar_head svg {
+  width: 16px !important;
+  height: 16px !important;
+  transition: transform 0.3s ease !important;
+}
+.tag_sidebar_mobi .tag_sidebar_head[aria-expanded="true"] svg {
+  transform: rotate(180deg) !important;
+}
+/* Restore grid layout for sidebar links */
+.tag_sidebar_mobi .tag_sidebar_section {
+  display: flex !important;
+  flex-wrap: wrap !important;
+}
+.tag_sidebar_mobi .tag_sidebar_section > a {
+  width: 33.333% !important;
+  text-align: center !important;
+  display: inline-block !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 14px 4px !important;
+  line-height: 1.2 !important;
+  height: auto !important;
+  margin: 0 !important;
+  color: var(--header-color, #333) !important;
+}
+.tag_sidebar_mobi .tag_sidebar_section > a svg,
+.tag_sidebar_mobi .tag_sidebar_section > a img {
+  display: block !important;
+  width: 24px !important;
+  height: 24px !important;
+  margin: 0 auto 6px !important;
+}
+/* Restore collapse behavior — don't force all sections open */
+.tag_sidebar_mobi .collapse:not(.show) {
+  display: none !important;
+}
+.tag_sidebar_mobi .collapse.show,
+.tag_sidebar_mobi .collapsing {
+  display: block !important;
+}
+/* Section dividers */
+.tag_sidebar_mobi > .tag_sidebar_section_prnt {
+  border-bottom: 1px solid rgba(128,128,128,0.12) !important;
+  padding: 10px 8px !important;
+}
+/* Dark mode sidebar text */
+html:has(link#night-mode-css) .tag_sidebar_mobi .tag_sidebar_section > a,
+html.bc-dark-mode .tag_sidebar_mobi .tag_sidebar_section > a,
+body.night_mode .tag_sidebar_mobi .tag_sidebar_section > a {
+  color: #ccc !important;
+}
+html:has(link#night-mode-css) .tag_sidebar_mobi .tag_sidebar_head,
+html.bc-dark-mode .tag_sidebar_mobi .tag_sidebar_head,
+body.night_mode .tag_sidebar_mobi .tag_sidebar_head {
+  color: #999 !important;
+  background: rgba(255,255,255,0.05) !important;
+}
