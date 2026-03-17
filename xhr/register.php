@@ -331,7 +331,7 @@ if ($f == 'register') {
                 if (in_array($av_ext, $av_allowed_ext) && in_array($av_type, $av_allowed_mime)) {
                     $av_dir = 'upload/photos/' . date('Y') . '/' . date('m');
                     if (!file_exists($av_dir)) {
-                        mkdir($av_dir, 0777, true);
+                        mkdir($av_dir, 0755, true);
                     }
                     $av_filename = $av_dir . '/' . md5($r_id . time() . rand(1000,9999)) . '_avatar.' . $av_ext;
                     if (move_uploaded_file($av_tmp, $av_filename)) {
@@ -398,7 +398,7 @@ if ($f == 'register') {
                     cache($user_id, 'users', 'delete');
                     $data = array(
                         'status' => 300,
-                        'location' => Wo_SeoLink('index.php?link1=confirm-sms?code=' . $code)
+                        'location' => Wo_SeoLink('index.php?link1=confirm-sms&code=' . $code)
                     );
                 } else {
                     $errors = $error_icon . ($wo['lang']['failed_to_send_code_email'] ?? 'Failed to send SMS code. Please try again.');

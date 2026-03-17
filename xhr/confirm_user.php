@@ -38,7 +38,13 @@ if ($f == 'confirm_user') {
                 'samesite' => 'Lax'
             ]);
             if (!empty($_POST['last_url'])) {
-                $data['location'] = $_POST['last_url'];
+                $parsed = parse_url($_POST['last_url']);
+                $site_host = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+                if (empty($parsed['host']) || $parsed['host'] === $site_host) {
+                    $data['location'] = $_POST['last_url'];
+                } else {
+                    $data['location'] = $wo['config']['site_url'];
+                }
             } else {
                 $data['location'] = $wo['config']['site_url'];
             }

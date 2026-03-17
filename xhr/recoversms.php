@@ -23,7 +23,7 @@ if ($f == 'recoversms') {
                 $data = array(
                     'status' => 200,
                     'message' => $success_icon . $wo['lang']['recoversms_sent'],
-                    'location' => Wo_SeoLink('index.php?link1=confirm-sms-password?code=' . $code)
+                    'location' => Wo_SeoLink('index.php?link1=confirm-sms-password&code=' . $code)
                 );
             } else {
                 $errors = $error_icon . $wo['lang']['failed_to_send_code_email'];
