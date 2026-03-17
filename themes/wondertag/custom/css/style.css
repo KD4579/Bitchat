@@ -9081,6 +9081,37 @@ body.night_mode .tag_sidebar_mobi .tag_sidebar_head {
 }
 
 /* ==========================================================================
+   Reaction Popup — mobile-safe sizing
+   ========================================================================== */
+@media (max-width: 768px) {
+  .reactions-box {
+    max-width: calc(100vw - 20px) !important;
+    display: none;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+    padding: 4px !important;
+    left: 10px !important;
+    right: auto !important;
+    white-space: nowrap !important;
+  }
+  .reactions-box .reaction {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    float: left !important;
+  }
+  .reactions-box .reaction img {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 4px !important;
+  }
+  /* Hide tooltip text that overflows as raw code */
+  .reactions-box .reaction::after {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
    Cookie Consent Banner — above bottom nav
    ========================================================================== */
 .cc-window, .cc-banner, .cc-bottom {
