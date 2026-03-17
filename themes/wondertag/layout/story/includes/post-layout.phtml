@@ -51,6 +51,7 @@ if ($bc_is_gated && $wo['loggedin']) {
 						$bc_signal = $db->where('post_id', $wo['story']['id'])->getOne(T_TRADING_SIGNALS);
 					}
 					if (!empty($bc_signal)) {
+						if (is_object($bc_signal)) $bc_signal = (array) $bc_signal;
 						$bc_sig_class = in_array($bc_signal['signal_type'], array('BUY','LONG')) ? 'bc-signal-buy' : (in_array($bc_signal['signal_type'], array('SELL','SHORT')) ? 'bc-signal-sell' : 'bc-signal-hold');
 						$bc_conf_stars = str_repeat('★', intval($bc_signal['confidence'])) . str_repeat('☆', 5 - intval($bc_signal['confidence']));
 				?>
