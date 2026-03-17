@@ -2,6 +2,55 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-17 — Registration Flow, Mobile Responsiveness, Trading Bot Controls
+
+### Registration & Onboarding Flow
+- **Fixed registration form stuck on submit** — added error handling when `Wo_RegisterUser()` fails, AJAX error callback, null-safe response handling.
+- **Fixed profile picture upload during registration** — replaced `Wo_UploadImage()` (requires login context) with direct file handling during signup.
+- **Fixed redirect loop on email activation** — excluded `activate`, `user-activation`, `confirm-sms`, and `terms` pages from complete-profile redirect.
+- **Fixed activation link for already-activated users** — auto-login instead of redirect to login page; fixed `Wo_Secure()` code comparison bug and `$sqlConnect` undefined error.
+- **Fixed referral link flow** — `/?ref=username` now redirects to `/register` instead of showing login page. Register button on login page restyled as a proper button.
+
+### TRDC Ticker
+- **Fixed TRDC price not updating** — GeckoTerminal API lacks CORS headers, so browser XHR was silently blocked. DexScreener (CORS-enabled) is now primary; added `xhr/trdc_price.php` as server-side proxy for GeckoTerminal fallback.
+
+### Trading Bot Admin Controls
+- **Added separate Start/Stop buttons** for Grid Trading Bot and Arbitrage Bot in admin panel (`/admin-cp/trading-bot`).
+- Status badges show RUNNING/STOPPED with color indicators. Buttons update `bot_mode` and `bot_enabled` in DB, then restart/stop systemd service.
+- Added sudoers rule for `www-data` to manage `trading-bot.service`.
+
+### Affiliate/Referral Tracking
+- **Fixed affiliate count not showing** — when `affiliate_type=1` (multi-level), only `ref_user_id` was set but `Wo_CountRefs` counts by `referrer` field. Now sets both fields.
+- **Preserved `Referrer` src** — signup_method overwrite (`email_signup`/`phone_signup`) was erasing the referral source. Now preserves `Referrer` for referral users.
+
+### UI/UX — Light/Dark Mode
+- **Fixed ticker strip** — white background + dark text in light mode; black background + light text in dark mode.
+- **Fixed announcement banner** — removed inline color styles; CSS now controls colors per theme (white/black backgrounds).
+- **Removed gaps** between ticker → announcement → hero banner.
+- **Removed sidebar announcement shadow** and hover lift effect.
+
+### Mobile Responsiveness (Chrome Mobile + Android WebView)
+- **Fixed user_info page** — added viewport meta tag and full responsive CSS (was a standalone HTML page with zero mobile support).
+- **Fixed dropdown menus** — `min-width: auto` on mobile (was 350px, overflowing on 375px screens).
+- **Fixed publisher box** — `flex-wrap: wrap` for buttons (was `nowrap` causing horizontal scroll).
+- **Fixed profile page** — cover photo responsive (200px tablet, 150px phone), buttons wrap, scrollable bottom nav with hidden scrollbar.
+- **Fixed chat text truncation** — responsive max-width (180px tablet, 140px phone).
+- **Fixed product titles** — word-wrap on mobile (was `nowrap` 28px font overflowing).
+- **Added dark mode mobile nav** — icon/text colors, missing CSS variables (`--bc-surface-primary`, `--bc-border-color`, `--bc-text-primary`).
+- **Added ≤375px breakpoint** — compact ticker, nav, hero text for small phones.
+- **Added safe-area-inset** handling for sidebar on notched phones.
+- **Fixed fatal error on profile page** — `stdClass` to array cast for trading signal data in `post-layout.phtml`.
+
+### Android App Install Flow
+- **Improved install flow** — PWA-first approach (zero security warnings), with guided APK download as fallback showing step-by-step instructions for handling Chrome/Android security prompts.
+
+### Server Maintenance
+- Cleaned temp files (`php_errors.log`, `webhook-deploy.log`, cache `.tpl` files).
+- Flushed Redis data cache (DB 2) and PHP OPcache.
+- Restarted Apache, Nginx, deposit monitor, and withdrawal processor.
+
+---
+
 ## 2026-03-16 — Critical Security Audit & TRDC Ticker Fallback
 
 ### TRDC Ticker — Dual-Source Price Fetching
