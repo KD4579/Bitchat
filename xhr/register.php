@@ -317,18 +317,33 @@ if ($f == 'register') {
         if ($register === true) {
             $r_id = Wo_UserIdFromUsername($_POST['username']);
 
-            // Process avatar upload if provided during registration
+            // Process avatar upload during registration (can't use Wo_UploadImage — it requires $wo['loggedin'])
             if (!empty($_FILES['avatar']['tmp_name']) && is_uploaded_file($_FILES['avatar']['tmp_name'])) {
-                $avatarUpload = Wo_UploadImage(
-                    $_FILES['avatar']['tmp_name'],
-                    $_FILES['avatar']['name'],
-                    'avatar',
-                    $_FILES['avatar']['type'],
-                    $r_id
-                );
-                if ($avatarUpload === true) {
-                    $db->where('user_id', $r_id)->update(T_USERS, array('startup_image' => '1'));
-                    cache($r_id, 'users', 'delete');
+                $av_name = $_FILES['avatar']['name'];
+                $av_tmp  = $_FILES['avatar']['tmp_name'];
+                $av_type = $_FILES['avatar']['type'];
+                $av_ext  = strtolower(pathinfo($av_name, PATHINFO_EXTENSION));
+                $av_allowed_ext  = array('jpg', 'jpeg', 'png', 'gif');
+                $av_allowed_mime = array('image/png', 'image/jpeg', 'image/gif', 'image/jpg');
+
+                if (in_array($av_ext, $av_allowed_ext) && in_array($av_type, $av_allowed_mime)) {
+                    $av_dir = 'upload/photos/' . date('Y') . '/' . date('m');
+                    if (!file_exists($av_dir)) {
+                        mkdir($av_dir, 0777, true);
+                    }
+                    $av_filename = $av_dir . '/' . md5($r_id . time() . rand(1000,9999)) . '_avatar.' . $av_ext;
+                    if (move_uploaded_file($av_tmp, $av_filename)) {
+                        $av_check = getimagesize($av_filename);
+                        if ($av_check) {
+                            $db->where('user_id', $r_id)->update(T_USERS, array(
+                                'avatar'        => $av_filename,
+                                'startup_image' => '1'
+                            ));
+                            cache($r_id, 'users', 'delete');
+                        } else {
+                            @unlink($av_filename);
+                        }
+                    }
                 }
             }
 
