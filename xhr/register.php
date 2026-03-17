@@ -297,6 +297,8 @@ if ($f == 'register') {
                 $same_ip = (!empty($ref_user['ip_address']) && $ref_user['ip_address'] === Wo_Secure($_SERVER['REMOTE_ADDR'] ?? ''));
                 if (!$is_self_ref && !$is_admin && !$same_ip) {
                     $re_data['ref_user_id'] = Wo_Secure($ref_user_id);
+                    $re_data['referrer'] = Wo_Secure($ref_user_id);
+                    $re_data['src'] = Wo_Secure('Referrer');
                 }
                 unset($_SESSION['ref']);
                 @setcookie('ref', '', time() - 3600, '/');
@@ -362,7 +364,8 @@ if ($f == 'register') {
             }
 
             // Store signup_method in DB for complete-profile redirect
-            if ($r_id) {
+            // Preserve 'Referrer' src if user came via referral link
+            if ($r_id && empty($re_data['referrer'])) {
                 mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `src` = '" . Wo_Secure($signup_method) . "_signup' WHERE `user_id` = {$r_id}");
                 cache($r_id, 'users', 'delete');
             }
