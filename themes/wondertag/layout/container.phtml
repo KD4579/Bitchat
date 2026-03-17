@@ -27,14 +27,28 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<meta name="description" content="<?php echo $wo['description'];?>">
 		<meta name="keywords" content="<?php echo $wo['keywords'];?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		
+
 		<link rel="apple-touch-icon" href="<?php echo $wo['config']['theme_url'];?>/img/icon.png">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-title" content="<?php echo $wo['config']['siteName'];?>">
-		
-		<?php if (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') { ?>
+
+		<?php
+		// Determine dark mode early to prevent flash of wrong theme
+		$isDarkMode = (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night');
+		?>
+		<?php if ($isDarkMode) { ?>
 			<meta name="theme-color" content="#212121" id="night-mode-meta">
 		<?php } ?>
+		<script>
+		// Apply dark mode IMMEDIATELY before any CSS/content loads to prevent flash
+		(function(){
+			var c = document.cookie.match(/(?:^|;\s*)mode=([^;]*)/);
+			var mode = c ? c[1] : null;
+			if (mode === 'night' || (mode === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+				document.documentElement.classList.add('night-mode');
+			}
+		})();
+		</script>
 		<meta name="pinterest-rich-pin" content="false" />
 		<?php echo($wo['lang_og_meta']); if ($wo['page'] == 'maintenance') { ?>
 			<meta name="robots" content="noindex">
@@ -513,8 +527,11 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
       
 		<?php echo Wo_LoadPage('style') ?>
 
-		<?php if (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') { ?>
+		<?php if ($isDarkMode) { ?>
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">
+		<?php } elseif (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'auto') { ?>
+			<!-- Auto mode: preload dark CSS, JS above will activate via class -->
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css" media="(prefers-color-scheme: dark)">
 		<?php } ?>
 
 		<!-- VI-1: Bitchat Design System (loads before custom overrides) -->
