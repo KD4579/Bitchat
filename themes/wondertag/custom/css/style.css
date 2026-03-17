@@ -5387,14 +5387,23 @@ html.bc-dark-mode #tagPostBox.show .modal-content {
   #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo textarea,
   #tagPostBox.show .modal-content #post-textarea .wo_pub_txtara_combo .postText {
     flex: 1 !important;
-    min-height: unset !important;
+    min-height: 150px !important;
     max-height: unset !important;
     height: auto !important;
     resize: none !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    padding: 12px !important;
   }
   /* Footer sticks to bottom */
   #tagPostBox.show .modal-content .modal-footer {
     margin-top: auto !important;
+    flex-shrink: 0 !important;
+  }
+  /* Publisher footer scrollable if buttons overflow viewport */
+  #tagPostBox.show .modal-content .publisher-box-footer {
+    max-height: 45vh !important;
+    overflow-y: auto !important;
     flex-shrink: 0 !important;
   }
   /* publisher-box form wraps everything — make it flex too */
