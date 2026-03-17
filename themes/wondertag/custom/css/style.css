@@ -9359,3 +9359,211 @@ html {
     height: 100px !important;
   }
 }
+
+/* ==========================================================================
+   Android App WebView — .bc-native-app class injected by MainActivity.kt
+   Targets ALL Android devices: phones (360-428px), tablets (600-800px)
+   ========================================================================== */
+
+/* --- Edge-to-edge: account for Android status bar & nav bar --- */
+html.bc-native-app {
+  /* Android WebView runs edge-to-edge; pad for status bar */
+  padding-top: env(safe-area-inset-top, 0px);
+}
+html.bc-native-app body {
+  /* Prevent content behind Android gesture nav bar */
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* --- Hide hero/install banners in native app --- */
+html.bc-native-app #bc-hero-banner,
+html.bc-native-app #bc-install-popup,
+html.bc-native-app #bc-android-install-modal,
+html.bc-native-app .bc-install-prompt {
+  display: none !important;
+}
+
+/* --- App header: match status bar color transition --- */
+html.bc-native-app .tag_navbar_top,
+html.bc-native-app .tag_header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* --- Smoother scrolling in WebView --- */
+html.bc-native-app * {
+  -webkit-overflow-scrolling: touch;
+}
+html.bc-native-app body {
+  overscroll-behavior-y: none;
+}
+
+/* --- Fix WebView rendering: force GPU acceleration on key elements --- */
+html.bc-native-app .post,
+html.bc-native-app .tag_sidebar_mobi,
+html.bc-native-app #bc-market-strip,
+html.bc-native-app .tag_header,
+html.bc-native-app #bc-mobile-nav {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* --- Android-specific touch improvements --- */
+html.bc-native-app a,
+html.bc-native-app button,
+html.bc-native-app .btn,
+html.bc-native-app [onclick],
+html.bc-native-app [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+/* --- Fix keyboard pushing content up --- */
+html.bc-native-app #bc-mobile-nav {
+  /* When keyboard opens (adjustResize), nav stays at bottom */
+  position: fixed !important;
+  bottom: 0 !important;
+}
+
+/* --- Android small phones (360px — Samsung Galaxy S series, Pixel) --- */
+@media (max-width: 380px) {
+  html.bc-native-app .tag_header .search-input {
+    font-size: 13px !important;
+  }
+  html.bc-native-app .bc-ticker-wrapper {
+    animation-duration: 45s !important;
+  }
+  html.bc-native-app #bc-market-strip {
+    height: 32px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* --- Android medium phones (390-412px — Pixel 7/8, Samsung S23/S24) --- */
+@media (min-width: 381px) and (max-width: 420px) {
+  html.bc-native-app #bc-market-strip {
+    height: 34px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* --- Android large phones (428px+ — Samsung Ultra, Pixel Pro) --- */
+@media (min-width: 421px) and (max-width: 500px) {
+  html.bc-native-app #bc-market-strip {
+    height: 36px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* --- Android tablets (600-800px) --- */
+@media (min-width: 600px) and (max-width: 800px) {
+  html.bc-native-app .tag_pub_box_btns {
+    width: calc(50% - 15px) !important;
+  }
+  html.bc-native-app .tag_sidebar_mobi {
+    width: 300px !important;
+  }
+}
+
+/* --- Android foldables (Samsung Fold outer: 280px, inner: 720px) --- */
+@media (max-width: 300px) {
+  html.bc-native-app .tag_pub_box_btns {
+    width: 100% !important;
+    font-size: 11px !important;
+    padding: 0 8px !important;
+  }
+  html.bc-native-app #bc-market-strip {
+    height: 28px !important;
+    font-size: 11px !important;
+  }
+  html.bc-native-app .tag_header .search-input {
+    font-size: 12px !important;
+  }
+}
+@media (min-width: 700px) and (max-width: 740px) {
+  /* Samsung Fold inner display */
+  html.bc-native-app .tag_pub_box_btns {
+    width: calc(33.33% - 15px) !important;
+  }
+}
+
+/* --- Dark mode in app (night-mode class set by JS in <head>) --- */
+html.bc-native-app.night-mode {
+  background-color: #121212 !important;
+}
+html.bc-native-app.night-mode body {
+  background-color: #121212 !important;
+}
+html.bc-native-app.night-mode .tag_header,
+html.bc-native-app.night-mode .tag_navbar_top {
+  background-color: #1a1a1a !important;
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+html.bc-native-app.night-mode #bc-mobile-nav {
+  background: #181818 !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+
+/* --- Post reaction popup — force single row in app --- */
+html.bc-native-app .reactions-box {
+  max-width: calc(100vw - 16px) !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  border-radius: 24px !important;
+}
+html.bc-native-app .reactions-box .reaction {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+}
+html.bc-native-app .reactions-box .reaction img {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 4px !important;
+}
+html.bc-native-app .reactions-box .reaction::after {
+  display: none !important;
+}
+
+/* --- Fix images in posts inside app --- */
+html.bc-native-app .post img:not(.avatar):not([class*="emoji"]):not([class*="reaction"]) {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 8px !important;
+}
+
+/* --- Fix modals in app (full screen, no border radius) --- */
+@media (max-width: 540px) {
+  html.bc-native-app .modal-dialog {
+    margin: 0 !important;
+    max-width: 100% !important;
+    height: 100% !important;
+  }
+  html.bc-native-app .modal-content {
+    border-radius: 0 !important;
+    min-height: 100% !important;
+  }
+}
+
+/* --- Prevent horizontal scroll in app (common Android WebView issue) --- */
+html.bc-native-app,
+html.bc-native-app body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+/* --- Fix chat input area in app --- */
+html.bc-native-app .tag_msg_write {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
+  background: inherit !important;
+}
+
+/* --- Cookie consent banner: already in native app, hide it --- */
+html.bc-native-app .cc-window,
+html.bc-native-app .cc-banner {
+  display: none !important;
+}
