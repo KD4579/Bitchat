@@ -597,13 +597,13 @@ body.night_mode {
   margin-bottom: 16px !important;
 }
 .greetalert .small-texts {
-  font-size: 10px !important;
+  font-size: 11px !important;
   letter-spacing: -0.2px !important;
   line-height: 1.2 !important;
   margin: 0 0 2px !important;
 }
 .greetalert p {
-  font-size: 6px !important;
+  font-size: 10px !important;
   letter-spacing: 0.1px !important;
   margin: 0 !important;
 }
@@ -2123,7 +2123,7 @@ html.bc-dark-mode .bc-ig-close {
 }
 
 /* ---- App Update Banner ---- */
-#bc-update-banner { position:fixed; bottom:0; left:0; right:0; z-index:99999; transform:translateY(100%); transition:transform 0.3s ease; }
+#bc-update-banner { position:fixed; bottom:0; left:0; right:0; z-index:1070; transform:translateY(100%); transition:transform 0.3s ease; padding-bottom: env(safe-area-inset-bottom, 0px); }
 #bc-update-banner.bc-upd-visible { transform:translateY(0); }
 .bc-upd-content { display:flex; align-items:center; gap:10px; padding:12px 16px; background:#1a1a2e; color:#fff; }
 .bc-upd-icon { flex-shrink:0; color:#4ECDC4; }
@@ -3395,7 +3395,7 @@ html.bc-native-app .wo_imagecombo_lbox .next-btn { display: none !important; }
   .bc-hero-ctas { gap: 6px !important; }
   #bc-hero-banner .bc-hero-stats { margin: 0 -12px; padding: 1px 12px; }
   .bc-hero-stat-value { font-size: 12px; }
-  .bc-hero-stat-label { font-size: 9px; }
+  .bc-hero-stat-label { font-size: 11px; }
   #bc-hero-banner .bc-hero-stats { gap: 0; overflow-x: auto; flex-wrap: nowrap; }
   /* Composer box — 30% reduced on mobile */
   .tag_pub_box_bg { padding: 8px 12px !important; margin-bottom: 8px !important; gap: 8px !important; }
@@ -4266,8 +4266,8 @@ body:not(.bc-welcome) .tag_content  { margin-left: 280px !important; }
     align-items: center;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
   }
-  /* Pad page bottom so content isn't hidden behind nav */
-  body { padding-bottom: 60px !important; }
+  /* Pad page bottom so content isn't hidden behind nav (safe area for notched phones) */
+  body { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important; }
 }
 /* Dark mode */
 html:has(link#night-mode-css) #bc-mobile-nav,
@@ -5327,7 +5327,7 @@ body.modal-open {
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  z-index: 1050 !important;
+  z-index: 1060 !important;
 }
 #tagPostBox.show {
   display: flex !important;
@@ -9239,9 +9239,9 @@ html:not(.night-mode) {
     object-fit: cover !important;
     width: 100% !important;
   }
-  /* Bottom nav spacing — don't cover content */
+  /* Bottom nav spacing — don't cover content (safe area for notched phones) */
   body {
-    padding-bottom: 60px !important;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
   }
   /* Fix dropdowns/modals going off screen */
   .dropdown-menu {
@@ -9252,5 +9252,110 @@ html:not(.night-mode) {
   .modal-dialog {
     margin: 10px !important;
     max-width: calc(100vw - 20px) !important;
+  }
+}
+
+/* ==========================================================================
+   Device-Specific Fixes — All Phones & Tablets
+   ========================================================================== */
+
+/* --- iPhone SE / Small phones (320px) --- */
+@media (max-width: 360px) {
+  #bc-market-strip { font-size: 12px !important; height: 32px !important; }
+  .bc-ticker-wrapper { animation-duration: 45s !important; }
+  .bc-hero-headline { font-size: 14px !important; }
+  .bc-hero-sub { font-size: 10px !important; }
+  .tag_pub_box_btns {
+    width: 100% !important;
+    margin: 0 0 8px !important;
+  }
+  .tag_pubbox_record {
+    width: 100% !important;
+    margin: 0 0 8px !important;
+  }
+}
+
+/* --- Touch targets — minimum 44px on all interactive elements --- */
+@media (max-width: 768px) {
+  .bc-mob-nav-item {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .bc-chat-send-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+  .tag_pub_box_avatar img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .tag_pub_box_bg_camlve {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+  }
+}
+
+/* --- Safe area insets for notched phones (iPhone X+, Android gesture nav) --- */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  #bc-mobile-nav {
+    padding-bottom: env(safe-area-inset-bottom, 4px) !important;
+  }
+  .cc-window, .cc-banner, .cc-bottom {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  #bc-update-banner {
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+  /* Search overlay — account for notch/Dynamic Island */
+  .tag_header > .search-container.bc-search-open {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+  }
+}
+
+/* --- Viewport meta tag — proper HTML element sizing --- */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* --- Minimum font size enforcement — accessibility --- */
+@media (max-width: 768px) {
+  .bc-trending-reactions,
+  .bc-cd-header-badge,
+  .bc-cd-rank-badge,
+  .bc-cd-chart-val,
+  .bc-cd-chart-day,
+  .bc-cd-growth-hint,
+  .pro-badge {
+    font-size: 11px !important;
+  }
+}
+
+/* --- Story lightbox — fit mobile screens --- */
+@media (max-width: 768px) {
+  .tag_lbox_story_view {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+  .tag_story_side {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    max-height: 50vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* --- Product images — responsive on small screens --- */
+@media (max-width: 480px) {
+  .tag_randm_plist .product_info .valign img {
+    width: 100px !important;
+    min-width: 100px !important;
+    height: 100px !important;
   }
 }
