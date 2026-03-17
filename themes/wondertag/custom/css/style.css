@@ -8820,13 +8820,59 @@ header { margin-bottom: 0 !important; }
   }
 }
 
-/* --- Publisher box: allow button wrapping on mobile --- */
+/* --- Publisher box: desktop-like 2-column grid on mobile --- */
 @media (max-width: 768px) {
   .publisher-box .publisher-box-footer .pub-footer-upper {
     white-space: normal !important;
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 4px !important;
+    gap: 0 !important;
+    padding: 15px 7.5px 5px !important;
+    text-align: inherit !important;
+    overflow-x: visible !important;
+  }
+  /* Show full button with label (not icon-only) */
+  .tag_pub_box_btns {
+    display: block !important;
+    width: calc(50% - 15px) !important;
+    min-width: unset !important;
+    height: auto !important;
+    text-align: inherit !important;
+    background-color: rgba(0,0,0,0.05) !important;
+    border-radius: 10px !important;
+    margin: 0 7.5px 10px !important;
+    padding: 0 12px !important;
+    line-height: 34px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+  }
+  /* Show button labels on mobile */
+  .tag_pub_box_btns > span {
+    display: inline !important;
+  }
+  .tag_pub_box_btns svg {
+    width: 22px !important;
+    height: 22px !important;
+    margin: -2px 6px 0 0 !important;
+  }
+  /* Record button container same width */
+  .tag_pubbox_record {
+    display: block !important;
+    width: calc(50% - 15px) !important;
+    min-width: unset !important;
+    margin: 0 7.5px 10px !important;
+    font-size: 13px !important;
+  }
+  .tag_pubbox_record .btn {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  /* Dark mode button background */
+  html:has(link#night-mode-css) .tag_pub_box_btns,
+  html.bc-dark-mode .tag_pub_box_btns,
+  body.night_mode .tag_pub_box_btns {
+    background-color: rgba(255,255,255,0.08) !important;
+    color: #dcdcdc !important;
   }
 }
 
