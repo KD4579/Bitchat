@@ -8783,3 +8783,145 @@ header { margin-bottom: 0 !important; }
   transform: none !important;
   box-shadow: none !important;
 }
+
+/* ==========================================================================
+   MOBILE WEBVIEW / CHROME MOBILE FIXES (≤768px and ≤480px)
+   Fixes for: header, dropdowns, chat, profile, publisher, dark mode nav
+   ========================================================================== */
+
+/* --- Dropdown menus: prevent overflow on small screens --- */
+@media (max-width: 768px) {
+  .tag_navbar_top_right .tag_hdr_right > .dropdown .dropdown-menu,
+  .tag_navbar_top .tag_header > .search-container .dropdown-menu {
+    min-width: auto !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* --- Publisher box: allow button wrapping on mobile --- */
+@media (max-width: 768px) {
+  .publisher-box .publisher-box-footer .pub-footer-upper {
+    white-space: normal !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+}
+
+/* --- Chat: fix text truncation width --- */
+@media (max-width: 768px) {
+  .recipient-chat-user .chat-user-text {
+    max-width: 180px !important;
+  }
+}
+@media (max-width: 480px) {
+  .recipient-chat-user .chat-user-text {
+    max-width: 140px !important;
+  }
+}
+
+/* --- Profile: buttons wrap, cover responsive --- */
+@media (max-width: 768px) {
+  .buttons-profile,
+  .wow_user_page_btns {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .buttons-profile .btn,
+  .wow_user_page_btns .btn {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+  .tag_cover_sec_bg {
+    height: 200px !important;
+    overflow: hidden !important;
+  }
+  .tag_cover_sec_bg img {
+    height: 200px !important;
+    object-fit: cover !important;
+  }
+  .wo_user_profile .user-bottom-nav ul {
+    white-space: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+  .wo_user_profile .user-bottom-nav ul::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+@media (max-width: 480px) {
+  .tag_cover_sec_bg,
+  .tag_cover_sec_bg img {
+    height: 150px !important;
+  }
+}
+
+/* --- Product titles: reduce size on mobile --- */
+@media (max-width: 768px) {
+  .tag_randm_plist .product_info h2 {
+    font-size: 18px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+}
+
+/* --- Dark mode: mobile nav icon/text colors --- */
+html:has(link#night-mode-css) #bc-mobile-nav .bc-mob-nav-item,
+html.bc-dark-mode #bc-mobile-nav .bc-mob-nav-item,
+body.night_mode #bc-mobile-nav .bc-mob-nav-item {
+  color: #ccc !important;
+}
+html:has(link#night-mode-css) #bc-mobile-nav .bc-mob-nav-item.active,
+html.bc-dark-mode #bc-mobile-nav .bc-mob-nav-item.active,
+body.night_mode #bc-mobile-nav .bc-mob-nav-item.active {
+  color: #fff !important;
+}
+html:has(link#night-mode-css) #bc-mobile-nav .bc-mob-nav-item svg,
+html.bc-dark-mode #bc-mobile-nav .bc-mob-nav-item svg,
+body.night_mode #bc-mobile-nav .bc-mob-nav-item svg {
+  color: inherit !important;
+}
+
+/* --- Dark mode: add missing CSS variable overrides --- */
+html:has(link#night-mode-css),
+html.bc-dark-mode,
+body.night_mode {
+  --bc-surface-primary: #181818;
+  --bc-surface-secondary: #222;
+  --bc-border-color: rgba(255,255,255,0.08);
+  --bc-text-primary: #e7e9ea;
+  --bc-text-secondary: #8899a6;
+  --bc-text-tertiary: #666;
+}
+
+/* --- Modals: add safe padding on mobile --- */
+@media (max-width: 480px) {
+  .modal.fade { padding: 0 !important; }
+  .modal-dialog { width: 100% !important; margin: 0 !important; }
+  .wow_mat_mdl .modal-content { border-radius: 0 !important; min-height: 100vh !important; }
+}
+
+/* --- Sidebar: safe area inset for notched phones --- */
+@media (max-width: 768px) {
+  .tag_sidebar {
+    padding-top: max(56px, calc(56px + env(safe-area-inset-top, 0px))) !important;
+  }
+}
+
+/* --- Small phone (≤375px) specific fixes --- */
+@media (max-width: 375px) {
+  #bc-market-strip { font-size: 13px !important; height: 34px !important; }
+  .bc-ticker-change { margin-right: 10px !important; font-size: 12px !important; }
+  .bc-ticker-sep { margin-right: 10px !important; }
+  .bc-ticker-label { font-size: 11px !important; }
+  .bc-announce-banner { font-size: 11px !important; padding: 6px 10px !important; }
+  #bc-mobile-nav { padding: 2px 0 env(safe-area-inset-bottom, 2px) !important; }
+  .bc-mob-create-icon { width: 44px !important; height: 44px !important; }
+  body { padding-bottom: calc(50px + env(safe-area-inset-bottom, 0px)) !important; }
+  .bc-hero-headline { font-size: 15px !important; }
+  .bc-hero-sub { font-size: 11px !important; }
+  .bc-btn-primary, .bc-btn-ghost { font-size: 11px !important; padding: 6px 12px !important; }
+}
