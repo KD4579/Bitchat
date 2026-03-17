@@ -485,8 +485,10 @@ function Wo_EmailExists($email) {
         return false;
     }
     $email = Wo_Secure($email);
+    // Delete unverified accounts older than 24 hours so the email can be reused
+    mysqli_query($sqlConnect, "DELETE FROM " . T_USERS . " WHERE `email` = '{$email}' AND `active` = '0' AND `joined` < " . (time() - 86400));
     $query = mysqli_query($sqlConnect, "SELECT COUNT(`user_id`) FROM " . T_USERS . " WHERE `email` = '{$email}'");
-    return (Wo_Sql_Result($query, 0) == 1) ? true : false;
+    return (Wo_Sql_Result($query, 0) >= 1) ? true : false;
 }
 function Wo_PhoneExists($phone) {
     global $sqlConnect;
@@ -494,6 +496,8 @@ function Wo_PhoneExists($phone) {
         return false;
     }
     $phone = Wo_Secure($phone);
+    // Delete unverified accounts older than 24 hours so the phone can be reused
+    mysqli_query($sqlConnect, "DELETE FROM " . T_USERS . " WHERE `phone_number` = '{$phone}' AND `active` = '0' AND `joined` < " . (time() - 86400));
     $query = mysqli_query($sqlConnect, "SELECT COUNT(`user_id`) FROM " . T_USERS . " WHERE `phone_number` = '{$phone}'");
     return (Wo_Sql_Result($query, 0) > 0) ? true : false;
 }
