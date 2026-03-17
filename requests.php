@@ -49,6 +49,7 @@ $allow_array = array(
     'trdc_withdrawal',
     'deposit_address',
     'complete_profile',
+    'trdc_price',
 );
 if ($f == 'certification' && $s == 'download_user_certification' && !empty($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0) {
     $allow_array[] = 'certification';
