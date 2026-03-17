@@ -2,6 +2,7 @@
 	<head>
 		<title><?php echo $wo['lang']['my_info']; ?></title>
 		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
 * {
@@ -98,6 +99,28 @@ footer {
     text-align: center;
     padding-top: 12px;color: #777777;
 }
+/* Mobile responsive */
+@media (max-width: 768px) {
+    header { margin: 20px 0 15px; }
+    .container { margin: 10px 8px; padding: 12px; border-radius: 10px; }
+    h2 { font-size: 16px; }
+    table { max-width: 100%; margin-top: 20px; margin-bottom: 30px; }
+    table tr td { padding: 6px 4px; font-size: 14px; }
+    .users_list .profile-style { width: 33.33%; padding: 8px; }
+    .users_list .profile-style .avatar { width: 70px; height: 70px; }
+    .users_list .profile-style > span > a { font-size: 13px; }
+}
+@media (max-width: 480px) {
+    header { margin: 12px 0 10px; }
+    header img { max-width: 140px; }
+    .container { margin: 6px 4px; padding: 10px; }
+    h2 { font-size: 15px; }
+    h2 svg { width: 18px; height: 18px; margin-right: 6px; }
+    table tr td { font-size: 13px; word-break: break-word; }
+    .users_list .profile-style { width: 50%; padding: 6px; }
+    .users_list .profile-style .avatar { width: 60px; height: 60px; }
+    .users_list .profile-style > span > a { font-size: 12px; }
+}
 </style>
 <?php if ($wo['config']['yandex_map'] == 1) { ?>
       <script src="https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=<?php echo $wo['config']['yandex_map_api'];?>" type="text/javascript"></script>
@@ -112,13 +135,27 @@ footer {
 		<div class="container">
 		<?php if (!empty($wo['user_info']['setting'])) { ?>
 			<style>
-				.cover {margin: 0 -20px;height: 363px;}
-				.cover img {width: 100%;height: 363px;object-fit: cover;}
-				.main_avatar {text-align: center;position: relative;margin-top: -65px;}
-				.main_avatar img {border-radius: 50%;box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);padding: 3px;background-color: white;width: 150px;height: 150px;object-fit: cover;}
+				.cover {margin: 0 -12px;height: 280px;overflow:hidden;border-radius:8px 8px 0 0;}
+				.cover img {width: 100%;height: 280px;object-fit: cover;}
+				.main_avatar {text-align: center;position: relative;margin-top: -55px;}
+				.main_avatar img {border-radius: 50%;box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);padding: 3px;background-color: white;width: 120px;height: 120px;object-fit: cover;}
 				.about {text-align: center;}
-				.name {text-align: center;font-weight: 500;margin-bottom: 0;font-size: 22px;}
-				.username {text-align: center;margin-top: 0;}
+				.name {text-align: center;font-weight: 500;margin-bottom: 0;font-size: 20px;}
+				.username {text-align: center;margin-top: 0;color:#666;}
+				@media (max-width: 768px) {
+					.cover {margin: 0 -12px;height: 180px;}
+					.cover img {height: 180px;}
+					.main_avatar {margin-top: -45px;}
+					.main_avatar img {width: 90px;height: 90px;}
+					.name {font-size: 18px;}
+				}
+				@media (max-width: 480px) {
+					.cover {margin: 0 -10px;height: 140px;}
+					.cover img {height: 140px;}
+					.main_avatar {margin-top: -35px;}
+					.main_avatar img {width: 70px;height: 70px;}
+					.name {font-size: 16px;}
+				}
 			</style>
 			<h2 class="mt0"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21,3H3C2,3 1,4 1,5V19A2,2 0 0,0 3,21H21C22,21 23,20 23,19V5C23,4 22,3 21,3M5,17L8.5,12.5L11,15.5L14.5,11L19,17H5Z" /></svg> <?php echo $wo['lang']['avatar']; ?> & <?php echo $wo['lang']['cover']; ?></h2>
 			<?php if (!empty($wo['user_info']['setting']['cover'])) { ?>
