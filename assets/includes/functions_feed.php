@@ -153,6 +153,7 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
         SELECT
             p.id,
             p.user_id,
+            p.postType AS post_type_raw,
             -- Engagement score
             (
                 (SELECT COUNT(*) FROM {$reactionsTable} r WHERE r.post_id = p.id) * {$wEng} +
@@ -320,10 +321,12 @@ function Wo_BuildRankedFeedIds($userId, $poolSize = 50) {
             continue; // Drop excess bot posts entirely
         }
 
+        // Trading signals bypass the per-user limit (distinct content type)
+        $isSignal = (!empty($row['post_type_raw']) && $row['post_type_raw'] === 'trading_signal');
         $userLimit = $isBot ? $maxPerBot : $maxSameUser;
-        if ($userCounts[$postUserId] < $userLimit) {
+        if ($isSignal || $userCounts[$postUserId] < $userLimit) {
             $rankedIds[] = intval($row['id']);
-            $userCounts[$postUserId]++;
+            if (!$isSignal) $userCounts[$postUserId]++;
             if ($isBot) $totalBotCount++;
         } elseif (!$isBot) {
             $overflow[] = intval($row['id']); // Only non-bot overflow gets appended
