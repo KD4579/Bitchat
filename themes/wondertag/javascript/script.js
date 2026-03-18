@@ -647,14 +647,23 @@ function Wo_GetNewPosts() {
     return false;
   }
   $('.posts-count').empty().removeAttr('data-count');
-  $('body,html').animate({ scrollTop : 0 }, 500);
+  // Load fresh feed, then scroll to the first (newest) post
   $("#posts-laoded").load(Wo_Ajax_Requests_File() + '?f=load_posts', function(response, status, xhr) {
     if (status == "error") {
       $("#posts-laoded").html('<div class="text-center p-3"><p>Could not load feed.</p><button class="btn btn-sm btn-primary" onclick="Wo_GetNewPosts()">Try Again</button></div>');
+      return;
     }
     $(".post-description p, .product-description").each(function(index, el) {
       ReadMoreText(this);
     });
+    // Scroll to the first post (newest) smoothly
+    var firstPost = $('#posts-laoded .post-container:first');
+    if (firstPost.length) {
+      var offset = firstPost.offset().top - 100;
+      $('body,html').animate({ scrollTop: Math.max(0, offset) }, 400);
+    } else {
+      $('body,html').animate({ scrollTop: 0 }, 400);
+    }
   });
 }
 

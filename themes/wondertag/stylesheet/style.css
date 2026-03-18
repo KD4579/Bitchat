@@ -1552,9 +1552,9 @@ input.cusrange[type=range]::-ms-thumb {background-color: var(--main);width:15px;
 .promoted-post {position:relative}
 .promoted-post .promoted-icon {position: absolute;top: 15px;color: #ff7042;left: 15px;background-color: #ffedd3;border-radius: 7px;font-weight: 500;text-transform: uppercase;font-size: 11px;letter-spacing: 0.5px;line-height: 22px;padding: 0 10px;word-spacing: 1px;}
 .promoted-post .post.boosted .panel {padding-top: 37px;box-shadow: 0 0px 0px 1px #ffcc80, 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);}
-.posts-count {z-index: 99;position: fixed;transition: none;top: 90px;left: 50%;transform: translateX(-50%) translate3d(0,0,0);border-radius: 2em;cursor: pointer;box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);}
-.posts-count:empty {padding: 0;box-shadow: none !important;}
-.posts-count:hover,.posts-count:focus,.posts-count:active,.posts-count.focus {box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important;outline: none;}
+.posts-count {z-index: 99;position: fixed;top: 90px;left: 50%;transform: translateX(-50%);-webkit-transform: translateX(-50%);border-radius: 2em;cursor: pointer;box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);transition: opacity 0.2s ease;will-change: opacity;}
+.posts-count:empty {padding: 0;box-shadow: none !important;pointer-events: none;}
+.posts-count:hover,.posts-count:focus,.posts-count:active,.posts-count.focus {opacity: 0.9;outline: none;}
 
 /*Home Stories*/
 .tag_stories_on_home {margin-bottom: 30px;}
