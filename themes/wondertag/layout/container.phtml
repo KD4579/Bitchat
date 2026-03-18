@@ -2130,27 +2130,19 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	}
 	function bcOpenSignalModal() {
 		$('#bc-signal-error').hide();
-		// Check if publisher modal is open
-		var pubOpen = $('#tagPostBox').hasClass('show') || $('#tagPostBox').hasClass('in');
-		if (pubOpen) {
-			$('#tagPostBox').modal('hide');
-			// Wait for publisher to fully close before opening signal modal
-			$('#tagPostBox').one('hidden.bs.modal', function() {
-				$('.modal-backdrop').remove();
-				$('body').removeClass('modal-open');
-				setTimeout(function() {
-					$('#bc-signal-modal').modal('show');
-				}, 100);
-			});
-			// Fallback if event doesn't fire
+		// Force close any open modals first, then open signal modal
+		var anyModalOpen = $('.modal.show, .modal.in').length > 0;
+		if (anyModalOpen) {
+			$('.modal.show, .modal.in').modal('hide');
+			// Remove all backdrops and body classes after a delay
 			setTimeout(function() {
-				if (!$('#bc-signal-modal').hasClass('show') && !$('#bc-signal-modal').hasClass('in')) {
-					$('.modal-backdrop').remove();
-					$('body').removeClass('modal-open');
-					$('#bc-signal-modal').modal('show');
-				}
-			}, 800);
+				$('.modal-backdrop').remove();
+				$('body').removeClass('modal-open').css('padding-right', '');
+				$('#bc-signal-modal').modal('show');
+			}, 400);
 		} else {
+			$('.modal-backdrop').remove();
+			$('body').removeClass('modal-open').css('padding-right', '');
 			$('#bc-signal-modal').modal('show');
 		}
 	}
@@ -2199,9 +2191,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				$('#bc-signal-entry, #bc-signal-target, #bc-signal-stoploss').val('');
 				$('#bc-signal-analysis').val('');
 				Wo_ShowNotifications('success', 'Trading signal posted!');
-				if (typeof Wo_Delay_Page_Load === 'function') {
-					setTimeout(function() { location.reload(); }, 600);
-				}
+				setTimeout(function() { location.reload(); }, 800);
 			} else {
 				$('#bc-signal-error').text(data.message || 'Error posting signal.').show();
 			}
