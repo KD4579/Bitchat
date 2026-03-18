@@ -2130,11 +2130,29 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	}
 	function bcOpenSignalModal() {
 		$('#bc-signal-error').hide();
-		// Hide the publisher post box first to avoid double popup
-		$('#tagPostBox').modal('hide');
-		setTimeout(function() {
+		// Check if publisher modal is open
+		var pubOpen = $('#tagPostBox').hasClass('show') || $('#tagPostBox').hasClass('in');
+		if (pubOpen) {
+			$('#tagPostBox').modal('hide');
+			// Wait for publisher to fully close before opening signal modal
+			$('#tagPostBox').one('hidden.bs.modal', function() {
+				$('.modal-backdrop').remove();
+				$('body').removeClass('modal-open');
+				setTimeout(function() {
+					$('#bc-signal-modal').modal('show');
+				}, 100);
+			});
+			// Fallback if event doesn't fire
+			setTimeout(function() {
+				if (!$('#bc-signal-modal').hasClass('show') && !$('#bc-signal-modal').hasClass('in')) {
+					$('.modal-backdrop').remove();
+					$('body').removeClass('modal-open');
+					$('#bc-signal-modal').modal('show');
+				}
+			}, 800);
+		} else {
 			$('#bc-signal-modal').modal('show');
-		}, 300);
+		}
 	}
 	// Clean up backdrop when signal modal closes
 	$('#bc-signal-modal').on('hidden.bs.modal', function() {
