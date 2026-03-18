@@ -9119,61 +9119,53 @@ html.night-mode .post .panel,
 body.night_mode .post .panel {
   background-color: #212121 !important;
 }
-@media (max-width: 768px) {
-  .reactions-box {
-    max-width: calc(100vw - 16px) !important;
-    overflow: hidden !important;
-    padding: 4px 2px !important;
-    left: 8px !important;
-    right: auto !important;
-    white-space: nowrap !important;
-    display: none;
-    border-radius: 28px !important;
-    z-index: 9999 !important;
-  }
-  /* Use flexbox instead of float for proper single-row layout */
-  .reactions-box .reaction {
-    width: auto !important;
-    min-width: 36px !important;
-    max-width: 36px !important;
-    height: 36px !important;
-    float: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-  }
-  .reactions-box .reaction img {
-    width: 28px !important;
-    height: 28px !important;
-    padding: 2px !important;
-    display: block !important;
-  }
-  /* Ensure no text/attribute content leaks out */
-  .reactions-box .reaction * {
-    font-size: 0 !important;
-    line-height: 0 !important;
-  }
-  .reactions-box .reaction img,
-  .reactions-box .reaction svg,
-  .reactions-box .reaction .emoji {
-    font-size: initial !important;
-    line-height: initial !important;
-  }
+/* Mobile reaction popup — single row, all devices */
+.reactions-box {
+  max-width: calc(100vw - 16px) !important;
+  overflow: hidden !important;
+  padding: 4px !important;
+  white-space: nowrap !important;
+  display: none;
+  border-radius: 28px !important;
+  z-index: 9999 !important;
+  /* Flexbox single row — key fix */
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
 }
-/* --- iPhone specific (375-428px) — slightly larger for touch --- */
-@media (min-width: 375px) and (max-width: 428px) {
-  .reactions-box .reaction {
-    min-width: 40px !important;
-    max-width: 40px !important;
-    height: 40px !important;
-  }
-  .reactions-box .reaction img {
-    width: 32px !important;
-    height: 32px !important;
-  }
+/* Every reaction item — uniform size, no float */
+.reactions-box .reaction {
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2px !important;
+  margin: 0 !important;
+  flex-shrink: 1 !important;
+  /* Calculate: fit all reactions in viewport. 9 reactions = (100vw - 24px) / 9 */
+  width: calc((100vw - 24px) / 9) !important;
+  max-width: 44px !important;
+  min-width: 0 !important;
+  height: auto !important;
+  aspect-ratio: 1 !important;
+  box-sizing: border-box !important;
+}
+.reactions-box .reaction img,
+.reactions-box .reaction svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  padding: 1px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+/* Kill any text/attribute bleeding */
+.reactions-box .reaction {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+  overflow: hidden !important;
 }
 
 /* ==========================================================================
