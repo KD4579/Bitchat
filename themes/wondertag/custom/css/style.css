@@ -9081,33 +9081,98 @@ body.night_mode .tag_sidebar_mobi .tag_sidebar_head {
 }
 
 /* ==========================================================================
-   Reaction Popup — mobile-safe sizing
+   Reaction Popup — mobile-safe sizing (ALL devices)
    ========================================================================== */
+/* Force ::after to never render (no content = no pseudo-element, but enforce it) */
+.reaction::after {
+  content: none !important;
+  display: none !important;
+}
+/* Stop infinite animation blinking — play once then stop */
+.reaction-1 img, .reaction-2 img, .reaction-3 img,
+.reaction-4 img, .reaction-5 img, .reaction-6 img {
+  animation-iteration-count: 1 !important;
+  animation-duration: 0.8s !important;
+}
+/* Dark mode reaction popup background */
+html:has(link#night-mode-css) .reactions-box,
+html.bc-dark-mode .reactions-box,
+body.night_mode .reactions-box,
+html.night-mode .reactions-box {
+  background: #2d2d2d !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+}
+/* Dark mode post images — no white background behind images */
+html:has(link#night-mode-css) .post .post_img,
+html:has(link#night-mode-css) .post .post-media,
+html:has(link#night-mode-css) .post .wo_imagecombo_cont,
+html.night-mode .post .post_img,
+html.night-mode .post .post-media,
+html.night-mode .post .wo_imagecombo_cont,
+body.night_mode .post .post_img,
+body.night_mode .post .post-media,
+body.night_mode .post .wo_imagecombo_cont {
+  background-color: transparent !important;
+}
+html:has(link#night-mode-css) .post .panel,
+html.night-mode .post .panel,
+body.night_mode .post .panel {
+  background-color: #212121 !important;
+}
 @media (max-width: 768px) {
   .reactions-box {
-    max-width: calc(100vw - 20px) !important;
-    display: none;
-    flex-wrap: nowrap !important;
+    max-width: calc(100vw - 16px) !important;
     overflow: hidden !important;
-    padding: 4px !important;
-    left: 10px !important;
+    padding: 4px 2px !important;
+    left: 8px !important;
     right: auto !important;
     white-space: nowrap !important;
+    display: none;
+    border-radius: 28px !important;
+    z-index: 9999 !important;
   }
+  /* Use flexbox instead of float for proper single-row layout */
   .reactions-box .reaction {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    float: left !important;
+    width: auto !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    float: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
   }
   .reactions-box .reaction img {
-    width: 30px !important;
-    height: 30px !important;
-    padding: 4px !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 2px !important;
+    display: block !important;
   }
-  /* Hide tooltip text that overflows as raw code */
-  .reactions-box .reaction::after {
-    display: none !important;
+  /* Ensure no text/attribute content leaks out */
+  .reactions-box .reaction * {
+    font-size: 0 !important;
+    line-height: 0 !important;
+  }
+  .reactions-box .reaction img,
+  .reactions-box .reaction svg,
+  .reactions-box .reaction .emoji {
+    font-size: initial !important;
+    line-height: initial !important;
+  }
+}
+/* --- iPhone specific (375-428px) — slightly larger for touch --- */
+@media (min-width: 375px) and (max-width: 428px) {
+  .reactions-box .reaction {
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+  }
+  .reactions-box .reaction img {
+    width: 32px !important;
+    height: 32px !important;
   }
 }
 
@@ -9506,25 +9571,9 @@ html.bc-native-app.night-mode #bc-mobile-nav {
   border-top-color: rgba(255,255,255,0.08) !important;
 }
 
-/* --- Post reaction popup — force single row in app --- */
+/* --- Post reaction popup in app — inherits mobile fixes above --- */
 html.bc-native-app .reactions-box {
-  max-width: calc(100vw - 16px) !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  border-radius: 24px !important;
-}
-html.bc-native-app .reactions-box .reaction {
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-}
-html.bc-native-app .reactions-box .reaction img {
-  width: 32px !important;
-  height: 32px !important;
-  padding: 4px !important;
-}
-html.bc-native-app .reactions-box .reaction::after {
-  display: none !important;
+  border-radius: 28px !important;
 }
 
 /* --- Fix images in posts inside app --- */
