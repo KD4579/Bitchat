@@ -2189,18 +2189,23 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			},
 			dataType: 'json',
 			success: function(data) {
-				if (data.status == 200) {
+				if (data && data.status == 200) {
 					$('#bc-signal-modal').modal('hide');
+					$('.modal-backdrop').remove();
+					$('body').removeClass('modal-open');
 					$('#bc-signal-entry, #bc-signal-target, #bc-signal-stoploss').val('');
 					$('#bc-signal-analysis').val('');
-					setTimeout(function() { location.reload(); }, 600);
+					// Force hard reload to show new post
+					window.location.href = window.location.pathname + '?t=' + Date.now();
 				} else {
-					$('#bc-signal-error').text(data.message || 'Error posting signal.').show();
+					$('#bc-signal-error').text((data && data.message) || 'Error posting signal.').show();
+					$('#bc-signal-submit-btn').removeAttr('disabled').text('Post Signal');
 				}
-				$('#bc-signal-submit-btn').removeAttr('disabled').text('Post Signal');
 			},
 			error: function(xhr, status, err) {
-				$('#bc-signal-error').text('Error: ' + (err || status)).show();
+				var msg = 'Network error.';
+				try { var r = JSON.parse(xhr.responseText); if (r.message) msg = r.message; } catch(e) {}
+				$('#bc-signal-error').text(msg).show();
 				$('#bc-signal-submit-btn').removeAttr('disabled').text('Post Signal');
 			}
 		});
