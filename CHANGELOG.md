@@ -2,6 +2,30 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-19 — Trading Signals, Feed Tabs, Reactions & Edit Post Fix
+
+### Trading Signal Posts
+- **Fixed signal modal not opening** — properly closes publisher modal before opening signal modal, cleans up backdrops and body classes.
+- **Fixed signal submission not showing new post** — `Wo_ShowNotifications` was undefined, crashing JS before `location.reload()` ran. Removed the call; page now redirects via `window.location.href` with cache-busting timestamp.
+- **Fixed signals missing from For You feed** — ranked feed algorithm's per-user limit (`feed_max_same_user=2`) was pushing all signals to overflow. Trading signal posts now bypass the per-user diversity limit.
+
+### Feed Tabs (For You / Trading / Creators / Following)
+- **Fixed Trading tab** — was filtering by hashtag `#trading` (never matched). Now queries `postType='trading_signal'` directly.
+- **Implemented Following tab** — shows only posts from users you follow (via `Wo_Followers` table).
+- **Implemented Creators tab** — shows only posts from PRO or verified users.
+- **Updated `xhr/load_posts.php`** — reads `filter_by` query param and passes to `load-posts.phtml`.
+
+### Reaction Emoji Filtering
+- **Filtered reactions by post type** — general posts show 6 standard emojis (like, love, haha, wow, sad, angry); trading signal posts show 4 trading emojis (fire, insightful, bullish, bearish).
+- Filter logic in `like-wonder.phtml` checks `$wo['story']['postType']` and builds `$filteredReactions` array.
+
+### Edit Post Fix
+- **Fixed Update button not working** — edit post modal form was missing the `hash` hidden field required for session validation. Added `hash` field.
+- **Added `dataType: 'json'`** to edit post AJAX call for reliable JSON response parsing.
+- **Added error feedback** — edit post now shows alert on failure instead of silently doing nothing.
+
+---
+
 ## 2026-03-17 — Registration Flow, Mobile Responsiveness, Trading Bot Controls
 
 ### Registration & Onboarding Flow
