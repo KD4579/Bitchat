@@ -9119,53 +9119,67 @@ html.night-mode .post .panel,
 body.night_mode .post .panel {
   background-color: #212121 !important;
 }
-/* Mobile reaction popup — single row, all devices */
+/* Mobile reaction popup — single row, all devices
+   JS now sets display:flex (not block) when showing the popup */
 .reactions-box {
   max-width: calc(100vw - 16px) !important;
   overflow: hidden !important;
   padding: 4px !important;
-  white-space: nowrap !important;
-  display: none;
   border-radius: 28px !important;
   z-index: 9999 !important;
-  /* Flexbox single row — key fix */
+  /* Flex layout — activated when JS sets display:flex */
   flex-direction: row !important;
   flex-wrap: nowrap !important;
   align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
 }
-/* Every reaction item — uniform size, no float */
+/* Every reaction item — uniform size, flex child */
 .reactions-box .reaction {
   float: none !important;
-  display: inline-flex !important;
+  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 2px !important;
   margin: 0 !important;
-  flex-shrink: 1 !important;
-  /* Calculate: fit all reactions in viewport. 9 reactions = (100vw - 24px) / 9 */
-  width: calc((100vw - 24px) / 9) !important;
-  max-width: 44px !important;
+  flex: 0 1 auto !important;
+  width: 40px !important;
+  height: 40px !important;
   min-width: 0 !important;
-  height: auto !important;
-  aspect-ratio: 1 !important;
   box-sizing: border-box !important;
-}
-.reactions-box .reaction img,
-.reactions-box .reaction svg {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 32px !important;
-  max-height: 32px !important;
-  padding: 1px !important;
-  display: block !important;
-  object-fit: contain !important;
-}
-/* Kill any text/attribute bleeding */
-.reactions-box .reaction {
+  border-radius: 50% !important;
+  position: relative !important;
+  list-style: none !important;
+  /* Prevent any text/attribute content from showing */
   font-size: 0 !important;
   line-height: 0 !important;
   color: transparent !important;
   overflow: hidden !important;
+}
+.reactions-box .reaction img,
+.reactions-box .reaction svg {
+  width: 30px !important;
+  height: 30px !important;
+  max-width: 30px !important;
+  max-height: 30px !important;
+  padding: 0 !important;
+  display: block !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+}
+/* Small screens: shrink to fit */
+@media (max-width: 400px) {
+  .reactions-box .reaction {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .reactions-box .reaction img,
+  .reactions-box .reaction svg {
+    width: 26px !important;
+    height: 26px !important;
+    max-width: 26px !important;
+    max-height: 26px !important;
+  }
 }
 
 /* ==========================================================================
