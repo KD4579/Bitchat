@@ -2121,33 +2121,26 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			new_status: newStatus
 		}, function(data) {
 			if (data.status == 200) {
-				Wo_ShowNotifications('success', 'Signal updated!');
 				setTimeout(function() { location.reload(); }, 500);
 			} else {
-				Wo_ShowNotifications('error', data.message || 'Error');
+				alert(data.message || 'Error updating signal');
 			}
 		}, 'json');
 	}
 	function bcOpenSignalModal() {
-		console.log('[Signal] bcOpenSignalModal called');
-		console.log('[Signal] Modal element exists:', $('#bc-signal-modal').length > 0);
 		$('#bc-signal-error').hide();
-		// Force close any open modals first, then open signal modal
 		var anyModalOpen = $('.modal.show, .modal.in').length > 0;
-		console.log('[Signal] Any modal open:', anyModalOpen);
 		if (anyModalOpen) {
 			$('.modal.show, .modal.in').modal('hide');
 			setTimeout(function() {
 				$('.modal-backdrop').remove();
 				$('body').removeClass('modal-open').css('padding-right', '');
 				$('#bc-signal-modal').modal('show');
-				console.log('[Signal] Modal shown after closing others');
 			}, 400);
 		} else {
 			$('.modal-backdrop').remove();
 			$('body').removeClass('modal-open').css('padding-right', '');
 			$('#bc-signal-modal').modal('show');
-			console.log('[Signal] Modal shown directly');
 		}
 	}
 	// Clean up backdrop when signal modal closes
@@ -2172,8 +2165,6 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		var analysis = $('#bc-signal-analysis').val().trim();
 		var hashVal = $('.main_session').val();
 
-		console.log('[Signal] Submitting:', {pair:pair, type:type, entry:entry, hash:hashVal ? 'present' : 'MISSING'});
-
 		if (entry <= 0) {
 			$('#bc-signal-error').text('Entry price is required.').show();
 			return;
@@ -2182,11 +2173,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		$('#bc-signal-submit-btn').attr('disabled', true).text('Posting...');
 		$('#bc-signal-error').hide();
 
-		var url = Wo_Ajax_Requests_File() + '?f=trading_signal';
-		console.log('[Signal] POST to:', url);
-
 		$.ajax({
-			url: url,
+			url: Wo_Ajax_Requests_File() + '?f=trading_signal',
 			type: 'POST',
 			data: {
 				hash: hashVal,
@@ -2201,21 +2189,18 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			},
 			dataType: 'json',
 			success: function(data) {
-				console.log('[Signal] Response:', data);
 				if (data.status == 200) {
 					$('#bc-signal-modal').modal('hide');
 					$('#bc-signal-entry, #bc-signal-target, #bc-signal-stoploss').val('');
 					$('#bc-signal-analysis').val('');
-					Wo_ShowNotifications('success', 'Trading signal posted!');
-					setTimeout(function() { location.reload(); }, 800);
+					setTimeout(function() { location.reload(); }, 600);
 				} else {
 					$('#bc-signal-error').text(data.message || 'Error posting signal.').show();
 				}
 				$('#bc-signal-submit-btn').removeAttr('disabled').text('Post Signal');
 			},
 			error: function(xhr, status, err) {
-				console.log('[Signal] AJAX error:', status, err, 'Response:', xhr.responseText);
-				$('#bc-signal-error').text('Error: ' + (err || status) + '. Check console.').show();
+				$('#bc-signal-error').text('Error: ' + (err || status)).show();
 				$('#bc-signal-submit-btn').removeAttr('disabled').text('Post Signal');
 			}
 		});
