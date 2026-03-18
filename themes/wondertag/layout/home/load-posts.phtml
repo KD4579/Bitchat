@@ -1,18 +1,33 @@
 <?php
-// Trading signals tab: fetch only trading_signal posts
-if (!empty($wo['feed_filter']) && $wo['feed_filter'] === 'trading_signals') {
-    global $sqlConnect;
-    $signalIds = array();
-    $sigQuery = mysqli_query($sqlConnect, "SELECT id FROM " . T_POSTS . " WHERE postType = 'trading_signal' AND active = 1 ORDER BY id DESC LIMIT 20");
-    while ($sigQuery && $sigRow = mysqli_fetch_assoc($sigQuery)) {
-        $signalIds[] = intval($sigRow['id']);
-    }
+global $sqlConnect;
+$bcFeedFilter = !empty($wo['feed_filter']) ? $wo['feed_filter'] : '';
+
+if ($bcFeedFilter === 'trading_signals') {
+    // Trading tab: only trading_signal posts
+    $bcFeedIds = array();
+    $bcQ = mysqli_query($sqlConnect, "SELECT id FROM " . T_POSTS . " WHERE postType = 'trading_signal' AND active = 1 ORDER BY id DESC LIMIT 20");
+    while ($bcQ && $bcR = mysqli_fetch_assoc($bcQ)) { $bcFeedIds[] = intval($bcR['id']); }
     $stories = array();
-    foreach ($signalIds as $sid) {
-        $p = Wo_PostData($sid);
-        if (is_array($p)) $stories[] = $p;
-    }
-// Bitchat Algorithm v1: use ranked feed when enabled, else chronological
+    foreach ($bcFeedIds as $bcId) { $p = Wo_PostData($bcId); if (is_array($p)) $stories[] = $p; }
+
+} elseif ($bcFeedFilter === 'following' && $wo['loggedin']) {
+    // Following tab: posts from users you follow
+    $bcUserId = intval($wo['user']['user_id']);
+    $bcFeedIds = array();
+    $bcQ = mysqli_query($sqlConnect, "SELECT p.id FROM " . T_POSTS . " p WHERE p.user_id IN (SELECT following_id FROM Wo_Followers WHERE follower_id = {$bcUserId} AND active = '1') AND p.active = 1 AND p.multi_image_post = 0 AND p.postType NOT IN ('profile_picture_deleted','profile_picture','profile_cover_picture') AND p.postPrivacy <> '3' ORDER BY p.id DESC LIMIT 20");
+    while ($bcQ && $bcR = mysqli_fetch_assoc($bcQ)) { $bcFeedIds[] = intval($bcR['id']); }
+    $stories = array();
+    foreach ($bcFeedIds as $bcId) { $p = Wo_PostData($bcId); if (is_array($p)) $stories[] = $p; }
+
+} elseif ($bcFeedFilter === 'creators') {
+    // Creators tab: posts from PRO or verified users
+    $bcFeedIds = array();
+    $bcQ = mysqli_query($sqlConnect, "SELECT p.id FROM " . T_POSTS . " p JOIN " . T_USERS . " u ON p.user_id = u.user_id WHERE (u.is_pro = 1 OR u.verified = '1') AND p.active = 1 AND p.multi_image_post = 0 AND p.postType NOT IN ('profile_picture_deleted','profile_picture','profile_cover_picture') AND p.postPrivacy <> '3' ORDER BY p.id DESC LIMIT 20");
+    while ($bcQ && $bcR = mysqli_fetch_assoc($bcQ)) { $bcFeedIds[] = intval($bcR['id']); }
+    $stories = array();
+    foreach ($bcFeedIds as $bcId) { $p = Wo_PostData($bcId); if (is_array($p)) $stories[] = $p; }
+
+// For You tab: ranked feed when enabled, else chronological
 } elseif (!empty($wo['config']['feed_algorithm_enabled']) && $wo['config']['feed_algorithm_enabled'] == '1' && $wo['loggedin'] && function_exists('Wo_GetRankedPosts')) {
     $stories = Wo_GetRankedPosts(array('limit' => 10, 'page' => 1));
 } else {
