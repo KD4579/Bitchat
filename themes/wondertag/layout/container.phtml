@@ -1894,6 +1894,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 							<span><?php echo $wo['lang']['edit_post']; ?></span>
 						</label>
 						<input type="hidden" name="post_id" id="bc-edit-post-id" value="">
+						<input type="hidden" name="hash" value="<?php echo Wo_CreateMainSession();?>">
 						<input type="hidden" name="all_images" value="0">
 					</div>
 					<div class="modal-footer" style="border: none">

@@ -1023,6 +1023,7 @@ function Wo_OpenPostEditBox(post_id) {
       data: formData,
       processData: false,
       contentType: false,
+      dataType: 'json',
       success: function(data) {
         if (data.status == 200) {
           var postEl = $('#post-' + post_id);
@@ -1038,7 +1039,12 @@ function Wo_OpenPostEditBox(post_id) {
             location.reload();
           }
           editModal.modal('hide');
+        } else {
+          editModal.find('.edit_alert').html("<div class='alert alert-danger'>Failed to update post.</div>");
         }
+      },
+      error: function(xhr) {
+        editModal.find('.edit_alert').html("<div class='alert alert-danger'>Error updating post.</div>");
       }
     });
   });
