@@ -239,7 +239,7 @@
 				postsEl.innerHTML = '<div style="text-align:center;padding:30px;"><div class="skel skel_1" style="height:80px;border-radius:12px;margin-bottom:12px;"></div><div class="skel skel_1" style="height:80px;border-radius:12px;margin-bottom:12px;"></div><div class="skel skel_1" style="height:80px;border-radius:12px;"></div></div>';
 				var ajaxUrl = (typeof Wo_Ajax_Requests_File === 'function') ? Wo_Ajax_Requests_File() : '/requests.php';
 				var url = ajaxUrl + '?f=load_posts';
-				if (tab === 'trading') url += '&filter_by=hashtag&filter_val=trading';
+				if (tab === 'trading') url += '&filter_by=trading_signals';
 				else if (tab === 'creators') url += '&filter_by=creators';
 				else if (tab === 'following') url += '&filter_by=following';
 				$.get(url, function(r){ postsEl.innerHTML = r || '<div style="text-align:center;padding:40px;color:#8899a6;">No posts found.</div>'; }).fail(function(){ postsEl.innerHTML = '<div style="text-align:center;padding:40px;color:#8899a6;">Could not load posts.</div>'; });
