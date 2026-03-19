@@ -9,6 +9,8 @@ $botDefaults = array(
     'bot_grid_levels'       => '4',
     'bot_grid_spacing'      => '2',
     'bot_order_size_trdc'   => '2000',
+    'bot_order_size_min'    => '1500',
+    'bot_order_size_max'    => '2500',
     'bot_max_slippage'      => '3',
     'bot_daily_loss_limit'  => '5',
     'bot_cooldown_seconds'  => '3600',
@@ -152,14 +154,26 @@ foreach ($botDefaults as $key => $default) {
                             <small class="text-muted">% gap between grid levels.</small>
                         </div>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Order Size</label>
+                            <label>Order Size Min</label>
                             <div class="input-group">
-                                <input type="number" step="100" min="100" name="bot_order_size_trdc" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_order_size_trdc']); ?>">
+                                <input type="number" step="100" min="100" name="bot_order_size_min" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_order_size_min']); ?>">
                                 <span class="input-group-addon">TRDC</span>
                             </div>
-                            <small class="text-muted">Base TRDC per order (actual size randomized ±25%).</small>
+                            <small class="text-muted">Minimum TRDC per order.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Order Size Max</label>
+                            <div class="input-group">
+                                <input type="number" step="100" min="100" name="bot_order_size_max" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_order_size_max']); ?>">
+                                <span class="input-group-addon">TRDC</span>
+                            </div>
+                            <small class="text-muted">Maximum TRDC per order.</small>
                         </div>
                     </div>
                 </div>
@@ -357,22 +371,22 @@ function controlBot(bot, action) {
         bot_action: action
     }, function(data) {
         if (data.status === 200) {
-            Wo_ShowNotifications('success', data.message);
-            // Update badges and buttons
             var isGridOn = data.grid_running;
             var isArbOn = data.arb_running;
 
+            // Update status badges
             $('#grid-status-badge').text(isGridOn ? 'RUNNING' : 'STOPPED')
                 .removeClass('label-success label-danger').addClass(isGridOn ? 'label-success' : 'label-danger');
             $('#arb-status-badge').text(isArbOn ? 'RUNNING' : 'STOPPED')
                 .removeClass('label-success label-danger').addClass(isArbOn ? 'label-success' : 'label-danger');
 
+            // Update start/stop buttons
             $('#btn-grid-start').prop('disabled', isGridOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
             $('#btn-grid-stop').prop('disabled', !isGridOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
             $('#btn-arb-start').prop('disabled', isArbOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
             $('#btn-arb-stop').prop('disabled', !isArbOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
 
-            // Update the mode dropdown to match
+            // Auto-update Bot Status and Trading Mode dropdowns
             if (data.bot_mode) {
                 $('#bot_mode_select').val(data.bot_mode);
             }
@@ -382,13 +396,13 @@ function controlBot(bot, action) {
             $('#btn-grid-start').closest('.panel').css('border-left-color', isGridOn ? '#4CAF50' : '#f44336');
             $('#btn-arb-start').closest('.panel').css('border-left-color', isArbOn ? '#4CAF50' : '#f44336');
         } else {
-            Wo_ShowNotifications('error', data.message || 'Failed');
+            alert(data.message || 'Failed');
             $(btn).prop('disabled', false).html(action === 'start' ?
                 '<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start' :
                 '<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
         }
     }, 'json').fail(function() {
-        Wo_ShowNotifications('error', 'Request failed');
+        alert('Request failed');
         $(btn).prop('disabled', false);
     });
 }
@@ -409,12 +423,12 @@ $(document).ready(function() {
 
         $.post(Wo_Ajax_Requests_File() + '?f=trading_bot', postData, function(data) {
             if (data.status == 200) {
-                Wo_ShowNotifications('success', 'Bot configuration saved successfully!');
+                alert('Bot configuration saved successfully!');
             } else {
-                Wo_ShowNotifications('error', data.message || 'Failed to save configuration');
+                alert(data.message || 'Failed to save configuration');
             }
         }, 'json').fail(function(xhr, status, error) {
-            Wo_ShowNotifications('error', 'Request failed: ' + error);
+            alert('Request failed: ' + error);
         });
     });
 
@@ -429,6 +443,8 @@ $(document).ready(function() {
             bot_grid_levels: '4',
             bot_grid_spacing: '2',
             bot_order_size_trdc: '2000',
+            bot_order_size_min: '1500',
+            bot_order_size_max: '2500',
             bot_max_slippage: '3',
             bot_daily_loss_limit: '5',
             bot_cooldown_seconds: '3600',
@@ -453,12 +469,12 @@ $(document).ready(function() {
         // Save to DB immediately
         $.post(Wo_Ajax_Requests_File() + '?f=trading_bot', defaults, function(data) {
             if (data.status === 200) {
-                Wo_ShowNotifications('success', 'Defaults restored and saved successfully.');
+                alert('Defaults restored and saved successfully.');
             } else {
-                Wo_ShowNotifications('error', data.message || 'Failed to save defaults.');
+                alert(data.message || 'Failed to save defaults.');
             }
         }, 'json').fail(function(xhr, status, error) {
-            Wo_ShowNotifications('error', 'Request failed: ' + error);
+            alert('Request failed: ' + error);
         });
     });
 });
