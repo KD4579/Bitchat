@@ -92,6 +92,7 @@ if ($f == 'trading_bot') {
         'bot_order_size_trdc'   => 'int',
         'bot_order_size_min'    => 'int',
         'bot_order_size_max'    => 'int',
+        'bot_max_consecutive'   => 'int',
         'bot_max_slippage'      => 'float',
         'bot_daily_loss_limit'  => 'float',
         'bot_cooldown_seconds'  => 'int',

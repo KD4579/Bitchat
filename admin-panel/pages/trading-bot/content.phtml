@@ -11,6 +11,7 @@ $botDefaults = array(
     'bot_order_size_trdc'   => '2000',
     'bot_order_size_min'    => '1500',
     'bot_order_size_max'    => '2500',
+    'bot_max_consecutive'   => '3',
     'bot_max_slippage'      => '3',
     'bot_daily_loss_limit'  => '5',
     'bot_cooldown_seconds'  => '3600',
@@ -174,6 +175,13 @@ foreach ($botDefaults as $key => $default) {
                                 <span class="input-group-addon">TRDC</span>
                             </div>
                             <small class="text-muted">Maximum TRDC per order.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Max Consecutive Same Direction</label>
+                            <input type="number" step="1" min="1" max="10" name="bot_max_consecutive" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_max_consecutive']); ?>">
+                            <small class="text-muted">Max buy or sell in a row before forced flip.</small>
                         </div>
                     </div>
                 </div>
@@ -445,6 +453,7 @@ $(document).ready(function() {
             bot_order_size_trdc: '2000',
             bot_order_size_min: '1500',
             bot_order_size_max: '2500',
+            bot_max_consecutive: '3',
             bot_max_slippage: '3',
             bot_daily_loss_limit: '5',
             bot_cooldown_seconds: '3600',

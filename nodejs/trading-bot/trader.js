@@ -182,16 +182,27 @@ async function runGridTrading(wallet, provider, cfg) {
     const usdtBalance = parseFloat(balances.USDT);
 
     // Weighted random direction — looks organic on-chain
-    // Bias toward the opposite of recent trades to keep balance,
-    // but allow occasional streaks (2-3 buys or sells in a row)
+    // Admin controls max consecutive same-direction trades
     let direction;
     const trdcValueUsd = trdcBalance * price;
     const balanceRatio = usdtBalance > 0 ? trdcValueUsd / usdtBalance : 999;
+    const maxConsecutive = parseInt(cfg.bot_max_consecutive || 3);
+
+    // Count current consecutive streak
+    let streak = 0;
+    for (let i = recentDirections.length - 1; i >= 0; i--) {
+        if (recentDirections[i] === lastTradeDirection) streak++;
+        else break;
+    }
 
     if (lastTradeDirection === null) {
         // First trade: balance-based
         direction = trdcValueUsd > usdtBalance ? 'sell' : 'buy';
         log.info(`First trade: ${direction} (TRDC=$${trdcValueUsd.toFixed(2)}, USDT=$${usdtBalance.toFixed(2)})`);
+    } else if (streak >= maxConsecutive) {
+        // Hard cap reached — force opposite direction
+        direction = lastTradeDirection === 'buy' ? 'sell' : 'buy';
+        log.info(`Direction: ${direction} (forced — hit max ${maxConsecutive} consecutive ${lastTradeDirection}s)`);
     } else {
         // Count recent buys/sells (last 6 trades)
         const recentBuys = recentDirections.filter(d => d === 'buy').length;
@@ -212,11 +223,11 @@ async function runGridTrading(wallet, provider, cfg) {
         if (balanceRatio > 2.0) buyProb -= 0.10;
         else if (balanceRatio < 0.5) buyProb += 0.10;
 
-        // Clamp probability between 20% and 80% (always possible to go either way)
+        // Clamp probability between 20% and 80%
         buyProb = Math.max(0.20, Math.min(0.80, buyProb));
 
         direction = Math.random() < buyProb ? 'buy' : 'sell';
-        log.info(`Direction: ${direction} (buyProb=${(buyProb*100).toFixed(0)}%, last=${lastTradeDirection}, recent=${recentBuys}B/${recentSells}S, ratio=${balanceRatio.toFixed(2)})`);
+        log.info(`Direction: ${direction} (buyProb=${(buyProb*100).toFixed(0)}%, last=${lastTradeDirection}, streak=${streak}/${maxConsecutive}, recent=${recentBuys}B/${recentSells}S)`);
     }
 
     const buyPrice  = price * (1 - spreadPct / 2);
