@@ -9,9 +9,26 @@ if (!$_cron_lock_fp || !flock($_cron_lock_fp, LOCK_EX | LOCK_NB)) {
     exit();
 }
 
+// Release lock on fatal errors so the cron isn't stuck
+register_shutdown_function(function() {
+    global $_cron_lock_fp, $_cron_errors, $_cron_log_file;
+    if (isset($_cron_lock_fp) && $_cron_lock_fp) {
+        flock($_cron_lock_fp, LOCK_UN);
+        fclose($_cron_lock_fp);
+    }
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        $msg = date('Y-m-d H:i:s') . " | FATAL: {$err['message']} in {$err['file']}:{$err['line']}";
+        @file_put_contents(isset($_cron_log_file) ? $_cron_log_file : __DIR__ . '/assets/logs/cron.log', $msg . "\n", FILE_APPEND | LOCK_EX);
+    }
+});
+
 require_once('assets/init.php');
 
 mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'cronjob_last_run'");
+
+// Track section errors
+$_cron_errors = [];
 
 // Execution logging
 $_cron_log = [];
@@ -34,6 +51,7 @@ function _cron_log_write() {
 }
 // ********** Pro Users **********
 _cron_log_section('pro_users');
+try {
 $users = $db->where('is_pro','1')->where('admin','0')->ArrayBuilder()->get(T_USERS);
 foreach ($users as $key => $value) {
 	$wo["user"] = Wo_UserData($value['user_id']);
@@ -43,7 +61,7 @@ foreach ($users as $key => $value) {
             'verified' => 0,
             'pro_' => 1
         ));
-        $user_id     = $wo["user"]["id"];
+        $user_id     = intval($wo["user"]["id"]);
         $mysql_query = mysqli_query($sqlConnect, "UPDATE " . T_PAGES . " SET `boosted` = '0' WHERE `user_id` = {$user_id}");
         $mysql_query = mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET `boosted` = '0' WHERE `user_id` = {$user_id}");
         $mysql_query = mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET `boosted` = '0' WHERE `page_id` IN (SELECT `page_id` FROM " . T_PAGES . " WHERE `user_id` = {$user_id})");
@@ -136,14 +154,16 @@ foreach ($users as $key => $value) {
 		        $mysql_query = mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET `boosted` = '0' WHERE `user_id` = {$user_id}");
 		        $mysql_query = mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET `boosted` = '0' WHERE `page_id` IN (SELECT `page_id` FROM " . T_PAGES . " WHERE `user_id` = {$user_id})");
 	    	}
-		        
+
 	    }
 	}
 }
+} catch (Exception $e) { $_cron_errors[] = 'pro_users: ' . $e->getMessage(); }
 // ********** Pro Users **********
 
 // ********** Stories **********
 _cron_log_section('stories');
+try {
 $expired_stories = $db->where("expire", time(), "<")->get(T_USER_STORY);
 if (!empty($expired_stories)) {
 	foreach ($expired_stories as $key => $value) {
@@ -152,18 +172,21 @@ if (!empty($expired_stories)) {
 	@mysqli_query($sqlConnect, "DELETE FROM " . T_USER_STORY_MEDIA . " WHERE `expire` < " . time());
 	@mysqli_query($sqlConnect, "DELETE FROM " . T_USER_STORY . " WHERE `expire` < " . time());
 }
-	
+} catch (Exception $e) { $_cron_errors[] = 'stories: ' . $e->getMessage(); }
 // ********** Stories **********
 
 // ********** Notifications **********
 _cron_log_section('notifications');
+try {
 if ($wo["config"]["last_notification_delete_run"] <= time() - 60 * 60 * 24) {
     mysqli_multi_query($sqlConnect, " DELETE FROM " . T_NOTIFICATION . " WHERE `time` < " . (time() - 60 * 60 * 24 * 5) . " AND `seen` <> 0");
     mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'last_notification_delete_run'");
 }
+} catch (Exception $e) { $_cron_errors[] = 'notifications: ' . $e->getMessage(); }
 // ********** Notifications **********
 
 // ********** Nearby User Notifications **********
+try {
 if (!empty($wo['config']['find_friends']) && $wo['config']['find_friends'] == 1) {
     $admin_user = $db->where('admin','1')->ArrayBuilder()->getOne(T_USERS);
     if (!empty($admin_user)) {
@@ -175,14 +198,19 @@ if (!empty($wo['config']['find_friends']) && $wo['config']['find_friends'] == 1)
         }
     }
 }
+} catch (Exception $e) { $_cron_errors[] = 'nearby_notifications: ' . $e->getMessage(); }
 // ********** Nearby User Notifications **********
 
 // ********** Typing **********
+try {
 Wo_GetOfflineTyping();
+} catch (Exception $e) { $_cron_errors[] = 'typing: ' . $e->getMessage(); }
 // ********** Typing **********
 
 
 // ********** Live **********
+_cron_log_section('live_video');
+try {
 if ($wo['config']['live_video'] == 1) {
 	$user = $db->where('admin','1')->ArrayBuilder()->getOne(T_USERS);
 	if (!empty($user)) {
@@ -228,26 +256,32 @@ if (!empty($posts)) {
         }
     }
 }
+} catch (Exception $e) { $_cron_errors[] = 'live_video: ' . $e->getMessage(); }
 // ********** Live **********
 
 // ********** Spam Tracking Cleanup **********
 _cron_log_section('spam_cleanup');
+try {
 if (function_exists('Wo_CleanupSpamTracking')) {
     Wo_CleanupSpamTracking();
 }
+} catch (Exception $e) { $_cron_errors[] = 'spam_cleanup: ' . $e->getMessage(); }
 // ********** Spam Tracking Cleanup **********
 
 // ********** Scheduled Posts **********
 _cron_log_section('scheduled_posts');
+try {
 if (!empty($wo['config']['scheduled_posts_enabled']) && $wo['config']['scheduled_posts_enabled'] == '1') {
     if (function_exists('Wo_PublishScheduledPosts')) {
         Wo_PublishScheduledPosts();
     }
 }
+} catch (Exception $e) { $_cron_errors[] = 'scheduled_posts: ' . $e->getMessage(); }
 // ********** Scheduled Posts **********
 
 // ********** Ghost Activity **********
 _cron_log_section('ghost_activity');
+try {
 if (!empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_activity_enabled'] == '1') {
     // Keep ghost accounts appearing online (update lastseen every cron run)
     $ghostIds = $wo['config']['ghost_activity_accounts'] ?? '';
@@ -266,24 +300,30 @@ if (!empty($wo['config']['ghost_activity_enabled']) && $wo['config']['ghost_acti
         Wo_ProtectZeroEngagement();
     }
 }
+} catch (Exception $e) { $_cron_errors[] = 'ghost_activity: ' . $e->getMessage(); }
 // ********** Ghost Activity **********
 
 // ********** TRDC Boost Expiry Cleanup **********
 _cron_log_section('trdc_boost_expiry');
+try {
 @mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET trdc_boosted = 0 WHERE trdc_boosted = 1 AND trdc_boost_expires <= " . time());
+} catch (Exception $e) { $_cron_errors[] = 'trdc_boost_expiry: ' . $e->getMessage(); }
 // ********** TRDC Boost Expiry Cleanup **********
 
 // ********** TRDC Creator Rewards **********
 _cron_log_section('trdc_rewards');
+try {
 if (!empty($wo['config']['trdc_creator_rewards_enabled']) && $wo['config']['trdc_creator_rewards_enabled'] == '1') {
     if (function_exists('Wo_ProcessMilestoneRewards')) {
         Wo_ProcessMilestoneRewards();
     }
 }
+} catch (Exception $e) { $_cron_errors[] = 'trdc_rewards: ' . $e->getMessage(); }
 // ********** TRDC Creator Rewards **********
 
 // ********** Automated Backup **********
 _cron_log_section('auto_backup');
+try {
 if (!empty($wo['config']['auto_backup_enabled']) && $wo['config']['auto_backup_enabled'] == '1') {
     $lastAutoBackup = !empty($wo['config']['auto_backup_last_run']) ? intval($wo['config']['auto_backup_last_run']) : 0;
     $backupInterval = !empty($wo['config']['auto_backup_interval']) ? intval($wo['config']['auto_backup_interval']) : 86400; // daily default
@@ -327,38 +367,48 @@ if (!empty($wo['config']['auto_backup_enabled']) && $wo['config']['auto_backup_e
         mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'auto_backup_last_run'");
     }
 }
+} catch (Exception $e) { $_cron_errors[] = 'auto_backup: ' . $e->getMessage(); }
 // ********** Automated Backup **********
 
 // ********** News Bots Auto-Posting **********
 _cron_log_section('news_bots');
+try {
 require_once(__DIR__ . '/assets/includes/functions_news_bots.php');
 bc_run_all_bots($sqlConnect, $wo);
+} catch (Exception $e) { $_cron_errors[] = 'news_bots: ' . $e->getMessage(); }
 // ********** News Bots Auto-Posting **********
 
 // ********** Crypto Blog Bot **********
 _cron_log_section('crypto_blog_bot');
+try {
 require_once(__DIR__ . '/assets/includes/functions_crypto_blog_bot.php');
 bc_run_crypto_blog_bot($sqlConnect, $wo);
+} catch (Exception $e) { $_cron_errors[] = 'crypto_blog_bot: ' . $e->getMessage(); }
 // ********** Crypto Blog Bot **********
 
 // ********** Session Cleanup **********
 _cron_log_section('session_cleanup');
+try {
 // Remove DB login sessions older than 30 days (matches PHP session gc_maxlifetime)
 $sessionCutoff = time() - 2592000;
 @mysqli_query($sqlConnect, "DELETE FROM Wo_AppsSessions WHERE time < {$sessionCutoff}");
+} catch (Exception $e) { $_cron_errors[] = 'session_cleanup: ' . $e->getMessage(); }
 // ********** Session Cleanup **********
 
 // ********** Purge Inactive Accounts **********
 _cron_log_section('purge_inactive_accounts');
+try {
 // Delete accounts with no posts, no avatar, no activity after 30 days (excludes bots & admins)
 // Processes up to 50 per cron run to avoid long-running queries
 if (function_exists('Wo_PurgeInactiveAccounts')) {
     Wo_PurgeInactiveAccounts(30);
 }
+} catch (Exception $e) { $_cron_errors[] = 'purge_inactive_accounts: ' . $e->getMessage(); }
 // ********** Purge Inactive Accounts **********
 
 // ********** Weekly Digest Email **********
 _cron_log_section('weekly_digest');
+try {
 if (!empty($wo['config']['weekly_digest_enabled']) && $wo['config']['weekly_digest_enabled'] == '1') {
     $digestDay = intval($wo['config']['weekly_digest_day'] ?? 1); // 0=Sun, 1=Mon, ...
     $lastRun = intval($wo['config']['weekly_digest_last_run'] ?? 0);
@@ -372,9 +422,16 @@ if (!empty($wo['config']['weekly_digest_enabled']) && $wo['config']['weekly_dige
         mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'weekly_digest_last_run'");
     }
 }
+} catch (Exception $e) { $_cron_errors[] = 'weekly_digest: ' . $e->getMessage(); }
 // ********** Weekly Digest Email **********
 
 _cron_log_write();
+
+// Log any section errors
+if (!empty($_cron_errors)) {
+    $errMsg = date('Y-m-d H:i:s') . " | ERRORS: " . implode('; ', $_cron_errors);
+    @file_put_contents($_cron_log_file, $errMsg . "\n", FILE_APPEND | LOCK_EX);
+}
 
 // Release cron lock
 if (isset($_cron_lock_fp) && $_cron_lock_fp) {
@@ -382,6 +439,9 @@ if (isset($_cron_lock_fp) && $_cron_lock_fp) {
     fclose($_cron_lock_fp);
 }
 
+$_cron_status = empty($_cron_errors) ? 200 : 500;
+$_cron_message = empty($_cron_errors) ? 'success' : 'completed with errors: ' . implode('; ', $_cron_errors);
+
 header("Content-type: application/json");
-echo json_encode(["status" => 200, "message" => "success"]);
+echo json_encode(["status" => $_cron_status, "message" => $_cron_message]);
 exit();

@@ -1,5 +1,12 @@
 <?php
 if ($f == 'wallet') {
+    // CSRF check — require valid session hash for all wallet operations
+    if (!$wo['loggedin'] || !Wo_CheckMainSession($hash_id)) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 400, 'message' => 'Not authorized'));
+        exit();
+    }
+
     $dollar_to_point_cost = $wo['config']['dollar_to_point_cost'];
     if ($s == 'replenish-user-account') {
         $error = "";
@@ -118,14 +125,17 @@ if ($f == 'wallet') {
             $data['sender_balance'] = sprintf('%.2f', $wallet - $amount);
             $data['receiver_balance'] = sprintf('%.2f', $userdata['wallet'] + $amount);
             //$note1           = $success_msg . " " . $userdata['name'];
-            $note1           = $userdata['name'];
+            $note1           = mysqli_real_escape_string($sqlConnect, $userdata['name']);
             //$note2           = $wo['lang']['successfully_received_from'] . " " . $wo['user']['name'];
-            $note2           = $wo['user']['name'];
+            $note2           = mysqli_real_escape_string($sqlConnect, $wo['user']['name']);
+            $safe_user_id    = intval($user_id);
+            $safe_amount     = floatval($amount);
             $db->where('user_id', $user_id)->update(T_USERS, $up_data1);
-            
-            mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$user_id}, 'RECEIVED', {$amount}, '{$note2}')");
+
+            mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_user_id}, 'RECEIVED', {$safe_amount}, '{$note2}')");
             $db->where('user_id', $wo['user']['id'])->update(T_USERS, $up_data2);
-            mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'SENT', {$amount}, '{$note1}')");
+            $safe_sender_id  = intval($wo['user']['user_id']);
+            mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_sender_id}, 'SENT', {$safe_amount}, '{$note1}')");
             cache($user_id, 'users', 'delete');
             cache($wo['user']['id'], 'users', 'delete');
             $notification_data_array = array(

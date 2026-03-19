@@ -100,7 +100,12 @@ async function processSingleWithdrawal(db, wallet, provider, trdcContract, withd
     // Execute BEP-20 transfer
     try {
         log.info(`Sending ${withdrawal.net_amount} TRDC to ${withdrawal.wallet_address}...`);
-        const tx = await trdcContract.transfer(withdrawal.wallet_address, needed);
+        // Estimate gas before submitting
+        const gasEstimate = await trdcContract.transfer.estimateGas(withdrawal.wallet_address, needed);
+        // Add 20% buffer
+        const gasLimit = gasEstimate * 120n / 100n;
+        // Submit with explicit gas limit
+        const tx = await trdcContract.transfer(withdrawal.wallet_address, needed, { gasLimit });
         log.info(`TX submitted: ${tx.hash}`);
 
         const receipt = await tx.wait();

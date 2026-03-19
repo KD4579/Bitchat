@@ -14,7 +14,18 @@ async function getPoolPrice(provider, poolAddress, token0Decimals, token1Decimal
     const sqrtPriceX96 = slot0[0];
 
     // price = (sqrtPriceX96 / 2^96)^2 * 10^(token0Decimals - token1Decimals)
-    const price = Number(sqrtPriceX96) ** 2 / (2 ** 192) * (10 ** (token0Decimals - token1Decimals));
+    // Use BigInt math to preserve precision for large sqrtPriceX96 values
+    const sqrtPrice = BigInt(sqrtPriceX96.toString());
+    const Q96 = 1n << 96n;
+    const PRECISION = 10n ** 18n;
+    const priceRaw = (sqrtPrice * sqrtPrice * PRECISION) / (Q96 * Q96);
+    const decimalAdj = token0Decimals - token1Decimals;
+    let price;
+    if (decimalAdj >= 0) {
+        price = Number(priceRaw * (10n ** BigInt(decimalAdj))) / Number(PRECISION);
+    } else {
+        price = Number(priceRaw) / Number(PRECISION) / (10 ** Math.abs(decimalAdj));
+    }
     return price;
 }
 
@@ -97,7 +108,15 @@ async function getBnbPriceUsd(provider, usdtPoolAddress, wbnbPoolAddress) {
             if (isFinite(bnbPrice) && bnbPrice > 0) return bnbPrice;
         }
     } catch (e) { /* fall through */ }
-    return 600; // Fallback estimate if pools unavailable
+    // Try CoinGecko API for current BNB price
+    try {
+        const resp = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
+        const data = await resp.json();
+        if (data?.binancecoin?.usd > 0) return data.binancecoin.usd;
+    } catch (e) {
+        log.warn('CoinGecko BNB price failed, using last known');
+    }
+    return 600; // absolute last resort
 }
 
 module.exports = { getPoolPrice, getPoolLiquidity, getBalances, estimatePoolTVL, getBnbPriceUsd };

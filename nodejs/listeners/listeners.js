@@ -5,6 +5,72 @@ const { Sequelize, Op, DataTypes } = require("sequelize");
 const striptags = require('striptags');
 const moment = require("moment")
 
+// --- Rate Limiter ---
+const RATE_LIMIT_MAX_MESSAGES = 10;   // max messages per second per socket
+const RATE_LIMIT_WINDOW_MS = 1000;    // 1 second window
+const MAX_CONNECTIONS_PER_USER = 5;   // max concurrent sockets per user_id
+
+// Map<socketId, { counts: Map<eventName, [{timestamp}]> }>
+const rateLimitMap = new Map();
+
+function checkRateLimit(socket, eventName, maxPerSecond = RATE_LIMIT_MAX_MESSAGES) {
+    const now = Date.now();
+    const windowStart = now - RATE_LIMIT_WINDOW_MS;
+
+    if (!rateLimitMap.has(socket.id)) {
+        rateLimitMap.set(socket.id, new Map());
+    }
+    const socketCounts = rateLimitMap.get(socket.id);
+
+    if (!socketCounts.has(eventName)) {
+        socketCounts.set(eventName, []);
+    }
+    const timestamps = socketCounts.get(eventName);
+
+    // Remove timestamps outside the window
+    while (timestamps.length > 0 && timestamps[0] <= windowStart) {
+        timestamps.shift();
+    }
+
+    if (timestamps.length >= maxPerSecond) {
+        socket.emit('rate_limit_error', {
+            error: 'Rate limit exceeded',
+            event: eventName,
+            retry_after_ms: RATE_LIMIT_WINDOW_MS
+        });
+        return false;
+    }
+
+    timestamps.push(now);
+    return true;
+}
+
+function cleanupRateLimit(socketId) {
+    rateLimitMap.delete(socketId);
+}
+
+// Track connection counts per user_id for connection limiting
+const userConnectionCount = new Map();
+
+function addUserConnection(userId) {
+    const count = (userConnectionCount.get(userId) || 0) + 1;
+    userConnectionCount.set(userId, count);
+    return count;
+}
+
+function removeUserConnection(userId) {
+    const count = (userConnectionCount.get(userId) || 1) - 1;
+    if (count <= 0) {
+        userConnectionCount.delete(userId);
+    } else {
+        userConnectionCount.set(userId, count);
+    }
+}
+
+function isConnectionAllowed(userId) {
+    return (userConnectionCount.get(userId) || 0) < MAX_CONNECTIONS_PER_USER;
+}
+// --- End Rate Limiter ---
 
 
 module.exports.registerListeners = async (socket, io, ctx) => {
@@ -31,6 +97,17 @@ module.exports.registerListeners = async (socket, io, ctx) => {
             return;
         }
         user_id = user_id.user_id;
+
+        // Connection limit check
+        if (!isConnectionAllowed(user_id)) {
+            console.log(`Connection limit exceeded for user ${user_id} (max ${MAX_CONNECTIONS_PER_USER})`);
+            socket.emit('rate_limit_error', { error: 'Too many connections', max: MAX_CONNECTIONS_PER_USER });
+            socket.disconnect(true);
+            return;
+        }
+        addUserConnection(user_id);
+        // Store user_id on socket for cleanup on disconnect
+        socket._rateLimitUserId = user_id;
 
         let user_status = await ctx.wo_users.findOne({
             attributes: [
@@ -202,6 +279,10 @@ module.exports.registerListeners = async (socket, io, ctx) => {
         //await socketEvents.updateMessageUsersList(ctx, io, ctx.userHashUserId[data.user_id])
     })
     socket.on("page_message", async (data, callback) => {
+        if (!checkRateLimit(socket, 'page_message')) {
+            callback?.({ error: 'Rate limit exceeded' });
+            return;
+        }
         if ((!data.msg || data.msg.trim() === "") && !data.mediaId) {
             console.log("Message has no text, neither media, skipping")
             return
@@ -389,6 +470,10 @@ module.exports.registerListeners = async (socket, io, ctx) => {
         }
     })
     socket.on("group_message", async (data, callback) => {
+        if (!checkRateLimit(socket, 'group_message')) {
+            callback?.({ error: 'Rate limit exceeded' });
+            return;
+        }
         if ((!data.msg || data.msg.trim() === "") && !data.mediaId) {
             console.log("Message has no text, neither media, skipping")
             return
@@ -636,7 +721,10 @@ module.exports.registerListeners = async (socket, io, ctx) => {
     })
 
     socket.on("group_message_page", async (data, callback) => {
-
+        if (!checkRateLimit(socket, 'group_message_page')) {
+            callback?.({ error: 'Rate limit exceeded' });
+            return;
+        }
         if ((!data.msg || data.msg.trim() === "") && !data.mediaId) {
             console.log("Message has no text, neither media, skipping")
             return
@@ -854,6 +942,10 @@ module.exports.registerListeners = async (socket, io, ctx) => {
 
     // Private message message page
     socket.on("private_message_page", async (data, callback) => {
+        if (!checkRateLimit(socket, 'private_message_page')) {
+            callback?.({ error: 'Rate limit exceeded' });
+            return;
+        }
         console.log(data)
         if ((!data.msg || data.msg.trim() === "") && !data.mediaId && !data.record && !data.lng && !data.lat) {
             console.log("Message has no text, neither media, skipping")
@@ -1271,6 +1363,9 @@ module.exports.registerListeners = async (socket, io, ctx) => {
         await socketEvents.updateMessageGroupsList(ctx, io, ctx.userHashUserId[data.from_id])
     })
     socket.on('typing', async (data) => {
+        if (!checkRateLimit(socket, 'typing')) {
+            return;
+        }
         let fromUser = await ctx.wo_users.findOne({
             where: {
                 user_id: {
@@ -1423,9 +1518,13 @@ module.exports.registerListeners = async (socket, io, ctx) => {
 
     // Private message chat side
     socket.on("private_message", async (data, callback) => {
+        if (!checkRateLimit(socket, 'private_message')) {
+            callback?.({ error: 'Rate limit exceeded' });
+            return;
+        }
         console.log(data)
-        
-        
+
+
         if ((!data.msg || data.msg.trim() === "") && !data.mediaId && !data.record && !data.lng && !data.lat) {
             console.log("Message has no text, neither media, skipping")
             return
@@ -2805,6 +2904,13 @@ module.exports.registerListeners = async (socket, io, ctx) => {
 
     socket.on('disconnect', async (reason) => {
         console.log('a user disconnected ' + socket.id + " " + reason);
+
+        // Clean up rate limit tracking
+        cleanupRateLimit(socket.id);
+        if (socket._rateLimitUserId) {
+            removeUserConnection(socket._rateLimitUserId);
+        }
+
         let hash = ctx.socketIdUserHash[socket.id]
         let user_id = ctx.userHashUserId[hash]
 
