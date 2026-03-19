@@ -17,13 +17,20 @@ if ($f == 'trading_bot') {
             exit();
         }
 
-        $currentMode = Wo_GetConfig('bot_mode') ?: 'both';
-        $currentEnabled = Wo_GetConfig('bot_enabled') ?: '0';
+        $currentMode = !empty($wo['config']['bot_mode']) ? $wo['config']['bot_mode'] : 'both';
+        $currentEnabled = isset($wo['config']['bot_enabled']) ? $wo['config']['bot_enabled'] : '0';
 
-        // Determine which strategies should be active after this action
-        $gridActive = in_array($currentMode, ['both', 'market_making']);
-        $arbActive = in_array($currentMode, ['both', 'arbitrage']);
+        // Determine which strategies are currently active
+        // If bot is disabled, nothing is running regardless of mode
+        if ($currentEnabled === '0') {
+            $gridActive = false;
+            $arbActive = false;
+        } else {
+            $gridActive = in_array($currentMode, ['both', 'market_making']);
+            $arbActive = in_array($currentMode, ['both', 'arbitrage']);
+        }
 
+        // Apply the requested action
         if ($bot === 'grid' && $action === 'start') {
             $gridActive = true;
         } elseif ($bot === 'grid' && $action === 'stop') {
@@ -34,7 +41,7 @@ if ($f == 'trading_bot') {
             $arbActive = false;
         }
 
-        // Determine new mode
+        // Determine new mode from active states
         if ($gridActive && $arbActive) {
             $newMode = 'both';
         } elseif ($gridActive) {
@@ -42,7 +49,7 @@ if ($f == 'trading_bot') {
         } elseif ($arbActive) {
             $newMode = 'arbitrage';
         } else {
-            $newMode = 'both'; // will be disabled via bot_enabled
+            $newMode = $currentMode; // preserve last mode when both stopped
         }
 
         // If both are stopped, disable the bot entirely
