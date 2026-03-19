@@ -26,8 +26,9 @@ function randomizeSize(base) {
 let dailyPnl = 0;
 let dailyPnlDate = new Date().toISOString().slice(0, 10);
 
-// Track last trade direction for grid alternation
+// Track recent trade directions for organic-looking patterns
 let lastTradeDirection = null; // 'buy' or 'sell'
+let recentDirections = []; // rolling window of last 6 trades
 
 function resetDailyPnlIfNeeded() {
     const today = new Date().toISOString().slice(0, 10);
@@ -36,6 +37,7 @@ function resetDailyPnlIfNeeded() {
         dailyPnl = 0;
         dailyPnlDate = today;
         lastTradeDirection = null;
+        recentDirections = [];
     }
 }
 
@@ -138,7 +140,8 @@ async function runGridTrading(wallet, provider, cfg) {
     const poolAddress  = cfg.bot_pool_trdc_usdt;
     const fee          = parseInt(cfg.bot_pool_usdt_fee);
     const spreadPct    = parseFloat(cfg.bot_spread_percent) / 100;
-    const orderSize    = parseFloat(cfg.bot_order_size_trdc);
+    const orderSizeMin = parseFloat(cfg.bot_order_size_min || cfg.bot_order_size_trdc || 1500);
+    const orderSizeMax = parseFloat(cfg.bot_order_size_max || cfg.bot_order_size_trdc || 2500);
     const maxSlippage  = parseFloat(cfg.bot_max_slippage);
     const maxTradePct  = parseFloat(cfg.bot_max_trade_percent) / 100;
     const minTvl       = parseFloat(cfg.bot_min_tvl);
@@ -159,8 +162,8 @@ async function runGridTrading(wallet, provider, cfg) {
         return;
     }
 
-    // Randomize order size (±25%) then cap by pool TVL percentage
-    const randomizedSize = randomizeSize(orderSize);
+    // Randomize order size between admin-configured min and max, then cap by pool TVL
+    const randomizedSize = orderSizeMin + Math.random() * (orderSizeMax - orderSizeMin);
     const maxTradeUsd = tvl * maxTradePct;
     const maxTrdcByTvl = maxTradeUsd / price;
     const tradeSize = Math.min(randomizedSize, maxTrdcByTvl);
@@ -178,17 +181,42 @@ async function runGridTrading(wallet, provider, cfg) {
     const trdcBalance = parseFloat(balances.TRDC);
     const usdtBalance = parseFloat(balances.USDT);
 
-    // Grid alternation: alternate buy/sell each cycle
+    // Weighted random direction — looks organic on-chain
+    // Bias toward the opposite of recent trades to keep balance,
+    // but allow occasional streaks (2-3 buys or sells in a row)
     let direction;
-    if (lastTradeDirection === 'buy') {
-        direction = 'sell';
-    } else if (lastTradeDirection === 'sell') {
-        direction = 'buy';
-    } else {
-        // First trade: if we have more TRDC value than USDT, sell first
-        const trdcValueUsd = trdcBalance * price;
+    const trdcValueUsd = trdcBalance * price;
+    const balanceRatio = usdtBalance > 0 ? trdcValueUsd / usdtBalance : 999;
+
+    if (lastTradeDirection === null) {
+        // First trade: balance-based
         direction = trdcValueUsd > usdtBalance ? 'sell' : 'buy';
         log.info(`First trade: ${direction} (TRDC=$${trdcValueUsd.toFixed(2)}, USDT=$${usdtBalance.toFixed(2)})`);
+    } else {
+        // Count recent buys/sells (last 6 trades)
+        const recentBuys = recentDirections.filter(d => d === 'buy').length;
+        const recentSells = recentDirections.filter(d => d === 'sell').length;
+
+        // Base probability: 50/50
+        let buyProb = 0.5;
+
+        // Bias toward opposite of last trade (60% chance to flip)
+        if (lastTradeDirection === 'buy') buyProb -= 0.10;
+        else buyProb += 0.10;
+
+        // Bias toward rebalancing if one side dominated recently
+        if (recentBuys > recentSells + 1) buyProb -= 0.15;
+        else if (recentSells > recentBuys + 1) buyProb += 0.15;
+
+        // Bias toward rebalancing wallet (if too much TRDC, sell more)
+        if (balanceRatio > 2.0) buyProb -= 0.10;
+        else if (balanceRatio < 0.5) buyProb += 0.10;
+
+        // Clamp probability between 20% and 80% (always possible to go either way)
+        buyProb = Math.max(0.20, Math.min(0.80, buyProb));
+
+        direction = Math.random() < buyProb ? 'buy' : 'sell';
+        log.info(`Direction: ${direction} (buyProb=${(buyProb*100).toFixed(0)}%, last=${lastTradeDirection}, recent=${recentBuys}B/${recentSells}S, ratio=${balanceRatio.toFixed(2)})`);
     }
 
     const buyPrice  = price * (1 - spreadPct / 2);
@@ -229,6 +257,8 @@ async function runGridTrading(wallet, provider, cfg) {
             const tradePnl = (valueUsd - usdtNeeded) - gasCostUsd;
             dailyPnl += tradePnl;
             lastTradeDirection = 'buy';
+            recentDirections.push('buy');
+            if (recentDirections.length > 6) recentDirections.shift();
             log.trade(`Grid BUY done. Got ${gotTrdc.toFixed(2)} TRDC (~$${valueUsd.toFixed(4)}). Gas: ${gasCostBnb.toFixed(6)} BNB (~$${gasCostUsd.toFixed(4)}). P&L: $${tradePnl.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
             await saveTrade({
                 strategy: 'grid', direction: 'buy', tokenIn: 'USDT', tokenOut: 'TRDC',
@@ -254,6 +284,8 @@ async function runGridTrading(wallet, provider, cfg) {
             const tradePnl = (gotUsdt - costUsd) - gasCostUsd;
             dailyPnl += tradePnl;
             lastTradeDirection = 'sell';
+            recentDirections.push('sell');
+            if (recentDirections.length > 6) recentDirections.shift();
             log.trade(`Grid SELL done. Got $${gotUsdt.toFixed(4)} USDT. Gas: ${gasCostBnb.toFixed(6)} BNB (~$${gasCostUsd.toFixed(4)}). P&L: $${tradePnl.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
             await saveTrade({
                 strategy: 'grid', direction: 'sell', tokenIn: 'TRDC', tokenOut: 'USDT',
