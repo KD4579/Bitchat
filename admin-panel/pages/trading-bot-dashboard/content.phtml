@@ -6,6 +6,39 @@
         </div>
         <div class="panel-body">
 
+            <!-- Wallet Info -->
+            <?php $botWallet = isset($wo['config']['bot_wallet_address']) ? $wo['config']['bot_wallet_address'] : ''; ?>
+            <?php if (!empty($botWallet)) { ?>
+            <div class="panel panel-default" style="border-left:4px solid #2196F3; margin-bottom:15px;">
+                <div class="panel-body" style="padding:12px 16px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <small class="text-muted">Bot Wallet</small><br>
+                            <code style="font-size:13px;"><a href="https://bscscan.com/address/<?php echo $botWallet; ?>" target="_blank" style="color:#2196F3;"><?php echo $botWallet; ?></a></code>
+                        </div>
+                        <div id="wallet-balances" style="display:flex; gap:20px; flex-wrap:wrap;">
+                            <div class="text-center">
+                                <small class="text-muted">BNB</small><br>
+                                <strong id="wb-bnb" style="font-size:16px;">--</strong>
+                            </div>
+                            <div class="text-center">
+                                <small class="text-muted">TRDC</small><br>
+                                <strong id="wb-trdc" style="font-size:16px;">--</strong>
+                            </div>
+                            <div class="text-center">
+                                <small class="text-muted">USDT</small><br>
+                                <strong id="wb-usdt" style="font-size:16px;">--</strong>
+                            </div>
+                            <div class="text-center">
+                                <small class="text-muted">WBNB</small><br>
+                                <strong id="wb-wbnb" style="font-size:16px;">--</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php } ?>
+
             <!-- Status Cards -->
             <div class="row" id="bot-status-cards">
                 <div class="col-md-2">
@@ -309,18 +342,31 @@ $(document).ready(function() {
         btn.prop('disabled', true).text('Refreshing...');
         loadStatus();
         loadTrades(currentPage);
+        loadBalances();
         setTimeout(function() {
             btn.prop('disabled', false).html('<i class="fa fa-refresh" style="font-size:14px;"></i> Refresh');
         }, 1500);
     });
 
+    function loadBalances() {
+        apiCall({f: 'trading_bot_dashboard', action: 'balances'}, function(data) {
+            var b = data.balances || {};
+            $('#wb-bnb').text(b.BNB || '0');
+            $('#wb-trdc').text(parseFloat(b.TRDC || 0).toLocaleString());
+            $('#wb-usdt').text('$' + parseFloat(b.USDT || 0).toLocaleString());
+            $('#wb-wbnb').text(b.WBNB || '0');
+        });
+    }
+
     // Initial load
     loadStatus();
     loadTrades(1);
+    loadBalances();
 
-    // Auto-refresh status every 15s, trades every 60s
+    // Auto-refresh status every 15s, trades every 60s, balances every 30s
     setInterval(loadStatus, 15000);
     setInterval(function() { loadTrades(currentPage); }, 60000);
+    setInterval(loadBalances, 30000);
 
     // Countdown timer every second
     countdownInterval = setInterval(updateCountdown, 1000);

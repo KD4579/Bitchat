@@ -75,6 +75,94 @@ if ($f == 'trading_bot_dashboard') {
         exit();
     }
 
+    if ($action === 'balances') {
+        $wallet = isset($wo['config']['bot_wallet_address']) ? $wo['config']['bot_wallet_address'] : '';
+        $rpcUrl = isset($wo['config']['bot_rpc_url']) ? $wo['config']['bot_rpc_url'] : 'https://bsc-dataseed1.binance.org';
+
+        if (empty($wallet)) {
+            echo json_encode(array('status' => 400, 'message' => 'No wallet address configured'));
+            exit();
+        }
+
+        $tokens = array(
+            'TRDC' => '0x39006641db2d9c3618523a1778974c0d7e98e39d',
+            'USDT' => '0x55d398326f99059fF775485246999027B3197955',
+            'WBNB' => '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+        );
+
+        $balances = array();
+
+        // Get BNB balance (native) via eth_getBalance
+        $bnbPayload = json_encode(array(
+            'jsonrpc' => '2.0', 'id' => 1, 'method' => 'eth_getBalance',
+            'params' => array($wallet, 'latest')
+        ));
+        $ch = curl_init($rpcUrl);
+        curl_setopt_array($ch, array(
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $bnbPayload,
+            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+        ));
+        $resp = curl_exec($ch);
+        curl_close($ch);
+        if ($resp) {
+            $json = json_decode($resp, true);
+            if (!empty($json['result'])) {
+                $wei = hexdec($json['result']);
+                $balances['BNB'] = number_format($wei / 1e18, 6);
+            }
+        }
+
+        // Get ERC20 token balances via balanceOf(address)
+        // balanceOf selector: 0x70a08231 + address padded to 32 bytes
+        $paddedWallet = str_pad(strtolower(substr($wallet, 2)), 64, '0', STR_PAD_LEFT);
+        $callData = '0x70a08231' . $paddedWallet;
+
+        foreach ($tokens as $name => $tokenAddr) {
+            $payload = json_encode(array(
+                'jsonrpc' => '2.0', 'id' => 1, 'method' => 'eth_call',
+                'params' => array(array('to' => $tokenAddr, 'data' => $callData), 'latest')
+            ));
+            $ch = curl_init($rpcUrl);
+            curl_setopt_array($ch, array(
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+            ));
+            $resp = curl_exec($ch);
+            curl_close($ch);
+            if ($resp) {
+                $json = json_decode($resp, true);
+                if (!empty($json['result']) && $json['result'] !== '0x') {
+                    // Convert hex to decimal, then divide by 10^18
+                    $hex = $json['result'];
+                    // Use bcmath for large numbers
+                    if (function_exists('bcdiv')) {
+                        $dec = '0';
+                        $hex = ltrim(substr($hex, 2), '0') ?: '0';
+                        // Convert hex to decimal string
+                        for ($i = 0; $i < strlen($hex); $i++) {
+                            $dec = bcmul($dec, '16');
+                            $dec = bcadd($dec, strval(hexdec($hex[$i])));
+                        }
+                        $balances[$name] = rtrim(rtrim(bcdiv($dec, bcpow('10', '18'), 4), '0'), '.');
+                    } else {
+                        $balances[$name] = number_format(hexdec($hex) / 1e18, 4);
+                    }
+                } else {
+                    $balances[$name] = '0';
+                }
+            }
+        }
+
+        echo json_encode(array('status' => 200, 'wallet' => $wallet, 'balances' => $balances));
+        exit();
+    }
+
     if ($action === 'trades') {
         if (!$tableExists) {
             echo json_encode(array('status' => 200, 'trades' => array(), 'total' => 0, 'page' => 1, 'pages' => 0));
