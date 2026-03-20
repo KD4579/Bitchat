@@ -277,13 +277,13 @@ $(document).ready(function() {
                 var sideColor = '#4ade80';
                 if (t.strategy === 'arbitrage') {
                     if (t.direction === 'buy_usdt_sell_wbnb') {
-                        sideLabel = 'USDT→WBNB';
+                        sideLabel = 'USDT > WBNB';
                         sideColor = '#4ade80';
                     } else if (t.direction === 'buy_wbnb_sell_usdt') {
-                        sideLabel = 'WBNB→USDT';
+                        sideLabel = 'WBNB > USDT';
                         sideColor = '#60a5fa';
                     } else {
-                        sideLabel = t.direction.toUpperCase();
+                        sideLabel = (t.direction || 'ARB').toUpperCase();
                     }
                 } else {
                     sideColor = t.direction === 'buy' ? '#4ade80' : '#f87171';
