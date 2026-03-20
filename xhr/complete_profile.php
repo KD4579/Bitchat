@@ -36,11 +36,13 @@ if ($f == 'complete_profile') {
             }
         }
 
-        // Rate limit: max 3 codes per hour
-        $hourAgo = time() - 3600;
-        $rateQ = mysqli_query($sqlConnect,
-            "SELECT COUNT(*) AS c FROM " . T_USERS . " WHERE user_id = {$userId} AND CAST(sms_code AS UNSIGNED) > 0"
-        );
+        // Rate limit: max 5 codes per 10 minutes
+        if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit('complete_email_code', $userId, 5, 600)) {
+            $data['message'] = 'Too many verification attempts. Please try again in 10 minutes.';
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
 
         // Generate 6-digit code (cryptographically secure)
         $code = random_int(100000, 999999);
@@ -66,7 +68,7 @@ if ($f == 'complete_profile') {
         );
         $send = Wo_SendMessage($send_message_data);
 
-        $data = array('status' => 200, 'message' => 'Verification code sent to ' . $email);
+        $data = array('status' => 200, 'message' => 'Verification code sent to ' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8'));
         header("Content-type: application/json");
         echo json_encode($data);
         exit();
@@ -109,10 +111,16 @@ if ($f == 'complete_profile') {
             exit();
         }
 
-        // Update email, clear code, mark profile as completed
+        // SECURITY: Atomic update — include sms_code in WHERE to prevent race condition (double-use)
         mysqli_query($sqlConnect,
-            "UPDATE " . T_USERS . " SET email = '" . Wo_Secure($newEmail) . "', new_email = '', sms_code = '', src = 'complete' WHERE user_id = {$userId}"
+            "UPDATE " . T_USERS . " SET email = '" . Wo_Secure($newEmail) . "', new_email = '', sms_code = '', src = 'complete' WHERE user_id = {$userId} AND sms_code = '" . Wo_Secure($code) . "'"
         );
+        if (mysqli_affected_rows($sqlConnect) === 0) {
+            $data['message'] = 'Verification code already used or expired. Please request a new one.';
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
         cache($userId, 'users', 'delete');
 
         $data = array('status' => 200, 'message' => 'Email verified successfully!');
@@ -132,6 +140,14 @@ if ($f == 'complete_profile') {
             exit();
         }
 
+        // Rate limit: max 5 SMS codes per 10 minutes
+        if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit('complete_phone_code', $userId, 5, 600)) {
+            $data['message'] = 'Too many verification attempts. Please try again in 10 minutes.';
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
+
         // Check if phone is already used
         if (Wo_PhoneExists($phone) === true) {
             $data['message'] = 'This phone number is already in use by another account';
@@ -140,8 +156,8 @@ if ($f == 'complete_profile') {
             exit();
         }
 
-        // Generate 5-digit code
-        $code = rand(11111, 99999);
+        // Generate 6-digit code (cryptographically secure, matching email verification)
+        $code = random_int(100000, 999999);
         $message = "Your Bitchat verification code is: {$code}";
 
         if (Wo_SendSMSMessage($phone, $message) === true) {
@@ -151,7 +167,7 @@ if ($f == 'complete_profile') {
             );
             cache($userId, 'users', 'delete');
 
-            $data = array('status' => 200, 'message' => 'SMS code sent to ' . $phone);
+            $data = array('status' => 200, 'message' => 'SMS code sent to ' . htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'));
         } else {
             $data['message'] = 'Failed to send SMS. Please check the phone number and try again.';
         }
@@ -164,8 +180,8 @@ if ($f == 'complete_profile') {
     if ($action === 'verify_phone_code') {
         $code = isset($_POST['code']) ? Wo_Secure($_POST['code']) : '';
 
-        if (empty($code) || strlen($code) < 5) {
-            $data['message'] = 'Please enter the 5-digit SMS code';
+        if (empty($code) || strlen($code) < 6) {
+            $data['message'] = 'Please enter the 6-digit SMS code';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();

@@ -6,24 +6,24 @@
 		<div class="row">
 			<div class="col-lg-6">
 				<label class="tag_field">
-					<input id="first_name" name="first_name" type="text" placeholder=" " value="<?php echo $wo['setting']['first_name']?>"> 
+					<input id="first_name" name="first_name" type="text" placeholder=" " value="<?php echo htmlspecialchars($wo['setting']['first_name'], ENT_QUOTES, 'UTF-8');?>">
 					<span><?php echo $wo['lang']['first_name']; ?></span>
 				</label>
 			</div>
 			<div class="col-lg-6">
 				<label class="tag_field">
-					<input id="last_name" name="last_name" type="text" placeholder=" " value="<?php echo $wo['setting']['last_name']?>"> 
+					<input id="last_name" name="last_name" type="text" placeholder=" " value="<?php echo htmlspecialchars($wo['setting']['last_name'], ENT_QUOTES, 'UTF-8');?>">
 					<span><?php echo $wo['lang']['last_name']; ?></span>
 				</label>
 			</div>
 		</div>
 		<label class="tag_field">
 			<?php $text = br2nl($wo['setting']['about']); ?>
-			<textarea id="about" name="about" placeholder=" " rows="4"><?php echo $text;?></textarea>
+			<textarea id="about" name="about" placeholder=" " rows="4"><?php echo htmlspecialchars($text, ENT_QUOTES, 'UTF-8');?></textarea>
 			<span><?php echo $wo['lang']['about_me']; ?></span>
 		</label>
 		<label class="tag_field">
-			<input id="address" name="address" type="text" placeholder=" " value="<?php echo $wo['setting']['address'];?>">
+			<input id="address" name="address" type="text" placeholder=" " value="<?php echo htmlspecialchars($wo['setting']['address'], ENT_QUOTES, 'UTF-8');?>">
 			<span><?php echo $wo['lang']['location']; ?></span>
 			<?php if ($wo['config']['yandex_map'] == 1) { ?>
 				<div class="yandex_search_user"></div>
@@ -32,7 +32,7 @@
 		<div class="row">
 			<div class="col-lg-6">
 				<label class="tag_field">
-					<input id="website" name="website" type="text" placeholder=" " value="<?php echo $wo['setting']['website']?>"> 
+					<input id="website" name="website" type="text" placeholder=" " value="<?php echo htmlspecialchars($wo['setting']['website'], ENT_QUOTES, 'UTF-8');?>">
 					<span><?php echo $wo['lang']['website']; ?></span>
 				</label>
 			</div>
@@ -57,7 +57,7 @@
 		<div class="row">
 			<div class="col-lg-6">
 				<label class="tag_field">
-					<input id="school" name="school" type="text" placeholder=" " value="<?php echo $wo['setting']['school']?>"> 
+					<input id="school" name="school" type="text" placeholder=" " value="<?php echo htmlspecialchars($wo['setting']['school'], ENT_QUOTES, 'UTF-8');?>">
 					<span><?php echo $wo['lang']['school']; ?></span>
 				</label>
 			</div>
@@ -73,13 +73,13 @@
 		<div class="row">
 			<div class="col-lg-6">
 				<label class="tag_field">
-					<input id="working" name="working" type="text" placeholder=" " value="<?php echo $wo['setting']['working']?>"> 
+					<input id="working" name="working" type="text" placeholder=" " value="<?php echo htmlspecialchars($wo['setting']['working'], ENT_QUOTES, 'UTF-8');?>">
 					<span><?php echo $wo['lang']['working_at']; ?></span>
 				</label>
 			</div>
 			<div class="col-lg-6">
 				<label class="tag_field">
-					<input id="working_link" name="working_link" type="text" placeholder=" " value="<?php echo $wo['setting']['working_link']?>"> 
+					<input id="working_link" name="working_link" type="text" placeholder=" " value="<?php echo htmlspecialchars($wo['setting']['working_link'], ENT_QUOTES, 'UTF-8');?>">
 					<span><?php echo $wo['lang']['company_website']; ?></span>
 				</label>
 			</div>
@@ -87,7 +87,7 @@
 		
 		<?php if ($wo['config']['website_mode'] == 'linkedin') { ?>
 			<div class="tag_field skills_div">
-				<input id="skills" name="skills" type="text" value="<?php echo $wo['setting']['skills'];?>" placeholder=" ">
+				<input id="skills" name="skills" type="text" value="<?php echo htmlspecialchars($wo['setting']['skills'], ENT_QUOTES, 'UTF-8');?>" placeholder=" ">
 				<span for="skills"><?php echo $wo['lang']['skills']; ?></span>
 				<div class="skills_result"></div>
 			</div>

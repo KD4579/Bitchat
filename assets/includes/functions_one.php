@@ -1597,6 +1597,11 @@ function Wo_UploadImage($file, $name, $type, $type_file, $user_id = 0, $placemen
     if (!in_array($file_extension, $extension_allowed)) {
         return false;
     }
+    // SECURITY: Block double extensions like shell.php.jpg
+    $filename_part = pathinfo($name, PATHINFO_FILENAME);
+    if (preg_match('/\.(php|phtml|phar|cgi|pl|py|sh|asp|aspx|jsp|htaccess)/i', $filename_part)) {
+        return false;
+    }
     $ar = array(
         'image/png',
         'image/jpeg',
@@ -5087,6 +5092,11 @@ function Wo_ShareFile($data = array(), $type = 0, $crop = true) {
     }
     $new_string     = pathinfo($data['name'], PATHINFO_FILENAME) . '.' . strtolower(pathinfo($data['name'], PATHINFO_EXTENSION));
     $file_extension = pathinfo($new_string, PATHINFO_EXTENSION);
+    // SECURITY: Block double extensions like shell.php.jpg
+    $fn_part = pathinfo($data['name'], PATHINFO_FILENAME);
+    if (preg_match('/\.(php|phtml|phar|cgi|pl|py|sh|asp|aspx|jsp|htaccess)/i', $fn_part)) {
+        return false;
+    }
     if ($data['is_video'] == 0) {
         if ($wo['config']['fileSharing'] == 1) {
             if (isset($data['types'])) {
@@ -5145,19 +5155,23 @@ function Wo_ShareFile($data = array(), $type = 0, $crop = true) {
     $dir         = "upload/{$folder}/" . date('Y') . '/' . date('m');
     $filename    = $dir . '/' . Wo_GenerateKey() . '_' . date('d') . '_' . md5(time()) . "_{$fileType}.{$file_extension}";
     $second_file = pathinfo($filename, PATHINFO_EXTENSION);
-    if (move_uploaded_file($data['file'], $filename)) {
-        // Security: scan uploaded file for embedded PHP code (up to 64KB)
-        $scan_content = @file_get_contents($filename, false, null, 0, 65536);
+    // SECURITY: Validate file BEFORE moving to web-accessible location (prevents race condition)
+    if (is_uploaded_file($data['file'])) {
+        // Pre-move: scan temp file for embedded PHP code
+        $scan_content = @file_get_contents($data['file'], false, null, 0, 65536);
         if ($scan_content !== false && preg_match('/<\?php|<\?=|<\?[[:space:]]/i', $scan_content)) {
-            @unlink($filename);
             return false;
         }
+        // Pre-move: validate image files in temp location
         if ($second_file == 'jpg' || $second_file == 'jpeg' || $second_file == 'png' || $second_file == 'gif') {
-            $check_file = getimagesize($filename);
+            $check_file = getimagesize($data['file']);
             if (!$check_file) {
-                unlink($filename);
                 return false;
             }
+        }
+    }
+    if (move_uploaded_file($data['file'], $filename)) {
+        if ($second_file == 'jpg' || $second_file == 'jpeg' || $second_file == 'png' || $second_file == 'gif') {
             if ($crop == true) {
                 if ($type == 1) {
                     if ($second_file != 'gif') {

@@ -47,7 +47,7 @@ if ($f == "address") {
 	if ($s == 'edit') {
 		if (!empty($_POST['name']) && !empty($_POST['phone']) && !empty($_POST['country']) && !empty($_POST['city']) && !empty($_POST['zip']) && !empty($_POST['address']) && !empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
 			$address = $db->where('id',Wo_Secure($_POST['id']))->getOne(T_USER_ADDRESS);
-			if (!empty($address) && ($address->user_id == $wo['user']['user_id'] || IsAdmin())) {
+			if (!empty($address) && ($address->user_id == $wo['user']['user_id'] || Wo_IsAdmin())) {
 				$db->where('id',$address->id)->update(T_USER_ADDRESS,array('name' => Wo_Secure($_POST['name']),
 									                                'phone' => Wo_Secure($_POST['phone']),
 									                                'city' => Wo_Secure($_POST['city']),

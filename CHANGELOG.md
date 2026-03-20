@@ -2,6 +2,29 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-21 — User Profiles & Settings Security Audit (25+ bugs fixed)
+
+### CRITICAL
+- **Stored XSS in profile settings** — all `<input value="">` fields (first_name, last_name, address, website, school, working, working_link, skills) output without `htmlspecialchars()` across all 3 themes → attacker injects `"><script>` (9 files, ~30 fields)
+- **Stored XSS in about textarea** — `</textarea><script>` breakout in profile-setting.phtml (all 3 themes)
+- **Password change privilege escalation** — `update_user_password.php` verified current password against logged-in user instead of target user → admin account takeover
+- **File upload race condition** — `Wo_ShareFile()` moved file to web-accessible location BEFORE validation → attacker could access during race window; now validates in temp location first
+- **application/octet-stream bypass** — `Wo_IsFileAllowed()` allowed `application/octet-stream` MIME type for all users → any binary executable passed MIME check; removed from whitelist
+
+### HIGH
+- **Phone validation bypass** — `FILTER_SANITIZE_NUMBER_INT` used instead of validation (never returns false); replaced with regex
+- **Undefined `IsAdmin()` in address edit** — `xhr/address.php` line 50 called `IsAdmin()` instead of `Wo_IsAdmin()` → PHP fatal error, authorization bypass on address edit
+- **Weak RNG for phone verification** — `rand()` (predictable PRNG, 88K possibilities) replaced with `random_int()` (cryptographic, 900K possibilities)
+- **Missing rate limiting on verification codes** — email and phone code generation had no rate limiting; added 5 per 10 minutes
+- **MIME spoofing in message uploads** — `xhr/messages.php` trusted client-provided `Content-Type` header; now uses server-side `finfo` detection
+- **Double extension bypass** — files like `shell.php.jpg` passed `PATHINFO_EXTENSION` check; added regex to block dangerous double extensions in both `Wo_UploadImage()` and `Wo_ShareFile()`
+- **Email verification race condition** — concurrent requests could reuse same code; atomic UPDATE with `AND sms_code = ?` in WHERE clause
+
+### MEDIUM
+- **Moderator privilege escalation** — moderators could set negative wallet values and modify admin/mod accounts; restricted
+- **Address output XSS** — 9 order/invoice templates echoed address fields without escaping; fixed across all themes
+- **Reflected XSS in JSON responses** — email/phone echoed unescaped in `complete_profile.php` responses; added `htmlspecialchars()`
+
 ## 2026-03-20 — Messaging, Posts & Social Features Security Audit (13 bugs fixed)
 
 - **CRITICAL: SQL injection in message search** — raw `$_GET['query']` in LIKE clause (`functions_one.php`)

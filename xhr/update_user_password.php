@@ -10,8 +10,9 @@ if ($f == "update_user_password") {
             if (empty($_POST['current_password']) OR empty($_POST['new_password']) OR empty($_POST['repeat_new_password'])) {
                 $errors[] = $error_icon . $wo['lang']['please_check_details'];
             } else {
-                // Always verify current password (own account or admin changing another user)
-                if (Wo_HashPassword($_POST['current_password'], $wo['user']['password']) == false) {
+                // Verify current password against the TARGET user's password (not logged-in user)
+                $targetPassword = $Userdata['password'];
+                if (Wo_HashPassword($_POST['current_password'], $targetPassword) == false) {
                     $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
                 }
                 if ($_POST['new_password'] != $_POST['repeat_new_password']) {

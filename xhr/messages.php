@@ -157,18 +157,24 @@ if ($f == 'messages') {
                     if (isset($_FILES['sendMessageFile']['name'])) {
                         if ($_FILES['sendMessageFile']['size'] > $wo['config']['maxUpload']) {
                             $invalid_file = 1;
-                        } else if (!in_array($_FILES["sendMessageFile"]["type"], explode(',', $wo['config']['mime_types']))) {
-                            $invalid_file = 2;
                         } else {
-                            $fileInfo      = array(
-                                'file' => $_FILES["sendMessageFile"]["tmp_name"],
-                                'name' => $_FILES['sendMessageFile']['name'],
-                                'size' => $_FILES["sendMessageFile"]["size"],
-                                'type' => $_FILES["sendMessageFile"]["type"]
-                            );
-                            $media         = Wo_ShareFile($fileInfo);
-                            $mediaFilename = $media['filename'];
-                            $mediaName     = $media['name'];
+                            // SECURITY: Use server-side MIME detection, not client-provided type
+                            $finfo_msg = new finfo(FILEINFO_MIME_TYPE);
+                            $real_mime_msg = $finfo_msg->file($_FILES["sendMessageFile"]["tmp_name"]);
+                            $allowed_mimes_msg = explode(',', $wo['config']['mime_types']);
+                            if (!in_array($real_mime_msg, $allowed_mimes_msg) && !in_array($_FILES["sendMessageFile"]["type"], $allowed_mimes_msg)) {
+                                $invalid_file = 2;
+                            } else {
+                                $fileInfo      = array(
+                                    'file' => $_FILES["sendMessageFile"]["tmp_name"],
+                                    'name' => $_FILES['sendMessageFile']['name'],
+                                    'size' => $_FILES["sendMessageFile"]["size"],
+                                    'type' => ($real_mime_msg !== false) ? $real_mime_msg : $_FILES["sendMessageFile"]["type"]
+                                );
+                                $media         = Wo_ShareFile($fileInfo);
+                                $mediaFilename = $media['filename'];
+                                $mediaName     = $media['name'];
+                            }
                         }
                     } else if (!empty($_POST['record-file']) && !empty($_POST['record-name'])) {
                         // SECURITY: Sanitize record file paths to prevent path injection/traversal
@@ -319,18 +325,24 @@ if ($f == 'messages') {
                     if (isset($_FILES['sendMessageFile']['name'])) {
                         if ($_FILES['sendMessageFile']['size'] > $wo['config']['maxUpload']) {
                             $invalid_file = 1;
-                        } else if (!in_array($_FILES["sendMessageFile"]["type"], explode(',', $wo['config']['mime_types']))) {
-                            $invalid_file = 2;
                         } else {
-                            $fileInfo      = array(
-                                'file' => $_FILES["sendMessageFile"]["tmp_name"],
-                                'name' => $_FILES['sendMessageFile']['name'],
-                                'size' => $_FILES["sendMessageFile"]["size"],
-                                'type' => $_FILES["sendMessageFile"]["type"]
-                            );
-                            $media         = Wo_ShareFile($fileInfo);
-                            $mediaFilename = $media['filename'];
-                            $mediaName     = $media['name'];
+                            // SECURITY: Use server-side MIME detection, not client-provided type
+                            $finfo_msg = new finfo(FILEINFO_MIME_TYPE);
+                            $real_mime_msg = $finfo_msg->file($_FILES["sendMessageFile"]["tmp_name"]);
+                            $allowed_mimes_msg = explode(',', $wo['config']['mime_types']);
+                            if (!in_array($real_mime_msg, $allowed_mimes_msg) && !in_array($_FILES["sendMessageFile"]["type"], $allowed_mimes_msg)) {
+                                $invalid_file = 2;
+                            } else {
+                                $fileInfo      = array(
+                                    'file' => $_FILES["sendMessageFile"]["tmp_name"],
+                                    'name' => $_FILES['sendMessageFile']['name'],
+                                    'size' => $_FILES["sendMessageFile"]["size"],
+                                    'type' => ($real_mime_msg !== false) ? $real_mime_msg : $_FILES["sendMessageFile"]["type"]
+                                );
+                                $media         = Wo_ShareFile($fileInfo);
+                                $mediaFilename = $media['filename'];
+                                $mediaName     = $media['name'];
+                            }
                         }
                     } else if (!empty($_POST['record-file']) && !empty($_POST['record-name'])) {
                         // SECURITY: Sanitize record file paths to prevent path injection/traversal

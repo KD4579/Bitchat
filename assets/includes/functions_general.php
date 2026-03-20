@@ -1891,9 +1891,10 @@ function Wo_IsFileAllowed($file_name, $fileType = '') {
     }
     $extension_allowed = explode(',', $wo['config']['allowedExtenstion']);
     $file_extension    = pathinfo($new_string, PATHINFO_EXTENSION);
-    $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json,application/octet-stream'));
+    // SECURITY: Removed application/octet-stream — it bypasses MIME validation for binary executables
+    $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json'));
     if (Wo_IsAdmin()) {
-        $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json,application/octet-stream,image/svg+xml'));
+        $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json'));
     }
     if (!empty($fileType)) {
         if (!in_array($fileType, $mime_types)) {

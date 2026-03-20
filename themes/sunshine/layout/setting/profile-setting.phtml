@@ -39,24 +39,24 @@
 			<div class="col-md-6">
 				<div class="wow_form_fields">
 					<label for="first_name"><?php echo $wo['lang']['first_name']; ?></label>  
-					<input id="first_name" name="first_name" type="text" value="<?php echo $wo['setting']['first_name'];?>">
+					<input id="first_name" name="first_name" type="text" value="<?php echo htmlspecialchars($wo['setting']['first_name'], ENT_QUOTES, 'UTF-8');?>">
 				</div>
 			</div>
 			<div class="col-md-6">
 				<div class="wow_form_fields">
 					<label for="last_name"><?php echo $wo['lang']['last_name']; ?></label>  
-					<input id="last_name" name="last_name" type="text" value="<?php echo $wo['setting']['last_name'];?>">
+					<input id="last_name" name="last_name" type="text" value="<?php echo htmlspecialchars($wo['setting']['last_name'], ENT_QUOTES, 'UTF-8');?>">
 				</div>
 			</div>
 		</div>
 		<div class="wow_form_fields">
 			<label for="about"><?php echo $wo['lang']['about_me']; ?></label>  
 			<?php $text = br2nl($wo['setting']['about']); ?>
-			<textarea id="about" name="about" rows="4"><?php echo $text;?></textarea>
+			<textarea id="about" name="about" rows="4"><?php echo htmlspecialchars($text, ENT_QUOTES, 'UTF-8');?></textarea>
 		</div>
 		<div class="wow_form_fields">
 			<label for="address"><?php echo $wo['lang']['location']; ?></label>  
-			<input id="address" name="address" type="text" value="<?php echo $wo['setting']['address'];?>">
+			<input id="address" name="address" type="text" value="<?php echo htmlspecialchars($wo['setting']['address'], ENT_QUOTES, 'UTF-8');?>">
 			<?php if ($wo['config']['yandex_map'] == 1) { ?>
           <div class="yandex_search_user"></div>
         <?php } ?>
@@ -67,7 +67,7 @@
 		<div class="row">
 			<div class="col-md-6">
 				<div class="wow_form_fields mt-0">
-					<input id="school" name="school" type="text" value="<?php echo $wo['setting']['school'];?>">
+					<input id="school" name="school" type="text" value="<?php echo htmlspecialchars($wo['setting']['school'], ENT_QUOTES, 'UTF-8');?>">
 				</div>
 			</div>
 			<div class="col-md-6 round-check">
@@ -83,13 +83,13 @@
 		<div class="row">
 			<div class="col-md-6">
 				<div class="wow_form_fields mt-0">
-					<input id="working" name="working" type="text" value="<?php echo $wo['setting']['working'];?>">
+					<input id="working" name="working" type="text" value="<?php echo htmlspecialchars($wo['setting']['working'], ENT_QUOTES, 'UTF-8');?>">
 					<span class="help-block">(e.g Apple)</span>
 				</div>
 			</div>
 			<div class="col-md-6">
 				<div class="wow_form_fields mt-0">
-					<input id="working_link" name="working_link" type="text" value="<?php echo $wo['setting']['working_link'];?>">
+					<input id="working_link" name="working_link" type="text" value="<?php echo htmlspecialchars($wo['setting']['working_link'], ENT_QUOTES, 'UTF-8');?>">
 					<span class="help-block"><?php echo $wo['lang']['company_website']; ?></span>
 				</div>
 			</div>
@@ -98,7 +98,7 @@
 			<div class="col-md-6">
 				<div class="wow_form_fields">
 					<label for="website"><?php echo $wo['lang']['website']; ?></label>
-					<input id="website" name="website" type="text" value="<?php echo $wo['setting']['website'];?>">
+					<input id="website" name="website" type="text" value="<?php echo htmlspecialchars($wo['setting']['website'], ENT_QUOTES, 'UTF-8');?>">
 				</div>
 			</div>
 			<div class="col-md-6">

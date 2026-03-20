@@ -61,7 +61,8 @@ if ($f == "update_general_settings") {
                     }
                 }
                 if (!empty($_POST['phone_number'])) {
-                    if (!filter_var($_POST['phone_number'], FILTER_SANITIZE_NUMBER_INT)) {
+                    // SECURITY: Use regex validation, not FILTER_SANITIZE (which strips chars, never returns false)
+                    if (!preg_match('/^\+?[0-9\-\(\) ]{7,20}$/', $_POST['phone_number'])) {
                         $errors[] = $error_icon . $wo['lang']['phone_invalid_characters'];
                     }
                 }
@@ -79,7 +80,16 @@ if ($f == "update_general_settings") {
                 $wallet = $Userdata['wallet'];
                 if (isset($_POST['wallet']) && (Wo_IsAdmin() || Wo_IsModerator())) {
                     if (is_numeric($_POST['wallet'])) {
-                        $wallet = $_POST['wallet'];
+                        $newWallet = floatval($_POST['wallet']);
+                        // SECURITY: Only admins can set negative wallet; mods cannot modify other admins/mods
+                        if ($newWallet < 0 && !Wo_IsAdmin()) {
+                            $newWallet = 0;
+                        }
+                        if (Wo_IsModerator() && !Wo_IsAdmin() && ($Userdata['admin'] == 1 || $Userdata['admin'] == 2)) {
+                            // Moderators cannot modify admin/mod wallets
+                        } else {
+                            $wallet = $newWallet;
+                        }
                     }
                 }
                 $type = $Userdata['admin'];
@@ -98,7 +108,7 @@ if ($f == "update_general_settings") {
                 $member_type = $Userdata['pro_type'];
                 $member_pro  = $Userdata['is_pro'];
                 $time        = $Userdata['pro_time'];
-                if (!empty($_POST['pro_type']) && (Wo_IsAdmin() || Wo_IsModerator())) {
+                if (!empty($_POST['pro_type']) && (Wo_IsAdmin() || Wo_IsModerator()) && !($Userdata['admin'] > 0 && Wo_IsModerator() && !Wo_IsAdmin())) {
                     if ($_POST['pro_type'] == 'free') {
                         $member_type = 0;
                         $member_pro  = 0;
