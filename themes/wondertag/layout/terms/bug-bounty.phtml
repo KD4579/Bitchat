@@ -1,0 +1,202 @@
+<div class="page-margin">
+<div class="container" style="max-width:960px;margin:0 auto;">
+<h2 class="tag_page_title m5">Bug Bounty Program</h2>
+<div class="page-margin">
+<div class="wow_content p20" style="line-height:1.8;font-size:15px;">
+
+<p>Bitchat values the security community. We invite responsible security researchers to help us identify vulnerabilities in our platform. Valid reports will be rewarded.</p>
+
+<hr style="border-color:var(--bc-border-color,#e0e0e0);margin:20px 0;">
+
+<h3 style="margin:24px 0 12px;">Reward Tiers</h3>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<thead>
+<tr style="border-bottom:2px solid var(--bc-border-color,#ddd);">
+<th style="text-align:left;padding:10px 8px;">Severity</th>
+<th style="text-align:left;padding:10px 8px;">Reward</th>
+<th style="text-align:left;padding:10px 8px;">Response</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--bc-border-color,#eee);">
+<td style="padding:10px 8px;"><span style="background:#dc3545;color:#fff;padding:2px 10px;border-radius:4px;font-weight:600;">Critical</span></td>
+<td style="padding:10px 8px;">$500 &ndash; $2,000</td>
+<td style="padding:10px 8px;">24 hours</td>
+</tr>
+<tr style="border-bottom:1px solid var(--bc-border-color,#eee);">
+<td style="padding:10px 8px;"><span style="background:#fd7e14;color:#fff;padding:2px 10px;border-radius:4px;font-weight:600;">High</span></td>
+<td style="padding:10px 8px;">$200 &ndash; $500</td>
+<td style="padding:10px 8px;">48 hours</td>
+</tr>
+<tr style="border-bottom:1px solid var(--bc-border-color,#eee);">
+<td style="padding:10px 8px;"><span style="background:#ffc107;color:#000;padding:2px 10px;border-radius:4px;font-weight:600;">Medium</span></td>
+<td style="padding:10px 8px;">$50 &ndash; $200</td>
+<td style="padding:10px 8px;">5 days</td>
+</tr>
+<tr style="border-bottom:1px solid var(--bc-border-color,#eee);">
+<td style="padding:10px 8px;"><span style="background:#17a2b8;color:#fff;padding:2px 10px;border-radius:4px;font-weight:600;">Low</span></td>
+<td style="padding:10px 8px;">$10 &ndash; $50</td>
+<td style="padding:10px 8px;">10 days</td>
+</tr>
+<tr>
+<td style="padding:10px 8px;"><span style="background:#6c757d;color:#fff;padding:2px 10px;border-radius:4px;font-weight:600;">Info</span></td>
+<td style="padding:10px 8px;">Recognition</td>
+<td style="padding:10px 8px;">30 days</td>
+</tr>
+</tbody>
+</table>
+<p>Rewards are paid in <strong>TRDC tokens</strong> or <strong>USDT</strong> (BEP-20), at the researcher's choice.</p>
+
+<hr style="border-color:var(--bc-border-color,#e0e0e0);margin:20px 0;">
+
+<h3 style="margin:24px 0 12px;">In-Scope Sections</h3>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">Authentication &amp; Account Management <span style="background:#dc3545;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">CRITICAL</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Registration, login, password reset, OAuth (Google, LinkedIn, Instagram)</li>
+<li>Two-factor authentication, SMS verification, session management</li>
+<li>Email/phone verification, account deletion</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">Messaging &amp; Real-Time <span style="background:#dc3545;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">CRITICAL</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Direct messages (1-to-1 chat, file sharing, message history)</li>
+<li>Group chat, message reactions, typing indicators</li>
+<li>Socket.io WebSocket connections</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">Payments &amp; Financial <span style="background:#dc3545;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">CRITICAL</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Wallet system (in-app balances, peer-to-peer transfers)</li>
+<li>TRDC token (BEP-20 staking, rewards, tipping, post boosting)</li>
+<li>Crypto deposits (BTC, BUSD, BEP-20 address generation &amp; monitoring)</li>
+<li>Withdrawals (TRDC on-chain, fiat bank wire)</li>
+<li>Pro membership purchase, payment processors (Stripe, PayPal, Razorpay, Coinbase)</li>
+<li>Marketplace orders &amp; checkout</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">APIs <span style="background:#dc3545;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">CRITICAL</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>REST API v1 &amp; v2 (user data, posts, search)</li>
+<li>Mobile app API endpoints</li>
+<li>Socket.io WebSocket (real-time chat, notifications, status)</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">Posts, Content &amp; Feed <span style="background:#fd7e14;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">HIGH</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Post creation, editing, deletion, scheduling</li>
+<li>Trading signal posts (BUY/SELL/LONG/SHORT/HOLD)</li>
+<li>Token-gated posts (TRDC balance requirement)</li>
+<li>News feed algorithm (For You, Trading, Following, Creators tabs)</li>
+<li>Stories/status (24h auto-delete)</li>
+<li>Reactions &amp; comments</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">User Profiles &amp; Settings <span style="background:#fd7e14;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">HIGH</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Profile management, avatar/cover upload</li>
+<li>Account settings (email, notification, privacy)</li>
+<li>Address management (PII), data export (GDPR)</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">Video &amp; Audio Calling <span style="background:#fd7e14;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">HIGH</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>P2P video and audio calls</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">Groups, Pages &amp; Events <span style="background:#ffc107;color:#000;padding:1px 8px;border-radius:4px;font-size:12px;">MEDIUM</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Group/page creation, management, admin roles, invitations</li>
+<li>Events (create, RSVP, invitations)</li>
+<li>Forums (threads, replies, moderation)</li>
+<li>Blogs &amp; articles (creation, comments)</li>
+<li>Advertising (campaigns, targeting, analytics)</li>
+</ul>
+
+<h4 style="margin:18px 0 8px;color:var(--bc-text-secondary,#555);">Social Features <span style="background:#17a2b8;color:#fff;padding:1px 8px;border-radius:4px;font-size:12px;">LOW</span></h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Follow/unfollow, blocking, suggestions, nearby users</li>
+<li>Search (users, posts, pages, groups, products)</li>
+<li>Notifications (push, email, in-app)</li>
+</ul>
+
+<hr style="border-color:var(--bc-border-color,#e0e0e0);margin:20px 0;">
+
+<h3 style="margin:24px 0 12px;">Out of Scope</h3>
+
+<h4 style="margin:14px 0 8px;">Third-Party Services</h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Payment processors (Stripe, PayPal, Razorpay, Coinbase, etc.) &mdash; report to those vendors</li>
+<li>Agora video/audio SDK, PancakeSwap smart contracts, BSC network</li>
+<li>OneSignal, Twilio, CloudFlare, hosting panel</li>
+</ul>
+
+<h4 style="margin:14px 0 8px;">Excluded Attacks</h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Volumetric DDoS or resource exhaustion</li>
+<li>Social engineering, phishing, physical access</li>
+<li>Self-XSS (requiring victim to paste code into their own console)</li>
+<li>Login/logout CSRF (no security impact)</li>
+</ul>
+
+<h4 style="margin:14px 0 8px;">Known Accepted Risks</h4>
+<ul style="margin:0 0 12px 20px;">
+<li>Email/username enumeration via registration or password reset</li>
+<li>Missing security headers on static assets</li>
+<li>SSL/TLS configuration (managed by hosting provider)</li>
+<li>Software version disclosure, autocomplete on non-password fields</li>
+<li>Open redirects without chaining to auth bypass</li>
+<li>Clickjacking on pages without state-changing actions</li>
+</ul>
+
+<hr style="border-color:var(--bc-border-color,#e0e0e0);margin:20px 0;">
+
+<h3 style="margin:24px 0 12px;">Testing Rules</h3>
+<div style="background:var(--bc-surface-secondary,#f8f9fa);padding:16px 20px;border-radius:8px;border-left:4px solid #dc3545;margin:12px 0;">
+<ul style="margin:0 0 0 16px;">
+<li>Create your own test accounts &mdash; do NOT test on real users' accounts</li>
+<li>Do NOT access, modify, or delete other users' data</li>
+<li>Do NOT execute trades or interact with the live trading bot wallet</li>
+<li>Do NOT attempt to withdraw TRDC or fiat from any wallet</li>
+<li>Do NOT perform destructive database operations</li>
+<li>Do NOT interact with the TRDC smart contract on BSC mainnet</li>
+<li>Do NOT scan the server's network or other hosted services</li>
+</ul>
+</div>
+
+<hr style="border-color:var(--bc-border-color,#e0e0e0);margin:20px 0;">
+
+<h3 style="margin:24px 0 12px;">How to Report</h3>
+
+<div style="background:var(--bc-surface-secondary,#f8f9fa);padding:20px;border-radius:8px;margin:12px 0;">
+<p style="margin:0 0 12px;"><strong>Email:</strong> <a href="mailto:security@bitchat.live" style="color:var(--bc-accent,#5e72e4);">security@bitchat.live</a></p>
+<p style="margin:0 0 12px;"><strong>Subject format:</strong> <code>[BUG BOUNTY] [SEVERITY] &mdash; Brief description</code></p>
+<p style="margin:0 0 12px;"><strong>Required information:</strong></p>
+<ol style="margin:0 0 0 20px;">
+<li>Affected section (from the scope table above)</li>
+<li>Step-by-step reproduction instructions</li>
+<li>Proof of concept (screenshots, video, or code)</li>
+<li>Impact assessment</li>
+<li>Suggested fix (optional but appreciated)</li>
+</ol>
+</div>
+
+<h4 style="margin:18px 0 8px;">Rules</h4>
+<ul style="margin:0 0 12px 20px;">
+<li>First reporter of a valid vulnerability receives the reward</li>
+<li>Duplicate reports receive no reward</li>
+<li>You must not publicly disclose the vulnerability before it is fixed</li>
+<li>We aim to fix Critical issues within 24 hours, High within 1 week</li>
+<li>Researchers who follow responsible disclosure will be credited on our Hall of Fame</li>
+</ul>
+
+<hr style="border-color:var(--bc-border-color,#e0e0e0);margin:20px 0;">
+
+<p style="text-align:center;color:var(--bc-text-secondary,#888);font-size:13px;">
+Program launched: March 2026 &bull; 62 in-scope sections &bull; 18 Critical, 14 High, 22 Medium, 8 Low
+</p>
+
+</div>
+</div>
+</div>
+</div>

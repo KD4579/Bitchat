@@ -7,7 +7,8 @@ $pages = array(
     'terms',
     'privacy-policy',
     'about-us',
-    'developers'
+    'developers',
+    'bug-bounty'
 );
 if ($wo['config']['refund_system'] == 'on') {
     $pages[] = 'refund';
@@ -36,6 +37,8 @@ if ($type == 'terms') {
     $wo['title'] = $wo['lang']['developers'];
 } else if ($type == 'refund') {
     $wo['title'] = $wo['lang']['refund'];
+} else if ($type == 'bug-bounty') {
+    $wo['title'] = 'Bug Bounty Program';
 }
 $page          = 'terms/' . $type;
 $wo['title']   = $wo['config']['siteName'] . ' | ' . $wo['title'];

@@ -13,6 +13,7 @@
 		<a data-ajax="?link1=terms&type=privacy-policy" href="<?php echo Wo_SeoLink('index.php?link1=terms&type=privacy-policy');?>"><?php echo $wo['lang']['privacy_policy'];?></a> • 
 		<a data-ajax="?link1=terms&type=terms" href="<?php echo Wo_SeoLink('index.php?link1=terms&type=terms');?>"><?php echo $wo['lang']['terms_of_use'];?></a>
 		<?php if ($wo['config']['refund_system'] == 'on') { ?> • <a data-ajax="?link1=terms&type=refund" href="<?php echo Wo_SeoLink('index.php?link1=terms&type=refund');?>"><?php echo $wo['lang']['refund'];?></a><?php } ?>
+		 • <a data-ajax="?link1=terms&type=bug-bounty" href="<?php echo Wo_SeoLink('index.php?link1=terms&type=bug-bounty');?>">Bug Bounty</a>
 		<?php
 			$pages = Wo_GetCustomPages();
 			if (count($pages) > 0) {
