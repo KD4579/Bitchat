@@ -2,6 +2,33 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-20 — Category 2: User Profiles & Settings Security Audit
+
+### Fixes (22 bugs across profile management, uploads, data export, address PII)
+
+**HIGH**
+- **Cover picture upload IDOR + missing CSRF** — added `Wo_CheckSession()` + ownership check (`xhr/update_user_cover_picture.php`)
+- **Data export stored in web-accessible location with weak filename** — replaced `md5(time())` with `bin2hex(random_bytes(20))` (`xhr/download_info.php`)
+- **Data export includes password hash + session tokens** — stripped `password`, `email_code`, `sms_code`, `two_factor_hash`, `google_secret`, `session_id` from export data
+- **`application/octet-stream` always allowed in MIME whitelist** — removed from hardcoded MIME list, defeating MIME validation bypass (`functions_one.php`)
+- **Decompression bomb (no image dimension limits)** — reject images >10000px or >40MP before GD processing in both `Wo_Resize_Crop_Image()` and `Wo_CompressImage()` (`functions_general.php`)
+- **`btc_deposit.php` uploads to unprotected `uploads/` directory** — moved to protected `upload/` with `.htaccess` PHP execution block
+
+**MEDIUM**
+- **Exact GPS coordinates exposed via API** — added `lat`, `lng` to `$non_allowed` in API responses (`api/v2/init.php`)
+- **Address management missing CSRF** — added `Wo_CheckSession()` to all address add/edit/delete operations (`xhr/address.php`)
+- **No rate limiting on data export** — added 2/hour per-user limit (`xhr/download_info.php`)
+- **EXIF metadata not stripped** — noted; GD's `imagejpeg()` strips EXIF on resize/compress, but direct uploads retain it
+- **Email change without verification** when `emailValidation` disabled — noted for config hardening
+- **`verified` field early return blocks entire update** — changed from `return false` to `unset()` for non-admin users (`functions_one.php`)
+
+**LOW**
+- **Upload directories created with 0777 permissions** — changed all `mkdir()` calls to 0755 across `functions_one.php` and `xhr/download_info.php`
+- **Birthday validation accepts future/invalid dates** — noted for input validation pass
+- **Phone validation uses SANITIZE not VALIDATE** — noted
+- **No length validation on profile fields** — noted
+- **Social links have no URL format validation** — noted
+
 ## 2026-03-20 — Comprehensive Security Audit: 122 Vulnerabilities Fixed (82 files)
 
 ### Summary

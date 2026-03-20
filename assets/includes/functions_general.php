@@ -854,8 +854,13 @@ function Wo_CropAvatarImage($file = '', $data = array()) {
 }
 function Wo_Resize_Crop_Image($max_width, $max_height, $source_file, $dst_dir, $quality = 80) {
     $imgsize = @getimagesize($source_file);
+    if (!$imgsize) return false;
     $width   = $imgsize[0];
     $height  = $imgsize[1];
+    // SECURITY: Reject decompression bombs (small file, huge dimensions = memory exhaustion)
+    if ($width > 10000 || $height > 10000 || ($width * $height) > 40000000) {
+        return false;
+    }
     $mime    = $imgsize['mime'];
     $image   = "imagejpeg";
     switch ($mime) {
@@ -1129,6 +1134,11 @@ function Wo_MaxFileUpload() {
 }
 function Wo_CompressImage($source_url, $destination_url, $quality = 50) {
     $imgsize = getimagesize($source_url);
+    if (!$imgsize) return false;
+    // SECURITY: Reject decompression bombs
+    if ($imgsize[0] > 10000 || $imgsize[1] > 10000 || ($imgsize[0] * $imgsize[1]) > 40000000) {
+        return false;
+    }
     $finfof  = $imgsize['mime'];
     $image_c = 'imagejpeg';
     if ($finfof == 'image/jpeg') {

@@ -1,5 +1,11 @@
 <?php
 if ($f == "address") {
+	// CSRF protection for address operations (PII data)
+	if (Wo_CheckSession($hash_id) !== true) {
+		header("Content-type: application/json");
+		echo json_encode(array('status' => 403, 'message' => 'Invalid security token'));
+		exit();
+	}
 	if ($s == 'add') {
 		if (!empty($_POST['name']) && !empty($_POST['phone']) && !empty($_POST['country']) && !empty($_POST['city']) && !empty($_POST['zip']) && !empty($_POST['address'])) {
 			$id = $db->insert(T_USER_ADDRESS,array('name' => Wo_Secure($_POST['name']),

@@ -1417,11 +1417,10 @@ function Wo_UpdateUserData($user_id, $update_data, $unverify = false) {
             return false;
         }
     }
+    // Silently strip 'verified' for non-admin/mod instead of blocking entire update
     if (isset($update_data['verified'])) {
-        if (empty($update_data['pro_'])) {
-            if ($is_admin === false && $is_mod === false) {
-                return false;
-            }
+        if ($is_admin === false && $is_mod === false) {
+            unset($update_data['verified']);
         }
     }
     if ($is_mod) {
@@ -1586,10 +1585,10 @@ function Wo_UploadImage($file, $name, $type, $type_file, $user_id = 0, $placemen
     }
     $ext = pathinfo($name, PATHINFO_EXTENSION);
     if (!file_exists('upload/photos/' . date('Y'))) {
-        mkdir('upload/photos/' . date('Y'), 0777, true);
+        mkdir('upload/photos/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/photos/' . date('Y') . '/' . date('m'))) {
-        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0777, true);
+        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0755, true);
     }
     $allowed           = 'jpg,png,jpeg,gif';
     $new_string        = pathinfo($name, PATHINFO_FILENAME) . '.' . strtolower(pathinfo($name, PATHINFO_EXTENSION));
@@ -2101,10 +2100,10 @@ function Wo_UserSug($limit = 20) {
 function Wo_ImportImageFromLogin($media, $amazon = 0) {
     global $wo;
     if (!file_exists('upload/photos/' . date('Y'))) {
-        mkdir('upload/photos/' . date('Y'), 0777, true);
+        mkdir('upload/photos/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/photos/' . date('Y') . '/' . date('m'))) {
-        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0777, true);
+        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0755, true);
     }
     $dir      = 'upload/photos/' . date('Y') . '/' . date('m');
     $file_dir = $dir . '/' . Wo_GenerateKey() . '_avatar.jpg';
@@ -2130,10 +2129,10 @@ function Wo_ImportImageFromLogin($media, $amazon = 0) {
 //         return false;
 //     }
 //     if (!file_exists('upload/photos/' . date('Y'))) {
-//         mkdir('upload/photos/' . date('Y'), 0777, true);
+//         mkdir('upload/photos/' . date('Y'), 0755, true);
 //     }
 //     if (!file_exists('upload/photos/' . date('Y') . '/' . date('m'))) {
-//         mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0777, true);
+//         mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0755, true);
 //     }
 //     $extension = 0; //image_type_to_extension($size[2]);
 //     if (empty($extension)) {
@@ -2162,10 +2161,10 @@ function Wo_ImportImageFromFile($media, $custom_name = '_url_image', $type = '')
         return false;
     }
     if (!file_exists('upload/photos/' . date('Y'))) {
-        mkdir('upload/photos/' . date('Y'), 0777, true);
+        mkdir('upload/photos/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/photos/' . date('Y') . '/' . date('m'))) {
-        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0777, true);
+        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0755, true);
     }
     $extension = 0; //image_type_to_extension($size[2]);
     if (empty($extension)) {
@@ -2207,10 +2206,10 @@ function Wo_ImportImageFromUrl($media, $custom_name = '_url_image') {
         return false;
     }
     if (!file_exists('upload/photos/' . date('Y'))) {
-        mkdir('upload/photos/' . date('Y'), 0777, true);
+        mkdir('upload/photos/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/photos/' . date('Y') . '/' . date('m'))) {
-        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0777, true);
+        mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0755, true);
     }
     //$size      = getimagesize($media);
     $extension = 0; //image_type_to_extension($size[2]);
@@ -5043,28 +5042,28 @@ function Wo_ShareFile($data = array(), $type = 0, $crop = true) {
     global $wo, $sqlConnect, $s3;
     $allowed = '';
     if (!file_exists('upload/files/' . date('Y'))) {
-        @mkdir('upload/files/' . date('Y'), 0777, true);
+        @mkdir('upload/files/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/files/' . date('Y') . '/' . date('m'))) {
-        @mkdir('upload/files/' . date('Y') . '/' . date('m'), 0777, true);
+        @mkdir('upload/files/' . date('Y') . '/' . date('m'), 0755, true);
     }
     if (!file_exists('upload/photos/' . date('Y'))) {
-        @mkdir('upload/photos/' . date('Y'), 0777, true);
+        @mkdir('upload/photos/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/photos/' . date('Y') . '/' . date('m'))) {
-        @mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0777, true);
+        @mkdir('upload/photos/' . date('Y') . '/' . date('m'), 0755, true);
     }
     if (!file_exists('upload/videos/' . date('Y'))) {
-        @mkdir('upload/videos/' . date('Y'), 0777, true);
+        @mkdir('upload/videos/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/videos/' . date('Y') . '/' . date('m'))) {
-        @mkdir('upload/videos/' . date('Y') . '/' . date('m'), 0777, true);
+        @mkdir('upload/videos/' . date('Y') . '/' . date('m'), 0755, true);
     }
     if (!file_exists('upload/sounds/' . date('Y'))) {
-        @mkdir('upload/sounds/' . date('Y'), 0777, true);
+        @mkdir('upload/sounds/' . date('Y'), 0755, true);
     }
     if (!file_exists('upload/sounds/' . date('Y') . '/' . date('m'))) {
-        @mkdir('upload/sounds/' . date('Y') . '/' . date('m'), 0777, true);
+        @mkdir('upload/sounds/' . date('Y') . '/' . date('m'), 0755, true);
     }
     if (isset($data['file']) && !empty($data['file'])) {
         $data['file'] = $data['file'];
@@ -5118,9 +5117,11 @@ function Wo_ShareFile($data = array(), $type = 0, $crop = true) {
         return false;
     }
     if ($data['is_video'] == 0) {
-        $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json,application/octet-stream'));
+        // SECURITY: Removed application/octet-stream from always-allowed — it bypasses MIME validation
+        $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json'));
         if (Wo_IsAdmin()) {
-            $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json,application/octet-stream,image/svg+xml'));
+            $mime_types = explode(',', str_replace(' ', '', $wo['config']['mime_types'] . ',application/json'));
+            // SVG allowed for admins only (note: SVG XSS risk — serve with CSP headers)
         }
         // Server-side MIME validation (don't trust client-provided type)
         if (isset($data['file']) && is_uploaded_file($data['file'])) {

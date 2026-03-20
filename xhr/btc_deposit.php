@@ -60,7 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && Wo_CheckMainSession($_POST['hash_id
         }
         
         // Create upload directory if it doesn't exist
-        $upload_dir = '../uploads/btc_deposits/';
+        // SECURITY: Use the protected upload/ directory (has .htaccess blocking PHP execution)
+        $upload_dir = 'upload/btc_deposits/';
         if (!file_exists($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }

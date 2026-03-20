@@ -147,4 +147,5 @@ $non_allowed = array(
     'last_login_data',
     'android_m_device_id', 'ios_m_device_id', 'android_n_device_id', 'ios_n_device_id',
     'backup_codes',
+    'lat', 'lng', // Prevent exact geolocation exposure to other users
 );
