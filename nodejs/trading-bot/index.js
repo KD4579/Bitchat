@@ -251,6 +251,11 @@ async function startArbMonitor(wallet, provider, cfg) {
                 continue;
             }
 
+            // Log BNB price for first 5 polls to verify correctness
+            if (arbShared.pollCount <= 5) {
+                log.info(`[ArbMon] BNB/USD: $${bnbPriceUsd.toFixed(2)}, TRDC/WBNB raw: ${priceWbnb.toFixed(14)}`);
+            }
+
             // Convert WBNB-pool TRDC price to USD using independent BNB price
             const trdcPriceViaWbnb = priceWbnb * bnbPriceUsd;
             const priceDiff = Math.abs(priceUsdt - trdcPriceViaWbnb);

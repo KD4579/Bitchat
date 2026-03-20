@@ -106,9 +106,14 @@ const WBNB_USDT_POOL = '0x172fcd41e0913e95784454622d1c3724f546f849';
  */
 async function getBnbPriceUsd(provider) {
     // Primary: read from WBNB/USDT pool (both 18 decimals)
+    // Pool token0 = USDT, token1 = WBNB, so getPoolPrice returns USDT/WBNB (~0.0016)
+    // We need WBNB/USDT (~600), so invert it
     try {
-        const price = await getPoolPrice(provider, WBNB_USDT_POOL, 18, 18);
-        if (price > 0 && isFinite(price)) return price;
+        const usdtPerWbnb = await getPoolPrice(provider, WBNB_USDT_POOL, 18, 18);
+        if (usdtPerWbnb > 0 && isFinite(usdtPerWbnb)) {
+            const bnbPrice = 1 / usdtPerWbnb;
+            if (bnbPrice > 0 && isFinite(bnbPrice)) return bnbPrice;
+        }
     } catch (e) { /* fall through */ }
 
     // Fallback: CoinGecko API
