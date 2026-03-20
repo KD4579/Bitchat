@@ -215,6 +215,11 @@ async function startArbMonitor(wallet, provider, cfg) {
 
             arbShared.pollCount++;
 
+            // Log every poll for first 10, then every 20th
+            if (arbShared.pollCount <= 10 || arbShared.pollCount % 20 === 0) {
+                log.info(`[ArbMon] Poll #${arbShared.pollCount} — checking prices...`);
+            }
+
             // Check daily loss limit
             const lossLimit = parseFloat(c.bot_daily_loss_limit);
             if (dailyPnl() < -lossLimit) {
@@ -252,8 +257,8 @@ async function startArbMonitor(wallet, provider, cfg) {
             const priceDiffPct = minPrice > 0 ? priceDiff / minPrice : 0;
             const minProfit = parseFloat(c.bot_min_arb_profit) / 100;
 
-            // Log price check periodically (every 20 polls to avoid spam)
-            if (arbShared.pollCount % 20 === 0) {
+            // Log price check: every poll for first 10, then every 20th
+            if (arbShared.pollCount <= 10 || arbShared.pollCount % 20 === 0) {
                 log.info(`[ArbMon] Poll #${arbShared.pollCount}: USDT=$${priceUsdt.toFixed(10)}, viaWBNB=$${trdcPriceViaWbnb.toFixed(10)}, spread=${(priceDiffPct*100).toFixed(3)}% (threshold: ${(minProfit*100).toFixed(1)}%)`);
             }
 
