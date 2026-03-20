@@ -259,7 +259,7 @@ async function runGridTrading(wallet, provider, cfg) {
         const amountIn = ethers.parseUnits(usdtNeeded.toFixed(DEC), DEC);
         log.trade(`Grid BUY: spending $${usdtNeeded.toFixed(4)} USDT for ~${tradeSize.toFixed(2)} TRDC`);
 
-        const bnbPriceUsd = await getBnbPriceUsd(provider, cfg.bot_pool_trdc_usdt, cfg.bot_pool_trdc_wbnb);
+        const bnbPriceUsd = await getBnbPriceUsd(provider);
         const result = await executeSwap(wallet, CONTRACTS.USDT, CONTRACTS.TRDC, fee, amountIn, maxSlippage);
         if (result) {
             const gotTrdc = parseFloat(ethers.formatUnits(result.amountOut, DEC));
@@ -286,7 +286,7 @@ async function runGridTrading(wallet, provider, cfg) {
         const expectedUsdt = tradeSize * sellPrice;
         log.trade(`Grid SELL: selling ${tradeSize.toFixed(2)} TRDC for ~$${expectedUsdt.toFixed(4)} USDT`);
 
-        const bnbPriceUsd = await getBnbPriceUsd(provider, cfg.bot_pool_trdc_usdt, cfg.bot_pool_trdc_wbnb);
+        const bnbPriceUsd = await getBnbPriceUsd(provider);
         const result = await executeSwap(wallet, CONTRACTS.TRDC, CONTRACTS.USDT, fee, amountIn, maxSlippage);
         if (result) {
             const gotUsdt = parseFloat(ethers.formatUnits(result.amountOut, DEC));
@@ -335,14 +335,14 @@ async function runArbitrage(wallet, provider, cfg) {
         return;
     }
 
-    // priceUsdt = USDT per TRDC, priceWbnb = WBNB per TRDC
-    // BNB/USD = TRDC-in-USDT / TRDC-in-WBNB
-    const bnbPriceUsd = priceUsdt / priceWbnb;
+    // Get independent BNB/USD price from WBNB/USDT pool (not derived from TRDC pools)
+    const bnbPriceUsd = await getBnbPriceUsd(provider);
     if (!isFinite(bnbPriceUsd) || bnbPriceUsd <= 0) {
-        log.warn(`Cannot derive BNB price. Skipping arb.`);
+        log.warn(`Cannot get BNB price. Skipping arb.`);
         return;
     }
 
+    // priceUsdt = USDT per TRDC (direct), priceWbnb = WBNB per TRDC
     const trdcPriceUsdt    = priceUsdt;
     const trdcPriceViaWbnb = priceWbnb * bnbPriceUsd;
 

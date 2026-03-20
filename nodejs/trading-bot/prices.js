@@ -96,19 +96,22 @@ async function estimatePoolTVL(provider, poolAddress, trdcPriceUsd) {
 }
 
 /**
- * Get BNB price in USD by comparing TRDC price across both pools.
- * BNB/USD = (TRDC-in-USDT) / (TRDC-in-WBNB)
+ * PancakeSwap V3 WBNB/USDT pool (0.01% fee tier) — high liquidity, reliable BNB price.
  */
-async function getBnbPriceUsd(provider, usdtPoolAddress, wbnbPoolAddress) {
+const WBNB_USDT_POOL = '0x172fcd41e0913e95784454622d1c3724f546f849';
+
+/**
+ * Get BNB price in USD from the WBNB/USDT pool on PancakeSwap.
+ * Falls back to CoinGecko API if on-chain price fails.
+ */
+async function getBnbPriceUsd(provider) {
+    // Primary: read from WBNB/USDT pool (both 18 decimals)
     try {
-        const priceUsdt = await getPoolPrice(provider, usdtPoolAddress, 18, 18);
-        const priceWbnb = await getPoolPrice(provider, wbnbPoolAddress, 18, 18);
-        if (priceUsdt > 0 && priceWbnb > 0) {
-            const bnbPrice = priceUsdt / priceWbnb;
-            if (isFinite(bnbPrice) && bnbPrice > 0) return bnbPrice;
-        }
+        const price = await getPoolPrice(provider, WBNB_USDT_POOL, 18, 18);
+        if (price > 0 && isFinite(price)) return price;
     } catch (e) { /* fall through */ }
-    // Try CoinGecko API for current BNB price
+
+    // Fallback: CoinGecko API
     try {
         const resp = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
         const data = await resp.json();

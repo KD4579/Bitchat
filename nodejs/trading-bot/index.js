@@ -7,7 +7,7 @@ const log = require('./logger');
 const { loadBotConfig, saveBotStat, closeDb, CONTRACTS } = require('./config');
 const { runGridTrading, runArbitrage, dailyPnl, nextDirection, resetDailyPnlIfNeeded } = require('./trader');
 const { checkPoolHealth } = require('./monitor');
-const { getPoolPrice } = require('./prices');
+const { getPoolPrice, getBnbPriceUsd } = require('./prices');
 
 // ── Startup ──────────────────────────────────────────────
 
@@ -244,13 +244,14 @@ async function startArbMonitor(wallet, provider, cfg) {
                 continue;
             }
 
-            // Calculate price difference
-            const bnbPriceUsd = priceUsdt / priceWbnb;
+            // Get independent BNB/USD price from WBNB/USDT pool
+            const bnbPriceUsd = await getBnbPriceUsd(provider);
             if (!isFinite(bnbPriceUsd) || bnbPriceUsd <= 0) {
                 await sleep(pollInterval);
                 continue;
             }
 
+            // Convert WBNB-pool TRDC price to USD using independent BNB price
             const trdcPriceViaWbnb = priceWbnb * bnbPriceUsd;
             const priceDiff = Math.abs(priceUsdt - trdcPriceViaWbnb);
             const minPrice = Math.min(priceUsdt, trdcPriceViaWbnb);
