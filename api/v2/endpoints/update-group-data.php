@@ -22,6 +22,9 @@ if (empty($error_code)) {
 	if (empty($group)) {
 		$error_code    = 2;
     	$error_message = 'Group not found';
+	} else if ($group['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+		$error_code    = 3;
+    	$error_message = 'Permission denied: you are not the group owner';
 	} else {
 		$group_data = array();
 		if (!empty($_POST)) {

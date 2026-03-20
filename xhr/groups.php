@@ -96,6 +96,12 @@ if ($f == 'groups') {
     if ($s == 'update_information_setting') {
         if (!empty($_POST['page_id']) && is_numeric($_POST['page_id']) && $_POST['page_id'] > 0) {
             $PageData = Wo_PageData($_POST['page_id']);
+            // SECURITY: Verify page ownership before allowing updates (IDOR protection)
+            if (empty($PageData) || ($PageData['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin())) {
+                header("Content-type: application/json");
+                echo json_encode(array('status' => 403, 'message' => 'Permission denied'));
+                exit();
+            }
             if (!empty($_POST['website'])) {
                 if (!filter_var($_POST['website'], FILTER_VALIDATE_URL)) {
                     $errors[] = $error_icon . $wo['lang']['website_invalid_characters'];
@@ -171,6 +177,12 @@ if ($f == 'groups') {
         if (isset($_POST['group_id']) && is_numeric($_POST['group_id']) && $_POST['group_id'] > 0 && Wo_CheckSession($hash_id) === true) {
             $Userdata = Wo_GroupData($_POST['group_id']);
             if (!empty($Userdata['id'])) {
+                // SECURITY: Check ownership BEFORE processing uploads (prevents IDOR file upload)
+                if ($Userdata['user_id'] != $wo['user']['id'] && !Wo_IsCanGroupUpdate($_POST['group_id'], 'avatar') && !Wo_IsAdmin()) {
+                    header("Content-type: application/json");
+                    echo json_encode(array('status' => 403, 'message' => 'Permission denied'));
+                    exit();
+                }
                 if (!empty($_FILES['avatar']['name'])) {
                     if (Wo_UploadImage($_FILES["avatar"]["tmp_name"], $_FILES['avatar']['name'], 'avatar', $_FILES['avatar']['type'], $_POST['group_id'], 'group') === true) {
                         $page_data = Wo_GroupData($_POST['group_id']);

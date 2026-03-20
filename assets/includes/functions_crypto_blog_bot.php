@@ -292,7 +292,7 @@ function bc_fetch_crypto_rss_feed($url) {
     }
 
     libxml_use_internal_errors(true);
-    $xml = simplexml_load_string($response);
+    $xml = simplexml_load_string($response, 'SimpleXMLElement', LIBXML_NOENT | LIBXML_NONET);
     libxml_clear_errors();
 
     if ($xml === false) {

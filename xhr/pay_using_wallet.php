@@ -1,5 +1,11 @@
-<?php 
+<?php
 if ($f == 'pay_using_wallet') {
+    // CSRF protection for financial operations
+    if (Wo_CheckSession($hash_id) !== true) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 403, 'message' => 'Invalid security token'));
+        exit();
+    }
     $type = (isset($_POST['type']) && is_numeric($_POST['type'])) ? $_POST['type'] : false;
     $html = "";
     $data = array(

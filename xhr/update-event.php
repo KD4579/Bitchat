@@ -1,5 +1,18 @@
 <?php 
 if ($f == "update-event") {
+    // SECURITY: Verify CSRF token and event ownership
+    if (Wo_CheckSession($hash_id) !== true) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 403, 'message' => 'Invalid security token'));
+        exit();
+    }
+    $event_id = isset($_GET['eid']) ? intval($_GET['eid']) : 0;
+    $event_data = !empty($event_id) ? Wo_EventData($event_id) : array();
+    if (empty($event_data) || $event_data['user_id'] != $wo['user']['user_id']) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 403, 'message' => 'Permission denied'));
+        exit();
+    }
     if (true) {
         if (empty($_POST['event-name']) || empty($_POST['event-locat']) || empty($_POST['event-description'])) {
             $error = $error_icon . $wo['lang']['please_check_details'];
@@ -55,13 +68,13 @@ if ($f == "update-event") {
         }
         if (empty($error) && isset($_GET['eid']) && is_numeric($_GET['eid'])) {
             $registration_data = array(
-                'name' => $_POST['event-name'],
-                'location' => $_POST['event-locat'],
-                'description' => $_POST['event-description'],
-                'start_date' => $_POST['event-start-date'],
-                'start_time' => $_POST['event-start-time'],
-                'end_date' => $_POST['event-end-date'],
-                'end_time' => $_POST['event-end-time']
+                'name' => Wo_Secure($_POST['event-name'], 1),
+                'location' => Wo_Secure($_POST['event-locat'], 1),
+                'description' => Wo_Secure($_POST['event-description'], 1),
+                'start_date' => Wo_Secure($_POST['event-start-date']),
+                'start_time' => Wo_Secure($_POST['event-start-time']),
+                'end_date' => Wo_Secure($_POST['event-end-date']),
+                'end_time' => Wo_Secure($_POST['event-end-time'])
             );
             $result            = Wo_UpdateEvent($_GET['eid'], $registration_data);
             if ($result) {

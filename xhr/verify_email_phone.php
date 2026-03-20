@@ -1,8 +1,15 @@
 <?php
 if ($f == "verify_email_phone") {
-    if (empty($_POST['code'])) {
+    // CSRF protection and rate limiting for email/phone verification
+    if (Wo_CheckSession($hash_id) !== true) {
+        $error = $error_icon . 'Invalid security token. Please refresh and try again.';
+    }
+    if (empty($error) && !bitchat_rate_limit('verify_email_phone', $wo['user']['user_id'], 5, 900)) {
+        $error = $error_icon . $wo['lang']['login_attempts'];
+    }
+    if (empty($error) && empty($_POST['code'])) {
         $error = $error_icon . $wo['lang']['please_check_details'];
-    } else {
+    } else if (empty($error)) {
         $confirm_code = $db->where('user_id', $wo['user']['user_id'])->where('email_code', md5($_POST['code']))->getValue(T_USERS, 'count(*)');
         $Update_data  = array();
         if (empty($confirm_code)) {

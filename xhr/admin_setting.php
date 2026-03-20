@@ -2,6 +2,21 @@
 use Aws\S3\S3Client;
 use Google\Cloud\Storage\StorageClient;
 if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
+    // SECURITY: Restrict critical admin actions to full admins only (not moderators)
+    // Moderators should only have access to content moderation, not system config or privilege changes
+    $admin_only_actions = array(
+        'permission', 'update_moderator_permission',
+        'update_general_setting', 'update_sms_setting', 'update_design_setting', 'updateTheme',
+        'reset_windows_app_keys', 'new_backup', 'ffmpeg_debug',
+        'top_up_wallet', 'generate_fake_users', 'send_mail_to_all_users',
+        'save_deposit_settings', 'update_html_emails',
+        'delete_user', 'delete_multi_users'
+    );
+    if (in_array($s, $admin_only_actions) && !Wo_IsAdmin()) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 403, 'message' => 'Admin access required'));
+        exit();
+    }
     if ($s == 'search_in_pages') {
         $keyword           = Wo_Secure($_POST['keyword']);
         $html              = '';

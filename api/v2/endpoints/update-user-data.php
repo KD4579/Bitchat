@@ -20,7 +20,7 @@ if (!empty($_POST)) {
 $escape = array('server_key');
 $genders = array('male', 'female');
 $keys = array();
-$remove_from_list = array('user_id', 'background_image', 'background_image_status', 'last_data_update', 'sidebar_data', 'details', 'id'. 'following_data', 'name', 'url', 'followers_data', 'likes_data', 'groups_data', 'album_data', 'css_file', 'joined', 'admin', 'email_code', 'ip_address', 'active', 'type', 'sms_code', 'is_pro', 'balance', 'referrer', 'wallet', 'points','relationship','relationship_user');
+$remove_from_list = array('user_id', 'background_image', 'background_image_status', 'last_data_update', 'sidebar_data', 'details', 'id', 'following_data', 'name', 'url', 'followers_data', 'likes_data', 'groups_data', 'album_data', 'css_file', 'joined', 'admin', 'email_code', 'ip_address', 'active', 'type', 'sms_code', 'is_pro', 'balance', 'referrer', 'wallet', 'points', 'relationship', 'relationship_user', 'password', 'two_factor', 'two_factor_verified', 'two_factor_method', 'two_factor_hash', 'google_secret', 'authy_id', 'pro_time', 'verified', 'social_login', 'time_code_sent', 'new_email', 'new_phone');
 foreach ($wo['user'] as $key => $value) {
 	if (!in_array($key, $remove_from_list )) {
 		$keys[] = $key;
@@ -157,7 +157,7 @@ if (!empty($user_data['new_password']) && !empty($user_data['current_password'])
         $error_code    = 8;
         $error_message = 'Current password not match';
     }
-    if (strlen($user_data['new_password']) < 6) {
+    if (strlen($user_data['new_password']) < 8) {
         $error_code    = 9;
         $error_message = 'Password is too short';
     }

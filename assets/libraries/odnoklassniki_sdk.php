@@ -6,8 +6,8 @@ class OdnoklassnikiSDK{
     private static $app_public_key;
     private static $app_secret_key;
     private static $redirect_url;
-    private static $TOKEN_SERVICE_ADDRESS = "http://api.odnoklassniki.ru/oauth/token.do";
-    private static $API_REQUSET_ADDRESS = "http://api.odnoklassniki.ru/fb.do";
+    private static $TOKEN_SERVICE_ADDRESS = "https://api.odnoklassniki.ru/oauth/token.do";
+    private static $API_REQUSET_ADDRESS = "https://api.odnoklassniki.ru/fb.do";
     private static $access_token;
     private static $refresh_token;
     
@@ -37,6 +37,8 @@ class OdnoklassnikiSDK{
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, 'code=' . $code . '&redirect_uri=' . self::$redirect_url . '&grant_type=authorization_code&client_id=' . self::$app_id . '&client_secret=' . self::$app_secret_key);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
         $s = curl_exec($curl);
         curl_close($curl);
         $a = json_decode($s, true);
@@ -87,6 +89,8 @@ class OdnoklassnikiSDK{
         $requestStr = substr($requestStr, 0, -1);
         $curl = curl_init(self::$API_REQUSET_ADDRESS . "?" . $requestStr);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
         $s = curl_exec($curl);
         curl_close($curl);
         return json_decode($s, true);

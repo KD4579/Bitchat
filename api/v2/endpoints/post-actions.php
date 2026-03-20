@@ -86,6 +86,9 @@ if (empty($error_code)) {
 		if (empty($_POST['text'])) {
 			$error_code    = 7;
             $error_message = 'text (POST) is empty';
+		} else if (!Wo_IsPostOnwer($_POST['post_id']) && !Wo_IsAdmin()) {
+			$error_code    = 8;
+            $error_message = 'Permission denied: you are not the post owner';
 		} else {
 			$update_data = array(
                 'post_id' => $_POST['post_id'],

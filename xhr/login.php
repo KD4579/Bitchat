@@ -12,6 +12,16 @@ if ($f == 'login') {
     }
     $data_ = array();
     $phone = 0;
+    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+
+    // Always enforce rate limiting on login (not config-gated)
+    if (!bitchat_rate_limit('login', get_ip_address(), 10, 900)) {
+        $errors[] = $error_icon . $wo['lang']['login_attempts'];
+        header("Content-type: application/json");
+        echo json_encode(array('errors' => $errors));
+        exit();
+    }
+
     if (isset($_POST['username']) && isset($_POST['password'])) {
         if ($wo['config']['prevent_system'] == 1) {
             if (!WoCanLogin()) {
@@ -39,11 +49,23 @@ if ($f == 'login') {
             $db->where('user_id',$_SESSION['code_id'])->update(T_USERS,array('two_factor_hash' => $two_factor_hash));
             cache($_SESSION['code_id'], 'users', 'delete');
             $user_data = Wo_UserData($_SESSION['code_id']);
-            setcookie("two_factor_method", $user_data['two_factor_method'], time() + (60 * 60), "/");
-            setcookie("two_factor_username", $user_data['username'], time() + (60 * 60), "/");
+            // Store 2FA state in session only (not client-controlled cookies)
+            $_SESSION['two_factor_method'] = $user_data['two_factor_method'];
+            $_SESSION['two_factor_username'] = $user_data['username'];
             $_SESSION['two_factor_hash'] = $two_factor_hash;
-            setcookie("two_factor_hash", $two_factor_hash, time() + (60 * 60));
-            $_SESSION['code_id'] = Wo_UserIdForLogin($username);
+            // Set cookies with security flags for template rendering only
+            setcookie("two_factor_method", $user_data['two_factor_method'], [
+                'expires' => time() + 3600, 'path' => '/', 'secure' => $isSecure,
+                'httponly' => true, 'samesite' => 'Lax'
+            ]);
+            setcookie("two_factor_username", $user_data['username'], [
+                'expires' => time() + 3600, 'path' => '/', 'secure' => $isSecure,
+                'httponly' => true, 'samesite' => 'Lax'
+            ]);
+            setcookie("two_factor_hash", $two_factor_hash, [
+                'expires' => time() + 3600, 'path' => '/', 'secure' => $isSecure,
+                'httponly' => true, 'samesite' => 'Lax'
+            ]);
             $data_               = array(
                 'status' => 600,
                 'location' => Wo_SeoLink('index.php?link1=unusual-login')
@@ -55,10 +77,21 @@ if ($f == 'login') {
             $db->where('user_id',$_SESSION['code_id'])->update(T_USERS,array('two_factor_hash' => $two_factor_hash));
             cache($_SESSION['code_id'], 'users', 'delete');
             $user_data = Wo_UserData($_SESSION['code_id']);
-            setcookie("two_factor_method", $user_data['two_factor_method'], time() + (60 * 60), "/");
-            setcookie("two_factor_username", $user_data['username'], time() + (60 * 60), "/");
+            $_SESSION['two_factor_method'] = $user_data['two_factor_method'];
+            $_SESSION['two_factor_username'] = $user_data['username'];
             $_SESSION['two_factor_hash'] = $two_factor_hash;
-            setcookie("two_factor_hash", $two_factor_hash, time() + (60 * 60));
+            setcookie("two_factor_method", $user_data['two_factor_method'], [
+                'expires' => time() + 3600, 'path' => '/', 'secure' => $isSecure,
+                'httponly' => true, 'samesite' => 'Lax'
+            ]);
+            setcookie("two_factor_username", $user_data['username'], [
+                'expires' => time() + 3600, 'path' => '/', 'secure' => $isSecure,
+                'httponly' => true, 'samesite' => 'Lax'
+            ]);
+            setcookie("two_factor_hash", $two_factor_hash, [
+                'expires' => time() + 3600, 'path' => '/', 'secure' => $isSecure,
+                'httponly' => true, 'samesite' => 'Lax'
+            ]);
             $data_               = array(
                 'status' => 600,
                 'location' => $wo['config']['site_url'] . '/unusual-login?type=two-factor'
@@ -77,6 +110,8 @@ if ($f == 'login') {
             $ip                  = Wo_Secure(get_ip_address());
             $update              = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `ip_address` = '{$ip}' WHERE `user_id` = '{$userid}'");
             cache($userid, 'users', 'delete');
+            // Regenerate session ID on login to prevent session fixation
+            session_regenerate_id(true);
             $session             = Wo_CreateLoginSession(Wo_UserIdForLogin($username));
             $_SESSION['user_id'] = $session;
             // Daily login TRDC reward
@@ -84,19 +119,18 @@ if ($f == 'login') {
                 Wo_TriggerReward($userid, 'daily_login');
             }
             Wo_DeleteBadLogins();
-            // Always set persistent cookie so users stay logged in (like Facebook/X)
-            // Cookie expires in 10 years; session only ends when user clicks Logout
-            $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+            // Set persistent cookie with HttpOnly flag (30 days, not 10 years)
             setcookie("user_id", $session, [
-                'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+                'expires'  => time() + (30 * 24 * 60 * 60),
                 'path'     => '/',
                 'secure'   => $isSecure,
+                'httponly'  => true,
                 'samesite' => 'Lax'
             ]);
             setcookie('ad-con', htmlentities(json_encode(array(
                 'date' => date('Y-m-d'),
                 'ads' => array()
-            ))), time() + (10 * 365 * 24 * 60 * 60), '/');
+            ))), time() + (30 * 24 * 60 * 60), '/');
             $data = array(
                 'status' => 200
             );

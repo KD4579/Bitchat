@@ -1,4 +1,8 @@
 <?php
+// Prevent caching of logout action and authenticated page content
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+
 // Save session ID before clearing so we can delete from DB
 $session_token = !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : '';
 $cookie_token  = !empty($_COOKIE['user_id']) ? $_COOKIE['user_id'] : '';

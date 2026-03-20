@@ -43,7 +43,7 @@ if (empty($error_code)) {
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_code    = 8;
         $error_message = 'E-mail is invalid';
-    } else if (strlen($password) < 6) {
+    } else if (strlen($password) < 8) {
         $error_code    = 9;
         $error_message = 'Password is too short';
     } else if ($password != $confirm_password) {

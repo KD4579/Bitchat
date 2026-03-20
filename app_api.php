@@ -15,11 +15,8 @@ $applications = array(
     'phone',
     'windows_app'
 );
-if (!empty($_GET['report_errors'])) {
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-}
+// Debug error reporting REMOVED in production (was exploitable by unauthenticated users)
+// To debug locally, set display_errors=1 in php.ini instead
 $application = 'windows_app';
 if (!empty($_GET['application'])) {
     if (in_array($_GET['application'], $applications)) {

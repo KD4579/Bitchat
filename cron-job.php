@@ -1,4 +1,16 @@
 <?php
+// SECURITY: Only allow cron from localhost or with a secret token
+// This prevents external users from triggering expensive cron operations
+$cron_secret = getenv('BITCHAT_CRON_SECRET');
+$is_cli = (php_sapi_name() === 'cli');
+$is_localhost = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+$has_valid_token = !empty($cron_secret) && !empty($_GET['token']) && hash_equals($cron_secret, $_GET['token']);
+if (!$is_cli && !$is_localhost && !$has_valid_token) {
+    http_response_code(403);
+    echo json_encode(["status" => 403, "message" => "Access denied"]);
+    exit();
+}
+
 // Prevent concurrent cron execution with file lock
 $_cron_lock_fp = fopen(__DIR__ . '/assets/logs/cron.lock', 'w');
 if (!$_cron_lock_fp || !flock($_cron_lock_fp, LOCK_EX | LOCK_NB)) {

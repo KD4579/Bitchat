@@ -49,7 +49,8 @@ class Cache {
             if ($handle) {
                 $variable = fread($handle, $size);
                 fclose($handle);
-                return unserialize($variable);
+                // SECURITY: Restrict unserialize to prevent object injection attacks
+                return unserialize($variable, ['allowed_classes' => false]);
             }
             return null;
         } else {

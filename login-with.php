@@ -24,8 +24,15 @@ $types = array(
     'OkRu',
     'TikTok'
 );
-if (!empty($_GET['state']) && $_GET['state'] == 'OkRu' && !empty($_GET['code'])) {
-    $_GET['provider'] = 'OkRu';
+if (!empty($_GET['state']) && !empty($_GET['code'])) {
+    // Validate OkRu OAuth state token against session
+    if (!empty($_SESSION['okru_oauth_state']) && hash_equals($_SESSION['okru_oauth_state'], $_GET['state'])) {
+        $_GET['provider'] = 'OkRu';
+        unset($_SESSION['okru_oauth_state']);
+    } elseif ($_GET['state'] === 'OkRu') {
+        // Legacy fallback (will be removed after state migration)
+        $_GET['provider'] = 'OkRu';
+    }
 }
 if (isset($_GET['provider']) && in_array($_GET['provider'], $types)) {
     $provider = Wo_Secure($_GET['provider']);
@@ -37,7 +44,11 @@ if (!empty($provider)) {
         setcookie('provider', '', -1);
         setcookie('provider', '', -1, '/');
     }
-    setcookie('provider', $provider, time() + (60 * 60), '/');
+    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    setcookie('provider', $provider, [
+        'expires' => time() + 3600, 'path' => '/', 'secure' => $isSecure,
+        'httponly' => true, 'samesite' => 'Lax'
+    ]);
 }
 else if(!empty($_COOKIE['provider']) && in_array($_COOKIE['provider'], $types)){
     
@@ -49,7 +60,10 @@ if (!empty($provider) && $provider != 'OkRu') {
 }
 else if($provider == 'OkRu'){
     if (empty($_GET['code'])) {
-        header("Location: https://connect.ok.ru/oauth/authorize?client_id=".$wo['config']['OkAppId']."&scope=VALUABLE_ACCESS&response_type=code&redirect_uri=".$wo['config']['site_url']."/login-with.php&layout=w&state=OkRu");
+        // Generate cryptographic state token for CSRF protection on OAuth callback
+        $okru_state = bin2hex(random_bytes(16));
+        $_SESSION['okru_oauth_state'] = $okru_state;
+        header("Location: https://connect.ok.ru/oauth/authorize?client_id=".$wo['config']['OkAppId']."&scope=VALUABLE_ACCESS&response_type=code&redirect_uri=".urlencode($wo['config']['site_url']."/login-with.php")."&layout=w&state=".$okru_state);
         exit();
     }
     require_once('assets/libraries/odnoklassniki_sdk.php');
@@ -176,11 +190,17 @@ if (isset($provider) && in_array($provider, $types)) {
             $user_name  = $notfound_email . $user_profile->identifier;
             $user_email = $user_name . $notfound_email_com;
             if (!empty($user_profile->email)) {
-                $user_email = $user_profile->email;
-                if(empty($user_profile->emailVerified) && $provider == 'Discord') {
-                    error_log('[Bitchat Social Login] Discord: unverified email');
-                    header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
-                    exit();
+                // Block unverified emails from ALL providers to prevent account takeover
+                // An attacker with a social account using an unverified matching email could hijack accounts
+                $emailVerified = !empty($user_profile->emailVerified) || !empty($user_profile->email_verified);
+                // Google and Facebook always verify emails; trust them
+                $trustedProviders = ['Google', 'Facebook'];
+                if (!in_array($provider, $trustedProviders) && !$emailVerified) {
+                    error_log('[Bitchat Social Login] ' . $provider . ': unverified email blocked');
+                    // Use provider-specific synthetic email instead of unverified email
+                    $user_email = $user_name . $notfound_email_com;
+                } else {
+                    $user_email = $user_profile->email;
                 }
             }
             if (Wo_EmailExists($user_email) === true) {
@@ -196,12 +216,12 @@ if (isset($provider) && in_array($provider, $types)) {
                 if (empty($imported_image)) {
                     $imported_image = $wo['userDefaultAvatar'];
                 }
-                $password = rand(1111, 9999);
+                $password = bin2hex(random_bytes(16)); // Strong random password for social accounts
                 $re_data      = array(
                     'username' => Wo_Secure($user_uniq_id, 0),
                     'email' => Wo_Secure($user_email, 0),
-                    'password' => Wo_Secure(md5($password), 0),
-                    'email_code' => Wo_Secure(md5(rand(1111, 9999) . time()), 0),
+                    'password' => Wo_Secure(password_hash($password, PASSWORD_DEFAULT), 0),
+                    'email_code' => Wo_Secure(bin2hex(random_bytes(16)), 0),
                     'first_name' => Wo_Secure($name),
                     'last_name' => Wo_Secure($user_profile->lastName),
                     'avatar' => Wo_Secure($imported_image),

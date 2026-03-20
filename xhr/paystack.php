@@ -253,10 +253,11 @@ if ($f == 'paystack') {
     }
     if ($s == 'wallet') {
         $payment = Wo_CheckPaystackPayment($_GET['reference']);
-        if ($payment) {
-            if (Wo_ReplenishingUserBalance($_GET['amount'])) {
-                $_GET['amount']                 = floatval($_GET['amount']);
-                $safe_amount                    = floatval($_GET['amount']);
+        if ($payment && is_array($payment) && !empty($payment['verified'])) {
+            // SECURITY: Use API-verified amount, NOT the URL parameter (prevents amount manipulation)
+            $verified_amount = floatval($payment['amount']);
+            if (Wo_ReplenishingUserBalance($verified_amount)) {
+                $safe_amount                    = $verified_amount;
                 $safe_userid                    = intval($wo['user']['id']);
                 $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Paystack')");
                 $_SESSION['replenished_amount'] = $_GET['amount'];

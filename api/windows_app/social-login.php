@@ -52,18 +52,24 @@ if (empty($error_code)) {
         }
 
     } else if ($provider == 'google') {
-        
+
         $get_user_details = fetchDataFromURL("https://oauth2.googleapis.com/tokeninfo?id_token={$access_token}");
         $json_data = json_decode($get_user_details);
         if (!empty($json_data->error)) {
             $error_code    = 4;
             $error_message = $json_data->error;
-        } else if (!empty($json_data->kid)) {
-            $social_id = $json_data->kid;
-            $social_email = $json_data->email;
-            $social_name = $json_data->name;
-            if (empty($social_email)) {
-                $social_email = 'go_' . $social_id . '@google.com';
+        } else if (!empty($json_data->sub)) {
+            // Validate audience (aud) matches our Google Client ID
+            if (empty($json_data->aud) || $json_data->aud !== $wo['config']['googleAppId']) {
+                $error_code    = 4;
+                $error_message = 'Invalid token audience';
+            } else {
+                $social_id = $json_data->sub;
+                $social_email = $json_data->email;
+                $social_name = $json_data->name;
+                if (empty($social_email)) {
+                    $social_email = 'go_' . $social_id . '@google.com';
+                }
             }
         }
     }
@@ -75,12 +81,12 @@ if (empty($error_code)) {
             $str          = md5(microtime());
             $id           = substr($str, 0, 9);
             $user_uniq_id = (Wo_UserExists($id) === false) ? $id : 'u_' . $id;
-            $password = rand(1111, 9999);
+            $password = bin2hex(random_bytes(16));
             $re_data      = array(
                 'username' => Wo_Secure($user_uniq_id, 0),
                 'email' => Wo_Secure($social_email, 0),
-                'password' => Wo_Secure(md5($password), 0),
-                'email_code' => Wo_Secure(md5(time()), 0),
+                'password' => Wo_Secure(password_hash($password, PASSWORD_DEFAULT), 0),
+                'email_code' => Wo_Secure(bin2hex(random_bytes(16)), 0),
                 'first_name' => Wo_Secure($social_name),
                 'src' => Wo_Secure($provider),
                 'lastseen' => time(),

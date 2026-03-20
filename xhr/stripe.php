@@ -106,13 +106,24 @@ if ($f == 'stripe') {
 		if (!empty($_SESSION['stripe_session_payment_intent']) && !empty($_GET['type']) && in_array($_GET['type'], array('wallet','fund','pro'))) {
 			try {
 				$checkout_session = \Stripe\Checkout\Session::retrieve($_SESSION['stripe_session_payment_intent']);
+				// CRITICAL: Immediately clear session to prevent replay attacks
+				$stripe_session_id = $_SESSION['stripe_session_payment_intent'];
+				unset($_SESSION['stripe_session_payment_intent']);
 				if ($checkout_session->payment_status == 'paid') {
+					// Idempotency: check if this payment was already processed
+					$safe_session_id = Wo_Secure($stripe_session_id);
+					$already_processed = mysqli_query($sqlConnect, "SELECT COUNT(*) as c FROM " . T_PAYMENT_TRANSACTIONS . " WHERE `notes` = 'stripe_{$safe_session_id}'");
+					$row = mysqli_fetch_assoc($already_processed);
+					if (!empty($row['c']) && $row['c'] > 0) {
+						header("Location: " . Wo_SeoLink('index.php?link1=wallet'));
+						exit();
+					}
 					$amount = ($checkout_session->amount_total / 100);
 					if ($_GET['type'] == 'wallet') {
-						$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = '" . $wo['user']['id'] . "'");
+						$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . floatval($amount) . " WHERE `user_id` = '" . intval($wo['user']['id']) . "'");
 			            if ($result) {
 							cache($wo['user']['id'], 'users', 'delete');
-			                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'stripe')");
+			                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . intval($wo['user']['id']) . "', 'WALLET', '" . floatval($amount) . "', 'stripe_{$safe_session_id}')");
 			            }
 			            if (!empty($_COOKIE['redirect_page'])) {
 		                	$redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);

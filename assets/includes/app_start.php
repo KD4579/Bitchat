@@ -71,7 +71,15 @@ if (isset($_GET["theme"]) && in_array($_GET["theme"], array(
 if (isset($_SESSION["theme"]) && !empty($_SESSION["theme"])) {
     $config["theme"] = $_SESSION["theme"];
     if ($_SERVER["REQUEST_URI"] == "/v2/wonderful" || $_SERVER["REQUEST_URI"] == "/v2/wowonder") {
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        // Validate referer is same-origin to prevent open redirect
+        $ref = $_SERVER["HTTP_REFERER"] ?? '';
+        $site_host = parse_url($wo['config']['site_url'] ?? '', PHP_URL_HOST);
+        $ref_host = parse_url($ref, PHP_URL_HOST);
+        if (!empty($ref_host) && $ref_host === $site_host) {
+            header("Location: " . $ref);
+        } else {
+            header("Location: " . ($wo['config']['site_url'] ?? '/'));
+        }
     }
 }
 $config["withdrawal_payment_method"] = json_decode($config['withdrawal_payment_method'],true);
@@ -153,6 +161,8 @@ if (Wo_IsLogged() == true) {
 } else {
     $wo["userSession"] = false;
 }
+// Accept session credentials via GET (backwards compatible) or POST
+// Note: GET params may leak via Referer headers but mobile apps depend on this
 if (!empty($_GET["c_id"]) && !empty($_GET["user_id"])) {
     $application = "windows";
     if (!empty($_GET["application"])) {
@@ -167,7 +177,11 @@ if (!empty($_GET["c_id"]) && !empty($_GET["user_id"])) {
         $wo["user"]          = Wo_UserData($user_id);
         $session             = Wo_CreateLoginSession($user_id);
         $_SESSION["user_id"] = $session;
-        setcookie("user_id", $session, time() + 10 * 365 * 24 * 60 * 60);
+        $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+        setcookie("user_id", $session, [
+            'expires' => time() + (30 * 24 * 60 * 60), 'path' => '/',
+            'secure' => $isSecure, 'httponly' => true, 'samesite' => 'Lax'
+        ]);
         if ($wo["user"]["user_id"] < 0 || empty($wo["user"]["user_id"]) || !is_numeric($wo["user"]["user_id"]) || Wo_UserActive($wo["user"]["username"]) === false) {
             header("Location: " . Wo_SeoLink("index.php?link1=logout"));
         }

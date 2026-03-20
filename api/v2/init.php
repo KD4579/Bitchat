@@ -1,5 +1,34 @@
 <?php
-$non_allowed_config = array();
+// SECURITY: Block sensitive config values from being exposed via API
+// The entire list was previously commented out, exposing ALL config (SMTP passwords, S3 keys, Twilio creds, etc.)
+$non_allowed_config = array(
+    'reCaptchaKey', 'reCaptchaSecretKey',
+    'smtp_username', 'smtp_host', 'smtp_password', 'smtp_port', 'smtp_encryption', 'smtp_or_mail',
+    'sms_username', 'sms_password', 'sms_phone_number', 'sms_t_phone_number',
+    'sms_twilio_username', 'sms_twilio_password',
+    'amazone_s3_s_key', 'amazone_s3_key', 'amazone_s3', 'amazone_s3_bucket_name', 'region',
+    'facebookAppId', 'facebookAppKey',
+    'googleAppId', 'googleAppKey', 'google_map_api',
+    'twitterAppId', 'twitterAppKey',
+    'linkedinAppId', 'linkedinAppKey',
+    'VkontakteAppId', 'VkontakteAppKey',
+    'instagramAppId', 'instagramAppkey',
+    'video_accountSid', 'video_apiKeySid', 'video_apiKeySecret', 'video_configurationProfileSid',
+    'stripe_secret', 'stripe_id', 'paystack_secret_key', 'paystack_public_key',
+    'coinpayments_merchant_id', 'coinpayments_ipn_secret', 'coinpayments_public_key', 'coinpayments_private_key',
+    'eapi', 'server_key', 'purchase_code',
+    'siteEmail', 'censored_words', 'mime_types',
+    'OkAppId', 'OkAppPublickey', 'OkAppSecretkey',
+    'tiktok_client_key', 'tiktok_client_secret',
+    'authy_token', 'patreon_client_id', 'patreon_client_secret',
+    'cashfree_client_id', 'cashfree_client_secret',
+    'razorpay_key_id', 'razorpay_key_secret',
+    'securionpay_key', 'securionpay_public_key',
+    'aamarpay_store_id', 'aamarpay_signature_key',
+    'fortumo_service_id', 'fortumo_api_key',
+    'ngenius_api_key', 'ngenius_outlet_id',
+    'last_backup', 'is_ok'
+);
 // $non_allowed_config = array(
 //     'reCaptchaKey',
 //     'googleAnalytics',
@@ -108,4 +137,14 @@ $non_allowed = array(
     'showlastseen',
     'joined',
     'social_login',
+    // SECURITY: Block sensitive fields from being exposed to other users
+    'ip_address',
+    'two_factor', 'two_factor_verified', 'two_factor_method', 'two_factor_hash',
+    'google_secret', 'authy_id',
+    'time_code_sent',
+    'new_email', 'new_phone',
+    'referrer', 'ref_user_id',
+    'last_login_data',
+    'android_m_device_id', 'ios_m_device_id', 'android_n_device_id', 'ios_n_device_id',
+    'backup_codes',
 );

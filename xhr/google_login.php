@@ -18,11 +18,16 @@ if ($f == 'google_login') {
         if (!empty($json_data->error)) {
             $data['message'] = $error_icon . $json_data->error;
         } else if (!empty($json_data->sub)) {
-            $social_id    = $json_data->sub;
-            $social_email = $json_data->email;
-            $social_name  = $json_data->name;
-            if (empty($social_email)) {
-                $social_email = 'go_' . $social_id . '@google.com';
+            // Validate audience (aud) matches our Google Client ID to prevent token from other apps
+            if (empty($json_data->aud) || $json_data->aud !== $wo['config']['googleAppId']) {
+                $data['message'] = $error_icon . 'Invalid token audience';
+            } else {
+                $social_id    = $json_data->sub;
+                $social_email = $json_data->email;
+                $social_name  = $json_data->name;
+                if (empty($social_email)) {
+                    $social_email = 'go_' . $social_id . '@google.com';
+                }
             }
         }
         if (!empty($social_id)) {
@@ -33,12 +38,12 @@ if ($f == 'google_login') {
                 $str          = md5(microtime());
                 $id           = substr($str, 0, 9);
                 $user_uniq_id = (Wo_UserExists($id) === false) ? $id : 'u_' . $id;
-                $password     = rand(1111, 9999);
+                $password     = bin2hex(random_bytes(16));
                 $re_data      = array(
                     'username' => Wo_Secure($user_uniq_id, 0),
                     'email' => Wo_Secure($social_email, 0),
-                    'password' => Wo_Secure(md5($password), 0),
-                    'email_code' => Wo_Secure(md5(time()), 0),
+                    'password' => Wo_Secure(password_hash($password, PASSWORD_DEFAULT), 0),
+                    'email_code' => Wo_Secure(bin2hex(random_bytes(16)), 0),
                     'first_name' => Wo_Secure($social_name),
                     'src' => 'google',
                     'lastseen' => time(),
@@ -50,8 +55,25 @@ if ($f == 'google_login') {
                 }
             }
             if ($create_session == true) {
-                Wo_SetLoginWithSession($social_email);
                 $user_id = Wo_UserIdFromEmail($social_email);
+                // Check if user has 2FA enabled — don't bypass it via social login
+                $social_user_data = Wo_UserData($user_id);
+                if (!empty($social_user_data['two_factor']) && $social_user_data['two_factor'] == 1 && !empty($social_user_data['two_factor_verified'])) {
+                    $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+                    $_SESSION['code_id'] = $user_id;
+                    $two_factor_hash = bin2hex(random_bytes(18));
+                    $db->where('user_id', $user_id)->update(T_USERS, array('two_factor_hash' => $two_factor_hash));
+                    cache($user_id, 'users', 'delete');
+                    $_SESSION['two_factor_method'] = $social_user_data['two_factor_method'];
+                    $_SESSION['two_factor_username'] = $social_user_data['username'];
+                    $_SESSION['two_factor_hash'] = $two_factor_hash;
+                    $data['status'] = 600;
+                    $data['location'] = $wo['config']['site_url'] . '/unusual-login?type=two-factor';
+                    header("Content-type: application/json");
+                    echo json_encode($data);
+                    exit();
+                }
+                Wo_SetLoginWithSession($social_email);
                 // Restore referral from cookie if session lost
                 if (empty($_SESSION['ref']) && !empty($_COOKIE['ref'])) {
                     $_SESSION['ref'] = Wo_Secure($_COOKIE['ref']);

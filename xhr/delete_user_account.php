@@ -1,6 +1,10 @@
 <?php
 if ($f == 'delete_user_account' && $wo['config']['deleteAccount'] == 1) {
-    if (isset($_POST['password'])) {
+    // CSRF protection for account deletion
+    if (Wo_CheckSession($hash_id) !== true) {
+        $errors[] = $error_icon . 'Invalid security token. Please refresh and try again.';
+    }
+    if (empty($errors) && isset($_POST['password'])) {
         if (Wo_HashPassword($_POST['password'], $wo['user']['password']) == false) {
             $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
         }

@@ -1,6 +1,8 @@
 <?php 
 if ($f == "update_privacy_settings") {
     if (isset($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && Wo_CheckSession($hash_id) === true) {
+        // IDOR protection: users can only update their own privacy settings
+        if ($_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) { exit(); }
         $message_privacy         = 0;
         $follow_privacy          = 0;
         $post_privacy            = 'ifollow';

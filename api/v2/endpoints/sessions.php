@@ -23,7 +23,8 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     }
     if ($_POST['type'] == 'delete') {
         if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
-            $delete_session = $db->where('id', Wo_Secure($_POST['id']))->delete(T_APP_SESSIONS);
+            // SECURITY: Only allow deleting own sessions (IDOR protection)
+            $delete_session = $db->where('id', Wo_Secure($_POST['id']))->where('user_id', $wo['user']['user_id'])->delete(T_APP_SESSIONS);
             if ($delete_session) {
                 $response_data = array(
                                     'api_status' => 200,

@@ -4,6 +4,11 @@ if ($f == 'staking') {
         echo json_encode(array('status' => 400, 'message' => 'Not logged in'));
         exit();
     }
+    // CSRF protection for financial operations
+    if (Wo_CheckSession($hash_id) !== true) {
+        echo json_encode(array('status' => 403, 'message' => 'Invalid security token. Please refresh and try again.'));
+        exit();
+    }
 
     // Check master switch
     if (empty($wo['config']['staking_enabled']) || $wo['config']['staking_enabled'] != '1') {

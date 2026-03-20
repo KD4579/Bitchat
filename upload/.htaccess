@@ -1,0 +1,16 @@
+# SECURITY: Disable PHP execution in upload directories
+# Prevents uploaded files from being executed as PHP even if extension filtering is bypassed
+php_flag engine off
+
+<FilesMatch "\.(php|phtml|php[345s]|phar|shtml|cgi|pl|py|sh|bash)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes

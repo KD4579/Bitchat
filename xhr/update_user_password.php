@@ -10,17 +10,18 @@ if ($f == "update_user_password") {
             if (empty($_POST['current_password']) OR empty($_POST['new_password']) OR empty($_POST['repeat_new_password'])) {
                 $errors[] = $error_icon . $wo['lang']['please_check_details'];
             } else {
-                // Always verify current password for own account
-                if ($_POST['user_id'] == $wo['user']['user_id']) {
-                    if (Wo_HashPassword($_POST['current_password'], $Userdata['password']) == false) {
-                        $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
-                    }
+                // Always verify current password (own account or admin changing another user)
+                if (Wo_HashPassword($_POST['current_password'], $wo['user']['password']) == false) {
+                    $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
                 }
                 if ($_POST['new_password'] != $_POST['repeat_new_password']) {
                     $errors[] = $error_icon . $wo['lang']['password_mismatch'];
                 }
-                if (strlen($_POST['new_password']) < 6) {
+                if (strlen($_POST['new_password']) < 8) {
                     $errors[] = $error_icon . $wo['lang']['password_short'];
+                }
+                if (!preg_match('/[a-zA-Z]/', $_POST['new_password']) || !preg_match('/[0-9]/', $_POST['new_password'])) {
+                    $errors[] = $error_icon . ($wo['lang']['password_weak'] ?? 'Password must contain at least one letter and one number');
                 }
                 if (empty($errors)) {
                     $Update_data = array(

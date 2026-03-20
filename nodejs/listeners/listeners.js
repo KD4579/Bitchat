@@ -74,7 +74,8 @@ function isConnectionAllowed(userId) {
 
 
 module.exports.registerListeners = async (socket, io, ctx) => {
-    console.log('a user connected ' + socket.id + " Hash " + JSON.stringify(socket.handshake.query));
+    // SECURITY: Do NOT log session hash — it's a secret authentication token
+    console.log('a user connected ' + socket.id);
     await compiledTemplates.DefineTemplates(ctx);
     ctx.reactions_types = await funcs.Wo_GetReactionsTypes(ctx);
     socket.on("join", async (data, callback) => {
@@ -2818,9 +2819,8 @@ module.exports.registerListeners = async (socket, io, ctx) => {
         if (ctx.userHashUserId[data.user_id]) {
             current_user_id = ctx.userHashUserId[data.user_id];
         }
-        else if(data.current_user_id){
-            current_user_id = data.current_user_id;
-        }
+        // SECURITY: Removed fallback to client-supplied current_user_id (IDOR vulnerability)
+        // Only accept user_id from validated session hash lookup
         if (data.user_id && data.recipient_id && current_user_id > 0) {
             var seen = Math.floor(Date.now() / 1000);
             await ctx.wo_messages.update({

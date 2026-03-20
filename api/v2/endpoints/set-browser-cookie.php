@@ -14,7 +14,14 @@ $response_data = array(
 if (!empty(Wo_GetUserFromSessionID($_GET['access_token']))) {
 	$cookie = Wo_Secure($_GET['access_token']);
 	$_SESSION['user_id'] = $cookie;
-	setcookie("user_id", $cookie, time() + (10 * 365 * 24 * 60 * 60));
+	$isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+	setcookie("user_id", $cookie, [
+	    'expires' => time() + (30 * 24 * 60 * 60),
+	    'path' => '/',
+	    'secure' => $isSecure,
+	    'httponly' => true,
+	    'samesite' => 'Lax'
+	]);
 	header("Location: " . Wo_SeoLink('index.php?link1=get_news_feed'));
 	exit();
 }

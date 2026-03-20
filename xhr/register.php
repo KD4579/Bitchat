@@ -57,7 +57,12 @@ if ($f == 'register') {
             $errors = $error_icon . $wo['lang']['username_invalid_characters'];
         }
     }
-    // Initialize IP Registration Tracker
+    // Rate limit registration: 3 per hour per IP to prevent mass account creation
+    if (!bitchat_rate_limit('register', get_ip_address(), 3, 3600)) {
+        header("Content-type: application/json");
+        echo json_encode(array('errors' => $error_icon . $wo['lang']['login_attempts']));
+        exit();
+    }
 
     // Honeypot anti-bot check: if hidden field is filled, it's a bot
     if (!empty($_POST['website_url'])) {
@@ -147,8 +152,12 @@ if ($f == 'register') {
                 $errors = $error_icon . $wo['lang']['email_invalid_characters'];
             }
         }
-        if (strlen($_POST['password']) < 6) {
+        if (strlen($_POST['password']) < 8) {
             $errors = $error_icon . $wo['lang']['password_short'];
+        }
+        // Require at least one letter and one number for password strength
+        if (!preg_match('/[a-zA-Z]/', $_POST['password']) || !preg_match('/[0-9]/', $_POST['password'])) {
+            $errors = $error_icon . ($wo['lang']['password_weak'] ?? 'Password must contain at least one letter and one number');
         }
         if ($_POST['password'] != $_POST['confirm_password']) {
             $errors = $error_icon . $wo['lang']['password_mismatch'];
@@ -226,7 +235,8 @@ if ($f == 'register') {
             }
         }
         $activate = ($wo['config']['emailValidation'] == '1') ? '0' : '1';
-        $code     = md5(rand(1111, 9999) . time());
+        // Use cryptographically secure activation code
+        $code     = bin2hex(random_bytes(32));
         $re_data  = array(
             'email' => Wo_Secure($_POST['email'], 0),
             'username' => Wo_Secure($_POST['username'], 0),
@@ -323,10 +333,13 @@ if ($f == 'register') {
             if (!empty($_FILES['avatar']['tmp_name']) && is_uploaded_file($_FILES['avatar']['tmp_name'])) {
                 $av_name = $_FILES['avatar']['name'];
                 $av_tmp  = $_FILES['avatar']['tmp_name'];
-                $av_type = $_FILES['avatar']['type'];
                 $av_ext  = strtolower(pathinfo($av_name, PATHINFO_EXTENSION));
                 $av_allowed_ext  = array('jpg', 'jpeg', 'png', 'gif');
-                $av_allowed_mime = array('image/png', 'image/jpeg', 'image/gif', 'image/jpg');
+                $av_allowed_mime = array('image/png', 'image/jpeg', 'image/gif');
+
+                // Validate MIME type server-side using finfo (not client-provided type)
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $av_type = $finfo->file($av_tmp);
 
                 if (in_array($av_ext, $av_allowed_ext) && in_array($av_type, $av_allowed_mime)) {
                     $av_dir = 'upload/photos/' . date('Y') . '/' . date('m');
@@ -390,11 +403,12 @@ if ($f == 'register') {
             // Verification flow depends on signup method
             if ($signup_method === 'phone') {
                 // Phone signup: send SMS OTP for verification
-                $random_activation = Wo_Secure(rand(11111, 99999));
+                $random_activation = random_int(100000, 999999); // 6-digit, cryptographically secure
+                $hashed_activation = Wo_Secure(md5($random_activation)); // Hash before storing
                 $message = "Your Bitchat confirmation code is: {$random_activation}";
                 if (Wo_SendSMSMessage($_POST['phone_num'], $message) === true) {
                     $user_id = Wo_UserIdFromUsername($_POST['username']);
-                    mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$random_activation}', `active` = '0' WHERE `user_id` = {$user_id}");
+                    mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$hashed_activation}', `active` = '0' WHERE `user_id` = {$user_id}");
                     cache($user_id, 'users', 'delete');
                     $data = array(
                         'status' => 300,
@@ -428,13 +442,15 @@ if ($f == 'register') {
                     );
                     $login = Wo_Login($_POST['username'], $_POST['password']);
                     if ($login === true) {
+                        session_regenerate_id(true);
                         $session = Wo_CreateLoginSession(Wo_UserIdFromUsername($_POST['username']));
                         $_SESSION['user_id'] = $session;
                         $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
                         setcookie("user_id", $session, [
-                            'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+                            'expires'  => time() + (30 * 24 * 60 * 60),
                             'path'     => '/',
                             'secure'   => $isSecure,
+                            'httponly'  => true,
                             'samesite' => 'Lax'
                         ]);
                     }

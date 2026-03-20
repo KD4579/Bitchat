@@ -97,55 +97,69 @@ if ($f == 'wallet') {
         exit();
     }
     if ($s == 'send' && $wo['loggedin'] === true) {
+        // CSRF protection for financial operations
+        if (Wo_CheckSession($hash_id) !== true) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 403, 'message' => 'Invalid security token'));
+            exit();
+        }
         $data     = array(
             'status' => 400
         );
         $user_id  = (!empty($_POST['user_id']) && is_numeric($_POST['user_id'])) ? $_POST['user_id'] : 0;
-        $amount   = (!empty($_POST['amount']) && is_numeric($_POST['amount'])) ? $_POST['amount'] : 0;
+        $amount   = (!empty($_POST['amount']) && is_numeric($_POST['amount'])) ? floatval($_POST['amount']) : 0;
         $userdata = Wo_UserData($user_id);
-        $wallet   = $wo['user']['wallet'];
-        if (empty($user_id) || empty($amount) || empty($userdata) || empty(floatval($wallet)) || $amount < 0) {
+        $wallet   = floatval($wo['user']['wallet']);
+        if (empty($user_id) || $amount <= 0 || empty($userdata) || $wallet <= 0) {
             $data['message'] = $wo['lang']['please_check_details'];
         } else if ($wallet < $amount) {
             $data['message'] = $wo['lang']['amount_exceded'];
         } else {
-            $amount          = ($amount <= $wallet) ? $amount : $wallet;
-            $up_data1        = array(
-                'wallet' => sprintf('%.2f', $userdata['wallet'] + $amount)
-            );
-            $up_data2        = array(
-                'wallet' => sprintf('%.2f', $wallet - $amount)
-            );
-            $recipient_name  = $userdata['username'];
-            $currency        = Wo_GetCurrency($wo['config']['ads_currency']);
-            $success_msg     = $wo['lang']['money_sent_to'];
-            $notif_msg       = $wo['lang']['sent_you'];
-            $data['status']  = 200;
-            $data['message'] = "$success_msg@ $recipient_name";
-            $data['sender_balance'] = sprintf('%.2f', $wallet - $amount);
-            $data['receiver_balance'] = sprintf('%.2f', $userdata['wallet'] + $amount);
-            //$note1           = $success_msg . " " . $userdata['name'];
-            $note1           = mysqli_real_escape_string($sqlConnect, $userdata['name']);
-            //$note2           = $wo['lang']['successfully_received_from'] . " " . $wo['user']['name'];
-            $note2           = mysqli_real_escape_string($sqlConnect, $wo['user']['name']);
+            // Use atomic database operations to prevent race condition double-spend
+            $safe_sender_id  = intval($wo['user']['user_id']);
             $safe_user_id    = intval($user_id);
             $safe_amount     = floatval($amount);
-            $db->where('user_id', $user_id)->update(T_USERS, $up_data1);
 
-            mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_user_id}, 'RECEIVED', {$safe_amount}, '{$note2}')");
-            $db->where('user_id', $wo['user']['id'])->update(T_USERS, $up_data2);
-            $safe_sender_id  = intval($wo['user']['user_id']);
-            mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_sender_id}, 'SENT', {$safe_amount}, '{$note1}')");
-            cache($user_id, 'users', 'delete');
-            cache($wo['user']['id'], 'users', 'delete');
-            $notification_data_array = array(
-                'recipient_id' => $user_id,
-                'type' => 'sent_u_money',
-                'user_id' => $wo['user']['id'],
-                'text' => "$notif_msg $amount$currency!",
-                'url' => 'index.php?link1=wallet'
-            );
-            Wo_RegisterNotification($notification_data_array);
+            mysqli_begin_transaction($sqlConnect);
+            try {
+                // Atomic debit: only succeeds if sufficient balance (prevents race condition)
+                $debit = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_amount} WHERE `user_id` = {$safe_sender_id} AND `wallet` >= {$safe_amount}");
+                if (!$debit || mysqli_affected_rows($sqlConnect) === 0) {
+                    throw new Exception('Insufficient balance');
+                }
+                // Atomic credit
+                $credit = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + {$safe_amount} WHERE `user_id` = {$safe_user_id}");
+                if (!$credit) {
+                    throw new Exception('Transfer failed');
+                }
+                $note1 = mysqli_real_escape_string($sqlConnect, $userdata['name']);
+                $note2 = mysqli_real_escape_string($sqlConnect, $wo['user']['name']);
+                mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_user_id}, 'RECEIVED', {$safe_amount}, '{$note2}')");
+                mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_sender_id}, 'SENT', {$safe_amount}, '{$note1}')");
+
+                mysqli_commit($sqlConnect);
+
+                $recipient_name  = $userdata['username'];
+                $currency        = Wo_GetCurrency($wo['config']['ads_currency']);
+                $success_msg     = $wo['lang']['money_sent_to'];
+                $notif_msg       = $wo['lang']['sent_you'];
+                $data['status']  = 200;
+                $data['message'] = "$success_msg@ $recipient_name";
+                $data['sender_balance'] = sprintf('%.2f', $wallet - $amount);
+                cache($user_id, 'users', 'delete');
+                cache($wo['user']['id'], 'users', 'delete');
+                $notification_data_array = array(
+                    'recipient_id' => $user_id,
+                    'type' => 'sent_u_money',
+                    'user_id' => $wo['user']['id'],
+                    'text' => "$notif_msg $amount$currency!",
+                    'url' => 'index.php?link1=wallet'
+                );
+                Wo_RegisterNotification($notification_data_array);
+            } catch (Exception $e) {
+                mysqli_rollback($sqlConnect);
+                $data['message'] = $wo['lang']['amount_exceded'];
+            }
         }
         header("Content-type: application/json");
         echo json_encode($data);

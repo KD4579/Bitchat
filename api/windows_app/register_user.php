@@ -77,7 +77,7 @@ if ($type == 'user_registration') {
             'error_id' => '11',
             'error_text' => 'Please write your password.'
         );
-    } else if (strlen($_POST['password']) < 6) {
+    } else if (strlen($_POST['password']) < 8) {
     	$json_error_data['errors'] = array(
             'error_id' => '12',
             'error_text' => 'Password is too short.'

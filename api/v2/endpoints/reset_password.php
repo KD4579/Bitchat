@@ -25,18 +25,26 @@ if (!empty($_POST['new_password']) && !empty($_POST['email']) && !empty($_POST['
 		$error_message = 'email , code wrong';
 	}
 	if ($update == true) {
-		if (strlen($_POST['new_password']) >= 6) {
+		if (strlen($_POST['new_password']) < 8) {
+			$error_code    = 10;
+		    $error_message = 'Password must be at least 8 characters';
+		} elseif (!preg_match('/[a-zA-Z]/', $_POST['new_password']) || !preg_match('/[0-9]/', $_POST['new_password'])) {
+			$error_code    = 10;
+		    $error_message = 'Password must contain at least one letter and one number';
+		} else {
 			$password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
 			$getUser = $db->where('email',$email)->getOne(T_USERS);
+			// Invalidate reset token and clear all other sessions
 			$db->where('email',$email)->update(T_USERS,array('password' => $password,
-		                                                     'email_code' => ''));
-			cache($getUser->user_id, 'users', 'delete');
+		                                                     'email_code' => '',
+		                                                     'time_code_sent' => 0));
+			if (!empty($getUser->user_id)) {
+				// Invalidate all existing sessions after password reset
+				mysqli_query($sqlConnect, "DELETE FROM " . T_APP_SESSIONS . " WHERE `user_id` = '{$getUser->user_id}'");
+				cache($getUser->user_id, 'users', 'delete');
+			}
 			$response_data['api_status'] = 200;
 			$response_data['message'] = 'Your password was updated';
-		}
-		else{
-			$error_code    = 10;
-		    $error_message = 'short password';
 		}
 	}
 }

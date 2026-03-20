@@ -1,10 +1,12 @@
 <?php 
 if ($f == 'download_updates') {
     if (Wo_CheckMainSession($hash_id) === true) {
+        // SECURITY: Enable SSL verification to prevent MITM attacks on update downloads
+        // A MITM could inject malicious code via ZIP Slip if SSL is disabled
         $arrContextOptions = array(
             "ssl" => array(
-                "verify_peer" => false,
-                "verify_peer_name" => false
+                "verify_peer" => true,
+                "verify_peer_name" => true
             )
         );
         if (!empty($_GET['purchase_code'])) {

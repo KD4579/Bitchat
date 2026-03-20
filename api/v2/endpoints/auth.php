@@ -48,7 +48,7 @@ if (empty($error_code)) {
             if (Wo_TwoFactor($_POST['username']) != false) {
                 $time           = time();
                 $cookie         = '';
-                $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+                $access_token   = bin2hex(random_bytes(40)); // Cryptographically secure API token
                 $timezone       = 'UTC';
                 $device_type = 'phone';
                 if (!empty($_POST['device_type']) && in_array($_POST['device_type'], array('phone','windows'))) {

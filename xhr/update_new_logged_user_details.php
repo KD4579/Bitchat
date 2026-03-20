@@ -1,13 +1,28 @@
-<?php 
+<?php
 if ($f == 'update_new_logged_user_details') {
-    if (empty($_POST['new_password']) || empty($_POST['username']) || empty($_POST['repeat_new_password']) || Wo_CheckSession($hash_id) === false) {
+    // SECURITY: Verify user can only update their own account (prevent IDOR account takeover)
+    if (!empty($_POST['user_id']) && $_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+        $errors[] = $error_icon . ($wo['lang']['permission_denied'] ?? 'Permission denied');
+    }
+    // Verify the target user actually has social_login=1 (only social accounts should use this flow)
+    if (empty($errors) && !empty($_POST['user_id'])) {
+        $target_user = Wo_UserData($_POST['user_id']);
+        if (empty($target_user['social_login']) || $target_user['social_login'] != 1) {
+            $errors[] = $error_icon . ($wo['lang']['permission_denied'] ?? 'Permission denied');
+        }
+    }
+    if (empty($errors) && (empty($_POST['new_password']) || empty($_POST['username']) || empty($_POST['repeat_new_password']) || Wo_CheckSession($hash_id) === false)) {
         $errors[] = $error_icon . $wo['lang']['please_check_details'];
-    } else {
+    }
+    if (empty($errors)) {
         if ($_POST['new_password'] != $_POST['repeat_new_password']) {
             $errors[] = $error_icon . $wo['lang']['password_mismatch'];
         }
-        if (strlen($_POST['new_password']) < 6) {
+        if (strlen($_POST['new_password']) < 8) {
             $errors[] = $error_icon . $wo['lang']['password_short'];
+        }
+        if (!preg_match('/[a-zA-Z]/', $_POST['new_password']) || !preg_match('/[0-9]/', $_POST['new_password'])) {
+            $errors[] = $error_icon . ($wo['lang']['password_weak'] ?? 'Password must contain at least one letter and one number');
         }
         if (strlen($_POST['username']) > 32) {
             $errors[] = $error_icon . $wo['lang']['username_characters_length'];

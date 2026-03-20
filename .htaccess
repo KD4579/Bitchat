@@ -1,4 +1,23 @@
 RewriteEngine On
+
+# SECURITY: Block access to sensitive files and directories
+<FilesMatch "^(config\.php|\.user\.ini|deploy\.sh|\.gitignore|composer\.json|package\.json)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block .git directory, SQL files, backup directories
+RedirectMatch 404 /\.git
+RedirectMatch 404 /\.env
+RedirectMatch 404 /script_backups/
+RedirectMatch 404 /sql/
+RedirectMatch 404 /updates/
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^password-reset/([^\/]+)(\/|)$  index.php?link1=welcome&link2=password_reset&user_id=$1 [NC,QSA]

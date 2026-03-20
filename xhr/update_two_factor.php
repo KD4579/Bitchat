@@ -1,5 +1,11 @@
-<?php 
+<?php
 if ($f == 'update_two_factor') {
+    // CSRF protection for 2FA settings changes
+    if (Wo_CheckSession($hash_id) !== true) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 403, 'message' => 'Invalid security token. Please refresh and try again.'));
+        exit();
+    }
     $error = '';
 
     if ($s == 'enable') {
@@ -25,7 +31,7 @@ if ($f == 'update_two_factor') {
 
             if (empty($error)) {
 
-                $code = rand(111111, 999999);
+                $code = random_int(100000, 999999);
                 $hash_code = md5($code);
                 $message = "Your confirmation code is: $code";
                 $phone_sent = false;
@@ -93,6 +99,14 @@ if ($f == 'update_two_factor') {
                             'message' => $error,
                         );
         }
+        // Require password re-authentication before disabling 2FA
+        else if (empty($_POST['current_password']) || Wo_HashPassword($_POST['current_password'], $wo['user']['password']) == false) {
+            $error = $error_icon . ($wo['lang']['current_password_mismatch'] ?? 'Incorrect password. Please enter your current password to disable 2FA.');
+            $data = array(
+                            'status' => 400,
+                            'message' => $error,
+                        );
+        }
         else{
             $Update_data = array(
                 'two_factor' => 0,
@@ -112,7 +126,8 @@ if ($f == 'update_two_factor') {
             $error = $error_icon . $wo['lang']['please_check_details'];
         }
         else{
-            $confirm_code = $db->where('user_id', $wo['user']['user_id'])->where('email_code', md5($_POST['code']))->getValue(T_USERS, 'count(*)');
+            $user_verify = $db->where('user_id', $wo['user']['user_id'])->getOne(T_USERS);
+            $confirm_code = (!empty($user_verify) && hash_equals($user_verify->email_code, md5($_POST['code']))) ? 1 : 0;
             $Update_data = array();
             if (empty($confirm_code)) {
                 $error = $error_icon . $wo['lang']['wrong_confirmation_code'];
@@ -209,7 +224,7 @@ if ($f == 'update_two_factor') {
                 }
             }
             else{
-                if ($wo['user']['email_code'] == md5($_POST['code'])) {
+                if (hash_equals($wo['user']['email_code'], md5($_POST['code']))) {
                     $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, ['two_factor' => 1,
                                                                                     'two_factor_verified' => 1,
                                                                                     'two_factor_method' => 'two_factor']);

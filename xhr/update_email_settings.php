@@ -1,6 +1,8 @@
 <?php 
 if ($f == "update_email_settings") {
     if (isset($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && Wo_CheckSession($hash_id) === true) {
+        // IDOR protection: users can only update their own email settings
+        if ($_POST['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) { exit(); }
         $e_liked             = 0;
         $e_shared            = 0;
         $e_wondered          = 0;

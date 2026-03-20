@@ -2421,7 +2421,9 @@ function Wo_DeleteForumThread($id = false) {
 }
 function Wo_DeleteForum($id = false) {
     global $sqlConnect, $wo;
-    if ($wo['loggedin'] == false && Wo_IsAdmin() == false) {
+    // SECURITY: Fixed logic bug — was using AND (&&) instead of OR (||)
+    // Old code allowed any logged-in non-admin user to delete forums
+    if ($wo['loggedin'] == false || Wo_IsAdmin() == false) {
         return false;
     }
     if (!$id || !is_numeric($id)) {
@@ -2437,7 +2439,7 @@ function Wo_DeleteForum($id = false) {
 }
 function Wo_DeleteForumSection($id = false) {
     global $sqlConnect, $wo;
-    if ($wo['loggedin'] == false && Wo_IsAdmin() == false) {
+    if ($wo['loggedin'] == false || Wo_IsAdmin() == false) {
         return false;
     }
     if (!$id || !is_numeric($id)) {
@@ -6908,7 +6910,7 @@ function Wo_TwoFactor($username = '', $id_or_u = 'user') {
         return true;
     }
     if ($getuser['two_factor_method'] == 'two_factor') {
-        $code        = rand(111111, 999999);
+        $code        = random_int(100000, 999999); // Cryptographically secure
         $hash_code   = md5($code);
         $update_code = $db->where('user_id', $getuser['user_id'])->update(T_USERS, array(
             'email_code' => $hash_code
@@ -6959,7 +6961,7 @@ function Wo_VerfiyIP($username = '') {
                     return false;
                 }
                 // send email
-                $code                       = rand(111111, 999999);
+                $code                       = random_int(100000, 999999);
                 $hash_code                  = md5($code);
                 $wo['email']['username']    = $getuser['name'];
                 $wo['email']['countryCode'] = $getIpInfo['countryCode'];

@@ -23,6 +23,13 @@ foreach ($required_fields as $key => $value) {
     }
 }
 if (empty($error_code)) {
+    // Rate limit 2FA verification: 5 attempts per 15 minutes per IP
+    if (!bitchat_rate_limit('api_2fa', get_ip_address(), 5, 900)) {
+        $error_code    = 3;
+        $error_message = 'Too many attempts. Please try again later.';
+    }
+}
+if (empty($error_code)) {
 	$user_id      = $_POST['user_id'];
 	$user = $db->where('user_id', $user_id)->getOne(T_USERS);
     if (empty($user)) {
@@ -30,6 +37,13 @@ if (empty($error_code)) {
         $error_message = 'User not found';
     }
     else{
+        // Per-user rate limit on 2FA
+        if (!bitchat_rate_limit('api_2fa_user_' . $user_id, $user_id, 5, 900)) {
+            $error_code    = 3;
+            $error_message = 'Too many attempts. Please try again later.';
+        }
+    }
+    if (empty($error_code) && !empty($user)) {
 
         $confirm_code = 0;
         if ($user->two_factor_method == 'google' || $user->two_factor_method == 'authy') {
@@ -38,7 +52,7 @@ if (empty($error_code)) {
                 $backupCodes = json_decode($codes->codes,true);
                 if (in_array($_POST['code'], $backupCodes)) {
                     $key = array_search($_POST['code'], $backupCodes);
-                    $backupCodes[$key] = rand(111111,999999);
+                    $backupCodes[$key] = substr(bin2hex(random_bytes(4)), 0, 8);
                     $db->where('user_id',$user_id)->update(T_BACKUP_CODES,[
                         'codes' => json_encode($backupCodes)
                     ]);
@@ -47,8 +61,12 @@ if (empty($error_code)) {
             }
         }
 
-        if ($user->two_factor_method == 'two_factor' && $user->email_code == md5($_POST['code'])) {
+        // Use timing-safe comparison for 2FA codes
+        if ($user->two_factor_method == 'two_factor' && hash_equals($user->email_code, md5($_POST['code']))) {
             $confirm_code = 1;
+            // Invalidate the code after use
+            $db->where('user_id', $user_id)->update(T_USERS, array('email_code' => ''));
+            cache($user_id, 'users', 'delete');
         }
         else if ($user->two_factor_method == 'google' && !empty($user->google_secret) && $confirm_code == 0) {
             require_once 'assets/libraries/google_auth/vendor/autoload.php';
@@ -73,7 +91,7 @@ if (empty($error_code)) {
         else{
             $time           = time();
             $cookie         = '';
-            $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+            $access_token   = bin2hex(random_bytes(40));
             $timezone       = 'UTC';
             $create_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$access_token}', 'phone', '{$time}')");
             if (!empty($_POST['timezone'])) {

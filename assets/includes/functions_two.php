@@ -7074,7 +7074,12 @@ function Wo_CheckPaystackPayment($ref) {
         if ($result) {
             if ($result["data"]) {
                 if ($result["data"]["status"] == "success") {
-                    return true;
+                    // Return verified amount from Paystack (in major currency units)
+                    // NEVER trust amount from URL — always use API-verified amount
+                    return array(
+                        'verified' => true,
+                        'amount' => floatval($result["data"]["amount"]) / 100
+                    );
                 } else {
                     die("Transaction was not successful: Last gateway response was: " . $result["data"]["gateway_response"]);
                 }

@@ -283,7 +283,7 @@ function Wo_CreateLoginSession($user_id = 0) {
         return false;
     }
     $user_id   = Wo_Secure($user_id);
-    $hash      = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+    $hash      = bin2hex(random_bytes(40)); // Cryptographically secure session token (80 hex chars)
     $query_two = mysqli_query($sqlConnect, "DELETE FROM " . T_APP_SESSIONS . " WHERE `session_id` = '{$hash}'");
     if ($query_two) {
         $ua                  = json_encode(getBrowser());
@@ -309,18 +309,20 @@ function Wo_SetLoginWithSession($user_email) {
         return false;
     }
     $user_email          = Wo_Secure($user_email);
+    session_regenerate_id(true); // Prevent session fixation
     $_SESSION['user_id'] = Wo_CreateLoginSession(Wo_UserIdFromEmail($user_email));
     $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
     setcookie("user_id", $_SESSION['user_id'], [
-        'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+        'expires'  => time() + (30 * 24 * 60 * 60),
         'path'     => '/',
         'secure'   => $isSecure,
+        'httponly'  => true,
         'samesite' => 'Lax'
     ]);
     setcookie('ad-con', htmlentities(json_encode(array(
         'date' => date('Y-m-d'),
         'ads' => array()
-    ))), time() + (10 * 365 * 24 * 60 * 60), '/');
+    ))), time() + (30 * 24 * 60 * 60), '/');
 }
 function Wo_UserActive($username) {
     global $sqlConnect;
@@ -911,8 +913,10 @@ function Wo_ResetPassword($user_id, $password) {
     }
     $user_id  = Wo_Secure($user_id);
     $password = Wo_Secure(password_hash($password, PASSWORD_DEFAULT));
-    $query    = mysqli_query($sqlConnect, " UPDATE " . T_USERS . " SET `password` = '{$password}' WHERE `user_id` = '{$user_id}' ");
+    // Invalidate reset token after password change to prevent reuse
+    $query    = mysqli_query($sqlConnect, " UPDATE " . T_USERS . " SET `password` = '{$password}', `email_code` = '', `time_code_sent` = 0 WHERE `user_id` = '{$user_id}' ");
     if ($query) {
+        cache($user_id, 'users', 'delete');
         return true;
     } else {
         return false;
@@ -981,18 +985,10 @@ function Wo_isValidPasswordResetToken($string) {
     return (Wo_Sql_Result($query, 0) == 1) ? true : false;
 }
 function Wo_isValidPasswordResetToken2($string) {
-    global $sqlConnect;
-    $string_exp = explode('_', $string);
-    $user_id    = Wo_Secure($string_exp[0]);
-    $password   = Wo_Secure($string_exp[1]);
-    if (empty($user_id) or !is_numeric($user_id) or $user_id < 1) {
-        return false;
-    }
-    if (empty($password)) {
-        return false;
-    }
-    $query = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`) FROM " . T_USERS . " WHERE `user_id` = '{$user_id}' AND `password` = '{$password}' AND `active` = '1'  AND `time_code_sent` > '" . time() . "'");
-    return (Wo_Sql_Result($query, 0) == 1) ? true : false;
+    // This function previously validated using the password hash directly in the URL,
+    // which is insecure (leaks bcrypt hash). Now it validates using email_code like Token1.
+    // Kept for backwards compatibility but delegates to the secure implementation.
+    return Wo_isValidPasswordResetToken($string);
 }
 function Wo_DeleteUser($user_id) {
     global $wo, $sqlConnect, $cache, $db;
@@ -1415,7 +1411,8 @@ function Wo_UpdateUserData($user_id, $update_data, $unverify = false) {
             return false;
         }
     }
-    if (!empty($update_data['admin']) && $update_data['admin'] == 1) {
+    // Block ALL admin privilege escalation (including moderator level 2)
+    if (!empty($update_data['admin']) && $update_data['admin'] != 0) {
         if ($is_admin === false) {
             return false;
         }
@@ -1450,12 +1447,34 @@ function Wo_UpdateUserData($user_id, $update_data, $unverify = false) {
     if (!isset($update_data['relationship_id'])) {
         $update_data['relationship_id'] = $wo['user']['relationship_id'];
     }
-    // Block protected fields from non-admin updates to prevent mass assignment
-    $protected_fields = array('balance', 'wallet', 'points', 'converted_points', 'is_pro', 'pro_type', 'verified', 'email_code', 'sms_code');
+    // Block protected fields from non-admin updates to prevent mass assignment / privilege escalation
+    // These fields are ALWAYS blocked for non-admins (even on own account)
+    $always_protected = array(
+        'balance', 'wallet', 'points', 'converted_points',
+        'is_pro', 'pro_type', 'pro_time', 'verified',
+        'admin', 'ip_address', 'active', 'type',
+        'referrer', 'ref_user_id', 'social_login',
+        'last_login_data', 'backup_codes'
+    );
+    // These fields are blocked when modifying OTHER users' accounts
+    // but allowed for self-modification (password change, 2FA setup, etc.)
+    $other_user_protected = array(
+        'password', 'email_code', 'sms_code', 'time_code_sent',
+        'two_factor', 'two_factor_verified', 'two_factor_method', 'two_factor_hash',
+        'google_secret', 'authy_id', 'new_email', 'new_phone'
+    );
     if ($is_admin === false) {
-        foreach ($protected_fields as $pf) {
+        foreach ($always_protected as $pf) {
             if (isset($update_data[$pf])) {
                 unset($update_data[$pf]);
+            }
+        }
+        // Only block self-modifiable fields when editing OTHER users
+        if ($wo['user']['user_id'] != $user_id) {
+            foreach ($other_user_protected as $pf) {
+                if (isset($update_data[$pf])) {
+                    unset($update_data[$pf]);
+                }
             }
         }
     }
@@ -1582,10 +1601,12 @@ function Wo_UploadImage($file, $name, $type, $type_file, $user_id = 0, $placemen
     $ar = array(
         'image/png',
         'image/jpeg',
-        'image/gif',
-        'image/jpg'
+        'image/gif'
     );
-    if (!in_array($type_file, $ar)) {
+    // SECURITY: Use finfo to detect real MIME type server-side, NOT client-provided type
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $real_mime = $finfo->file($file);
+    if (!in_array($real_mime, $ar)) {
         return false;
     }
     $dir = 'upload/photos/' . date('Y') . '/' . date('m');
@@ -10878,8 +10899,9 @@ function getSunshineLogo()
 function createBackupCodes($count = 10)
 {
     $backupCodes = array();
-    for ($i = 1; $i <= 10; $i++) {
-        $backupCodes[] = rand(111111,999999);
+    for ($i = 1; $i <= $count; $i++) {
+        // Use cryptographically secure random and 8-char alphanumeric codes
+        $backupCodes[] = substr(bin2hex(random_bytes(4)), 0, 8);
     }
     return $backupCodes;
 }

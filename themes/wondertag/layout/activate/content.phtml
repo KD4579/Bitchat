@@ -53,9 +53,10 @@
 			$_SESSION['user_id'] = $session;
 			$isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 			setcookie("user_id", $session, [
-				'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+				'expires'  => time() + (30 * 24 * 60 * 60),
 				'path'     => '/',
 				'secure'   => $isSecure,
+				'httponly'  => true,
 				'samesite' => 'Lax'
 			]);
 			// Clear signup src so complete-profile redirect doesn't block newly activated users

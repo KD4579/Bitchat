@@ -3,6 +3,13 @@ if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
 	if (!empty($_POST['group_id']) || !empty($_POST['page_id']) || !empty($_POST['recipient_id'])) {
 		$message = $db->where('id',Wo_Secure($_POST['id']))->ArrayBuilder()->getOne(T_MESSAGES);
 		if (!empty($message)) {
+			// SECURITY: Verify the user is the sender or recipient of the original message (IDOR protection)
+			if ($message['from_id'] != $wo['user']['user_id'] && $message['to_id'] != $wo['user']['user_id']) {
+				$error_code = 6;
+				$error_message = 'You can only forward your own messages';
+			}
+		}
+		if (!empty($message) && empty($error_code)) {
 			unset($message['id']);
 			unset($message['broadcast_id']);
 			unset($message['deleted_one']);

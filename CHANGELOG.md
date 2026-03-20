@@ -2,6 +2,84 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-20 — Comprehensive Security Audit: 122 Vulnerabilities Fixed (82 files)
+
+### Summary
+Full-spectrum security audit covering authentication, authorization, session management, API security, payment processing, file uploads, infrastructure hardening, and content management. 82 files modified across 5 audit passes plus logic error verification.
+
+### Critical Fixes (16)
+- **IP spoofing bypasses all rate limiting** — `get_ip_address()` now only trusts `X-Real-IP` from Nginx, not client-spoofable headers (`functions_general.php`)
+- **Password hash exposed in SMS reset URL** — replaced with secure one-time token via `random_bytes(32)` (`confirm_sms_user.php`)
+- **Open redirect in OAuth `redirect_uri`** — now always uses registered callback URL, never user input (`sources/oauth.php`)
+- **SMS code resend to attacker's phone** — always sends to registered phone, never accepts phone from POST (`resned_code.php`)
+- **Account takeover via unverified social login email** — blocks unverified emails from all providers, not just Discord (`login-with.php`)
+- **2FA brute force on API** — added per-IP + per-user rate limiting on API v2 2FA endpoint (`api/v2/endpoints/two-factor.php`)
+- **IDOR account takeover via `update_new_logged_user_details`** — added ownership + `social_login=1` check (`xhr/update_new_logged_user_details.php`)
+- **Password reset bypasses 2FA** — password now stored in session pending 2FA verification, not applied immediately (`xhr/reset_password.php`)
+- **Privilege escalation via mass assignment** — expanded `protected_fields` in `Wo_UpdateUserData()` with 20+ fields; split into always-protected and self-modifiable categories (`functions_one.php`)
+- **Moderator escalation via `custom_settings` API** — blocked `admin != 0` (not just `== 1`) (`functions_one.php`)
+- **Stripe session replay — infinite wallet topups** — clear session immediately + idempotency check via transaction ID (`xhr/stripe.php`)
+- **ZIP Slip RCE via update MITM** — validate ZIP entries for path traversal + enabled SSL verification (`functions_general.php`, `download_updates.php`)
+- **Forward message IDOR — read ANY private message** — added sender/recipient ownership check (`api/v2/endpoints/forward_message.php`)
+- **All config secrets exposed unauthenticated** — restored comprehensive `$non_allowed_config` blocklist for SMTP, S3, Twilio, Stripe keys, etc. (`api/v2/init.php`)
+- **Legacy MD5/SHA1 passwords** — auto-upgrade on login already existed (verified)
+- **SMS verification brute force (5-digit, no rate limit)** — upgraded to 6-digit + rate limiting (`confirm_sms_user.php`, `resned_code.php`, `recoversms.php`)
+
+### High Fixes (49)
+- **Session management**: `session_regenerate_id(true)` on all login paths; `httponly` + `secure` + `samesite` flags on all `user_id` cookies; 30-day max lifetime (was 10 years); cookie refresh in `Wo_IsLogged()` now includes security flags
+- **2FA hardening**: server-side session only (removed cookie fallback); timing-safe `hash_equals()`; codes invalidated after use; disable requires password; `random_int()` for all code generation
+- **Token strength**: `bin2hex(random_bytes(40))` for session tokens (was `sha1(rand())+md5(microtime())`); `bin2hex(random_bytes(32))` for all reset/activation tokens; API tokens upgraded across all 3 endpoints
+- **OAuth**: Google `aud` validation on web + API v2 + Windows; OkRu random state token (was hardcoded); OkRu SDK HTTPS + SSL verification; social accounts use `password_hash()` (was `md5(rand())`)
+- **IDOR fixes**: 5 settings handlers (notifications, email, privacy, design, images); event update (was `if(true)`); group page info; group image upload; API v2 group update; API v2 post edit; API v2 session deletion
+- **CSRF protection added**: `update_two_factor`, `delete_all_sessions`, `staking`, `request_verification`, `remove_verification`, `pay_using_wallet`, `wallet send`, `delete_user_account`, `verify_email_phone`
+- **Payment security**: Paystack uses API-verified amount (was trusting URL param) on both web + API v2; CoinPayments binding verified
+- **XSS prevention**: `urldecode(Wo_Secure())` → `htmlspecialchars(urldecode())` in 8 login templates; removed `&amp;#` → `&#` entity bypass in both `Wo_Secure()` and `Wo_BbcodeSecure()`
+- **SSRF protection**: `fetchDataFromURL()` blocks private/reserved IP ranges via `FILTER_FLAG_NO_PRIV_RANGE`
+- **XXE protection**: `LIBXML_NOENT | LIBXML_NONET` flags on RSS parsers
+- **Forum delete logic bug** — `&&` → `||` in `Wo_DeleteForum()` and `Wo_DeleteForumSection()` (any logged-in user could delete forums)
+- **Admin panel**: moderator access restricted to content moderation only; 16 critical actions blocked for non-admins
+- **Sensitive data exposure**: 15+ fields hidden from API responses (IP, 2FA secrets, device tokens, etc.)
+- **API v2 `remove_from_list` string concat bug** — `'id'. 'following_data'` → `'id', 'following_data'` + added sensitive fields
+- **Windows API MD5 password hash** — changed to `password_hash(PASSWORD_DEFAULT)`
+
+### Medium Fixes (50)
+- **Rate limiting**: unconditional on login, registration (3/hr), password reset (3/hr), SMS resend (3/hr), 2FA verification, account activation
+- **Password policy**: minimum 8 chars + letter+number required (was 5-6 chars) — consistent across all 12 validation points
+- **`.user.ini`**: `cookie_secure = 1` (was 0)
+- **Security headers**: `Referrer-Policy: no-referrer`, `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff` in `init.php`
+- **`.htaccess` hardening**: blocked `.git`, `config.php`, `.user.ini`, `deploy.sh`, `script_backups/`, `sql/`, `updates/`
+- **Upload directory**: `.htaccess` with `php_flag engine off` to prevent PHP execution
+- **`Wo_UploadImage()` MIME validation**: server-side `finfo_file()` instead of client-provided type
+- **Unsafe `unserialize()` in cache**: restricted with `['allowed_classes' => false]`
+- **Cron-job authentication**: IP + secret token check (was publicly accessible)
+- **Wallet double-spend**: atomic `wallet = wallet - amount WHERE wallet >= amount` with transaction rollback
+- **Logout**: `Cache-Control: no-store` headers added
+- **Open redirect via `HTTP_REFERER`**: same-origin validation added
+- **Pending password in session**: hashed before storage (not plaintext in Redis)
+- **Node.js**: removed session hash logging; fixed `seen_messages` IDOR; removed client-supplied `current_user_id` fallback
+- **Email enumeration prevention**: password recovery always returns success regardless of email existence
+- **Debug exposure**: removed `report_errors` parameter from `app_api.php`
+
+### Logic Error Corrections (7 regressions found and fixed)
+- **`password` in protected_fields** was blocking ALL user password changes — split into `always_protected` (admin/wallet/privilege fields) and `other_user_protected` (password/2FA — allowed for self-modification)
+- **Pending reset password after 2FA** — added code in `confirm_user_unusal_login.php` to apply the hashed pending password after successful 2FA verification
+- **API v2 Paystack wallet** still used client-supplied amount — updated to use API-verified `$payment['amount']`
+- **`app_start.php` GET→POST change** broke mobile app — reverted to accept GET params (backwards compatible)
+- **4 files** still had 10-year cookies without `httponly` — fixed in 3 activate templates + `set-browser-cookie.php`
+- **6 API files** still enforced 6-char password minimum — updated to 8-char minimum across all endpoints
+- **Paystack return type** — callers updated for array return from `Wo_CheckPaystackPayment()`
+
+### Files Changed (82)
+**Core**: `assets/includes/functions_general.php`, `functions_one.php`, `functions_two.php`, `functions_three.php`, `security_helpers.php`, `cache.php`, `app_start.php`, `init.php`
+**Auth**: `xhr/login.php`, `xhr/register.php`, `xhr/recover.php`, `xhr/recoversms.php`, `xhr/reset_password.php`, `xhr/confirm_*.php`, `login-with.php`, `xhr/google_login.php`
+**API**: 16 files across `api/v2/endpoints/`, `api/phone/`, `api/windows_app/`
+**XHR handlers**: 30 files in `xhr/` (settings, wallet, staking, payments, groups, events, sessions, etc.)
+**Templates**: 8 welcome templates + 3 activate templates across all 3 themes
+**Infrastructure**: `.htaccess`, `.user.ini`, `cron-job.php`, `app_api.php`, `sources/oauth.php`, `sources/logout.php`
+**Node.js**: `nodejs/listeners/listeners.js`
+**Libraries**: `assets/libraries/odnoklassniki_sdk.php`
+**New file**: `upload/.htaccess`
+
 ## 2026-03-20 — Security Audit Fixes, Bug Bounty Page & Cleanup
 
 ### Security Audit — 9 Critical/High Issues Fixed

@@ -122,7 +122,7 @@ if ($f == "update_general_settings") {
                 if (empty($errors)) {
                     $save = true;
                     if (!Wo_IsAdmin()) {
-                        $code      = rand(111111, 999999);
+                        $code      = random_int(100000, 999999);
                         $hash_code = md5($code);
                         $message   = "Your confirmation code is: $code";
                         if ($_POST['email'] != $wo['user']['email'] && $wo['config']['sms_or_email'] == 'mail' && $wo['config']['emailValidation'] == 1) {

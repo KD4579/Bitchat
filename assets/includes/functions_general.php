@@ -675,8 +675,15 @@ function Wo_IsLogged() {
         if (is_numeric($id) && !empty($id)) {
             // Restore session from persistent cookie (PHP session expired but cookie still valid)
             $_SESSION['user_id'] = $_COOKIE['user_id'];
-            // Refresh cookie expiry (rolling window — active users never time out)
-            setcookie("user_id", $_COOKIE['user_id'], time() + (10 * 365 * 24 * 60 * 60), "/");
+            // Refresh cookie with proper security flags (30-day rolling window)
+            $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+            setcookie("user_id", $_COOKIE['user_id'], [
+                'expires' => time() + (30 * 24 * 60 * 60),
+                'path' => '/',
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
             return true;
         }
     }
@@ -735,7 +742,8 @@ function Wo_Secure($string, $censored_words = 0, $br = true, $strip = 0,$cleanSt
     if ($strip == 1) {
         $string = stripslashes($string);
     }
-    $string = str_replace('&amp;#', '&#', $string);
+    // REMOVED: str_replace('&amp;#', '&#') was reversing htmlspecialchars encoding,
+    // allowing HTML entity injection (&#60; → < etc.) to bypass XSS protection
     if ($censored_words == 1) {
         global $config;
         $censored_words = @explode(",", $config['censored_words']);
@@ -755,7 +763,8 @@ function Wo_BbcodeSecure($string) {
     $string = str_replace('\n\r', "[nl]", $string);
     $string = str_replace('\r', "[nl]", $string);
     $string = str_replace('\n', "[nl]", $string);
-    $string = str_replace('&amp;#', '&#', $string);
+    // REMOVED: str_replace('&amp;#', '&#') was bypassing htmlspecialchars encoding
+    // allowing entity injection (&#60; → < etc.)
     $string = strip_tags($string);
     $string = stripslashes($string);
     return $string;
@@ -1153,14 +1162,11 @@ function Wo_CompressImage($source_url, $destination_url, $quality = 50) {
     return $destination_url;
 }
 function get_ip_address() {
-    if (!empty($_SERVER['HTTP_X_FORWARDED']) && validate_ip($_SERVER['HTTP_X_FORWARDED']))
-        return $_SERVER['HTTP_X_FORWARDED'];
-    if (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP']) && validate_ip($_SERVER['HTTP_X_CLUSTER_CLIENT_IP']))
-        return $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
-    if (!empty($_SERVER['HTTP_FORWARDED_FOR']) && validate_ip($_SERVER['HTTP_FORWARDED_FOR']))
-        return $_SERVER['HTTP_FORWARDED_FOR'];
-    if (!empty($_SERVER['HTTP_FORWARDED']) && validate_ip($_SERVER['HTTP_FORWARDED']))
-        return $_SERVER['HTTP_FORWARDED'];
+    // Only trust X-Real-IP set by our Nginx reverse proxy (not client-spoofable headers)
+    // This prevents attackers from bypassing IP-based rate limiting via header manipulation
+    if (!empty($_SERVER['HTTP_X_REAL_IP']) && validate_ip($_SERVER['HTTP_X_REAL_IP'])) {
+        return $_SERVER['HTTP_X_REAL_IP'];
+    }
     return $_SERVER['REMOTE_ADDR'];
 }
 function validate_ip($ip) {
@@ -1820,15 +1826,22 @@ if (!function_exists('glob_recursive')) {
     }
 }
 function unzip_file($file, $destination) {
-    // create object
     $zip = new ZipArchive();
-    // open archive
     if ($zip->open($file) !== true) {
         return false;
     }
-    // extract contents to destination directory
+    // SECURITY: Validate each entry to prevent ZIP Slip (path traversal) attacks
+    $destination = realpath($destination) ?: $destination;
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $entryName = $zip->getNameIndex($i);
+        $fullPath = realpath($destination . '/' . $entryName) ?: ($destination . '/' . $entryName);
+        // Block any entry that escapes the destination directory
+        if (strpos($entryName, '..') !== false || strpos($fullPath, $destination) !== 0) {
+            $zip->close();
+            return false;
+        }
+    }
     $zip->extractTo($destination);
-    // close archive
     $zip->close();
     return true;
 }
@@ -1958,11 +1971,23 @@ function fetchDataFromURL($url = '') {
     if (!in_array($scheme, ['http', 'https'])) {
         return false;
     }
+    // SSRF protection: block requests to internal/private IP ranges
+    $host = parse_url($url, PHP_URL_HOST);
+    if (!empty($host)) {
+        $ip = gethostbyname($host);
+        if ($ip !== false && filter_var($ip, FILTER_VALIDATE_IP)) {
+            // Block private, reserved, loopback, and link-local addresses
+            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return false;
+            }
+        }
+    }
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POST, false);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
     curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+    curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915 Firefox/1.0.7");

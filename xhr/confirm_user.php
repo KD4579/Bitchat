@@ -1,5 +1,13 @@
-<?php 
+<?php
 if ($f == 'confirm_user') {
+    // Always enforce rate limiting (not config-gated)
+    if (!bitchat_rate_limit('confirm_user', get_ip_address(), 5, 900)) {
+        header("Content-type: application/json");
+        echo json_encode(array(
+            'errors' => $error_icon . $wo['lang']['login_attempts']
+        ));
+        exit();
+    }
     if ($wo['config']['prevent_system'] == 1) {
         if (!WoCanLogin()) {
             header("Content-type: application/json");
@@ -25,6 +33,7 @@ if ($f == 'confirm_user') {
             $errors = $error_icon . $wo['lang']['wrong_confirmation_code'];
         }
         if (empty($errors) && $confirm_code === true) {
+            session_regenerate_id(true);
             $session             = Wo_CreateLoginSession($user_id);
             $data                = array(
                 'status' => 200
@@ -32,9 +41,10 @@ if ($f == 'confirm_user') {
             $_SESSION['user_id'] = $session;
             $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
             setcookie("user_id", $session, [
-                'expires'  => time() + (10 * 365 * 24 * 60 * 60),
+                'expires'  => time() + (30 * 24 * 60 * 60),
                 'path'     => '/',
                 'secure'   => $isSecure,
+                'httponly'  => true,
                 'samesite' => 'Lax'
             ]);
             if (!empty($_POST['last_url'])) {

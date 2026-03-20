@@ -1,4 +1,9 @@
 <?php
+// Security headers - prevent token leakage via Referer and clickjacking
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: SAMEORIGIN');
+header('X-Content-Type-Options: nosniff');
+
 // Error logging — capture all PHP errors to a log file (not displayed to users)
 @ini_set('display_errors', '0');
 @ini_set('log_errors', '1');
@@ -26,7 +31,7 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($_SESSION['session_regenerate_time'])) {
     $_SESSION['session_regenerate_time'] = time();
 } elseif (time() - $_SESSION['session_regenerate_time'] > 3600) {
-    session_regenerate_id(false);
+    session_regenerate_id(true);
     $_SESSION['session_regenerate_time'] = time();
 }
 @ini_set('gd.jpeg_ignore_warning', 1);

@@ -131,7 +131,7 @@ if ($type == 'update_user_data' || $type == 'u_user_data') {
                             if ($user_data['new_password'] != $user_data['repeat_new_password']) {
                                 $errors[] = $wo['lang']['password_mismatch'];
                             }
-                            if (strlen($user_data['new_password']) < 6) {
+                            if (strlen($user_data['new_password']) < 8) {
                                 $errors[] = $wo['lang']['password_short'];
                             }
                             if (empty($errors)) {

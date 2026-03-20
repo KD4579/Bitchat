@@ -69,8 +69,16 @@ if ($type == 'set_c') {
             echo json_encode($json_error_data, JSON_PRETTY_PRINT);
             exit();
         } else {
+            session_regenerate_id(true);
             $_SESSION['user_id'] = $cookie;
-            setcookie("user_id", $cookie, time() + (10 * 365 * 24 * 60 * 60));
+            $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+            setcookie("user_id", $cookie, [
+                'expires' => time() + (30 * 24 * 60 * 60),
+                'path' => '/',
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
             header("Location: " . Wo_SeoLink('index.php?link1=get_news_feed'));
             exit();
         }

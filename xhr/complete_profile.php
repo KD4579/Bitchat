@@ -42,12 +42,13 @@ if ($f == 'complete_profile') {
             "SELECT COUNT(*) AS c FROM " . T_USERS . " WHERE user_id = {$userId} AND CAST(sms_code AS UNSIGNED) > 0"
         );
 
-        // Generate 6-digit code
-        $code = rand(100000, 999999);
+        // Generate 6-digit code (cryptographically secure)
+        $code = random_int(100000, 999999);
+        $code_expiry = time() + 600; // 10 minute expiry
 
-        // Store code and pending email
+        // Store code, pending email, and expiry timestamp
         mysqli_query($sqlConnect,
-            "UPDATE " . T_USERS . " SET sms_code = '{$code}', new_email = '" . Wo_Secure($email) . "' WHERE user_id = {$userId}"
+            "UPDATE " . T_USERS . " SET sms_code = '{$code}', new_email = '" . Wo_Secure($email) . "', time_code_sent = '{$code_expiry}' WHERE user_id = {$userId}"
         );
         cache($userId, 'users', 'delete');
 
@@ -84,7 +85,7 @@ if ($f == 'complete_profile') {
 
         // Check code
         $q = mysqli_query($sqlConnect,
-            "SELECT sms_code, new_email FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1"
+            "SELECT sms_code, new_email, time_code_sent FROM " . T_USERS . " WHERE user_id = {$userId} LIMIT 1"
         );
         if (!$q || !($row = mysqli_fetch_assoc($q))) {
             $data['message'] = 'Error verifying code';
@@ -93,8 +94,8 @@ if ($f == 'complete_profile') {
             exit();
         }
 
-        if ($row['sms_code'] !== $code) {
-            $data['message'] = 'Invalid verification code. Please try again.';
+        if ($row['sms_code'] !== $code || (isset($row['time_code_sent']) && $row['time_code_sent'] > 0 && time() > $row['time_code_sent'])) {
+            $data['message'] = ($row['sms_code'] !== $code) ? 'Invalid verification code. Please try again.' : 'Verification code has expired. Please request a new one.';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
