@@ -168,8 +168,16 @@ class FunctionsUtils {
             do {
                 if (link_matches && link_matches[1]) {
                     let match_decode = unescape(link_matches[1]);
-
-                    text = text.replace('[a]' + link_matches[1] + '[/a]', '<a href="' + striptags(match_decode) + '" target="_blank" class="hash" rel="nofollow">' + match_decode + '</a>');
+                    // SECURITY: Only allow http/https URLs (prevent javascript: and data: XSS)
+                    let match_url = striptags(match_decode);
+                    if (!/^https?:\/\//i.test(match_url)) {
+                        match_url = 'http://' + match_url;
+                    }
+                    // Block javascript: and data: schemes even if disguised
+                    if (/^(javascript|data|vbscript):/i.test(match_decode.trim())) {
+                        match_url = '#blocked';
+                    }
+                    text = text.replace('[a]' + link_matches[1] + '[/a]', '<a href="' + match_url + '" target="_blank" class="hash" rel="nofollow">' + striptags(match_decode) + '</a>');
                 }
                 link_matches = text.match(/\[a\](.*?)\[\/a\]/i);
             } while (link_matches)

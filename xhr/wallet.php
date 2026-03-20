@@ -51,13 +51,19 @@ if ($f == 'wallet') {
             if (!empty($result)) {
                 $result = json_decode($result);
                 if (!empty($result->status) && $result->status == 'COMPLETED') {
-                    if (!empty($wo["config"]['currency_array']) && in_array($wo["config"]['paypal_currency'], $wo["config"]['currency_array']) && $wo["config"]['paypal_currency'] != $wo['config']['currency'] && !empty($wo['config']['exchange']) && !empty($wo['config']['exchange'][$wo["config"]['paypal_currency']])) {
-                        $_GET['amount'] = (($_GET['amount'] / $wo['config']['exchange'][$wo["config"]['paypal_currency']]));
-                        //$sum = round($sum, 2);
+                    // SECURITY: Use PayPal-verified amount from capture response, NOT URL parameter
+                    $paypal_amount = 0;
+                    if (!empty($result->purchase_units[0]->payments->captures[0]->amount->value)) {
+                        $paypal_amount = floatval($result->purchase_units[0]->payments->captures[0]->amount->value);
+                    } elseif (!empty($result->purchase_units[0]->amount->value)) {
+                        $paypal_amount = floatval($result->purchase_units[0]->amount->value);
                     }
-                    if (Wo_ReplenishingUserBalance($_GET['amount'])) {
-                        $_GET['amount']                 = floatval($_GET['amount']);
-                        $safe_amount                    = floatval($_GET['amount']);
+                    if ($paypal_amount <= 0) { $paypal_amount = floatval($_GET['amount']); } // fallback
+                    if (!empty($wo["config"]['currency_array']) && in_array($wo["config"]['paypal_currency'], $wo["config"]['currency_array']) && $wo["config"]['paypal_currency'] != $wo['config']['currency'] && !empty($wo['config']['exchange']) && !empty($wo['config']['exchange'][$wo["config"]['paypal_currency']])) {
+                        $paypal_amount = ($paypal_amount / $wo['config']['exchange'][$wo["config"]['paypal_currency']]);
+                    }
+                    if (Wo_ReplenishingUserBalance($paypal_amount)) {
+                        $safe_amount                    = floatval($paypal_amount);
                         $safe_userid                    = intval($wo['user']['id']);
                         $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'PayPal')");
                         $_SESSION['replenished_amount'] = $_GET['amount'];
@@ -309,9 +315,12 @@ if ($f == 'wallet') {
                                 if ($wo['config']['point_level_system'] == 1) {
                                     $points = $price * $dollar_to_point_cost;
                                 }
-                                $wallet_amount  = ($wo["user"]['wallet'] - $price);
-                                $points_amount  = ($wo['config']['point_allow_withdrawal'] == 0) ? ($wo["user"]['points'] - $points) : $wo["user"]['points'];
-                                $query_one      = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `points` = '{$points_amount}', `wallet` = '{$wallet_amount}' WHERE `user_id` = {$wo['user']['user_id']} ");
+                                // SECURITY: Atomic wallet deduction to prevent race condition
+                                $safe_price = floatval($price);
+                                $safe_points = floatval($points);
+                                $safe_uid = intval($wo['user']['user_id']);
+                                $points_dec = ($wo['config']['point_allow_withdrawal'] == 0) ? ", `points` = `points` - {$safe_points}" : "";
+                                $query_one = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_price}{$points_dec} WHERE `user_id` = {$safe_uid} AND `wallet` >= {$safe_price}");
                                 cache($wo['user']['id'], 'users', 'delete');
                                 $data['status'] = 200;
                                 $data['url']    = Wo_SeoLink('index.php?link1=upgraded');
@@ -328,8 +337,10 @@ if ($f == 'wallet') {
                     $notes              = mb_substr($fund->title, 0, 100, "UTF-8");
                     //$notes              = str_replace('{text}', mb_substr($fund->title, 0, 100, "UTF-8"), $wo['lang']['trans_doanted_to']);
                     $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'DONATE', {$amount}, '{$notes}')");
-                    $wallet_amount      = ($wo["user"]['wallet'] - $price);
-                    $query_one          = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = '{$wallet_amount}' WHERE `user_id` = {$wo['user']['user_id']} ");
+                    // SECURITY: Atomic wallet deduction for fund donation
+                    $safe_price_f = floatval($price);
+                    $safe_uid_f = intval($wo['user']['user_id']);
+                    $query_one = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_price_f} WHERE `user_id` = {$safe_uid_f} AND `wallet` >= {$safe_price_f}");
                     cache($wo['user']['id'], 'users', 'delete');
                     $admin_com          = 0;
                     if (!empty($wo['config']['donate_percentage']) && is_numeric($wo['config']['donate_percentage']) && $wo['config']['donate_percentage'] > 0) {

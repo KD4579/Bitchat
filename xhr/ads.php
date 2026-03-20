@@ -355,7 +355,11 @@ if ($f == 'ads') {
                 $db->where('gender', $gender);
             }
             if (!empty($_GET['estimated_audience'])) {
-                $db->where('country_id', explode(",", $_GET['estimated_audience']), 'IN');
+                // SECURITY: Sanitize each value to prevent SQL injection via IN clause
+                $audience_ids = array_filter(array_map('intval', explode(",", $_GET['estimated_audience'])));
+                if (!empty($audience_ids)) {
+                    $db->where('country_id', $audience_ids, 'IN');
+                }
             }
             $count          = $db->getValue(T_USERS, "count(*)");
             $data['status'] = 200;

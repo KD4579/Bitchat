@@ -76,10 +76,27 @@ if ($f == 'aamarpay') {
 	    exit();
 	}
 	if ($s == 'success_aamarpay') {
+		// SECURITY: Verify payment server-side via Aamarpay verification API
+		// The callback POST data is spoofable — must verify transaction independently
 		if (!empty($_POST['amount']) && !empty($_POST['mer_txnid']) && !empty($_POST['opt_a']) && !empty($_POST['pay_status']) && $_POST['pay_status'] == 'Successful') {
-			$user = $db->objectBuilder()->where('user_id',Wo_Secure($_POST['opt_a']))->getOne(T_USERS);
+			// Verify transaction with Aamarpay server
+			$txn_id = Wo_Secure($_POST['mer_txnid']);
+			$store_id = $wo['config']['aamarpay_store_id'];
+			$sig_key = $wo['config']['aamarpay_signature_key'];
+			$verify_url = "https://secure.aamarpay.com/api/v1/trxcheck/request.php?request_id={$txn_id}&store_id={$store_id}&signature_key={$sig_key}&type=json";
+			$verify_response = fetchDataFromURL($verify_url);
+			$verify_data = json_decode($verify_response, true);
+			if (empty($verify_data) || empty($verify_data['pay_status']) || $verify_data['pay_status'] != 'Successful') {
+				header("Content-type: application/json");
+				echo json_encode(array('status' => 400, 'message' => 'Payment verification failed'));
+				exit();
+			}
+			// Use server-verified amount, not client POST
+			$verified_amount = (int)$verify_data['amount'];
+			// Only credit the authenticated user (not user from POST)
+			$user = $db->objectBuilder()->where('user_id', $wo['user']['user_id'])->getOne(T_USERS);
 			if (!empty($user)) {
-				$amount   = (int)Wo_Secure($_POST['amount']);
+				$amount = $verified_amount;
 				$db->where('user_id', $user->user_id)->update(T_USERS, array(
                     'wallet' => $db->inc($amount)
                 ));

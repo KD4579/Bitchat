@@ -6061,18 +6061,23 @@ function Wo_AcceptFamilyMember($id = false) {
     $sql  = "UPDATE " . T_FAMILY . " SET `active` = '1' WHERE (`member_id` = '$id' AND `user_id` = '$user') OR (`member_id` = '$user' AND `user_id` = '$id') ";
     return mysqli_query($sqlConnect, $sql);
 }
-function Wo_AcceptRelationRequest($id = false, $member = fasle, $type = false) {
+function Wo_AcceptRelationRequest($id = false, $member = false, $type = false) {
     global $sqlConnect, $wo;
     if ($wo['loggedin'] == false || !$id || !$member || !$type) {
         return false;
     }
     $user = $wo['user']['id'];
-    $sql  = "UPDATE " . T_REL_SHIP . " SET `active` = '1' WHERE `id` = '$id'";
+    // SECURITY: Only allow accepting requests where the current user is the recipient (to_id)
+    $sql  = "UPDATE " . T_REL_SHIP . " SET `active` = '1' WHERE `id` = '$id' AND `to_id` = '$user'";
     $sql2 = "DELETE FROM " . T_REL_SHIP . " WHERE (`from_id` = '$user' OR `to_id` = '$user' OR `from_id` = '$member' OR `to_id` = '$member') AND `id` <> '$id'";
     $sql3 = "UPDATE " . T_REL_SHIP . " SET `relationship_id` = '$type' WHERE `user_id` = '$member'";
-    @mysqli_query($sqlConnect, $sql2);
-    @mysqli_query($sqlConnect, $sql3);
-    return mysqli_query($sqlConnect, $sql);
+    $result = mysqli_query($sqlConnect, $sql);
+    if ($result && mysqli_affected_rows($sqlConnect) > 0) {
+        @mysqli_query($sqlConnect, $sql2);
+        @mysqli_query($sqlConnect, $sql3);
+        return true;
+    }
+    return false;
 }
 function Wo_DeleteMyRelationShip() {
     global $sqlConnect, $wo;

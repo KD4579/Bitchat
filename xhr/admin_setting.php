@@ -10,7 +10,9 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         'reset_windows_app_keys', 'new_backup', 'ffmpeg_debug',
         'top_up_wallet', 'generate_fake_users', 'send_mail_to_all_users',
         'save_deposit_settings', 'update_html_emails',
-        'delete_user', 'delete_multi_users'
+        'delete_user', 'delete_multi_users',
+        'approve_withdrawal', 'reject_withdrawal', 'approve_all_withdrawals',
+        'save_withdrawal_settings'
     );
     if (in_array($s, $admin_only_actions) && !Wo_IsAdmin()) {
         header("Content-type: application/json");
