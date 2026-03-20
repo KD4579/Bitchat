@@ -392,14 +392,18 @@ async function runArbitrage(wallet, provider, cfg) {
         const profitEst = (priceDiff * tradeSize) - gasCostUsd1;
         dailyPnl += profitEst;
         log.trade(`Arb done. Spread profit: $${(priceDiff * tradeSize).toFixed(4)}, Gas: $${gasCostUsd1.toFixed(4)}. Net P&L: $${profitEst.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
+        // Get TVL for both pools
+        const usdtTvl = await estimatePoolTVL(provider, usdtPool, priceUsdt);
+        const wbnbTvl = await estimatePoolTVL(provider, wbnbPool, priceUsdt);
+
         await saveTrade({
-            strategy: 'arbitrage', direction: 'buy', tokenIn: 'USDT', tokenOut: 'WBNB',
+            strategy: 'arbitrage', direction: 'buy_usdt_sell_wbnb', tokenIn: 'USDT', tokenOut: 'WBNB',
             amountIn: usdtNeeded.toFixed(6), amountOut: ethers.formatUnits(sellResult.amountOut, DEC),
             priceUsd: priceUsdt.toFixed(10), tradeValueUsd: (usdtNeeded).toFixed(6),
             gasUsed: (buyResult.gasUsed + sellResult.gasUsed).toString(),
             gasCostBnb: gasCostBnb1.toFixed(8),
             txHash: sellResult.txHash, pnlUsd: profitEst.toFixed(6),
-            dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: '0',
+            dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: `${usdtTvl.toFixed(2)}/${wbnbTvl.toFixed(2)}`,
         });
     } else {
         const wbnbNeeded = tradeSize * priceWbnb * 1.01;
@@ -423,14 +427,19 @@ async function runArbitrage(wallet, provider, cfg) {
         const profitEst = (priceDiff * tradeSize) - gasCostUsd2;
         dailyPnl += profitEst;
         log.trade(`Arb done. Spread profit: $${(priceDiff * tradeSize).toFixed(4)}, Gas: $${gasCostUsd2.toFixed(4)}. Net P&L: $${profitEst.toFixed(4)} (daily: $${dailyPnl.toFixed(4)})`);
+
+        // Get TVL for both pools
+        const usdtTvl = await estimatePoolTVL(provider, usdtPool, priceUsdt);
+        const wbnbTvl = await estimatePoolTVL(provider, wbnbPool, priceUsdt);
+
         await saveTrade({
-            strategy: 'arbitrage', direction: 'buy', tokenIn: 'WBNB', tokenOut: 'USDT',
+            strategy: 'arbitrage', direction: 'buy_wbnb_sell_usdt', tokenIn: 'WBNB', tokenOut: 'USDT',
             amountIn: wbnbNeeded.toFixed(8), amountOut: ethers.formatUnits(sellResult.amountOut, DEC),
             priceUsd: priceUsdt.toFixed(10), tradeValueUsd: (wbnbNeeded * bnbPriceUsd).toFixed(6),
             gasUsed: (buyResult.gasUsed + sellResult.gasUsed).toString(),
             gasCostBnb: gasCostBnb2.toFixed(8),
             txHash: sellResult.txHash, pnlUsd: profitEst.toFixed(6),
-            dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: '0',
+            dailyPnlUsd: dailyPnl.toFixed(6), poolTvl: `${usdtTvl.toFixed(2)}/${wbnbTvl.toFixed(2)}`,
         });
     }
 }

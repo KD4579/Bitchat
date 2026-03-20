@@ -273,7 +273,22 @@ $(document).ready(function() {
             }
 
             data.trades.forEach(function(t) {
-                var sideColor = t.direction === 'buy' ? '#22c55e' : '#ef4444';
+                var sideLabel = t.direction;
+                var sideColor = '#22c55e';
+                if (t.strategy === 'arbitrage') {
+                    if (t.direction === 'buy_usdt_sell_wbnb') {
+                        sideLabel = 'BUY USDT→WBNB';
+                        sideColor = '#22c55e';
+                    } else if (t.direction === 'buy_wbnb_sell_usdt') {
+                        sideLabel = 'BUY WBNB→USDT';
+                        sideColor = '#3b82f6';
+                    } else {
+                        sideLabel = t.direction.toUpperCase();
+                    }
+                } else {
+                    sideColor = t.direction === 'buy' ? '#22c55e' : '#ef4444';
+                    sideLabel = t.direction.toUpperCase();
+                }
                 var stratBadge = t.strategy === 'grid' ?
                     '<span class="label label-info">GRID</span>' :
                     '<span class="label label-warning">ARB</span>';
@@ -290,7 +305,7 @@ $(document).ready(function() {
                     '<td>' + t.id + '</td>' +
                     '<td style="white-space:nowrap;">' + time + '</td>' +
                     '<td>' + stratBadge + '</td>' +
-                    '<td><strong style="color:' + sideColor + ';">' + t.direction.toUpperCase() + '</strong></td>' +
+                    '<td><strong style="color:' + sideColor + ';">' + sideLabel + '</strong></td>' +
                     '<td>' + parseFloat(t.amount_in).toFixed(4) + ' ' + t.token_in + '</td>' +
                     '<td>' + parseFloat(t.amount_out).toFixed(4) + ' ' + t.token_out + '</td>' +
                     '<td>$' + parseFloat(t.price_usd).toFixed(8) + '</td>' +
