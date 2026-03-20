@@ -305,15 +305,15 @@ $(document).ready(function() {
                     '<td>' + t.id + '</td>' +
                     '<td style="white-space:nowrap;">' + time + '</td>' +
                     '<td>' + stratBadge + '</td>' +
-                    '<td><strong style="color:' + sideColor + ';">' + sideLabel + '</strong></td>' +
+                    '<td><span style="color:' + sideColor + ' !important;font-weight:bold;">' + sideLabel + '</span></td>' +
                     '<td>' + parseFloat(t.amount_in).toFixed(4) + ' ' + t.token_in + '</td>' +
                     '<td>' + parseFloat(t.amount_out).toFixed(4) + ' ' + t.token_out + '</td>' +
                     '<td>$' + parseFloat(t.price_usd).toFixed(8) + '</td>' +
                     '<td>$' + parseFloat(t.trade_value_usd).toFixed(4) + '</td>' +
                     '<td>' + parseFloat(t.gas_cost_bnb).toFixed(6) + '</td>' +
-                    '<td style="color:' + pnlColor + ';">$' + pnlVal.toFixed(4) + '</td>' +
-                    '<td style="color:' + dpnlColor + ';">$' + dpnlVal.toFixed(4) + '</td>' +
-                    '<td>$' + parseFloat(t.pool_tvl).toFixed(0) + '</td>' +
+                    '<td><span style="color:' + pnlColor + ' !important;font-weight:bold;">$' + pnlVal.toFixed(4) + '</span></td>' +
+                    '<td><span style="color:' + dpnlColor + ' !important;font-weight:bold;">$' + dpnlVal.toFixed(4) + '</span></td>' +
+                    '<td>' + (t.pool_tvl || '0') + '</td>' +
                     '<td>' + txLink + '</td>' +
                     '</tr>'
                 );
