@@ -2,6 +2,43 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-20 — Security Audit Fixes, Bug Bounty Page & Cleanup
+
+### Security Audit — 9 Critical/High Issues Fixed
+- **Fixed arbitrage gas cost formula** (`trader.js`) — was `avgGasPrice * totalGas` (wrong when each swap has different gas price), now correctly computes `gasUsed1*gasPrice1 + gasUsed2*gasPrice2` per path.
+- **Fixed BigInt precision loss** (`prices.js`) — `Number(sqrtPriceX96)**2` overflows JS safe integer limit. Now uses BigInt arithmetic with `10^18` scaling factor.
+- **Replaced hardcoded BNB $600 fallback** (`prices.js`) — added CoinGecko API call (`/api/v3/simple/price?ids=binancecoin`) before falling back to hardcoded value.
+- **Added CSRF protection to wallet.php** — `Wo_CheckMainSession()` guard added before all wallet operations (transfers, payments, credits).
+- **Wrapped all 15 cron-job.php sections in try-catch** — one section failure no longer crashes the entire cron. Added `register_shutdown_function` for lock file cleanup on fatal errors. Returns HTTP 500 with error details if any section fails.
+- **Added rate limiting to Socket.io** (`listeners.js`) — max 10 messages/second per user per event type, max 5 concurrent connections per user. Cleanup on disconnect to prevent memory leaks.
+- **Implemented nonce tracking for trading bot** (`trader.js`) — `wallet.getNonce()` called before each swap, passed as override to prevent nonce conflicts on bot restart.
+- **Added gas estimation to withdrawal processor** (`processor.js`) — `estimateGas()` called before `trdcContract.transfer()` with 20% buffer to prevent out-of-gas failures.
+- **Fixed SQL injection in wallet.php and cron-job.php** — user names escaped with `mysqli_real_escape_string()`, numeric values cast with `intval()`/`floatval()`.
+
+### Bug Bounty Program Page
+- **Created `/terms/bug-bounty` page** with full program details: reward tiers ($10–$2,000 worth of TRDC), 62 in-scope sections grouped by sensitivity, out-of-scope rules, testing restrictions, and reporting guidelines.
+- **Legal entity**: Bitchat India OPC Pvt. Ltd., Gandhinagar, India (Division of Tradex24 Corporation LTD., Louisville, USA).
+- **Dispute jurisdiction**: Louisville, Kentucky, USA.
+- **Added "Bug Bounty" link** to main footer and sidebar footer.
+
+### Trading Bot Improvements
+- **Randomized grid trading direction** — no longer alternates buy-sell-buy-sell (easily detectable as bot). Now uses weighted randomization with admin-controlled `bot_max_consecutive_same` config (default 3).
+- **Added wallet balances to dashboard** (`/admin-cp/trading-bot-dashboard`) — shows hot wallet TRDC, USDT, BNB, WBNB balances at top of page.
+- **Added order size range** — admin can set min and max TRDC per order (randomized within range) instead of single fixed value.
+- **Fixed Start/Stop buttons** — `Wo_GetConfig()` was called with parameter (wrong), disabled state wasn't updating dropdowns. Both fixed; last action always wins, no conflicts.
+
+### Feed & Post Fixes
+- **Fixed "View X new posts" button** — now scrolls to the latest post instead of reloading the page. Fixed hover vibration caused by CSS transform on the button.
+- **Disabled developer_mode on production** — PHP warnings were being shown to end users (e.g., `Undefined variable $sqlConnect`). Set `developer_mode=0` in Wo_Config.
+- **Fixed publisher-box-tools.phtml warning** — `$wo['config']['can_use_market']` accessed without `!empty()` check.
+
+### Cleanup
+- **Deleted stale files**: `TASKS.md` (124KB), `README.md` (webhook test only), 8 `.js.map` source map files across 4 directories.
+- **Flushed caches**: Redis DB 2, OPcache, sidebar template cache.
+- **Backfilled referrer field** for 6 existing users whose `ref_user_id` was set but `referrer` was empty.
+
+---
+
 ## 2026-03-19 — Trading Signals, Feed Tabs, Reactions & Edit Post Fix
 
 ### Trading Signal Posts
