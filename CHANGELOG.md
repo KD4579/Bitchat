@@ -2,6 +2,25 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-20 — Arbitrage Bot: Auto-trigger on Price Difference
+
+### Enhancement
+Arbitrage bot now runs as an independent price monitor that continuously polls both pools and executes trades automatically when a profitable spread is detected — no longer waiting for the slow grid trading cooldown.
+
+### Changes
+- **Separate arb monitor loop** — polls TRDC/USDT and TRDC/WBNB pool prices every 15s (configurable), triggers arb immediately when spread >= threshold (`nodejs/trading-bot/index.js`)
+- **New admin settings** — `Arb Price Poll Interval` (default 15s) and `Arb Trade Cooldown` (default 60s) added to `/admin-cp/trading-bot` panel
+- **Safety guards** — execution lock prevents overlapping arb trades, gas price check before execution, daily loss limit respected, min cooldown between trades
+- **Dashboard stats** — arb monitor status, last arb time, and arb count now tracked and visible in dashboard
+- **Grid trading unchanged** — still runs on the slow cooldown (60-120 min) as before
+
+### Files Modified
+- `nodejs/trading-bot/index.js` — added `startArbMonitor()` async loop, separated arb from grid cycle
+- `nodejs/trading-bot/config.js` — added `bot_arb_poll_seconds`, `bot_arb_cooldown` defaults
+- `admin-panel/pages/trading-bot/content.phtml` — added UI fields for new arb monitor settings
+- `xhr/trading_bot.php` — added new config keys to allowed save list
+- `xhr/trading_bot_dashboard.php` — added arb monitor stats to status endpoint
+
 ## 2026-03-20 — Category 2: User Profiles & Settings Security Audit
 
 ### Fixes (22 bugs across profile management, uploads, data export, address PII)

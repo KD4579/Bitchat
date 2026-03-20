@@ -107,6 +107,8 @@ if ($f == 'trading_bot') {
         'bot_pool_trdc_wbnb'    => 'address',
         'bot_pool_usdt_fee'     => 'fee',
         'bot_pool_wbnb_fee'     => 'fee',
+        'bot_arb_poll_seconds'  => 'int',
+        'bot_arb_cooldown'      => 'int',
     );
 
     $validModes = array('both', 'market_making', 'arbitrage');

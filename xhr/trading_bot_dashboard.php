@@ -18,7 +18,8 @@ if ($f == 'trading_bot_dashboard') {
         $stats = array();
         $keys = array('bot_enabled','bot_mode','bot_daily_pnl','bot_last_cycle','bot_next_cycle',
                        'bot_cycle_count','bot_next_direction','bot_cooldown_seconds','bot_spread_percent',
-                       'bot_order_size_trdc');
+                       'bot_order_size_trdc','bot_arb_monitor_status','bot_last_arb','bot_arb_count',
+                       'bot_arb_poll_seconds','bot_arb_cooldown');
         foreach ($keys as $k) {
             $stats[$k] = isset($wo['config'][$k]) ? $wo['config'][$k] : '';
         }

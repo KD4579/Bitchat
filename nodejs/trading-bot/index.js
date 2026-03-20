@@ -59,7 +59,13 @@ async function main() {
         process.exit(1);
     }
 
-    // ── Main trading loop ──────────────────────────────
+    // ── Launch arbitrage price monitor (runs independently) ──
+    const mode = cfg.bot_mode;
+    if (mode === 'arbitrage' || mode === 'both') {
+        startArbMonitor(wallet, provider, cfg);
+    }
+
+    // ── Main trading loop (grid trading on slow cooldown) ──
     log.info(`Starting trading loop (cooldown: ${cfg.bot_cooldown_seconds}s)`);
 
     let cycleCount = 0;
@@ -74,12 +80,23 @@ async function main() {
             // Reload config periodically
             if (cycleCount % CONFIG_RELOAD_CYCLES === 0) {
                 cfg = await loadBotConfig();
+                // Update arb monitor config reference
+                arbShared.cfg = cfg;
+
                 if (cfg.bot_enabled !== '1') {
                     log.warn('Bot was DISABLED via admin panel. Entering standby...');
+                    arbShared.paused = true;
                     await standbyLoop();
                     cfg = await loadBotConfig();
+                    arbShared.cfg = cfg;
                     if (cfg.bot_enabled !== '1') continue;
+                    arbShared.paused = false;
                     log.info('Bot re-enabled! Resuming trading...');
+                    // Restart arb monitor if mode includes arbitrage
+                    const newMode = cfg.bot_mode;
+                    if ((newMode === 'arbitrage' || newMode === 'both') && !arbShared.running) {
+                        startArbMonitor(wallet, provider, cfg);
+                    }
                 }
             }
 
@@ -111,20 +128,15 @@ async function main() {
                 await checkPoolHealth(provider, cfg, trdcPrice);
             }
 
-            // Execute trading strategy
-            const mode = cfg.bot_mode;
+            // Execute grid trading on slow cooldown (arbitrage runs independently via monitor)
+            const currentMode = cfg.bot_mode;
 
-            if (mode === 'market_making' || mode === 'both') {
+            if (currentMode === 'market_making' || currentMode === 'both') {
                 log.info(`── Cycle ${cycleCount}: Grid Trading ──`);
                 await runGridTrading(wallet, provider, cfg);
             }
 
-            if (mode === 'arbitrage' || mode === 'both') {
-                log.info(`── Cycle ${cycleCount}: Arbitrage ──`);
-                await runArbitrage(wallet, provider, cfg);
-            }
-
-            // Save stats to database — use the randomized cooldown from loop top
+            // Save stats to database
             cooldown = randomizeCooldown(parseInt(cfg.bot_cooldown_seconds));
             const nextCycleAt = new Date(Date.now() + cooldown * 1000).toISOString();
             await saveBotStat('bot_daily_pnl', dailyPnl().toFixed(4));
@@ -132,8 +144,9 @@ async function main() {
             await saveBotStat('bot_next_cycle', nextCycleAt);
             await saveBotStat('bot_cycle_count', cycleCount);
             await saveBotStat('bot_next_direction', nextDirection());
+            await saveBotStat('bot_arb_monitor_status', arbShared.running ? 'active' : 'stopped');
 
-            log.info(`Cycle ${cycleCount} done. P&L: $${dailyPnl().toFixed(2)}. Next: ${nextDirection()} in ${(cooldown/60).toFixed(0)}min at ${nextCycleAt.slice(11,19)} UTC`);
+            log.info(`Cycle ${cycleCount} done. P&L: $${dailyPnl().toFixed(2)}. Next grid: ${nextDirection()} in ${(cooldown/60).toFixed(0)}min at ${nextCycleAt.slice(11,19)} UTC`);
 
         } catch (e) {
             log.error(`Cycle ${cycleCount} error: ${e.message}`, { stack: e.stack?.split('\n').slice(0, 3) });
@@ -141,6 +154,175 @@ async function main() {
 
         await sleep(cooldown * 1000);
     }
+}
+
+// ── Arbitrage Price Monitor ─────────────────────────────
+// Runs as a separate async loop, polling pool prices every N seconds.
+// When a profitable spread is detected, it executes arbitrage immediately.
+
+const arbShared = {
+    cfg: null,
+    running: false,
+    paused: false,
+    executing: false,  // Lock to prevent overlapping arb executions
+    lastArbTime: 0,    // Timestamp of last arb trade
+    pollCount: 0,      // Total price checks
+    arbCount: 0,       // Successful arb executions
+};
+
+async function startArbMonitor(wallet, provider, cfg) {
+    if (arbShared.running) {
+        log.info('Arb monitor already running, skipping duplicate start.');
+        return;
+    }
+
+    arbShared.cfg = cfg;
+    arbShared.running = true;
+    arbShared.paused = false;
+
+    const DEC = 18;
+    const pollInterval = parseInt(cfg.bot_arb_poll_seconds || 15) * 1000; // Default 15s
+    const minCooldown = parseInt(cfg.bot_arb_cooldown || 60) * 1000;     // Min 60s between arb trades
+
+    log.info('========================================');
+    log.info(`Arb monitor STARTED — polling every ${pollInterval/1000}s`);
+    log.info(`Min arb profit: ${cfg.bot_min_arb_profit}%, cooldown between arbs: ${minCooldown/1000}s`);
+    log.info('========================================');
+
+    while (arbShared.running) {
+        try {
+            // Respect pause state (bot disabled)
+            if (arbShared.paused) {
+                await sleep(5000);
+                continue;
+            }
+
+            // Use latest config
+            const c = arbShared.cfg;
+            const currentMode = c.bot_mode;
+
+            // Stop if mode no longer includes arbitrage
+            if (currentMode !== 'arbitrage' && currentMode !== 'both') {
+                log.info('Arb monitor stopping — mode changed to market_making only.');
+                arbShared.running = false;
+                break;
+            }
+
+            if (c.bot_enabled !== '1') {
+                await sleep(5000);
+                continue;
+            }
+
+            arbShared.pollCount++;
+
+            // Check daily loss limit
+            const lossLimit = parseFloat(c.bot_daily_loss_limit);
+            if (dailyPnl() < -lossLimit) {
+                if (arbShared.pollCount % 20 === 0) {
+                    log.warn(`[ArbMon] Daily loss limit hit ($${Math.abs(dailyPnl()).toFixed(2)}/$${lossLimit}). Monitoring paused.`);
+                }
+                await sleep(pollInterval * 4); // Slow down when loss limit hit
+                continue;
+            }
+
+            // Fetch prices from both pools
+            const usdtPool = c.bot_pool_trdc_usdt;
+            const wbnbPool = c.bot_pool_trdc_wbnb;
+
+            const [priceUsdt, priceWbnb] = await Promise.all([
+                getPoolPrice(provider, usdtPool, DEC, DEC),
+                getPoolPrice(provider, wbnbPool, DEC, DEC),
+            ]);
+
+            if (priceUsdt <= 0 || priceWbnb <= 0) {
+                await sleep(pollInterval);
+                continue;
+            }
+
+            // Calculate price difference
+            const bnbPriceUsd = priceUsdt / priceWbnb;
+            if (!isFinite(bnbPriceUsd) || bnbPriceUsd <= 0) {
+                await sleep(pollInterval);
+                continue;
+            }
+
+            const trdcPriceViaWbnb = priceWbnb * bnbPriceUsd;
+            const priceDiff = Math.abs(priceUsdt - trdcPriceViaWbnb);
+            const minPrice = Math.min(priceUsdt, trdcPriceViaWbnb);
+            const priceDiffPct = minPrice > 0 ? priceDiff / minPrice : 0;
+            const minProfit = parseFloat(c.bot_min_arb_profit) / 100;
+
+            // Log price check periodically (every 20 polls to avoid spam)
+            if (arbShared.pollCount % 20 === 0) {
+                log.info(`[ArbMon] Poll #${arbShared.pollCount}: USDT=$${priceUsdt.toFixed(10)}, viaWBNB=$${trdcPriceViaWbnb.toFixed(10)}, spread=${(priceDiffPct*100).toFixed(3)}% (threshold: ${(minProfit*100).toFixed(1)}%)`);
+            }
+
+            // Check if spread exceeds threshold
+            if (priceDiffPct >= minProfit) {
+                // Check cooldown between arb trades
+                const now = Date.now();
+                const timeSinceLastArb = now - arbShared.lastArbTime;
+                if (timeSinceLastArb < minCooldown) {
+                    log.info(`[ArbMon] Spread ${(priceDiffPct*100).toFixed(3)}% detected but cooling down (${((minCooldown - timeSinceLastArb)/1000).toFixed(0)}s left).`);
+                    await sleep(pollInterval);
+                    continue;
+                }
+
+                // Prevent overlapping executions
+                if (arbShared.executing) {
+                    log.info(`[ArbMon] Spread detected but arb already executing. Waiting...`);
+                    await sleep(pollInterval);
+                    continue;
+                }
+
+                // Check gas before executing
+                try {
+                    const feeData = await provider.getFeeData();
+                    const gasGwei = parseFloat(ethers.formatUnits(feeData.gasPrice || 0n, 'gwei'));
+                    const maxGas = parseFloat(c.bot_max_gas_gwei);
+                    if (gasGwei > maxGas) {
+                        log.warn(`[ArbMon] Spread ${(priceDiffPct*100).toFixed(3)}% but gas too high (${gasGwei.toFixed(1)} > ${maxGas} gwei). Skipping.`);
+                        await sleep(pollInterval);
+                        continue;
+                    }
+                } catch (e) {
+                    log.warn(`[ArbMon] Gas check failed: ${e.message}`);
+                    await sleep(pollInterval);
+                    continue;
+                }
+
+                // EXECUTE ARBITRAGE
+                log.info(`[ArbMon] ⚡ SPREAD DETECTED: ${(priceDiffPct*100).toFixed(3)}% >= ${(minProfit*100).toFixed(1)}% — executing arb NOW`);
+                arbShared.executing = true;
+
+                try {
+                    resetDailyPnlIfNeeded();
+                    await runArbitrage(wallet, provider, c);
+                    arbShared.arbCount++;
+                    arbShared.lastArbTime = Date.now();
+
+                    // Save stats after arb
+                    await saveBotStat('bot_daily_pnl', dailyPnl().toFixed(4));
+                    await saveBotStat('bot_last_arb', new Date().toISOString());
+                    await saveBotStat('bot_arb_count', arbShared.arbCount);
+
+                    log.info(`[ArbMon] Arb #${arbShared.arbCount} complete. Daily P&L: $${dailyPnl().toFixed(4)}`);
+                } catch (e) {
+                    log.error(`[ArbMon] Arb execution failed: ${e.message}`);
+                } finally {
+                    arbShared.executing = false;
+                }
+            }
+
+        } catch (e) {
+            log.error(`[ArbMon] Monitor error: ${e.message}`);
+        }
+
+        await sleep(pollInterval);
+    }
+
+    log.info('Arb monitor stopped.');
+    arbShared.running = false;
 }
 
 /**
