@@ -2,9 +2,11 @@
 if ($f == 'close_call') {
     if (!empty($_GET['id'])) {
         $id    = Wo_Secure($_GET['id']);
-        $query = mysqli_query($sqlConnect, "UPDATE " . T_AUDIO_CALLES . " SET `declined` = '1' WHERE `id` = '$id'");
+        $uid   = Wo_Secure($wo['user']['user_id']);
+        // SECURITY: Only call participants can close (IDOR protection)
+        $query = mysqli_query($sqlConnect, "UPDATE " . T_AUDIO_CALLES . " SET `declined` = '1' WHERE `id` = '$id' AND (`to_id` = '$uid' OR `from_id` = '$uid')");
         if ($wo['config']['agora_chat_video'] == 1) {
-            $query = mysqli_query($sqlConnect, "UPDATE " . T_AGORA . " SET `declined` = '1' WHERE `id` = '$id'");
+            $query = mysqli_query($sqlConnect, "UPDATE " . T_AGORA . " SET `declined` = '1' WHERE `id` = '$id' AND (`to_id` = '$uid' OR `from_id` = '$uid')");
         }
         if ($query) {
             $data = array(

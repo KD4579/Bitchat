@@ -48,12 +48,21 @@ if ($f == 'trdc_boost_post') {
         exit();
     }
 
-    // Deduct TRDC and boost post
+    // Deduct TRDC and boost post (atomic to prevent race condition double-spend)
     $userId = intval($wo['user']['user_id']);
     $expires = time() + $boostDuration;
 
-    mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet - {$boostCost} WHERE user_id = {$userId}");
+    mysqli_begin_transaction($sqlConnect);
+    $debit = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet - {$boostCost} WHERE user_id = {$userId} AND wallet >= {$boostCost}");
+    if (!$debit || mysqli_affected_rows($sqlConnect) === 0) {
+        mysqli_rollback($sqlConnect);
+        $data['message'] = 'Insufficient TRDC balance.';
+        header("Content-type: application/json");
+        echo json_encode($data);
+        exit();
+    }
     mysqli_query($sqlConnect, "UPDATE " . T_POSTS . " SET trdc_boosted = 1, trdc_boost_expires = {$expires} WHERE id = {$postId}");
+    mysqli_commit($sqlConnect);
 
     cache($userId, 'users', 'delete');
 

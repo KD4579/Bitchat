@@ -81,6 +81,12 @@ if ($f == "movies") {
             }
         }
     } else if ($s == 'delete' && isset($_GET['id'])) {
+        // SECURITY: Only admins can delete movies
+        if (!Wo_IsAdmin()) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 403));
+            exit();
+        }
         $result = Wo_DeleteFilm($_GET['id']);
         if ($result == true) {
             $data['status'] = 200;

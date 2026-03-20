@@ -1,8 +1,9 @@
-<?php 
+<?php
 if ($f == 'poke') {
-    if (!empty($_GET['received_user_id']) && !empty($_GET['send_user_id']) && Wo_CheckMainSession($hash_id) === true) {
+    if (!empty($_GET['received_user_id']) && Wo_CheckMainSession($hash_id) === true) {
         $received_user_id = Wo_Secure($_GET['received_user_id']);
-        $send_user_id     = Wo_Secure($_GET['send_user_id']);
+        // SECURITY: Always use authenticated user as sender (prevent impersonation)
+        $send_user_id     = Wo_Secure($wo['user']['user_id']);
         if (isset($_GET['poke_id']) && !empty($_GET['poke_id'])) {
             $poke_id  = Wo_Secure($_GET['poke_id']);
             $querydel = mysqli_query($sqlConnect, "DELETE FROM " . T_POKES . " WHERE `received_user_id` = {$send_user_id} AND `send_user_id` = {$received_user_id}");

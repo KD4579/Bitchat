@@ -342,8 +342,8 @@ function Wo_CallGuardFunction($guardFn, $userId, $rewardKey, $context) {
             );
 
         default:
-            // Unknown guard — fail open (allow reward)
-            return true;
+            // SECURITY: Unknown guard — fail closed (deny reward for safety)
+            return false;
     }
 }
 

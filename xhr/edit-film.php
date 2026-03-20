@@ -45,15 +45,15 @@ if ($f == "edit-film") {
         }
         if (empty($error)) {
             $registration_data = array(
-                'name' => $_POST['name'],
-                'genre' => $_POST['genre'],
-                'stars' => $_POST['stars'],
-                'producer' => $_POST['producer'],
-                'country' => $_POST['country'],
-                'release' => $_POST['release'],
-                'quality' => $_POST['quanlity'],
-                'duration' => $_POST['duration'],
-                'description' => $_POST['description'],
+                'name' => Wo_Secure($_POST['name'], 1),
+                'genre' => Wo_Secure($_POST['genre']),
+                'stars' => Wo_Secure($_POST['stars'], 1),
+                'producer' => Wo_Secure($_POST['producer'], 1),
+                'country' => Wo_Secure($_POST['country']),
+                'release' => Wo_Secure($_POST['release']),
+                'quality' => Wo_Secure($_POST['quanlity']),
+                'duration' => Wo_Secure($_POST['duration']),
+                'description' => Wo_Secure($_POST['description'], 1),
                 'rating' => Wo_Secure($_POST['rating'])
             );
             $film_id           = Wo_Secure($_POST['id']);

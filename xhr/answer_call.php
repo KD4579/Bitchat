@@ -1,14 +1,16 @@
-<?php 
+<?php
 if ($f == 'answer_call') {
     if (!empty($_GET['id']) && !empty($_GET['type'])) {
         $id = Wo_Secure($_GET['id']);
+        $uid = Wo_Secure($wo['user']['user_id']);
+        // SECURITY: Only the call recipient can answer (IDOR protection)
         if ($_GET['type'] == 'audio') {
-            $query = mysqli_query($sqlConnect, "UPDATE " . T_AUDIO_CALLES . " SET `active` = 1 WHERE `id` = '$id'");
+            $query = mysqli_query($sqlConnect, "UPDATE " . T_AUDIO_CALLES . " SET `active` = 1 WHERE `id` = '$id' AND `to_id` = '$uid'");
         } else {
-            $query = mysqli_query($sqlConnect, "UPDATE " . T_VIDEOS_CALLES . " SET `active` = 1 WHERE `id` = '$id'");
+            $query = mysqli_query($sqlConnect, "UPDATE " . T_VIDEOS_CALLES . " SET `active` = 1 WHERE `id` = '$id' AND `to_id` = '$uid'");
         }
         if ($wo['config']['agora_chat_video'] == 1) {
-            $query = mysqli_query($sqlConnect, "UPDATE " . T_AGORA . " SET `active` = 1 WHERE `id` = '$id'");
+            $query = mysqli_query($sqlConnect, "UPDATE " . T_AGORA . " SET `active` = 1 WHERE `id` = '$id' AND `to_id` = '$uid'");
         }
         if ($query) {
             $data = array(
