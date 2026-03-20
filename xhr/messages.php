@@ -4,6 +4,12 @@ if ($f == 'messages') {
         if (!empty($_GET['user_id']) AND is_numeric($_GET['user_id']) AND $_GET['user_id'] > 0 && Wo_CheckMainSession($hash_id) === true) {
             $html       = '';
             $user_id    = $_GET['user_id'];
+            // SECURITY: Block access to messages from/to blocked users
+            if (Wo_IsBlocked($user_id)) {
+                header("Content-type: application/json");
+                echo json_encode(array('status' => 403));
+                exit();
+            }
             $can_replay = true;
             $recipient  = Wo_UserData($user_id);
             $messages   = Wo_GetMessages(array(
@@ -71,6 +77,12 @@ if ($f == 'messages') {
     if ($s == 'get_group_messages' && isset($_GET['group_id']) && is_numeric($_GET['group_id']) && $_GET['group_id'] > 0 && Wo_CheckMainSession($hash_id)) {
         $html     = '';
         $group_id = $_GET['group_id'];
+        // SECURITY: Verify user is a member of this group chat (IDOR protection)
+        if (!Wo_IsGChatOwner($group_id) && !Wo_IsGChatMemebers($group_id)) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 403));
+            exit();
+        }
         $messages = Wo_GetGroupMessages(array(
             'group_id' => $group_id
         ));
@@ -125,6 +137,12 @@ if ($f == 'messages') {
                 $reply_id = 0;
                 $story_id = 0;
                 if (isset($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && Wo_CheckMainSession($hash_id) === true) {
+                    // SECURITY: Prevent sending messages to blocked users
+                    if (Wo_IsBlocked($_POST['user_id'])) {
+                        header("Content-type: application/json");
+                        echo json_encode(array('status' => 403));
+                        exit();
+                    }
                     $html          = '';
                     $media         = '';
                     $mediaFilename = '';
@@ -147,8 +165,9 @@ if ($f == 'messages') {
                             $mediaName     = $media['name'];
                         }
                     } else if (!empty($_POST['record-file']) && !empty($_POST['record-name'])) {
-                        $mediaFilename = $_POST['record-file'];
-                        $mediaName     = $_POST['record-name'];
+                        // SECURITY: Sanitize record file paths to prevent path injection/traversal
+                        $mediaFilename = Wo_Secure(basename($_POST['record-file']));
+                        $mediaName     = Wo_Secure(basename($_POST['record-name']));
                     }
                     if (!empty($_POST['chatSticker']) && !strpos($_POST['chatSticker'], '.gif')) {
                         $fileend       = '_sticker_' . rand(111111, 999999);
@@ -280,6 +299,12 @@ if ($f == 'messages') {
                         );
                     }
                 } else if (isset($_POST['group_id']) && is_numeric($_POST['group_id']) && $_POST['group_id'] > 0 && Wo_CheckMainSession($hash_id) === true) {
+                    // SECURITY: Verify user is a member before allowing message send
+                    if (!Wo_IsGChatOwner($_POST['group_id']) && !Wo_IsGChatMemebers($_POST['group_id'])) {
+                        header("Content-type: application/json");
+                        echo json_encode(array('status' => 403));
+                        exit();
+                    }
                     $html          = '';
                     $media         = '';
                     $mediaFilename = '';
@@ -302,8 +327,9 @@ if ($f == 'messages') {
                             $mediaName     = $media['name'];
                         }
                     } else if (!empty($_POST['record-file']) && !empty($_POST['record-name'])) {
-                        $mediaFilename = $_POST['record-file'];
-                        $mediaName     = $_POST['record-name'];
+                        // SECURITY: Sanitize record file paths to prevent path injection/traversal
+                        $mediaFilename = Wo_Secure(basename($_POST['record-file']));
+                        $mediaName     = Wo_Secure(basename($_POST['record-name']));
                     }
                     if (!empty($_POST['reply_id']) && is_numeric($_POST['reply_id']) && $_POST['reply_id'] > 0) {
                         $reply_id = Wo_Secure($_POST['reply_id']);

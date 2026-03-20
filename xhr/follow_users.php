@@ -1,5 +1,11 @@
-<?php 
+<?php
 if ($f == 'follow_users') {
+    // CSRF protection for mass follow
+    if (Wo_CheckSession($hash_id) !== true) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 403));
+        exit();
+    }
     if (!empty($_POST['user'])) {
         $continue = false;
         $ids      = @explode(',', $_POST['user']);

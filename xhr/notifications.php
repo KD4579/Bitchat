@@ -1,6 +1,12 @@
 <?php 
 if ($f == 'notifications') {
     if ($s == 'get-users') {
+        // SECURITY: Only admins can search users via the mass-notification panel
+        if (!Wo_IsAdmin()) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 403));
+            exit();
+        }
         $data  = array(
             'status' => 404,
             'html' => ''

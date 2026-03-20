@@ -2,6 +2,20 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-20 — Messaging, Posts & Social Features Security Audit (13 bugs fixed)
+
+- **CRITICAL: SQL injection in message search** — raw `$_GET['query']` in LIKE clause (`functions_one.php`)
+- **HIGH: Group chat read/write IDOR** — any user could read/send to any group chat (`xhr/messages.php`)
+- **HIGH: Record-file path injection** — arbitrary server file reference in messages (`xhr/messages.php`)
+- **HIGH: Comment reply edit IDOR** — no ownership check in `Wo_UpdateCommentReply()` (`functions_three.php`)
+- **HIGH: Mass follow missing CSRF** — added `Wo_CheckSession()` (`xhr/follow_users.php`)
+- **HIGH: Admin notification search exposed** — added `Wo_IsAdmin()` gate (`xhr/notifications.php`)
+- **HIGH: Messages readable after blocking** — added `Wo_IsBlocked()` on read+send (`xhr/messages.php`)
+- **MEDIUM: Group chat edit IDOR** — added owner check (`xhr/chat.php`)
+- **MEDIUM: Blocked users bypass on send** — added block check on send path (`xhr/messages.php`)
+- **MEDIUM: Comment CSRF missing** — added `Wo_CheckMainSession()` (`xhr/posts.php`)
+- **MEDIUM: Hashtag SQL injection** — sanitized `Wo_GetHashtagSug()` params (`functions_one.php`)
+
 ## 2026-03-20 — Arbitrage Bot: Auto-trigger on Price Difference
 
 ### Enhancement

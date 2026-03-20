@@ -1658,7 +1658,7 @@ if ($f == 'posts') {
         exit();
     }
     if ($s == 'register_comment') {
-        if (!empty($_POST['post_id']) && isset($_POST['text'])) {
+        if (!empty($_POST['post_id']) && isset($_POST['text']) && Wo_CheckMainSession($hash_id) === true) {
             $html    = '';
             $page_id = '';
             if (!empty($_POST['page_id'])) {

@@ -1979,6 +1979,10 @@ function Wo_GetHashtagSug($limit, $query) {
     global $wo, $sqlConnect;
     $data      = array();
     $html_fi   = array();
+    // SECURITY: Sanitize inputs to prevent SQL injection
+    $query = Wo_Secure($query);
+    $query = str_replace(array('%', '_'), array('\\%', '\\_'), $query);
+    $limit = intval($limit);
     $query_one = "SELECT * FROM " . T_HASHTAGS . " WHERE `tag` LIKE '%{$query}%' ORDER BY `trend_use_num` DESC";
     $query_one .= " LIMIT {$limit}";
     $sql = mysqli_query($sqlConnect, $query_one);
@@ -3567,6 +3571,10 @@ function Wo_GetMessagesUsers($user_id, $searchQuery = '', $limit = 50, $new = fa
     $data     = array();
     $excludes = array();
     if (isset($searchQuery) and !empty($searchQuery)) {
+        // SECURITY: Sanitize search query to prevent SQL injection
+        $searchQuery = Wo_Secure($searchQuery);
+        // Escape LIKE wildcards to prevent wildcard injection
+        $searchQuery = str_replace(array('%', '_'), array('\\%', '\\_'), $searchQuery);
         $query_one = " SELECT `user_id` as `conversation_user_id` FROM " . T_USERS . " WHERE (`user_id` IN (SELECT `from_id` FROM " . T_MESSAGES . " WHERE `to_id` = {$user_id} AND `user_id` NOT IN (SELECT `blocked` FROM " . T_BLOCKS . " WHERE `blocker` = '{$user_id}') AND `user_id` NOT IN (SELECT `blocker` FROM " . T_BLOCKS . " WHERE `blocked` = '{$user_id}') AND `active` = '1' ";
         if (isset($new) && $new == true) {
             $query_one .= " AND `seen` = 0";

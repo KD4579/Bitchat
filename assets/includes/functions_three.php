@@ -5018,7 +5018,9 @@ function Wo_UpdateCommentReply($id, $update_data = array()) {
         $update[] = '`' . $field . '` = \'' . $data . '\'';
     }
     $impload   = implode(', ', $update);
-    $query_one = "UPDATE " . T_COMMENTS_REPLIES . " SET {$impload} WHERE `id` = {$id} ";
+    // SECURITY: Only allow updating own replies (IDOR protection)
+    $logged_user_id = Wo_Secure($wo['user']['user_id']);
+    $query_one = "UPDATE " . T_COMMENTS_REPLIES . " SET {$impload} WHERE `id` = {$id} AND `user_id` = '{$logged_user_id}'";
     $query     = mysqli_query($sqlConnect, $query_one);
     return $query;
 }

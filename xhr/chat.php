@@ -21,6 +21,13 @@ if ($f == 'chat') {
         $group_id       = $id = Wo_Secure($_POST['group_id']);
         $group_tab      = Wo_GroupTabData($group_id);
         $error          = '';
+        // SECURITY: Only group owner can edit group chat
+        if (!Wo_IsGChatOwner($group_id)) {
+            $data['message'] = 'Permission denied';
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
         if ($group_tab && is_array($group_tab)) {
             if (!empty($_POST['group_name']) && (strlen($_POST['group_name']) < 4 || strlen($_POST['group_name']) > 15)) {
                 $error           = true;
