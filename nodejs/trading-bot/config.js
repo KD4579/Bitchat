@@ -35,7 +35,7 @@ const DEFAULTS = {
     bot_pool_trdc_usdt:    '0x7b57fa13cca5093f5d724823d58503dfd02ff07c',
     bot_pool_trdc_wbnb:    '0x0b5e165fcb524fbb2d313f3d573d79372913788b',
     bot_pool_usdt_fee:     '100',
-    bot_pool_wbnb_fee:     '2500',
+    bot_pool_wbnb_fee:     '500',
     bot_arb_poll_seconds:  '15',     // How often to check pool prices for arb (seconds)
     bot_arb_cooldown:      '60',     // Min seconds between arb trades
 };
