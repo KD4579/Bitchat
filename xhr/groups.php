@@ -257,11 +257,11 @@ if ($f == 'groups') {
                             }
                         }
                         $Update_data = array(
-                            'group_name' => $_POST['group_name'],
-                            'group_title' => $_POST['group_title'],
-                            'category' => $_POST['group_category'],
+                            'group_name' => Wo_Secure($_POST['group_name']),
+                            'group_title' => Wo_Secure($_POST['group_title'], 1),
+                            'category' => Wo_Secure($_POST['group_category']),
                             'sub_category' => $sub_category,
-                            'about' => $_POST['about']
+                            'about' => Wo_Secure($_POST['about'], 1)
                         );
                         $fields      = Wo_GetCustomFields('group');
                         if (!empty($fields)) {

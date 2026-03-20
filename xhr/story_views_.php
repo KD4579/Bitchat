@@ -1,7 +1,15 @@
-<?php 
+<?php
 if ($f == 'story_views_') {
     $data['status'] = 400;
     if (!empty($_POST['story_id']) && is_numeric($_POST['story_id']) && $_POST['story_id'] > 0 && !empty($_POST['last_view']) && is_numeric($_POST['last_view']) && $_POST['last_view'] > 0) {
+        // SECURITY: Only the story owner can see who viewed their story
+        $story_owner = $db->where('id', intval($_POST['story_id']))->getValue(T_USER_STORY, 'user_id');
+        if (empty($story_owner) || $story_owner != $wo['user']['user_id']) {
+            $data['status'] = 403;
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
         $users = $db->where('id',Wo_Secure($_POST['last_view']),'<')->where('story_id',Wo_Secure($_POST['story_id']))->where('user_id', $wo['user']['user_id'], '!=')->orderBy('id', "Desc")->get(T_STORY_SEEN,10);
         $html = '';
         if (!empty($users)) {

@@ -5608,12 +5608,23 @@ function Wo_RegisterPost($re_data = array('recipient_id' => 0)) {
                     } else {
                         $re_data['postText'] = str_replace($match_search, $match_replace, $re_data['postText']);
                     }
-                    $hashtag_query     = "UPDATE " . T_HASHTAGS . " SET
-                    `last_trend_time` = " . time() . ",
-                    `trend_use_num`   = " . ($hashdata['trend_use_num'] + 1) . ",
-                    `expire`          = '" . date('Y-m-d', strtotime(date('Y-m-d') . " +1week")) . "'
-                    WHERE `id` = " . $hashdata['id'];
-                    $hashtag_sql_query = mysqli_query($sqlConnect, $hashtag_query);
+                    // SECURITY: Per-user dedup - only increment trend count once per user per hashtag per hour
+                    $dedup_user_id = intval($wo['user']['user_id']);
+                    $dedup_cutoff = time() - 3600;
+                    $dedup_tag_ref = '#[' . $hashdata['id'] . ']';
+                    $dedup_tag_ref_safe = mysqli_real_escape_string($sqlConnect, $dedup_tag_ref);
+                    $dedup_check = mysqli_query($sqlConnect,
+                        "SELECT id FROM " . T_POSTS . " WHERE `user_id` = {$dedup_user_id} AND `postText` LIKE '%{$dedup_tag_ref_safe}%' AND `time` > {$dedup_cutoff} LIMIT 1"
+                    );
+                    $should_increment = !($dedup_check && mysqli_num_rows($dedup_check) > 0);
+                    if ($should_increment) {
+                        $hashtag_query     = "UPDATE " . T_HASHTAGS . " SET
+                        `last_trend_time` = " . time() . ",
+                        `trend_use_num`   = " . ($hashdata['trend_use_num'] + 1) . ",
+                        `expire`          = '" . date('Y-m-d', strtotime(date('Y-m-d') . " +1week")) . "'
+                        WHERE `id` = " . $hashdata['id'];
+                        $hashtag_sql_query = mysqli_query($sqlConnect, $hashtag_query);
+                    }
                 }
             }
         }
@@ -9045,8 +9056,8 @@ function Wo_UpdatePost($data = array()) {
                 } else {
                     $post_text = str_replace($match_search, $match_replace, $post_text);
                 }
-                $hashtag_query     = "UPDATE " . T_HASHTAGS . " SET `last_trend_time` = " . time() . ", `trend_use_num` = " . ($hashdata['trend_use_num'] + 1) . " WHERE `id` = " . $hashdata['id'];
-                $hashtag_sql_query = mysqli_query($sqlConnect, $hashtag_query);
+                // SECURITY: Don't increment trend on post edits - only on new post creation
+                // Post edits should not further inflate hashtag trending counts
             }
         }
     }

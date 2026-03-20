@@ -7,6 +7,24 @@ if ($f == 'story_view') {
             $story           = $db->where('id', $story_id)->getOne(T_USER_STORY);
             $wo['story']     = ToArray($story);
             if (!empty($story)) {
+                // SECURITY: Check if the story owner has blocked the viewer (or vice versa)
+                if ($story->user_id != $wo['user']['user_id'] && Wo_IsBlocked($story->user_id)) {
+                    header("Content-type: application/json");
+                    echo json_encode(array('status' => 403));
+                    exit();
+                }
+                // SECURITY: Check follow-based privacy - if story owner's privacy requires following
+                $story_owner_data = Wo_UserData($story->user_id);
+                if (!empty($story_owner_data) && $story->user_id != $wo['user']['user_id']) {
+                    // If the story owner has "followers only" privacy and viewer doesn't follow them
+                    if (isset($story_owner_data['post_privacy']) && $story_owner_data['post_privacy'] == 'ifollow') {
+                        if (Wo_IsFollowing($wo['user']['user_id'], $story->user_id) === false) {
+                            header("Content-type: application/json");
+                            echo json_encode(array('status' => 403));
+                            exit();
+                        }
+                    }
+                }
                 $story_media = Wo_GetStoryMedia($story_id, 'image');
                 if (empty($story_media)) {
                     $story_media = Wo_GetStoryMedia($story_id, 'video');

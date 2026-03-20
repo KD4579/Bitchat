@@ -337,6 +337,13 @@ if ($f == 'job' && $wo['config']['job_system'] == 1) {
         }
     }
     if ($s == 'load' && !empty($_GET['offset']) && is_numeric($_GET['offset']) && $_GET['offset'] > 0 && !empty($_GET['job_id']) && is_numeric($_GET['job_id']) && $_GET['job_id'] > 0) {
+        // SECURITY: Only the job poster can view applications (PII protection)
+        $job_data_check = $db->where('id', intval($_GET['job_id']))->getOne('Wo_Job');
+        if (empty($job_data_check) || ($job_data_check->page_id > 0 && !Wo_IsPageOnwer($job_data_check->page_id) && !Wo_IsAdmin())) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 403));
+            exit();
+        }
         $offset    = Wo_Secure($_GET['offset']);
         $job_id    = Wo_Secure($_GET['job_id']);
         $html      = '';

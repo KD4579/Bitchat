@@ -1,5 +1,11 @@
-<?php 
+<?php
 if ($f == "delete-event") {
+    // CSRF protection
+    if (Wo_CheckMainSession($hash_id) !== true) {
+        header("Content-type: application/json");
+        echo json_encode(array('status' => 403));
+        exit();
+    }
     $data = array(
         'status' => 400,
         'error' => 'Invalid event ID. Please try again.'

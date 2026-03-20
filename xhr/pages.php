@@ -91,11 +91,11 @@ if ($f == 'pages') {
             if ($PageData['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'info')) {
                 if (empty($errors)) {
                     $Update_data = array(
-                        'website' => $_POST['website'],
-                        'page_description' => $_POST['page_description'],
-                        'company' => $_POST['company'],
-                        'address' => $_POST['address'],
-                        'phone' => $_POST['phone']
+                        'website' => Wo_Secure($_POST['website']),
+                        'page_description' => Wo_Secure($_POST['page_description'], 1),
+                        'company' => Wo_Secure($_POST['company'], 1),
+                        'address' => Wo_Secure($_POST['address'], 1),
+                        'phone' => Wo_Secure($_POST['phone'])
                     );
                     if (Wo_UpdatePageData($_POST['page_id'], $Update_data)) {
                         $data = array(
@@ -122,12 +122,12 @@ if ($f == 'pages') {
             if ($PageData['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'social')) {
                 if (empty($errors)) {
                     $Update_data = array(
-                        'facebook' => $_POST['facebook'],
-                        'instgram' => $_POST['instgram'],
-                        'twitter' => $_POST['twitter'],
-                        'linkedin' => $_POST['linkedin'],
-                        'vk' => $_POST['vk'],
-                        'youtube' => $_POST['youtube']
+                        'facebook' => Wo_Secure($_POST['facebook']),
+                        'instgram' => Wo_Secure($_POST['instgram']),
+                        'twitter' => Wo_Secure($_POST['twitter']),
+                        'linkedin' => Wo_Secure($_POST['linkedin']),
+                        'vk' => Wo_Secure($_POST['vk']),
+                        'youtube' => Wo_Secure($_POST['youtube'])
                     );
                     if (Wo_UpdatePageData($_POST['page_id'], $Update_data)) {
                         $data = array(

@@ -129,6 +129,12 @@ if ($f == 'messages') {
         exit();
     }
     if ($s == 'send_message') {
+        // SECURITY: Rate limit message sending to prevent spam/flooding (30 messages per 60 seconds)
+        if (!BitchatSecurity::rateLimit('send_message', $wo['user']['user_id'], 30, 60)) {
+            header("Content-type: application/json");
+            echo json_encode(array('status' => 429, 'error' => 'rate_limited', 'message' => 'Too many messages. Please slow down.'));
+            exit();
+        }
         if ($wo['config']['who_upload'] == 'pro' && $wo['user']['is_pro'] == 0 && !Wo_IsAdmin() && (!empty($_FILES['sendMessageFile']) || !empty($_POST['message-record']))) {
             $data['status']       = 500;
             $data['invalid_file'] = 3;
@@ -332,7 +338,12 @@ if ($f == 'messages') {
                         $mediaName     = Wo_Secure(basename($_POST['record-name']));
                     }
                     if (!empty($_POST['reply_id']) && is_numeric($_POST['reply_id']) && $_POST['reply_id'] > 0) {
-                        $reply_id = Wo_Secure($_POST['reply_id']);
+                        // SECURITY: Validate reply_id belongs to this group conversation
+                        $reply_id_check = Wo_Secure($_POST['reply_id']);
+                        $valid_reply = $db->where('id', $reply_id_check)->where('group_id', Wo_Secure($_POST['group_id']))->getOne(T_MESSAGES, 'id');
+                        if (!empty($valid_reply->id)) {
+                            $reply_id = $reply_id_check;
+                        }
                     }
                     $message_id = Wo_RegisterGroupMessage(array(
                         'from_id' => Wo_Secure($wo['user']['user_id'],0),
@@ -370,6 +381,24 @@ if ($f == 'messages') {
                     $page_data    = Wo_PageData($_POST['page_id']);
                     $invalid_file = 1;
                     if (!empty($page_data)) {
+                        // SECURITY: Only the page admin or an existing conversation participant can send page messages
+                        $is_page_admin = ($page_data['user_id'] == $wo['user']['user_id']);
+                        $is_conversation_participant = false;
+                        if (!$is_page_admin) {
+                            // Check if this user has an existing conversation with this page
+                            $conv_check = $db->where('page_id', Wo_Secure($_POST['page_id']))
+                                ->where("(from_id = ? OR to_id = ?)", array($wo['user']['user_id'], $wo['user']['user_id']))
+                                ->getValue(T_MESSAGES, 'COUNT(*)');
+                            // Allow if user has existing conversation OR is the intended recipient
+                            $is_conversation_participant = ($conv_check > 0 ||
+                                (isset($_POST['to_id']) && $_POST['to_id'] == $wo['user']['user_id']) ||
+                                (isset($_POST['from_id']) && $_POST['from_id'] == $wo['user']['user_id']));
+                        }
+                        if (!$is_page_admin && !$is_conversation_participant) {
+                            header("Content-type: application/json");
+                            echo json_encode(array('status' => 403));
+                            exit();
+                        }
                         $html          = '';
                         $media         = '';
                         $mediaFilename = '';
@@ -392,8 +421,9 @@ if ($f == 'messages') {
                                 $mediaName     = $media['name'];
                             }
                         } else if (!empty($_POST['record-file']) && !empty($_POST['record-name'])) {
-                            $mediaFilename = $_POST['record-file'];
-                            $mediaName     = $_POST['record-name'];
+                            // SECURITY: Sanitize record file paths to prevent path injection/traversal
+                            $mediaFilename = Wo_Secure(basename($_POST['record-file']));
+                            $mediaName     = Wo_Secure(basename($_POST['record-name']));
                         }
                         $message_text = '';
                         if (!empty($_POST['textSendMessage'])) {
@@ -408,7 +438,12 @@ if ($f == 'messages') {
                             }
                         }
                         if (!empty($_POST['reply_id']) && is_numeric($_POST['reply_id']) && $_POST['reply_id'] > 0) {
-                            $reply_id = Wo_Secure($_POST['reply_id']);
+                            // SECURITY: Validate reply_id belongs to this page conversation
+                            $reply_id_check = Wo_Secure($_POST['reply_id']);
+                            $valid_reply = $db->where('id', $reply_id_check)->where('page_id', Wo_Secure($_POST['page_id']))->getOne(T_MESSAGES, 'id');
+                            if (!empty($valid_reply->id)) {
+                                $reply_id = $reply_id_check;
+                            }
                         }
                         $last_id = Wo_RegisterPageMessage(array(
                             'from_id' => Wo_Secure($wo['user']['user_id'],0),
@@ -787,7 +822,8 @@ if ($f == 'messages') {
         if (!empty($_GET['message_id']) && is_numeric($_GET['message_id']) && $_GET['message_id'] > 0 && !empty($_GET['reaction']) && in_array($_GET['reaction'], $reactions_types)) {
             $message_id = Wo_Secure($_GET['message_id']);
             $message    = $db->where('id', $message_id)->getOne(T_MESSAGES);
-            if (!empty($message)) {
+            // SECURITY: Verify the current user is a participant in this message conversation (IDOR protection)
+            if (!empty($message) && ($message->from_id == $wo['user']['user_id'] || $message->to_id == $wo['user']['user_id'])) {
                 $is_reacted = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $message_id)->getValue(T_REACTIONS, 'COUNT(*)');
                 if ($is_reacted > 0) {
                     $db->where('user_id', $wo['user']['user_id'])->where('message_id', $message_id)->delete(T_REACTIONS);

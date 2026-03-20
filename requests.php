@@ -77,8 +77,8 @@ $non_login_array = array(
     'recover',
     'recoversms',
     'reset_password',
-    'search',
-    'get_search_filter',
+    // SECURITY: search and get_search_filter removed from non_login_array
+    // to prevent unauthenticated user/content enumeration
     'update_announcement_views',
     'get_more_hashtag_posts',
     'open_album_lightbox',

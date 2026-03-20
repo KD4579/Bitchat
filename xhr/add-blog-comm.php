@@ -15,6 +15,13 @@ if ($f == "add-blog-comm") {
         if (empty($get_blog)) {
             exit();
         }
+        // SECURITY: Prevent blocked users from commenting on each other's blogs
+        if (!empty($get_blog['user']) && Wo_IsBlocked($get_blog['user'])) {
+            $data = array('status' => 403);
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
         $lastId = Wo_RegisterBlogComment($registration_data);
         if ($lastId && is_numeric($lastId)) {
             $comment = Wo_GetBlogComments(array(

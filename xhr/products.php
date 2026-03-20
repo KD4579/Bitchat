@@ -9,10 +9,8 @@ if ($f == 'products') {
             $errors[] = $error_icon . $wo['lang']['please_check_details'];
         } else if (empty($_POST['price'])) {
             $errors[] = $error_icon . $wo['lang']['please_choose_price'];
-        } else if (!is_numeric($_POST['price'])) {
+        } else if (!is_numeric($_POST['price']) || floatval($_POST['price']) <= 0) {
             $errors[] = $error_icon . $wo['lang']['please_choose_c_price'];
-        } else if ($_POST['price'] == '0.00') {
-            $errors[] = $error_icon . $wo['lang']['please_choose_price'];
         } else if (empty($_FILES['postPhotos']['name'])) {
             $errors[] = $error_icon . $wo['lang']['please_upload_image'];
         } else if($wo['config']['store_system'] == 'on' && (empty($_POST['units']) || !is_numeric($_POST['units']) || $_POST['units'] < 1)){
@@ -163,10 +161,8 @@ if ($f == 'products') {
             $errors[] = $error_icon . $wo['lang']['please_check_details'];
         } else if (empty($_POST['price'])) {
             $errors[] = $error_icon . $wo['lang']['please_choose_price'];
-        } else if (!is_numeric($_POST['price'])) {
+        } else if (!is_numeric($_POST['price']) || floatval($_POST['price']) <= 0) {
             $errors[] = $error_icon . $wo['lang']['please_choose_c_price'];
-        } else if ($_POST['price'] == '0.00') {
-            $errors[] = $error_icon . $wo['lang']['please_choose_price'];
         } else if($wo['config']['store_system'] == 'on' && (empty($_POST['units']) || !is_numeric($_POST['units']) || $_POST['units'] < 1)){
             $errors[] = $error_icon . $wo['lang']['total_item_not_empty'];
         }
@@ -448,6 +444,19 @@ if ($f == 'products') {
                         exit();
                     }
 
+                    // SECURITY: Use atomic wallet deduction to prevent race condition double-purchase
+                    $safe_total = floatval($total);
+                    $safe_uid = intval($wo['user']['user_id']);
+                    mysqli_begin_transaction($sqlConnect);
+                    $debit_ok = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_total} WHERE `user_id` = {$safe_uid} AND `wallet` >= {$safe_total}");
+                    if (!$debit_ok || mysqli_affected_rows($sqlConnect) === 0) {
+                        mysqli_rollback($sqlConnect);
+                        $data['message'] = $error_icon . $wo["lang"]["please_top_up_wallet"];
+                        header('Content-Type: application/json');
+                        echo json_encode($data);
+                        exit();
+                    }
+
                     if (!empty($insert)) {
                         foreach ($insert as $key => $value) {
                             $hash_id = uniqid(rand(11111,999999));
@@ -476,8 +485,8 @@ if ($f == 'products') {
                                                            'address_id' => $address->id,
                                                            'time' => time()));
                             }
-                            $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,array('wallet' => $db->dec($total)));
-
+                            // Wallet already deducted atomically above
+                            mysqli_commit($sqlConnect);
                             cache($wo['user']['user_id'], 'users', 'delete');
                             //$db->where('user_id',$key)->update(T_USERS,array('balance' => $db->inc($total_final_price)));
                             $notes = $wo['lang']['product_purchase'];
@@ -531,6 +540,13 @@ if ($f == 'products') {
             $id = Wo_Secure($_POST['id']);
             $wo['purchase'] = $db->where('order_hash_id',$id)->getOne(T_PURCHAES);
             if (!empty($wo['purchase'])) {
+                // SECURITY: Only buyer or seller can download invoice (IDOR protection)
+                $first_order = $db->where('hash_id', $id)->getOne(T_USER_ORDERS);
+                if (empty($first_order) || ($first_order->user_id != $wo['user']['user_id'] && $first_order->product_owner_id != $wo['user']['user_id'] && !Wo_IsAdmin())) {
+                    header("Content-type: application/json");
+                    echo json_encode(array('status' => 403));
+                    exit();
+                }
                 $orders = $db->where('hash_id',$wo['purchase']->order_hash_id)->get(T_USER_ORDERS);
                 if (!empty($orders)) {
                     $wo['total'] = 0;
@@ -645,9 +661,8 @@ if ($f == 'products') {
                     if ($order->status == 'packed') {
                         $types = array('shipped');
                     }
-                    if ($order->status == 'shipped') {
-                        $types = array('delivered');
-                    }
+                    // SECURITY: Seller CANNOT mark own orders as delivered (prevents payment theft)
+                    // Only the buyer can confirm delivery
                 }
                 elseif ($order->user_id == $wo['user']['user_id']) {
                     if ($order->status == 'shipped') {
