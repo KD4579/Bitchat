@@ -8921,16 +8921,56 @@ html:has(link#night-mode-css) .bc-ticker-sep,
 html.bc-dark-mode .bc-ticker-sep,
 body.night_mode .bc-ticker-sep { color: rgba(255,255,255,0.15) !important; }
 
-/* --- Announcement banner: light mode white bg, dark mode black bg --- */
-.bc-announce-banner { background: #fff !important; color: #1a1a1a !important; border-bottom: 1px solid rgba(0,0,0,0.08); }
-.bc-announce-banner .bc-announce-link { color: #1a73e8 !important; }
+/* --- Announcement banner: multicolor shine (light + dark) --- */
+@keyframes bc-rainbow-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes bc-glow-pulse {
+  0%, 100% { text-shadow: 0 0 6px #ff4e8b, 0 0 12px #ff9f00, 0 0 20px #00e5ff; }
+  33%       { text-shadow: 0 0 6px #00e5ff, 0 0 12px #a855f7, 0 0 20px #ff4e8b; }
+  66%       { text-shadow: 0 0 6px #a855f7, 0 0 12px #00e5ff, 0 0 20px #ff9f00; }
+}
+.bc-announce-banner {
+  background: #fff !important;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.bc-announce-banner span,
+.bc-announce-banner .bc-announce-link {
+  background: linear-gradient(90deg, #ff4e8b, #ff9f00, #ffe600, #00e676, #00e5ff, #a855f7, #ff4e8b) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+  animation: bc-rainbow-shift 3s ease infinite, bc-glow-pulse 3s ease infinite !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+}
+.bc-announce-banner .bc-announce-link { text-decoration: none !important; }
 .bc-announce-banner .bc-announce-close { color: #666 !important; }
 html:has(link#night-mode-css) .bc-announce-banner,
 html.bc-dark-mode .bc-announce-banner,
-body.night_mode .bc-announce-banner { background: #000 !important; color: #e7e9ea !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+body.night_mode .bc-announce-banner {
+  background: #111 !important;
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+html:has(link#night-mode-css) .bc-announce-banner span,
 html:has(link#night-mode-css) .bc-announce-banner .bc-announce-link,
+html.bc-dark-mode .bc-announce-banner span,
 html.bc-dark-mode .bc-announce-banner .bc-announce-link,
-body.night_mode .bc-announce-banner .bc-announce-link { color: #6cabff !important; }
+body.night_mode .bc-announce-banner span,
+body.night_mode .bc-announce-banner .bc-announce-link {
+  background: linear-gradient(90deg, #ff6eb4, #ffb700, #fff700, #00ff8c, #00f0ff, #c084fc, #ff6eb4) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+  animation: bc-rainbow-shift 3s ease infinite, bc-glow-pulse 3s ease infinite !important;
+  font-weight: 700 !important;
+}
 html:has(link#night-mode-css) .bc-announce-banner .bc-announce-close,
 html.bc-dark-mode .bc-announce-banner .bc-announce-close,
 body.night_mode .bc-announce-banner .bc-announce-close { color: #aaa !important; }
