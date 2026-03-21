@@ -85,7 +85,6 @@ $pages = array(
     'announcement-banner',
     'trdc-rewards',
     'trdc-withdrawals',
-    'deposits',
     'trading-bot',
     'trading-bot-dashboard',
     'staking-settings',
@@ -1346,7 +1345,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     </li>
                     <?php } ?>
                     <?php if ($is_admin) { ?>
-                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','trdc-withdrawals','deposits','trading-bot','trading-bot-dashboard','staking-settings','creator-mode','news-bots']) ? 'class="open"' : ''; ?>>
+                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','trdc-withdrawals','trading-bot','trading-bot-dashboard','staking-settings','creator-mode','news-bots']) ? 'class="open"' : ''; ?>>
                         <a href="#">
                             <span class="nav-link-icon">
                                 <i class="material-icons">trending_up</i>
@@ -1377,9 +1376,6 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             </li>
                             <li>
                                 <a <?php echo ($page == 'trdc-withdrawals') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('trdc-withdrawals'); ?>" data-ajax="?path=trdc-withdrawals">TRDC Withdrawals</a>
-                            </li>
-                            <li>
-                                <a <?php echo ($page == 'deposits') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('deposits'); ?>" data-ajax="?path=deposits">BSC Deposits</a>
                             </li>
                             <li>
                                 <a <?php echo ($page == 'trading-bot') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('trading-bot'); ?>" data-ajax="?path=trading-bot">Trading Bot</a>
