@@ -2,6 +2,26 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-21 — Trading Bot Improvements, Dashboard Fixes & Cleanup
+
+### Trading Bot
+- **Arb bot auto-triggers on price difference** — replaced fixed-cooldown arbitrage with independent price monitor that polls every 15s and executes instantly when spread >= threshold
+- **Fixed critical arb math bug** — circular calculation (`priceWbnb * priceUsdt / priceWbnb`) always produced 0% spread; now uses independent BNB/USD price from PancakeSwap WBNB/USDT pool
+- **Fixed BNB price inversion** — WBNB/USDT pool returns USDT per WBNB, was being used inverted
+- **Fixed WBNB pool fee tier** — corrected from 2500 (0.25%) to 500 (0.05%)
+- **Added configurable arb poll interval and cooldown** — admin panel settings for poll frequency and min time between arb trades
+- **Grid bot stopped** — grid trading disabled due to net-negative impact on TRDC price in low-TVL pool ($438)
+
+### Admin Dashboard
+- **Fixed arb side labels** — replaced `→` arrow character with `>` for font compatibility; was rendering blank in Side column
+- **Fixed dark mode colors** — added `!important` to inline trade colors (P&L, side labels) to override dark mode CSS overrides
+- **Fixed arb direction display** — now shows `USDT > WBNB` (green) or `WBNB > USDT` (blue) instead of always "BUY"
+- **Fixed TVL display for arb trades** — shows both pool TVLs (e.g. `446.79/10.67`) instead of `$0`
+- **Added arb monitor stats** — dashboard now tracks arb monitor status, last arb time, arb count
+
+### Removed
+- **Deleted BSC Deposits admin page** — removed `admin-panel/pages/deposits/`, `xhr/btc_deposit.php`, `xhr/deposit_address.php`, and sidebar nav entry
+
 ## 2026-03-21 — User Profiles & Settings Security Audit (25+ bugs fixed)
 
 ### CRITICAL
