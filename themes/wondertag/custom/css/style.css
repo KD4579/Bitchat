@@ -4297,6 +4297,144 @@ body.night_mode #bc-mobile-nav {
 }
 .bc-mob-nav-badge:not(:empty) { display: block; }
 
+/* ── MC-7c: Mobile Profile Panel (slide-up from bottom) ──────────────── */
+.bc-mobile-profile-panel {
+  display: none;
+}
+@media (max-width: 768px) {
+  .bc-mobile-profile-panel {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1051;
+    background: var(--bc-surface-primary, #fff);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.15);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 85vh;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+  }
+  .bc-mobile-profile-panel.open {
+    transform: translateY(0);
+  }
+  .bc-mob-profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 1;
+  }
+  .bc-mob-profile-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .bc-mob-profile-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    line-height: 1;
+    padding: 4px 8px;
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
+  }
+  .bc-mob-profile-body {
+    padding: 4px 12px 16px;
+  }
+  .bc-mob-profile-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 12px;
+    border-radius: 10px;
+    color: inherit;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .bc-mob-profile-item:hover,
+  .bc-mob-profile-item:active {
+    background: rgba(0,0,0,0.04);
+    text-decoration: none;
+    color: inherit;
+  }
+  .bc-mob-profile-item svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+  .bc-mob-profile-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .bc-mob-profile-item div {
+    display: flex;
+    flex-direction: column;
+  }
+  .bc-mob-profile-item div strong {
+    font-size: 15px;
+  }
+  .bc-mob-profile-item div small {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+  .bc-mob-profile-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.08);
+    margin: 4px 12px;
+  }
+  .bc-mob-profile-logout {
+    color: #EF4444 !important;
+  }
+  .bc-mob-profile-logout svg {
+    color: #EF4444 !important;
+    opacity: 1 !important;
+  }
+
+  /* Dark mode */
+  html:has(link#night-mode-css) .bc-mobile-profile-panel,
+  html.bc-dark-mode .bc-mobile-profile-panel,
+  body.night_mode .bc-mobile-profile-panel {
+    background: #1e1e1e !important;
+    color: #e0e0e0 !important;
+  }
+  html:has(link#night-mode-css) .bc-mob-profile-item:hover,
+  html.bc-dark-mode .bc-mob-profile-item:hover,
+  body.night_mode .bc-mob-profile-item:hover {
+    background: rgba(255,255,255,0.06) !important;
+  }
+  html:has(link#night-mode-css) .bc-mob-profile-divider,
+  html.bc-dark-mode .bc-mob-profile-divider,
+  body.night_mode .bc-mob-profile-divider {
+    background: rgba(255,255,255,0.1) !important;
+  }
+
+  /* Native Wondertag bottom toolbar: hide buttons behind #bc-mobile-nav,
+     but keep dropdown panels visible (visibility can be overridden by children). */
+  .tag_hdr_right {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  .tag_hdr_right > .dropdown .dropdown-menu {
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 1052 !important;
+  }
+}
+
 /* ── MC-7a: Search in bottom nav + hide top search bar on mobile ──────── */
 /* Hide search bar from header on mobile */
 @media (max-width: 768px) {

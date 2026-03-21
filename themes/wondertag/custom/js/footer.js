@@ -856,4 +856,16 @@ document.addEventListener('click', function(e) {
         initLoadMore();
     }
     $(document).ajaxComplete(function() { setTimeout(initLoadMore, 300); });
+
+    // --- Part 9: Mobile Profile Panel — close on link tap & backdrop ---
+    $(document).on('click', '#bc-mobile-profile-panel.open a[href]:not([href^="javascript"])', function() {
+        document.getElementById('bc-mobile-profile-panel').classList.remove('open');
+    });
+    // Close panel when tapping outside (above the panel)
+    $(document).on('click touchstart', function(e) {
+        var panel = document.getElementById('bc-mobile-profile-panel');
+        if (panel && panel.classList.contains('open') && !panel.contains(e.target) && e.target.id !== 'bc-mob-profile-btn' && !$(e.target).closest('#bc-mob-profile-btn').length) {
+            panel.classList.remove('open');
+        }
+    });
 })();
