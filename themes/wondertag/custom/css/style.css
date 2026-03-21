@@ -8922,10 +8922,14 @@ html.bc-dark-mode .bc-ticker-sep,
 body.night_mode .bc-ticker-sep { color: rgba(255,255,255,0.15) !important; }
 
 /* --- Announcement banner: multicolor shine (light + dark) --- */
-@keyframes bc-rainbow-shift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes bc-color-cycle {
+  0%   { color: #ff0055; }
+  17%  { color: #ff8800; }
+  33%  { color: #ddbb00; }
+  50%  { color: #00aa44; }
+  67%  { color: #0077ff; }
+  83%  { color: #9900cc; }
+  100% { color: #ff0055; }
 }
 .bc-announce-banner {
   background: #fff !important;
@@ -8933,17 +8937,12 @@ body.night_mode .bc-ticker-sep { color: rgba(255,255,255,0.15) !important; }
 }
 .bc-announce-banner span,
 .bc-announce-banner .bc-announce-link {
-  background: linear-gradient(90deg, #e6005c, #ff6600, #e6c000, #00b341, #0077ff, #7c00e6, #e6005c) !important;
-  background-size: 300% auto !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  color: transparent !important;
-  animation: bc-rainbow-shift 4s linear infinite !important;
+  background: none !important;
+  -webkit-text-fill-color: unset !important;
+  animation: bc-color-cycle 3s linear infinite !important;
   font-weight: 800 !important;
   font-size: 15px !important;
   letter-spacing: 0.03em;
-  filter: none !important;
 }
 .bc-announce-banner .bc-announce-link { text-decoration: none !important; }
 .bc-announce-banner .bc-announce-close { color: #666 !important; }
@@ -8952,22 +8951,6 @@ html.bc-dark-mode .bc-announce-banner,
 body.night_mode .bc-announce-banner {
   background: #111 !important;
   border-bottom-color: rgba(255,255,255,0.06) !important;
-}
-html:has(link#night-mode-css) .bc-announce-banner span,
-html:has(link#night-mode-css) .bc-announce-banner .bc-announce-link,
-html.bc-dark-mode .bc-announce-banner span,
-html.bc-dark-mode .bc-announce-banner .bc-announce-link,
-body.night_mode .bc-announce-banner span,
-body.night_mode .bc-announce-banner .bc-announce-link {
-  background: linear-gradient(90deg, #ff1a75, #ff8c00, #ffe000, #00e65c, #00aaff, #aa00ff, #ff1a75) !important;
-  background-size: 300% auto !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  color: transparent !important;
-  animation: bc-rainbow-shift 4s linear infinite !important;
-  font-weight: 800 !important;
-  font-size: 15px !important;
 }
 html:has(link#night-mode-css) .bc-announce-banner .bc-announce-close,
 html.bc-dark-mode .bc-announce-banner .bc-announce-close,
