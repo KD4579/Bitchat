@@ -57,7 +57,8 @@ if (empty($error_code)) {
         if (in_array($_POST['gender'], array_keys($wo['genders']))) {
             $gender = $_POST['gender'];
         }
-        $code = md5(rand(1111, 9999) . time());
+        // SECURITY: replaced md5(rand(1111,9999).time()) — ~8889 possible values, trivially brute-forced
+        $code = bin2hex(random_bytes(16));
         $account_data = array(
             'email' => Wo_Secure($email, 0),
             'username' => Wo_Secure($username, 0),

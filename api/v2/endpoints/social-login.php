@@ -53,6 +53,11 @@ if (empty($error_code)) {
     	    if (empty($json_data->aud) || $json_data->aud !== $wo['config']['googleAppId']) {
     	        $error_code    = 4;
     	        $error_message = 'Invalid token audience';
+    	    // SECURITY: reject unverified emails — attacker could use a Google account with
+    	    // victim's unverified email to hijack the account
+    	    } else if (!empty($json_data->email) && empty($json_data->email_verified)) {
+    	        $error_code    = 4;
+    	        $error_message = 'Google account email is not verified';
     	    } else {
         		$social_id = $json_data->sub;
         		$social_email = $json_data->email;

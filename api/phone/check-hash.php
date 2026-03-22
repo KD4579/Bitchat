@@ -30,7 +30,8 @@ if ($type == 'check_hash') {
     		$sql_fetch = mysqli_fetch_assoc($query);
     		$user_id = $sql_fetch['user_id'];
     		$time = time();
-    		$s    = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999);
+    		// SECURITY: replaced rand()/microtime() with cryptographically secure token
+    		$s    = bin2hex(random_bytes(32));
             $cookie =  Wo_CreateLoginSession($sql_fetch['user_id']);
     		$add_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$s}', 'phone', '{$time}')");
             if (!empty($_POST['android_m_device_id'])) {

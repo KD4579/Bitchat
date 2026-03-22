@@ -40,7 +40,19 @@ $non_allowed = array(
     'pro_time',
     'css_file',
     'src',
-    'country_id'
+    'country_id',
+    // SECURITY: these fields were missing — any authenticated phone API user could
+    // fetch another user's 2FA secrets, backup codes, and IP address via get_user_data
+    'ip_address',
+    'two_factor', 'two_factor_verified', 'two_factor_method', 'two_factor_hash',
+    'google_secret', 'authy_id',
+    'time_code_sent',
+    'new_email', 'new_phone',
+    'referrer', 'ref_user_id',
+    'last_login_data',
+    'backup_codes',
+    'android_m_device_id', 'ios_m_device_id', 'android_n_device_id', 'ios_n_device_id',
+    'lat', 'lng',
 );
 function Wo_UserSugAPP($limit = 20, $user_id=  0) {
     global $wo, $sqlConnect;

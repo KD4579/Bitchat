@@ -117,7 +117,7 @@ if ($type == 'user_registration') {
             'email' => $email,
             'username' => $username,
             'password' => $password,
-            'email_code' => md5($username),
+            'email_code' => bin2hex(random_bytes(16)), // SECURITY: replaces predictable md5($username)
             'src' => 'Phone',
             'timezone' => 'UTC',
             'gender' => Wo_Secure($gender),

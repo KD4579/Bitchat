@@ -24,11 +24,21 @@ foreach ($required_fields as $key => $value) {
 if (empty($error_code)) {
     $username       = $_POST['username'];
     $password       = $_POST['password'];
+
+    // SECURITY: always-on rate limiting (not gated on prevent_system config)
+    $rate_key = 'api_v2_auth_' . md5($username . '_' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+    if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit($rate_key, 0, 10, 300)) {
+        $error_code    = 6;
+        $error_message = 'Too many login attempts. Please try again later.';
+    }
+
+    if (empty($error_code)) {
     $user_id        = Wo_UserIdForLogin($username);
     $recipient_data = Wo_UserData($user_id);
     if (empty($recipient_data)) {
+        // SECURITY: generic error — "Username not found" enabled username enumeration
         $error_code    = 4;
-        $error_message = 'Username not found';
+        $error_message = 'Incorrect username or password';
     }elseif ($wo['config']['prevent_system'] == 1 && !WoCanLogin()) {
         $error_code    = 6;
         $error_message = 'Too many login attempts please try again later';
@@ -40,7 +50,7 @@ if (empty($error_code)) {
         $login = Wo_Login($username, $password);
         if (!$login) {
             $error_code    = 5;
-            $error_message = 'Password is incorrect';
+            $error_message = 'Incorrect username or password';
             if ($wo['config']['prevent_system'] == 1) {
                 WoAddBadLoginLog();
             }
@@ -105,4 +115,5 @@ if (empty($error_code)) {
             }
         }
     }
+    } // end if (empty($error_code)) rate limit block
 }

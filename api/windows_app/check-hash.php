@@ -30,8 +30,9 @@ if ($type == 'check_hash') {
     		$sql_fetch = mysqli_fetch_assoc($query);
     		$user_id = $sql_fetch['user_id'];
     		$time = time();
-            $se = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999);
-    		$s    = md5($se);
+    		// SECURITY: replaced rand()/microtime()+md5 wrapping with a single secure token.
+    		// Old code stored md5($se) but returned $se — the client could never authenticate.
+    		$s    = bin2hex(random_bytes(32));
             $cookie =  Wo_CreateLoginSession($sql_fetch['user_id']);
     		$add_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$s}', 'windows', '{$time}')");
             // if (!empty($_POST['device_id'])) {
@@ -54,7 +55,7 @@ if ($type == 'check_hash') {
                 $device_id  = Wo_Secure($_POST['ios_n_device_id']);
                 $update  = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `ios_n_device_id` = '{$device_id}' WHERE `user_id` = '{$user_id}'");
             }
-    		$json_success_data = array('user_id' => $user_id, 'session_id' => $se, 'cookie' => $cookie);
+    		$json_success_data = array('user_id' => $user_id, 'session_id' => $s, 'cookie' => $cookie);
     		$mysqli = mysqli_query($sqlConnect, "DELETE FROM " . T_APPS_HASH . " WHERE `hash_id` = '{$hash}' AND `active` = '1'");
             cache($user_id, 'users', 'delete');
     	} else {

@@ -33,11 +33,18 @@ if (!empty($_POST['new_password']) && !empty($_POST['email']) && !empty($_POST['
 		    $error_message = 'Password must contain at least one letter and one number';
 		} else {
 			$password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
-			$getUser = $db->where('email',$email)->getOne(T_USERS);
+			// SECURITY: look up by user_id extracted from the validated token — not the
+			// user-supplied $email. Old code used $email (from POST) which meant the token
+			// and the updated record could be for different users.
+			$token_parts = explode('_', $_POST['code']);
+			$token_user_id = intval($token_parts[0]);
+			$getUser = $db->where('user_id', $token_user_id)->getOne(T_USERS);
 			// Invalidate reset token and clear all other sessions
-			$db->where('email',$email)->update(T_USERS,array('password' => $password,
-		                                                     'email_code' => '',
-		                                                     'time_code_sent' => 0));
+			$db->where('user_id', $token_user_id)->update(T_USERS, array(
+				'password'       => $password,
+				'email_code'     => '',
+				'time_code_sent' => 0
+			));
 			if (!empty($getUser->user_id)) {
 				// Invalidate all existing sessions after password reset
 				mysqli_query($sqlConnect, "DELETE FROM " . T_APP_SESSIONS . " WHERE `user_id` = '{$getUser->user_id}'");

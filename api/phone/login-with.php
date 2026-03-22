@@ -75,8 +75,11 @@ if (isset($_GET['provider']) && in_array($_GET['provider'], $types) && !empty($_
                 $re_data      = array(
                     'username' => Wo_Secure($user_uniq_id, 0),
                     'email' => Wo_Secure($user_email, 0),
-                    'password' => Wo_Secure($user_email, 0),
-                    'email_code' => Wo_Secure(md5($user_uniq_id), 0),
+                    // SECURITY: was 'password' => email — anyone knowing the user's email
+                    // could authenticate as them via Wo_Login(username, email). Fixed to use
+                    // a cryptographically random value that Wo_RegisterUser() will bcrypt-hash.
+                    'password' => bin2hex(random_bytes(16)),
+                    'email_code' => Wo_Secure(bin2hex(random_bytes(16)), 0),
                     'first_name' => Wo_Secure($name),
                     'last_name' => Wo_Secure($user_profile->lastName),
                     'avatar' => Wo_Secure(Wo_ImportImageFromLogin($user_profile->photoURL)),
