@@ -1709,8 +1709,11 @@ body.night_mode .bc-welcome-step-line {
 .bc-announce-close { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.7; line-height: 1; padding: 0 4px; }
 .bc-announce-close:hover { opacity: 1; }
 
+/* ====== Comment Send Button (main post) — always visible ====== */
+.btn-reg-comm-mobi { display: inline-block !important; cursor: pointer; touch-action: manipulation; }
+
 /* ====== Comment Reply Send Button ====== */
-.bc-reply-send-btn { background: none !important; border: none !important; padding: 2px 4px !important; cursor: pointer; display: flex; align-items: center; opacity: 0.85; transition: opacity 0.2s, transform 0.15s; }
+.bc-reply-send-btn { background: none !important; border: none !important; padding: 2px 4px !important; cursor: pointer; display: flex; align-items: center; opacity: 0.85; transition: opacity 0.2s, transform 0.15s; touch-action: manipulation; }
 .bc-reply-send-btn:hover { opacity: 1; transform: scale(1.15); }
 
 /* ====== Invite Widget (Sidebar) ====== */
@@ -4312,7 +4315,7 @@ body.night_mode #bc-mobile-nav {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1051;
+    z-index: 1060;
     background: var(--bc-surface-primary, #fff);
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
@@ -4323,6 +4326,7 @@ body.night_mode #bc-mobile-nav {
     overflow-y: auto;
     overscroll-behavior-y: contain;
     padding-bottom: env(safe-area-inset-bottom, 8px);
+    pointer-events: auto !important;
   }
   .bc-mobile-profile-panel.open {
     transform: translateY(0);
@@ -4366,6 +4370,12 @@ body.night_mode #bc-mobile-nav {
     font-size: 15px;
     font-weight: 500;
     transition: background 0.15s;
+    cursor: pointer;
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.08);
+    position: relative;
+    z-index: 1;
   }
   .bc-mob-profile-item:hover,
   .bc-mob-profile-item:active {
