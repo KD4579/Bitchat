@@ -404,11 +404,11 @@ if ($f == 'register') {
             if ($signup_method === 'phone') {
                 // Phone signup: send SMS OTP for verification
                 $random_activation = random_int(100000, 999999); // 6-digit, cryptographically secure
-                $hashed_activation = Wo_Secure(md5($random_activation)); // Hash before storing
+                $plain_activation  = Wo_Secure($random_activation); // Store plain — Wo_ConfirmSMSUser compares raw input
                 $message = "Your Bitchat confirmation code is: {$random_activation}";
                 if (Wo_SendSMSMessage($_POST['phone_num'], $message) === true) {
                     $user_id = Wo_UserIdFromUsername($_POST['username']);
-                    mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$hashed_activation}', `active` = '0' WHERE `user_id` = {$user_id}");
+                    mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$plain_activation}', `active` = '0' WHERE `user_id` = {$user_id}");
                     cache($user_id, 'users', 'delete');
                     $data = array(
                         'status' => 300,

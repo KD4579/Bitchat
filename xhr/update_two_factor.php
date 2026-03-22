@@ -125,7 +125,11 @@ if ($f == 'update_two_factor') {
         if (empty($_POST['code'])) {
             $error = $error_icon . $wo['lang']['please_check_details'];
         }
-        else{
+        // Rate limit: 5 attempts per 15 min per user — prevents brute force of 6-digit code
+        if (empty($error) && !bitchat_rate_limit('2fa_setup_verify_' . $wo['user']['user_id'], $wo['user']['user_id'], 5, 900)) {
+            $error = $error_icon . $wo['lang']['login_attempts'];
+        }
+        if (empty($error)) {
             $user_verify = $db->where('user_id', $wo['user']['user_id'])->getOne(T_USERS);
             $confirm_code = (!empty($user_verify) && hash_equals($user_verify->email_code, md5($_POST['code']))) ? 1 : 0;
             $Update_data = array();
@@ -260,7 +264,12 @@ if ($f == 'update_two_factor') {
             curl_setopt($ch, CURLOPT_URL, 'https://api.authy.com/protected/json/users/new');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, "user[email]=".$_POST['email']."&user[cellphone]=".$_POST['phone']."&user[country_code]=".$_POST['country_code']);
+            // SECURITY: use http_build_query to prevent HTTP parameter injection from unsanitized POST values
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+                'user[email]'        => $_POST['email'],
+                'user[cellphone]'    => $_POST['phone'],
+                'user[country_code]' => $_POST['country_code'],
+            ]));
 
             $headers = array();
             $headers[] = 'X-Authy-Api-Key: '.$wo['config']['authy_token'];
@@ -275,7 +284,7 @@ if ($f == 'update_two_factor') {
             curl_close($ch);
             $result = json_decode($result);
             if (!empty($result) && !empty($result->user) && !empty($result->user->id)) {
-                $db->where('user_id', $wo['user']['id'])->update(T_USERS, ['authy_id' => $result->user->id]);
+                $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, ['authy_id' => $result->user->id]);
                 $QR = getAuthyQR($result->user->id);
                 if (!empty($QR)) {
                     $data['qr'] = $QR;
@@ -290,7 +299,7 @@ if ($f == 'update_two_factor') {
     }
 
     if ($s == 'backup_codes') {
-        $codes = $db->where('user_id',$wo['user']['id'])->getOne(T_BACKUP_CODES);
+        $codes = $db->where('user_id',$wo['user']['user_id'])->getOne(T_BACKUP_CODES);
         $filename = 'backup-codes.txt';
         if (!empty($codes)) {
             $backupCodes = json_decode($codes->codes,true);
@@ -301,7 +310,7 @@ if ($f == 'update_two_factor') {
             createBackupCodesFile($backupCodes,$filename);
 
             $id = $db->insert(T_BACKUP_CODES,[
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'codes' => json_encode($backupCodes)
             ]);
         }

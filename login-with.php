@@ -29,9 +29,6 @@ if (!empty($_GET['state']) && !empty($_GET['code'])) {
     if (!empty($_SESSION['okru_oauth_state']) && hash_equals($_SESSION['okru_oauth_state'], $_GET['state'])) {
         $_GET['provider'] = 'OkRu';
         unset($_SESSION['okru_oauth_state']);
-    } elseif ($_GET['state'] === 'OkRu') {
-        // Legacy fallback (will be removed after state migration)
-        $_GET['provider'] = 'OkRu';
     }
 }
 if (isset($_GET['provider']) && in_array($_GET['provider'], $types)) {

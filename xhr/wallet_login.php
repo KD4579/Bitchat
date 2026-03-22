@@ -14,6 +14,14 @@ if ($f == 'wallet_login') {
 
     $data['status'] = 400;
 
+    // SECURITY: rate limit wallet login attempts per IP
+    if (!bitchat_rate_limit('wallet_login', get_ip_address(), 10, 300)) {
+        $data['error'] = 'Too many login attempts. Please try again later.';
+        header('Content-type: application/json');
+        echo json_encode($data);
+        exit();
+    }
+
     // Validate inputs: wallet address and signature format
     $wallet_raw  = $_POST['wallet_address'] ?? '';
     $signature   = $_POST['signature'] ?? '';
@@ -92,7 +100,8 @@ if ($f == 'wallet_login') {
                     } else {
                         // New wallet — auto-create account (same pattern as google_login.php)
                         $short        = substr($wallet_address, 2, 8);
-                        $user_uniq_id = 'user_' . $short . '_' . rand(100, 999);
+                        // SECURITY: random_int() replaces rand() for unpredictable username
+                        $user_uniq_id = 'user_' . $short . '_' . random_int(100, 999);
 
                         if (Wo_UserExists($user_uniq_id) !== false) {
                             $user_uniq_id = 'user_' . bin2hex(random_bytes(4));
@@ -106,8 +115,8 @@ if ($f == 'wallet_login') {
                         $re_data = array(
                             'username'            => Wo_Secure($user_uniq_id, 0),
                             'email'               => Wo_Secure($gen_email, 0),
-                            'password'            => Wo_Secure(password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT), 0),
-                            'email_code'          => Wo_Secure(md5(time()), 0),
+                            'password'            => bin2hex(random_bytes(16)), // Wo_RegisterUser() will hash this
+                            'email_code'          => Wo_Secure(bin2hex(random_bytes(16)), 0), // SECURITY: replaces md5(time())
                             'first_name'          => Wo_Secure('Bitchat', 0),
                             'last_name'           => Wo_Secure('User', 0),
                             'wallet_address'      => Wo_Secure($wallet_address, 0),

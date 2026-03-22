@@ -270,7 +270,7 @@ function Wo_Login($username, $password) {
             if ($hash == 'sha1' || $hash == 'md5') {
                 $new_password = Wo_Secure(password_hash($password, PASSWORD_DEFAULT));
                 $query_       = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET password = '$new_password' WHERE (`username` = '{$username}' OR `email` = '{$username}' OR `phone_number` = '{$username}')");
-                cache($mysqli_hash_upgrade['password'], 'users', 'delete');
+                cache($mysqli_hash_upgrade['user_id'], 'users', 'delete');
             }
             return true;
         }

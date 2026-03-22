@@ -5471,7 +5471,7 @@ function Wo_ConfirmUser($user_id, $code) {
     $query  = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`)  FROM " . T_USERS . "  WHERE `sms_code` = '{$code}' AND `user_id` = '{$user_id}' AND `active` = '0'");
     $result = Wo_Sql_Result($query, 0);
     if ($result == 1) {
-        $email_code = md5(rand(1111, 9999) . time());
+        $email_code = bin2hex(random_bytes(16)); // replaced weak md5(rand+time)
         $query_two  = mysqli_query($sqlConnect, " UPDATE " . T_USERS . "  SET `active` = '1', `email_code` = '$email_code' WHERE `user_id` = '{$user_id}' ");
         if ($query_two) {
             return true;
@@ -5493,7 +5493,7 @@ function Wo_ConfirmSMSUser($user_id, $code, $email_code = "") {
     $query  = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`)  FROM " . T_USERS . "  WHERE `sms_code` = '{$code}' AND `user_id` = '{$user_id}'");
     $result = Wo_Sql_Result($query, 0);
     if ($result == 1) {
-        $email_code = md5(rand(1111, 9999) . time());
+        $email_code = bin2hex(random_bytes(16)); // replaced weak md5(rand+time)
         $query_two  = mysqli_query($sqlConnect, " UPDATE " . T_USERS . "  SET `active` = '1', `email_code` = '$email_code' WHERE `user_id` = '{$user_id}' ");
         if ($query_two) {
             return true;
@@ -6458,7 +6458,9 @@ function Wo_UpdateUserCustomData($user_id, $update_data, $loggedin = true) {
     $update = array();
     foreach ($update_data as $field => $data) {
         foreach ($data as $key => $value) {
-            $update[] = "`" . $key . '` = \'' . Wo_Secure($value, 0) . '\'';
+            // SECURITY: escape column name with Wo_Secure to prevent SQL injection via backtick breakout
+            $safe_key = Wo_Secure($key, 0);
+            $update[] = "`" . $safe_key . '` = \'' . Wo_Secure($value, 0) . '\'';
         }
     }
     $impload   = implode(", ", $update);

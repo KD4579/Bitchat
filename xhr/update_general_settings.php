@@ -130,12 +130,20 @@ if ($f == "update_general_settings") {
                     }
                 }
                 if (empty($errors)) {
+                    // SECURITY: require current password for email/phone changes (prevents takeover via stolen session)
+                    $is_email_change = ($_POST['email'] != $wo['user']['email'] && $wo['config']['sms_or_email'] == 'mail' && $wo['config']['emailValidation'] == 1);
+                    $is_phone_change = (!empty($_POST['phone_number']) && $_POST['phone_number'] != $wo['user']['phone_number'] && $wo['config']['sms_or_email'] == 'sms' && $wo['config']['emailValidation'] == 1);
+                    if (!Wo_IsAdmin() && ($is_email_change || $is_phone_change)) {
+                        if (empty($_POST['current_password']) || Wo_HashPassword($_POST['current_password'], $wo['user']['password']) == false) {
+                            $errors[] = $error_icon . ($wo['lang']['current_password_mismatch'] ?? 'Please enter your current password to change your email or phone.');
+                        }
+                    }
                     $save = true;
                     if (!Wo_IsAdmin()) {
                         $code      = random_int(100000, 999999);
                         $hash_code = md5($code);
                         $message   = "Your confirmation code is: $code";
-                        if ($_POST['email'] != $wo['user']['email'] && $wo['config']['sms_or_email'] == 'mail' && $wo['config']['emailValidation'] == 1) {
+                        if ($is_email_change && empty($errors)) {
                             $send_message_data = array(
                                 'from_email' => $wo['config']['siteEmail'],
                                 'from_name' => $wo['config']['siteName'],
@@ -157,7 +165,7 @@ if ($f == "update_general_settings") {
                                 $data['type']   = 'email';
                                 $data['status'] = 200;
                             }
-                        } elseif (!empty($_POST['phone_number']) && $_POST['phone_number'] != $wo['user']['phone_number'] && $wo['config']['sms_or_email'] == 'sms' && $wo['config']['emailValidation'] == 1) {
+                        } elseif ($is_phone_change && empty($errors)) {
                             preg_match_all('/\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|
                                     2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|
                                     4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$/', $_POST['phone_number'], $matches);
@@ -205,7 +213,8 @@ if ($f == "update_general_settings") {
                         ))) {
                             $Update_data['weather_unit'] = Wo_Secure($_POST['weather_unit']);
                         }
-                        if (!empty($_POST['verified'])) {
+                        if (!empty($_POST['verified']) && Wo_IsAdmin()) {
+                            // SECURITY: only admins may change verified status
                             if ($_POST['verified'] == 'verified') {
                                 $Verification = 1;
                             } else {

@@ -21,6 +21,10 @@ if ($f == 'google_login') {
             // Validate audience (aud) matches our Google Client ID to prevent token from other apps
             if (empty($json_data->aud) || $json_data->aud !== $wo['config']['googleAppId']) {
                 $data['message'] = $error_icon . 'Invalid token audience';
+            // SECURITY: reject unverified emails — an attacker could register a Google account with a
+            // victim's email (unverified) and use the token to log in as the victim
+            } else if (!empty($json_data->email) && empty($json_data->email_verified)) {
+                $data['message'] = $error_icon . 'Google account email is not verified';
             } else {
                 $social_id    = $json_data->sub;
                 $social_email = $json_data->email;

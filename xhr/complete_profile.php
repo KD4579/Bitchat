@@ -76,6 +76,13 @@ if ($f == 'complete_profile') {
 
     // ---- VERIFY EMAIL CODE ----
     if ($action === 'verify_email_code') {
+        // Rate limit: 5 attempts per 10 minutes
+        if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit('verify_email_code', $userId, 5, 600)) {
+            $data['message'] = 'Too many verification attempts. Please request a new code.';
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
         $code = isset($_POST['code']) ? Wo_Secure($_POST['code']) : '';
 
         if (empty($code) || strlen($code) < 6) {
@@ -178,6 +185,13 @@ if ($f == 'complete_profile') {
 
     // ---- VERIFY PHONE CODE ----
     if ($action === 'verify_phone_code') {
+        // Rate limit: 5 attempts per 10 minutes to prevent brute force of 6-digit code
+        if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit('verify_phone_code', $userId, 5, 600)) {
+            $data['message'] = 'Too many verification attempts. Please request a new code.';
+            header("Content-type: application/json");
+            echo json_encode($data);
+            exit();
+        }
         $code = isset($_POST['code']) ? Wo_Secure($_POST['code']) : '';
 
         if (empty($code) || strlen($code) < 6) {

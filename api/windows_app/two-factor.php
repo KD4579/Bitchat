@@ -34,8 +34,33 @@ foreach ($required_fields as $key => $value) {
     }
 }
 if (empty($error_code)) {
+    // SECURITY: sanitize user_id — must be numeric to prevent injection
+    $user_id = intval($_POST['user_id']);
+    if (empty($user_id) || $user_id <= 0) {
+        header("Content-type: application/json");
+        echo json_encode(array(
+            'api_status' => '400',
+            'api_text' => 'failed',
+            'api_version' => $api_version,
+            'errors' => array('error_id' => '5', 'error_text' => 'Invalid user.')
+        ), JSON_PRETTY_PRINT);
+        exit();
+    }
+
+    // SECURITY: rate limit 2FA code attempts — 6-digit codes are brute-forceable
+    // without this (only 900,000 combinations, feasible in minutes)
+    if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit('api_2fa_' . $user_id, $user_id, 5, 600)) {
+        header("Content-type: application/json");
+        echo json_encode(array(
+            'api_status' => '429',
+            'api_text' => 'failed',
+            'api_version' => $api_version,
+            'errors' => array('error_id' => '9', 'error_text' => 'Too many attempts. Please request a new code.')
+        ), JSON_PRETTY_PRINT);
+        exit();
+    }
+
 	$confirm_code = $_POST['code'];
-	$user_id      = $_POST['user_id'];
 	$confirm_code = $db->where('user_id', $user_id)->where('email_code', md5($confirm_code))->getValue(T_USERS, 'count(*)');
     if (empty($confirm_code)) {
         $json_error_data = array(
@@ -54,7 +79,7 @@ if (empty($error_code)) {
     else{
         $time           = time();
         $cookie         = '';
-        $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+        $access_token   = bin2hex(random_bytes(32)); // SECURITY: cryptographically secure
         $add_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$access_token}', 'windows', '{$time}')");
         if ($add_session) {
             if (!empty($_POST['timezone'])) {

@@ -91,8 +91,11 @@ if (!empty($_REQUEST)) {
     }
 }
 if (!empty($_POST)) {
+    // SECURITY: never strip/mutate password fields — doing so silently weakens passwords
+    // (e.g. a password of "onclick=Secret1" would become "" after the event-handler regex)
+    $password_fields = ['password', 'confirm_password', 'new_password', 'repeat_new_password', 'current_password'];
     foreach ($_POST as $key => $value) {
-        if (!is_array($value)) {
+        if (!is_array($value) && !in_array($key, $password_fields)) {
             $value       = preg_replace('/on[^<>=]+=[^<>]*/m', '', $value);
             $_POST[$key] = strip_tags($value);
         }

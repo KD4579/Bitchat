@@ -45,13 +45,21 @@ if ($f == "authorize") {
                     $trans = $Aresponse->getTransactionResponse();
                     if ($trans != null && $trans->getMessages() != null) {
                     	if (Wo_ReplenishingUserBalance($amount)) {
-                            $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'authorize')");
+                            // SECURITY: fixed $wo['user']['id'] → $wo['user']['user_id'] (was recording null user_id)
+                            $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'authorize')");
 			                $_SESSION['replenished_amount'] = $amount;
 			                $url = Wo_SeoLink('index.php?link1=wallet');
 			                if (!empty($_COOKIE['redirect_page'])) {
-			                    $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-			                    $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
-			                    $url = $redirect_page;
+			                    // SECURITY: validate same-origin to prevent open redirect via cookie
+			                    $site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+			                    $parsed_cookie = parse_url($_COOKIE['redirect_page']);
+			                    if (!empty($parsed_cookie['host']) && $parsed_cookie['host'] !== $site_host) {
+			                        // External host — ignore the cookie redirect, stay on wallet page
+			                    } else {
+			                        $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
+			                        $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
+			                        $url = $redirect_page;
+			                    }
 			                }
 			                $data['status'] = 200;
            					$data['url'] = $url;

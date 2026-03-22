@@ -24,6 +24,7 @@ if ($f == 'reset_password') {
             // Hash the pending password so plaintext is never stored in session/Redis
             $_SESSION['pending_reset_password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
             $_SESSION['pending_reset_token'] = $_POST['id'];
+            $_SESSION['pending_reset_expires'] = time() + 900; // 15-min window to complete 2FA
             $data               = array(
                 'status' => 600,
                 'location' => $wo['config']['site_url'] . '/unusual-login?type=two-factor'

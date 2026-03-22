@@ -55,14 +55,32 @@ if ($type == 'user_login') {
             $user_id     = Wo_UserIdFromEmail($username);
         }
         $user_login_data = Wo_UserData($user_id);
+
+        // SECURITY: rate limit per username+IP to prevent brute force
+        $rate_key = 'api_win_login_' . md5($username . '_' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+        if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit($rate_key, $user_id ?: 0, 10, 300)) {
+            header("Content-type: application/json");
+            echo json_encode(array(
+                'api_status' => '429',
+                'api_text' => 'failed',
+                'api_version' => $api_version,
+                'errors' => array(
+                    'error_id' => '10',
+                    'error_text' => 'Too many login attempts. Please try again later.'
+                )
+            ), JSON_PRETTY_PRINT);
+            exit();
+        }
+
         if (empty($user_login_data)) {
+            // SECURITY: generic error to prevent username enumeration
             $json_error_data = array(
                 'api_status' => '400',
                 'api_text' => 'failed',
                 'api_version' => $api_version,
                 'errors' => array(
                     'error_id' => '6',
-                    'error_text' => 'Username is not exists.'
+                    'error_text' => 'Incorrect username or password.'
                 )
             );
             header("Content-type: application/json");
@@ -88,7 +106,8 @@ if ($type == 'user_login') {
                 if (Wo_TwoFactor($_POST['username']) != false) {
                     $time           = time();
                     $cookie         = '';
-                    $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+                    // SECURITY: replaced rand()/microtime() with cryptographically secure random bytes
+                    $access_token   = bin2hex(random_bytes(32));
                     $add_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$access_token}', 'windows', '{$time}')");
                     if ($add_session) {
                         if (!empty($_POST['timezone'])) {

@@ -46,9 +46,14 @@ if (!empty($_REQUEST)) {
     }
 }
 if (!empty($_POST)) {
+    // SECURITY: exempt password fields — strip_tags silently corrupts passwords
+    // containing HTML-like content (e.g. "onclick=Secret1" → "") causing login failures
+    $password_fields = ['password', 'confirm_password', 'new_password', 'repeat_new_password', 'current_password'];
     foreach ($_POST as $key => $value) {
-        $value = ($key != 'avatar' && $key != 'game') ? preg_replace('/on[^<>=]+=[^<>]*/m', '', $value) : $value;
-        $_POST[$key] = strip_tags($value);
+        if (!is_array($value) && !in_array($key, $password_fields) && $key != 'avatar' && $key != 'game') {
+            $value       = preg_replace('/on[^<>=]+=[^<>]*/m', '', $value);
+            $_POST[$key] = strip_tags($value);
+        }
     }
 }
 $wo['script_root'] = dirname(__FILE__);

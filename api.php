@@ -52,6 +52,20 @@ if (!in_array($_GET['type'], $types)) {
     echo json_encode($json_error_data, JSON_PRETTY_PRINT);
     exit();
 }
+// SECURITY: require authentication — unauthenticated callers must not enumerate
+// user profiles, post history, or search the member directory
+if (empty($wo['loggedin']) || $wo['loggedin'] !== true) {
+    header("Content-type: application/json");
+    echo json_encode(array(
+        'api_status' => 'failed',
+        'api_version' => $api_version,
+        'errors' => array(
+            'error_id' => '0',
+            'error_text' => 'Access denied. Please log in.'
+        )
+    ), JSON_PRETTY_PRINT);
+    exit();
+}
 if ($_GET['type'] == 'user_data') {
     $api_data = Wo_UserData(Wo_UserIdFromUsername($_GET['user']));
     if (empty($api_data)) {

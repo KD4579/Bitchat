@@ -63,6 +63,11 @@ if (empty($error_code)) {
             if (empty($json_data->aud) || $json_data->aud !== $wo['config']['googleAppId']) {
                 $error_code    = 4;
                 $error_message = 'Invalid token audience';
+            // SECURITY: reject unverified emails — attacker could register a Google account
+            // with a victim's unverified email and use the token to log in as the victim
+            } else if (!empty($json_data->email) && empty($json_data->email_verified)) {
+                $error_code    = 4;
+                $error_message = 'Google account email is not verified';
             } else {
                 $social_id = $json_data->sub;
                 $social_email = $json_data->email;
@@ -102,7 +107,7 @@ if (empty($error_code)) {
             $user_id        = Wo_UserIdForLogin($social_email);
             $time           = time();
             $cookie         = '';
-            $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+            $access_token   = bin2hex(random_bytes(32)); // SECURITY: cryptographically secure
             $timezone       = 'UTC';
             $create_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$access_token}', 'windows', '{$time}')");
             $add_timezone = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `timezone` = '{$timezone}' WHERE `user_id` = {$user_id}");

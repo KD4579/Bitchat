@@ -6650,7 +6650,9 @@ function Wo_HashPassword($password = '', $hashed_password = '') {
     } else {
         $password = $hash($password);
     }
-    if ($password == $hashed_password) {
+    // SECURITY: use === to prevent PHP type-juggling "magic hash" bypass
+    // With loose ==, two MD5 hashes starting with 0e... compare as equal (both = float 0)
+    if ($password === $hashed_password) {
         return true;
     }
     return false;

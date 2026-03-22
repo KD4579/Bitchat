@@ -49,9 +49,16 @@ if ($f == 'confirm_user_unusal_login') {
             $codes = $db->where('user_id',$user_id)->getOne(T_BACKUP_CODES);
             if (!empty($codes) && !empty($codes->codes)) {
                 $backupCodes = json_decode($codes->codes,true);
-                if (in_array($_POST['confirm_code'], $backupCodes)) {
-                    $key = array_search($_POST['confirm_code'], $backupCodes);
-                    $backupCodes[$key] = random_int(111111,999999);
+                $matched_key = null;
+                foreach ($backupCodes as $bk => $bv) {
+                    if (hash_equals((string)$bv, (string)$_POST['confirm_code'])) {
+                        $matched_key = $bk;
+                        break;
+                    }
+                }
+                if ($matched_key !== null) {
+                    $key = $matched_key;
+                    $backupCodes[$key] = bin2hex(random_bytes(8)); // stronger replacement than 6-digit int
                     $db->where('user_id',$user_id)->update(T_BACKUP_CODES,[
                         'codes' => json_encode($backupCodes)
                     ]);
@@ -91,7 +98,9 @@ if ($f == 'confirm_user_unusal_login') {
 
         if (empty($errors) && $confirm_code > 0) {
             // Apply pending password reset if this 2FA was triggered during password reset flow
-            if (!empty($_SESSION['pending_reset_password']) && !empty($_SESSION['pending_reset_token'])) {
+            // Enforce 15-min expiry on the pending reset session
+            if (!empty($_SESSION['pending_reset_password']) && !empty($_SESSION['pending_reset_token'])
+                && !empty($_SESSION['pending_reset_expires']) && time() <= intval($_SESSION['pending_reset_expires'])) {
                 // The pending password is already hashed with password_hash()
                 $pending_hash = $_SESSION['pending_reset_password'];
                 $pending_uid = intval($user_id);
@@ -102,6 +111,7 @@ if ($f == 'confirm_user_unusal_login') {
                 cache($pending_uid, 'users', 'delete');
                 unset($_SESSION['pending_reset_password']);
                 unset($_SESSION['pending_reset_token']);
+                unset($_SESSION['pending_reset_expires']);
             }
 
             // Clear 2FA session state

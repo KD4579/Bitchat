@@ -1,6 +1,7 @@
 <?php
 if ($f == 'resend_two_factor') {
 	$hash = '';
+	// SECURITY: session always wins over cookie — prevents cookie injection overriding session
 	if (!empty($_SESSION) && !empty($_SESSION['two_factor_hash'])) {
 		if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
 		    $hash = filter_var($_SESSION['two_factor_hash'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -8,8 +9,8 @@ if ($f == 'resend_two_factor') {
 		    $hash = filter_var($_SESSION['two_factor_hash'], FILTER_SANITIZE_STRING);
 		}
 		$hash = Wo_Secure($hash);
-	}
-	if (!empty($_COOKIE) && !empty($_COOKIE['two_factor_hash'])) {
+	} elseif (!empty($_COOKIE) && !empty($_COOKIE['two_factor_hash'])) {
+		// Fallback only when no session value exists (e.g. after server restart)
 		if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
 		    $hash = filter_var($_COOKIE['two_factor_hash'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 		} else {
@@ -33,7 +34,7 @@ if ($f == 'resend_two_factor') {
 				// Fallback: unusual-login resend for users without 2FA enabled
 				if (!$resent && $user->two_factor_method == 'two_factor') {
 					$userData = Wo_UserData($user->user_id);
-					$code = rand(111111, 999999);
+					$code = random_int(100000, 999999); // cryptographically secure; rand() replaced
 					$hash_code = md5($code);
 					$db->where('user_id', $user->user_id)->update(T_USERS, array('email_code' => $hash_code));
 					cache($user->user_id, 'users', 'delete');
