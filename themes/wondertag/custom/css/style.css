@@ -1709,6 +1709,10 @@ body.night_mode .bc-welcome-step-line {
 .bc-announce-close { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.7; line-height: 1; padding: 0 4px; }
 .bc-announce-close:hover { opacity: 1; }
 
+/* ====== Comment Reply Send Button ====== */
+.bc-reply-send-btn { background: none !important; border: none !important; padding: 2px 4px !important; cursor: pointer; display: flex; align-items: center; opacity: 0.85; transition: opacity 0.2s, transform 0.15s; }
+.bc-reply-send-btn:hover { opacity: 1; transform: scale(1.15); }
+
 /* ====== Invite Widget (Sidebar) ====== */
 .bc-invite-widget-inner { display: flex; align-items: center; gap: 10px; padding: 12px; }
 .bc-invite-widget-inner strong { font-size: 13px; color: var(--bc-text-primary, #0f1419); }

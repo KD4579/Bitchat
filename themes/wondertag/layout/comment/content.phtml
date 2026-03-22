@@ -205,6 +205,9 @@ if ($wo['config']['shout_box_system'] == 1 && $wo['story']['postPrivacy'] == 4 &
 									<input accept="image/x-png, image/jpeg" type="file" name="comment_image" id="comment_reply_image_<?php echo $wo['comment']['id']; ?>" onchange="Wo_UploadReplyCommentImage(<?php echo $wo['comment']['id']; ?>);">
 									<input type="hidden" value="" id="comment_src_image_<?php echo $wo['comment']['id']; ?>">
 								</form>
+							<button type="button" class="btn bc-reply-send-btn" onclick="Wo_RegisterReply2(<?php echo $wo['comment']['id']; ?>,<?php echo $wo['story']['publisher']['user_id']; ?>,<?php echo (!empty($wo['story']['publisher']['page_id'])) ? $wo['story']['publisher']['page_id'] : '0'; ?>,'');" title="<?php echo $wo['lang']['send']; ?>">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path fill="<?php echo $wo['config']['btn_background_color']; ?>" d="M3.478 2.405a.75.75 0 0 0-.926.94l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.405z"/></svg>
+							</button>
 							</div>
 						</div>
 					</div>
