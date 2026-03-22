@@ -85,8 +85,9 @@
                         <hr>
                         <label class="form-check-label" for="images_ai">AI Images API</label>
                         <select class="form-control show-tick" id="images_ai" name="images_ai">
-                              <option value="openai"    <?php echo ($wo['config']['images_ai'] == 'openai')   ? ' selected': '';?>>OpenAI</option>
-                              <option value="midjeourny"    <?php echo ($wo['config']['images_ai'] == 'midjeourny')   ? ' selected': '';?>>Replicate</option>
+                              <option value="openai"    <?php echo ($wo['config']['images_ai'] == 'openai')   ? ' selected': '';?>>OpenAI (DALL-E)</option>
+                              <option value="midjeourny"    <?php echo ($wo['config']['images_ai'] == 'midjeourny')   ? ' selected': '';?>>Replicate (Stable Diffusion)</option>
+                              <option value="pollinations" <?php echo ($wo['config']['images_ai'] == 'pollinations') ? ' selected': '';?>>Pollinations.ai (Free — No API Key)</option>
                         </select>
                         <div class="clearfix"></div>
                         <hr>

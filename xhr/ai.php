@@ -66,6 +66,28 @@ elseif ($s == "check") {
 	echo json_encode($data);
 	exit();
 }
+elseif ($s == "pollinations") {
+	$data['status'] = 400;
+	if (!empty($_POST['text']) && !empty($_POST['num_outputs']) && in_array($_POST['num_outputs'], getAllowedImagesCount())) {
+		if ($wo['config']['images_credit_system'] == 1 && shouldTopUpImageCredits($wo['user']['credits'],$_POST['num_outputs'])) {
+			$data['message'] = $wo["lang"]["you_dont_have_enough_credits"];
+			header("Content-type: application/json");
+			echo json_encode($data);
+			exit();
+		}
+		try {
+			$size = !empty($_POST['size']) ? Wo_Secure($_POST['size']) : '1024x1024';
+			$data = getPollinationsImage(Wo_Secure($_POST['text']), $size, (int)$_POST['num_outputs']);
+		} catch (Exception $e) {
+			$data['message'] = $e->getMessage();
+		}
+	} else {
+		$data['message'] = $wo['lang']['please_check_details'];
+	}
+	header("Content-type: application/json");
+	echo json_encode($data);
+	exit();
+}
 elseif ($s == "openai") {
 	$data['status'] = 400;
 	if (!empty($_POST['text']) && !empty($_POST['num_outputs']) && in_array($_POST['num_outputs'], getAllowedImagesCount())) {

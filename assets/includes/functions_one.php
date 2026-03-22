@@ -10329,6 +10329,57 @@ function getOpenAiImage($text,$size = '',$num_outputs = 1)
     }
 }
 
+function getPollinationsImage($text, $size = '1024x1024', $num_outputs = 1)
+{
+    global $wo, $db;
+
+    $parts  = explode('x', $size);
+    $width  = isset($parts[0]) ? (int)$parts[0] : 1024;
+    $height = isset($parts[1]) ? (int)$parts[1] : 1024;
+    $prompt = rawurlencode($text);
+    $outputs = [];
+
+    for ($i = 0; $i < (int)$num_outputs; $i++) {
+        $seed = rand(1, 999999);
+        $url  = "https://image.pollinations.ai/prompt/{$prompt}?width={$width}&height={$height}&nologo=true&model=flux&seed={$seed}";
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 90,
+            CURLOPT_CONNECTTIMEOUT => 20,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0',
+        ]);
+        $imgData  = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($imgData && $httpCode === 200) {
+            $outputs[] = 'data:image/jpeg;base64,' . base64_encode($imgData);
+        }
+    }
+
+    if (empty($outputs)) {
+        throw new Exception('Pollinations.ai failed to generate image. Please try again.');
+    }
+
+    if ($wo['config']['images_credit_system'] == 1 && $wo['config']['generated_image_price'] > 0) {
+        $db->where('user_id', $wo['user']['id'])->update(T_USERS, [
+            'credits' => $db->dec($wo['config']['generated_image_price'] * count($outputs))
+        ]);
+    }
+
+    return [
+        'status'  => 200,
+        'output'  => $outputs,
+        'credits' => $db->where('user_id', $wo['user']['id'])->getValue(T_USERS, 'credits'),
+    ];
+}
+
 function getOpenAiText($text,$count)
 {
     global $wo,$db;
