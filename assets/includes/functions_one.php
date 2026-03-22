@@ -10341,7 +10341,8 @@ function getPollinationsImage($text, $size = '1024x1024', $num_outputs = 1)
 
     for ($i = 0; $i < (int)$num_outputs; $i++) {
         $seed = rand(1, 999999);
-        $url  = "https://image.pollinations.ai/prompt/{$prompt}?width={$width}&height={$height}&nologo=true&model=flux&seed={$seed}";
+        $model = !empty($wo['config']['pollinations_image_model']) ? $wo['config']['pollinations_image_model'] : 'flux';
+        $url  = "https://image.pollinations.ai/prompt/{$prompt}?width={$width}&height={$height}&nologo=true&enhance=true&model={$model}&seed={$seed}&referrer=bitchat";
 
         $ch = curl_init();
         curl_setopt_array($ch, [
@@ -10359,7 +10360,11 @@ function getPollinationsImage($text, $size = '1024x1024', $num_outputs = 1)
         curl_close($ch);
 
         if ($imgData && $httpCode === 200) {
-            $outputs[] = 'data:image/jpeg;base64,' . base64_encode($imgData);
+            // Detect actual MIME type from magic bytes
+            $mime = 'image/jpeg';
+            if (substr($imgData, 0, 4) === "\x89PNG") $mime = 'image/png';
+            elseif (substr($imgData, 0, 4) === 'RIFF' && substr($imgData, 8, 4) === 'WEBP') $mime = 'image/webp';
+            $outputs[] = 'data:' . $mime . ';base64,' . base64_encode($imgData);
         }
     }
 
@@ -10389,16 +10394,20 @@ function getPollinationsText($text, $count = 500)
         throw new Exception(str_replace('{count}', $maxWords, $wo['lang']['max_allowed_words']));
     }
 
+    // max_tokens ≈ words × 1.33 (rough token estimate)
+    $maxTokens = max(100, (int)round($count * 1.33));
+
     $body = json_encode([
-        'messages' => [['role' => 'user', 'content' => $text]],
-        'model'    => 'openai',
-        'seed'     => rand(1, 99999),
-        'private'  => true,
+        'messages'   => [['role' => 'user', 'content' => $text]],
+        'model'      => 'openai',
+        'max_tokens' => $maxTokens,
+        'seed'       => rand(1, 99999),
+        'private'    => true,
     ]);
 
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL            => 'https://text.pollinations.ai/',
+        CURLOPT_URL            => 'https://text.pollinations.ai/openai',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => $body,
@@ -10409,13 +10418,19 @@ function getPollinationsText($text, $count = 500)
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_USERAGENT      => 'Mozilla/5.0',
     ]);
-    $response = curl_exec($ch);
+    $raw      = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if (!$response || $httpCode !== 200) {
+    if (!$raw || $httpCode !== 200) {
         throw new Exception('Pollinations.ai text generation failed. Please try again.');
     }
+
+    // Parse OpenAI-compatible JSON response
+    $decoded  = json_decode($raw);
+    $response = (!empty($decoded->choices[0]->message->content))
+        ? $decoded->choices[0]->message->content
+        : $raw; // fallback to raw if unexpected format
 
     // Trim to requested word count if needed
     if ($count > 0) {
