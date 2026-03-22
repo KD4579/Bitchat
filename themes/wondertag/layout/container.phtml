@@ -1049,7 +1049,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<div class="tag_sec_toolbar">
 				<div class="valign">
 					<div <?php if ($wo['page'] == 'home') { ?>class="active"<?php } ?> id="home_nav_sec">
-						<a href="<?php echo $wo['config']['site_url']; ?>" data-ajax="?index.php?link1=home" onclick="$('.tag_hdr_reqtog, .tag_hdr_notitog, .tag_hdr_msgtog, .tag_hdr_user_droptoggle').dropdown('hide');">
+						<a href="<?php echo $wo['config']['site_url']; ?>" data-ajax="?index.php?link1=home" onclick="return bcHomeNavClick(this, event);">
 							<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_anron_ico_head'] == 1) { ?>
 								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.46967 11.4696L4.46914 8.47014L4.4702 8.46908L9.20693 3.73235L9.22845 3.71083L9.22846 3.71082L9.22851 3.71077C9.60618 3.33309 9.92142 3.01784 10.2 2.78134C10.4906 2.53467 10.7902 2.32993 11.1502 2.21296C11.7025 2.0335 12.2975 2.0335 12.8498 2.21296C13.2098 2.32993 13.5094 2.53467 13.8 2.78134C14.0786 3.01785 14.3939 3.33312 14.7715 3.71083L14.7931 3.73235L22.5303 11.4696C22.8232 11.7625 22.8232 12.2374 22.5303 12.5303C22.2374 12.8232 21.7626 12.8232 21.4697 12.5303L19.75 10.8106V16.1999V16.2321C19.75 17.0449 19.75 17.7005 19.7066 18.2314C19.662 18.778 19.5676 19.2582 19.3413 19.7024C18.9818 20.408 18.4081 20.9817 17.7025 21.3412C17.2582 21.5676 16.7781 21.6619 16.2315 21.7066C15.7006 21.75 15.045 21.75 14.2321 21.7499H14.2H9.8H9.76788C8.95505 21.75 8.29944 21.75 7.76853 21.7066C7.2219 21.6619 6.74175 21.5676 6.29754 21.3412C5.59193 20.9817 5.01825 20.408 4.65873 19.7024C4.43238 19.2582 4.33803 18.778 4.29336 18.2314C4.24999 17.7005 4.24999 17.0449 4.25 16.232L4.25 16.1999V10.8106L2.53033 12.5303C2.23744 12.8232 1.76256 12.8232 1.46967 12.5303C1.17678 12.2374 1.17678 11.7625 1.46967 11.4696Z" fill="currentColor"/></svg>
 							<?php } else { ?>
@@ -1161,6 +1161,27 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			let f = navigator.userAgent.search("Firefox");
 			if (f > -1) {
 				$('.header-brand').attr('href', "<?php echo $wo['config']['site_url']."/?cache=".time(); ?>");
+			}
+
+			// BC-FIX: Home logo click from non-home pages.
+			// The data-ajax smooth-loading path is unreliable when navigating
+			// home from a profile/timeline page (gets stuck in loading state).
+			// Intercept before the generic data-ajax handler fires and do a
+			// direct full-page navigation instead.
+			function bcHomeNavClick(el, e) {
+				var jd = document.getElementById('json-data');
+				if (jd && jd.value) {
+					var page;
+					try { page = JSON.parse(jd.value).page; } catch(x) {}
+					if (page && page !== 'home') {
+						// Not on home page — bypass AJAX, navigate directly
+						e.stopImmediatePropagation();
+						window.location.href = el.href;
+						return false;
+					}
+				}
+				// On home page: allow data-ajax to do the fast feed-reload path
+				$('.tag_hdr_reqtog, .tag_hdr_notitog, .tag_hdr_msgtog, .tag_hdr_user_droptoggle').dropdown('hide');
 			}
 			
 			function GifScrolledC(self) {
