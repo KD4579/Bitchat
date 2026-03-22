@@ -133,8 +133,8 @@
                         <hr>
                         <label class="form-check-label" for="post_ai">AI Posts API</label>
                         <select class="form-control show-tick" id="post_ai" name="post_ai">
-                              <option value="openai"    <?php echo ($wo['config']['post_ai'] == 'openai')   ? ' selected': '';?>>OpenAI</option>
-                              <option value="openai" disabled>Replicate (this feature is not supported by Replicate)</option>
+                              <option value="openai"       <?php echo ($wo['config']['post_ai'] == 'openai')        ? ' selected': '';?>>OpenAI (GPT)</option>
+                              <option value="pollinations" <?php echo ($wo['config']['post_ai'] == 'pollinations')  ? ' selected': '';?>>Pollinations.ai (Free — No API Key)</option>
                         </select>
                         <div class="clearfix"></div>
                         <hr>

@@ -64,7 +64,8 @@
 		$("#ai-generate-post-button").text("<?php echo($wo['lang']['please_wait']) ?>");
 		$("#ai-generate-post-button").attr('disabled',true);
 		$('#ai-selected-post-button').remove();
-		$.post(Wo_Ajax_Requests_File()+'?f=ai&s=openai_post', {text: $('#aiPostText').val(),count: $('#aiPostCount').val()}, function(data, textStatus, xhr) {
+		var postEndpoint = '<?php echo ($wo["config"]["post_ai"] == "pollinations") ? "pollinations_post" : "openai_post"; ?>';
+		$.post(Wo_Ajax_Requests_File()+'?f=ai&s='+postEndpoint, {text: $('#aiPostText').val(),count: $('#aiPostCount').val()}, function(data, textStatus, xhr) {
 			if (data.status == 200) {
 				$('#generatedAiPostText-prnt').show();
 				<?php if ($wo['config']['text_credit_system'] == 1 && $wo['config']['generated_word_price'] > 0) { ?>

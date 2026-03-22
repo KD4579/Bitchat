@@ -122,6 +122,21 @@ elseif ($s == "openai") {
 	echo json_encode($data);
 	exit();
 }
+elseif ($s == 'pollinations_post') {
+	$data['status'] = 400;
+	if (!empty($_POST['text']) && !empty($_POST['count'])) {
+		try {
+			$data = getPollinationsText(Wo_Secure($_POST['text']), (int)$_POST['count']);
+		} catch (Exception $e) {
+			$data['message'] = $e->getMessage();
+		}
+	} else {
+		$data['message'] = $wo['lang']['please_check_details'];
+	}
+	header("Content-type: application/json");
+	echo json_encode($data);
+	exit();
+}
 elseif ($s == 'openai_post') {
 	$data['status'] = 400;
 	if (!empty($_POST['text']) && !empty($_POST['count'])) {

@@ -10380,6 +10380,65 @@ function getPollinationsImage($text, $size = '1024x1024', $num_outputs = 1)
     ];
 }
 
+function getPollinationsText($text, $count = 500)
+{
+    global $wo, $db;
+
+    $maxWords = getMaxAllowedWords();
+    if ($maxWords < $count) {
+        throw new Exception(str_replace('{count}', $maxWords, $wo['lang']['max_allowed_words']));
+    }
+
+    $body = json_encode([
+        'messages' => [['role' => 'user', 'content' => $text]],
+        'model'    => 'openai',
+        'seed'     => rand(1, 99999),
+        'private'  => true,
+    ]);
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => 'https://text.pollinations.ai/',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $body,
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        CURLOPT_TIMEOUT        => 60,
+        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_USERAGENT      => 'Mozilla/5.0',
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if (!$response || $httpCode !== 200) {
+        throw new Exception('Pollinations.ai text generation failed. Please try again.');
+    }
+
+    // Trim to requested word count if needed
+    if ($count > 0) {
+        $words = explode(' ', $response);
+        if (count($words) > $count) {
+            $response = implode(' ', array_slice($words, 0, $count));
+        }
+    }
+
+    if ($wo['config']['text_credit_system'] == 1 && $wo['config']['generated_word_price'] > 0) {
+        $wordCount = str_word_count($response);
+        $db->where('user_id', $wo['user']['id'])->update(T_USERS, [
+            'credits' => $db->dec($wo['config']['generated_word_price'] * $wordCount)
+        ]);
+    }
+
+    return [
+        'status'  => 200,
+        'output'  => $response,
+        'credits' => $db->where('user_id', $wo['user']['id'])->getValue(T_USERS, 'credits'),
+    ];
+}
+
 function getOpenAiText($text,$count)
 {
     global $wo,$db;
