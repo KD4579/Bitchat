@@ -4083,6 +4083,20 @@ body:not(.bc-welcome) .tag_content  { margin-left: 280px !important; }
     display: block !important;
     transform: none !important;
     -webkit-transform: none !important;
+    max-width: 260px !important;
+    width: 260px !important;
+  }
+}
+@media (max-width: 768px) {
+  body.side_open .tag_sidebar {
+    max-width: 240px !important;
+    width: 240px !important;
+  }
+}
+@media (max-width: 480px) {
+  body.side_open .tag_sidebar {
+    max-width: 220px !important;
+    width: 220px !important;
   }
 }
 .col-lg-3.sidebar.rightcol {
