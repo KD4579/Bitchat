@@ -9809,3 +9809,35 @@ html.bc-native-app .cc-window,
 html.bc-native-app .cc-banner {
   display: none !important;
 }
+
+/* ==========================================================================
+   People You May Know — fix photo click on mobile / Android WebView
+   The padding-bottom:100% aspect-ratio trick on <a class="avatar"> can fail
+   to register taps on some Android WebViews.  We replace it with aspect-ratio
+   (universally supported on Android 8+) and ensure full touch responsiveness.
+   ========================================================================== */
+
+/* Use modern aspect-ratio instead of the padding-bottom hack */
+.tag_sidebar_users .avatar {
+  padding-bottom: 0 !important;   /* disable the old trick */
+  aspect-ratio: 1 / 1 !important; /* same square shape, proper click area */
+  cursor: pointer !important;
+  touch-action: manipulation !important; /* fast tap, no 300ms delay */
+  -webkit-tap-highlight-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Image fill — keep absolute positioning */
+.tag_sidebar_users .avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important; /* let clicks pass through to the <a> */
+}
+
+/* Whole card responds to touch quickly */
+.wow_side_usrs,
+.tag_sidebar_users {
+  touch-action: manipulation !important;
+  cursor: pointer !important;
+}
