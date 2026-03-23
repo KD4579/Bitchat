@@ -22,7 +22,12 @@ if ($f == 'paypro_with_bitcoin') {
             //OPTIONAL
             $CP->setFormElement('want_shipping', 0);
             $CP->setFormElement('user_id', $wo['user']['user_id']);
-            $CP->setFormElement('user_type', $_GET['usertype']);
+            // SECURITY: validate user_type against allowed pro package types before embedding in form
+            $user_type_input = isset($_GET['usertype']) ? intval($_GET['usertype']) : 0;
+            if (!array_key_exists($user_type_input, $wo['pro_packages_types'])) {
+                $user_type_input = 0;
+            }
+            $CP->setFormElement('user_type', $user_type_input);
             $CP->setFormElement('ipn_url', $wo['config']['site_url'] . '/requests.php?f=coinpayments_procallback');
             $data = array(
                 'status' => 200,

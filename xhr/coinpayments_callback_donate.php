@@ -15,18 +15,25 @@ if ($f == 'coinpayments_callback_donate') {
                 $CP->setSecretKey($wo['config']['coinpayments_secret']);
                 if ($CP->listen($_POST, $_SERVER)) {
                     // The payment is successful and passed all security measures
-                    $user_id   = $wo['user']['user_id'];
+                    // SECURITY: IPN callbacks have no session — $wo['user']['user_id'] is null.
+                    // Use HMAC-verified $_POST['user_id'] (set at form creation time).
+                    $user_id   = intval($_POST['user_id']);
                     $txn_id    = $_POST['txn_id'];
                     $item_name = $_POST['item_name'];
-                    $amount   = floatval($_POST['amountf']); //    The total amount of the payment in your original currency/coin.
+                    $amount    = floatval($_POST['amountf']); // total in original currency
                     $fund_id   = Wo_Secure($_POST['fund_id']);
                     $status    = intval($_POST['status']);
-                    //encrease wallet value with posted amount
+                    // SECURITY: only process fully completed payments (status >= 100).
+                    // Pending (0) and failed/cancelled (<0) IPNs must not trigger donations.
+                    if ($status < 100) {
+                        header("Location: " . Wo_SeoLink('index.php?link1=oops'));
+                        exit();
+                    }
                     $fund = $db->where('id',$fund_id)->getOne(T_FUNDING);
 
-                    $notes = "Doanted to ".mb_substr($fund->title, 0, 100, "UTF-8");
+                    $notes = "Donated to ".mb_substr($fund->title, 0, 100, "UTF-8");
 
-                    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'DONATE', {$amount}, '{$notes}')");
+                    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$user_id}, 'DONATE', {$amount}, '{$notes}')");
 
                     $admin_com = 0;
                     if (!empty($wo['config']['donate_percentage']) && is_numeric($wo['config']['donate_percentage']) && $wo['config']['donate_percentage'] > 0) {
@@ -36,12 +43,12 @@ if ($f == 'coinpayments_callback_donate') {
                     $user_data = Wo_UserData($fund->user_id);
                     $db->where('user_id',$fund->user_id)->update(T_USERS,array('balance' => $user_data['balance'] + $amount));
                     cache($fund->user_id, 'users', 'delete');
-                    $fund_raise_id = $db->insert(T_FUNDING_RAISE,array('user_id' => $wo['user']['user_id'],
+                    $fund_raise_id = $db->insert(T_FUNDING_RAISE,array('user_id' => $user_id,
                                                       'funding_id' => $fund_id,
                                                       'amount' => $amount,
                                                       'time' => time()));
                     $post_data = array(
-                        'user_id' => Wo_Secure($wo['user']['user_id']),
+                        'user_id' => $user_id,
                         'fund_raise_id' => $fund_raise_id,
                         'time' => time(),
                         'multi_image_post' => 0
@@ -56,8 +63,8 @@ if ($f == 'coinpayments_callback_donate') {
                     );
                     Wo_RegisterNotification($notification_data_array);
 
-
-                    header("Location: " . $config['site_url'] . "/show_fund/".$fund->hashed_id);
+                    // SECURITY: was $config['site_url'] — undefined variable, must be $wo['config']['site_url']
+                    header("Location: " . $wo['config']['site_url'] . "/show_fund/".$fund->hashed_id);
                     exit();
                 } else {
                     // the payment is pending. an exception is thrown for all other payment errors.
