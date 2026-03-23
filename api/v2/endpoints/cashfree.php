@@ -85,7 +85,7 @@ else{
 		    }
 
 		    $result = array();
-		    $order_id = uniqid();
+		    $order_id = bin2hex(random_bytes(8)); // SECURITY: was uniqid() — microsecond-based, predictable
 		    $name = Wo_Secure($_POST['name']);
 		    $email = Wo_Secure($_POST['email']);
 		    $phone = Wo_Secure($_POST['phone']);

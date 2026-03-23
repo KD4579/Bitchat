@@ -5317,7 +5317,7 @@ function Wo_InsertAdminInvitation() {
         return false;
     }
     $time  = time();
-    $code  = uniqid(rand(), true);
+    $code  = bin2hex(random_bytes(16)); // SECURITY: was uniqid(rand(), true) — predictable, brute-forceable
     $sql   = "INSERT INTO " . T_INVITATIONS . " (`id`,`code`,`posted`) VALUES (NULL,'$code', '$time')";
     $site  = $wo['config']['site_url'] . '/register?invite=';
     $query = mysqli_query($sqlConnect, $sql);
@@ -6920,7 +6920,7 @@ function Wo_TwoFactor($username = '', $id_or_u = 'user') {
     }
     if ($getuser['two_factor_method'] == 'two_factor') {
         $code        = random_int(100000, 999999); // Cryptographically secure
-        $hash_code   = md5($code);
+        $hash_code   = hash('sha256', $code); // SECURITY: was md5() — precomputable for 6-digit space
         $update_code = $db->where('user_id', $getuser['user_id'])->update(T_USERS, array(
             'email_code' => $hash_code
         ));
@@ -6971,7 +6971,7 @@ function Wo_VerfiyIP($username = '') {
                 }
                 // send email
                 $code                       = random_int(100000, 999999);
-                $hash_code                  = md5($code);
+                $hash_code                  = hash('sha256', $code); // SECURITY: was md5() — precomputable for 6-digit space
                 $wo['email']['username']    = $getuser['name'];
                 $wo['email']['countryCode'] = $getIpInfo['countryCode'];
                 $wo['email']['timezone']    = $getIpInfo['timezone'];

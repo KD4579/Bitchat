@@ -66,7 +66,7 @@ elseif ($_POST['type'] == 'buy') {
 		marketBuyValidation();
 
 		foreach ($wo['insert'] as $key => $value) {
-            $hash_id = uniqid(rand(11111,999999));
+            $hash_id = bin2hex(random_bytes(8)); // SECURITY: was uniqid(rand()) — predictable order hash
             $total = 0;
             $total_commission = 0;
             $total_final_price = 0;

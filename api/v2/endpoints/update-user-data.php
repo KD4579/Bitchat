@@ -56,8 +56,8 @@ if (!empty($user_data['email'])) {
         $error_message = 'Invalid email characters';
     }
     if (empty($error_code)) {
-        $code = rand(111111, 999999);
-        $hash_code = md5($code);
+        $code = random_int(111111, 999999); // SECURITY: rand() is not CSPRNG
+        $hash_code = hash('sha256', $code); // SECURITY: was md5() — precomputable for 6-digit space
         $message = "Your confirmation code is: $code";
         if ($user_data['email'] != $wo['user']['email'] && $wo['config']['sms_or_email'] == 'mail' && $wo['config']['emailValidation'] == 1) {
              $send_message_data       = array(
@@ -75,7 +75,7 @@ if (!empty($user_data['email'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_email'      => Wo_Secure($user_data['email'])));
 
-                cache($wo['user']['id'], 'users', 'delete');
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
                 $response_data['type'] = 'code sent';
                 unset($user_data['email']);
             }
@@ -90,7 +90,7 @@ if (!empty($user_data['email'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_email'  => Wo_Secure($user_data['email'])));
                 $response_data['type'] = 'code sent';
-                cache($wo['user']['id'], 'users', 'delete');
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
                 unset($user_data['email']);
             }
             else{
@@ -108,8 +108,8 @@ if (!empty($user_data['phone_number'])) {
         $error_message = 'Phone number already used';
     }
     if (empty($error_code)) {
-        $code = rand(111111, 999999);
-        $hash_code = md5($code);
+        $code = random_int(111111, 999999); // SECURITY: rand() is not CSPRNG
+        $hash_code = hash('sha256', $code); // SECURITY: was md5() — precomputable for 6-digit space
         $message = "Your confirmation code is: $code";
         if ($user_data['phone_number'] != $wo['user']['phone_number'] && $wo['config']['sms_or_email'] == 'mail' && $wo['config']['emailValidation'] == 1) {
              $send_message_data       = array(
@@ -127,7 +127,7 @@ if (!empty($user_data['phone_number'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_phone'      => Wo_Secure($user_data['phone_number'])));
                 $response_data['type'] = 'code sent';
-                cache($wo['user']['id'], 'users', 'delete');
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
                 unset($user_data['phone_number']);
             }
             else{
@@ -141,7 +141,7 @@ if (!empty($user_data['phone_number'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_phone'  => Wo_Secure($user_data['phone_number'])));
                 $response_data['type'] = 'code sent';
-                cache($wo['user']['id'], 'users', 'delete');
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
                 unset($user_data['phone_number']);
             }
             else{
@@ -153,7 +153,8 @@ if (!empty($user_data['phone_number'])) {
 }
 
 if (!empty($user_data['new_password']) && !empty($user_data['current_password'])) {
-    if (Wo_HashPassword($user_data['current_password'], $wo['user']['password']) == false) {
+    // SECURITY: !== true catches both false (wrong pw) and '' (empty pw from Wo_HashPassword)
+    if (Wo_HashPassword($user_data['current_password'], $wo['user']['password']) !== true) {
         $error_code    = 8;
         $error_message = 'Current password not match';
     }
@@ -400,7 +401,7 @@ if (empty($error_code)) {
     $update2 = $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,array(
             'notification_settings' => $Update_data
         ));
-    cache($wo['user']['id'], 'users', 'delete');
+    cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
     // $update2 = Wo_UpdateUserData($wo['user']['user_id'], array(
     //         'notification_settings' => $Update_data
     //     ));

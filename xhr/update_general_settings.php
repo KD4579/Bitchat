@@ -134,14 +134,15 @@ if ($f == "update_general_settings") {
                     $is_email_change = ($_POST['email'] != $wo['user']['email'] && $wo['config']['sms_or_email'] == 'mail' && $wo['config']['emailValidation'] == 1);
                     $is_phone_change = (!empty($_POST['phone_number']) && $_POST['phone_number'] != $wo['user']['phone_number'] && $wo['config']['sms_or_email'] == 'sms' && $wo['config']['emailValidation'] == 1);
                     if (!Wo_IsAdmin() && ($is_email_change || $is_phone_change)) {
-                        if (empty($_POST['current_password']) || Wo_HashPassword($_POST['current_password'], $wo['user']['password']) == false) {
+                        // SECURITY: === false prevents type juggling (0 == false in PHP)
+                        if (empty($_POST['current_password']) || Wo_HashPassword($_POST['current_password'], $wo['user']['password']) === false) {
                             $errors[] = $error_icon . ($wo['lang']['current_password_mismatch'] ?? 'Please enter your current password to change your email or phone.');
                         }
                     }
                     $save = true;
                     if (!Wo_IsAdmin()) {
                         $code      = random_int(100000, 999999);
-                        $hash_code = md5($code);
+                        $hash_code = hash('sha256', $code); // SECURITY: was md5() — precomputable for 6-digit space
                         $message   = "Your confirmation code is: $code";
                         if ($is_email_change && empty($errors)) {
                             $send_message_data = array(

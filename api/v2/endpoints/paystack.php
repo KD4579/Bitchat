@@ -85,7 +85,7 @@ else{
 		    }
 
 		    $result = array();
-		    $reference = uniqid();
+		    $reference = bin2hex(random_bytes(8)); // SECURITY: was uniqid() — microsecond-based, predictable
 
 			//Set other parameters as keys in the $postdata array
 			$postdata =  array('email' => $_POST['email'], 'amount' => $price,"reference" => $reference,'callback_url' => $callback_url);

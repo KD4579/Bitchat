@@ -18,9 +18,9 @@ $required_fields =  array(
                     );
 if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     if ($_POST['type'] == 'create') {
-    	if (Wo_IfCanGenerateLink($wo['user']['id'])) {
-    		$code  = uniqid(rand(), true);
-			$id = $db->insert(T_INVITAION_LINKS,array('user_id' => $wo['user']['id'],
+    	if (Wo_IfCanGenerateLink($wo['user']['user_id'])) { // SECURITY: was $wo['user']['id'] — wrong field (null)
+    		$code  = bin2hex(random_bytes(16)); // SECURITY: was uniqid(rand(), true) — predictable, brute-forceable
+			$id = $db->insert(T_INVITAION_LINKS,array('user_id' => $wo['user']['user_id'], // SECURITY: was $wo['user']['id']
 				                                'code' => $code,
 				                                'time' => time()));
 			if ($id) {

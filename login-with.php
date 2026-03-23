@@ -205,8 +205,7 @@ if (isset($provider) && in_array($provider, $types)) {
                 header("Location: " . $config['site_url']);
                 exit();
             } else {
-                $str          = md5(microtime());
-                $id           = substr($str, 0, 9);
+                $id           = substr(bin2hex(random_bytes(8)), 0, 9); // SECURITY: was md5(microtime()) — microsecond-based, predictable
                 $user_uniq_id = (Wo_UserExists($id) === false) ? $id : 'u_' . $id;
                 $social_url   = substr($user_profile->profileURL, strrpos($user_profile->profileURL, '/') + 1);
                 $imported_image = Wo_ImportImageFromLogin($user_profile->photoURL, 1);

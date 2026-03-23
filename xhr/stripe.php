@@ -120,14 +120,18 @@ if ($f == 'stripe') {
 					}
 					$amount = ($checkout_session->amount_total / 100);
 					if ($_GET['type'] == 'wallet') {
-						$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . floatval($amount) . " WHERE `user_id` = '" . intval($wo['user']['id']) . "'");
+						$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . floatval($amount) . " WHERE `user_id` = '" . intval($wo['user']['user_id']) . "'"); // SECURITY: was $wo['user']['id'] — wrong field (null)
 			            if ($result) {
-							cache($wo['user']['id'], 'users', 'delete');
-			                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . intval($wo['user']['id']) . "', 'WALLET', '" . floatval($amount) . "', 'stripe_{$safe_session_id}')");
+							cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field (null)
+			                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . intval($wo['user']['user_id']) . "', 'WALLET', '" . floatval($amount) . "', 'stripe_{$safe_session_id}')"); // SECURITY: was $wo['user']['id']
 			            }
 			            if (!empty($_COOKIE['redirect_page'])) {
-		                	$redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-						    $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
+		                	$parsed_redir  = parse_url($_COOKIE['redirect_page']);
+		                	$site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+		                	$has_host      = !empty($parsed_redir['host']);
+		                	$same_host     = $has_host && $parsed_redir['host'] === $site_host;
+		                	$is_relative   = !$has_host && strncmp($_COOKIE['redirect_page'], '//', 2) !== 0;
+		                	$redirect_page = ($is_relative || $same_host) ? $_COOKIE['redirect_page'] : Wo_SeoLink('index.php?link1=wallet'); // SECURITY: same-origin validation; was regex-only
 		                	header("Location: " . $redirect_page);
 		                }
 		                else{

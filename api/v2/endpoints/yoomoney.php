@@ -3,7 +3,7 @@ if ($_POST['type'] == 'create') {
 	try {
 		yoomoneyCreateValidation();
 		$amount = Wo_Secure($_POST['amount']);
-		$order_id = uniqid();
+		$order_id = bin2hex(random_bytes(8)); // SECURITY: was uniqid() — microsecond-based, predictable
 		$receiver = $wo['config']['yoomoney_wallet_id'];
 		$successURL = $wo['config']['site_url'] . "/requests.php?f=yoomoney&s=success";
 		$form = '<form id="yoomoney_form" method="POST" action="https://yoomoney.ru/quickpay/confirm.xml">    

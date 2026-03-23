@@ -68,7 +68,7 @@ if ($f == 'confirm_user_unusal_login') {
         }
 
         // Use timing-safe comparison for 2FA code verification
-        if ($user->two_factor_method == 'two_factor' && hash_equals($user->email_code, md5($_POST['confirm_code']))) {
+        if ($user->two_factor_method == 'two_factor' && hash_equals($user->email_code, hash('sha256', $_POST['confirm_code']))) { // SECURITY: was md5()
             $confirm_code = 1;
             // Invalidate the 2FA code after use (prevent replay)
             $db->where('user_id', $user_id)->update(T_USERS, array('email_code' => ''));
@@ -152,7 +152,12 @@ if ($f == 'confirm_user_unusal_login') {
             if (!empty($_POST['last_url'])) {
                 $parsed = parse_url($_POST['last_url']);
                 $site_host = parse_url($wo['config']['site_url'], PHP_URL_HOST);
-                if (empty($parsed['host']) || $parsed['host'] === $site_host) {
+                // SECURITY: block protocol-relative URLs (//evil.com) — parse_url sees host=evil.com
+                // Also block any URL with an explicit scheme (http/https) pointing off-site.
+                $has_host = !empty($parsed['host']);
+                $same_host = $has_host && $parsed['host'] === $site_host;
+                $is_relative = !$has_host && strncmp($_POST['last_url'], '//', 2) !== 0;
+                if ($is_relative || $same_host) {
                     $data['location'] = $_POST['last_url'];
                 } else {
                     $data['location'] = $wo['config']['site_url'];

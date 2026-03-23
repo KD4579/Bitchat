@@ -35,7 +35,7 @@ if ($f == 'resend_two_factor') {
 				if (!$resent && $user->two_factor_method == 'two_factor') {
 					$userData = Wo_UserData($user->user_id);
 					$code = random_int(100000, 999999); // cryptographically secure; rand() replaced
-					$hash_code = md5($code);
+					$hash_code = hash('sha256', $code); // SECURITY: was md5() — precomputable for 6-digit space
 					$db->where('user_id', $user->user_id)->update(T_USERS, array('email_code' => $hash_code));
 					cache($user->user_id, 'users', 'delete');
 

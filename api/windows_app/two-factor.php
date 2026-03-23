@@ -61,7 +61,7 @@ if (empty($error_code)) {
     }
 
 	$confirm_code = $_POST['code'];
-	$confirm_code = $db->where('user_id', $user_id)->where('email_code', md5($confirm_code))->getValue(T_USERS, 'count(*)');
+	$confirm_code = $db->where('user_id', $user_id)->where('email_code', hash('sha256', $confirm_code))->getValue(T_USERS, 'count(*)'); // SECURITY: was md5()
     if (empty($confirm_code)) {
         $json_error_data = array(
             'api_status' => '400',

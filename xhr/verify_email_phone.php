@@ -10,7 +10,7 @@ if ($f == "verify_email_phone") {
     if (empty($error) && empty($_POST['code'])) {
         $error = $error_icon . $wo['lang']['please_check_details'];
     } else if (empty($error)) {
-        $confirm_code = $db->where('user_id', $wo['user']['user_id'])->where('email_code', md5($_POST['code']))->getValue(T_USERS, 'count(*)');
+        $confirm_code = $db->where('user_id', $wo['user']['user_id'])->where('email_code', hash('sha256', $_POST['code']))->getValue(T_USERS, 'count(*)'); // SECURITY: was md5()
         $Update_data  = array();
         if (empty($confirm_code)) {
             $error = $error_icon . $wo['lang']['wrong_confirmation_code'];
