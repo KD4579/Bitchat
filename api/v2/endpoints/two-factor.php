@@ -30,7 +30,7 @@ if (empty($error_code)) {
     }
 }
 if (empty($error_code)) {
-	$user_id      = $_POST['user_id'];
+	$user_id      = intval($_POST['user_id']); // SECURITY: intval prevents type juggling / SQL injection via user_id
 	$user = $db->where('user_id', $user_id)->getOne(T_USERS);
     if (empty($user)) {
         $error_code    = 3;
@@ -50,8 +50,9 @@ if (empty($error_code)) {
             $codes = $db->where('user_id',$user_id)->getOne(T_BACKUP_CODES);
             if (!empty($codes) && !empty($codes->codes)) {
                 $backupCodes = json_decode($codes->codes,true);
-                if (in_array($_POST['code'], $backupCodes)) {
-                    $key = array_search($_POST['code'], $backupCodes);
+                // SECURITY: strict=true prevents PHP type juggling (e.g. "0e123" == 0)
+                if (in_array($_POST['code'], $backupCodes, true)) {
+                    $key = array_search($_POST['code'], $backupCodes, true);
                     $backupCodes[$key] = substr(bin2hex(random_bytes(4)), 0, 8);
                     $db->where('user_id',$user_id)->update(T_BACKUP_CODES,[
                         'codes' => json_encode($backupCodes)
@@ -62,7 +63,7 @@ if (empty($error_code)) {
         }
 
         // Use timing-safe comparison for 2FA codes
-        if ($user->two_factor_method == 'two_factor' && hash_equals($user->email_code, md5($_POST['code']))) {
+        if ($user->two_factor_method == 'two_factor' && hash_equals($user->email_code, hash('sha256', $_POST['code']))) { // SECURITY: was md5()
             $confirm_code = 1;
             // Invalidate the code after use
             $db->where('user_id', $user_id)->update(T_USERS, array('email_code' => ''));

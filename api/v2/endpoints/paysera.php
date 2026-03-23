@@ -373,7 +373,7 @@ else{
 	        else{
 	        	if (Wo_ReplenishingUserBalance($amount)) {
 	                $amount = Wo_Secure($amount);
-	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'Paystack')");
+	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'Paystack')");
 	                $_SESSION['replenished_amount'] = $amount;
 	                $response_data = array(
 		                                'api_status' => 200,

@@ -12,7 +12,7 @@ if ($f == 'aamarpay') {
 	        else {
 	            $url = 'https://secure.aamarpay.com/request.php';
 	        }
-	        $tran_id = rand(1111111,9999999);
+	        $tran_id = random_int(1111111, 9999999);
 	        $fields = array(
 	            'store_id' => $wo['config']['aamarpay_store_id'], //store id will be aamarpay,  contact integration@aamarpay.com for test/live id
 	            'amount' => $amount, //transaction amount
@@ -110,8 +110,12 @@ if ($f == 'aamarpay') {
 			}
 		}
 		if (!empty($_COOKIE['redirect_page'])) {
-        	$redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-		    $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
+            $parsed_redir  = parse_url($_COOKIE['redirect_page']);
+            $site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+            $has_host      = !empty($parsed_redir['host']);
+            $same_host     = $has_host && $parsed_redir['host'] === $site_host;
+            $is_relative   = !$has_host && strncmp($_COOKIE['redirect_page'], '//', 2) !== 0;
+            $redirect_page = ($is_relative || $same_host) ? $_COOKIE['redirect_page'] : Wo_SeoLink('index.php?link1=wallet');
         	header("Location: " . $redirect_page);
         }
         else{

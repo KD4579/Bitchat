@@ -83,8 +83,7 @@ if (empty($error_code)) {
         if (Wo_EmailExists($social_email) === true) {
             $create_session = true;
         } else {
-            $str          = md5(microtime());
-            $id           = substr($str, 0, 9);
+            $id           = substr(bin2hex(random_bytes(8)), 0, 9); // SECURITY: was md5(microtime()) — predictable
             $user_uniq_id = (Wo_UserExists($id) === false) ? $id : 'u_' . $id;
             $password = bin2hex(random_bytes(16));
             $re_data      = array(

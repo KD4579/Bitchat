@@ -13,7 +13,7 @@ if ($f == 'create_new_video_call') {
 
     $user_1       = Wo_UserData(Wo_Secure($_GET['user_id1']));
     $user_2       = Wo_UserData(Wo_Secure($_GET['user_id2']));
-    $room_script  = sha1(rand(1111111, 9999999999));
+    $room_script  = bin2hex(random_bytes(16)); // SECURITY: was sha1(rand()) — predictable room ID, lets attackers eavesdrop/hijack calls;
 
     if ($wo['config']['agora_chat_video'] == 1) {
         $wo['AgoraToken'] = null;
@@ -95,8 +95,8 @@ if ($f == 'create_new_video_call') {
         $accountSid   = $wo['config']['video_accountSid'];
         $apiKeySid    = $wo['config']['video_apiKeySid'];
         $apiKeySecret = $wo['config']['video_apiKeySecret'];
-        $call_id      = substr(md5(microtime()), 0, 15);
-        $call_id_2    = substr(md5(time()), 0, 15);
+        $call_id      = bin2hex(random_bytes(8)); // SECURITY: was substr(md5(microtime()), 0, 15) — predictable
+        $call_id_2    = bin2hex(random_bytes(8));
         $token        = new AccessToken($accountSid, $apiKeySid, $apiKeySecret, 3600, $call_id);
         $grant        = new VideoGrant();
         $grant->setRoom($room_script);

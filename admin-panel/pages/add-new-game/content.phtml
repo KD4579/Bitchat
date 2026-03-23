@@ -9,15 +9,17 @@ if (isset($_POST['game'])) {
         $upload = false;
         $game_name = '';
         $game_link = '';
-        $reg = '#([A-Za-z0-9_-]+)://([A-Za-z0-9_-]+).miniclip.com/games/([A-Za-z0-9_-]+)/([A-Za-z0-9_-]+)#s';
+        $reg = '#^https://([A-Za-z0-9_-]+)\.miniclip\.com/games/([A-Za-z0-9_-]+)/([A-Za-z0-9_-]+)#'; // SECURITY: escaped dots, forced https, anchored
         if (preg_match($reg, $_POST['game'], $match)) {
+          // SECURITY: only fetch https:// URLs to prevent file:// and other protocol SSRF
+          if (strncmp($_POST['game'], 'https://', 8) !== 0) { break; }
           $upload = true;
           include_once("assets/libraries/simple_html_dom.inc.php");
           $get_content = str_get_html(file_get_contents($_POST['game']));
           foreach ($get_content->find('title') as $element) {
                $page_title = $element->plaintext;
           }
-          $game_link = "https://www.miniclip.com/games/".Wo_Secure($match[3])."/en/webgame.php";
+          $game_link = "https://www.miniclip.com/games/".Wo_Secure($match[2])."/en/webgame.php";
           if (!empty($_POST['name'])) {
             $game_name = Wo_Secure($_POST['name']);
           }
@@ -25,7 +27,7 @@ if (isset($_POST['game'])) {
             $game_name = Wo_Secure($page_title[0]);
           }
         }
-        elseif (preg_match('#([A-Za-z0-9_-]+)://([A-Za-z0-9_-]+).y8.com/games/([A-Za-z0-9_-]+)#s', $_POST['game'], $match)) {
+        elseif (preg_match('#^https://([A-Za-z0-9_-]+)\.y8\.com/games/([A-Za-z0-9_-]+)#', $_POST['game'], $match)) { // SECURITY: escaped dots, forced https
           $upload = true;
           $game_link = Wo_Secure($_POST['game']);
           
@@ -33,17 +35,17 @@ if (isset($_POST['game'])) {
             $game_name = Wo_Secure($_POST['name']);
           }
           else{
-            $game_name = Wo_Secure($match[3]);
+            $game_name = Wo_Secure($match[2]);
           }
         }
-        elseif (preg_match('#([A-Za-z0-9_-]+)://([A-Za-z0-9_-]+).freeonlinegames.com/game/([A-Za-z0-9_-]+)#s', $_POST['game'], $match)) {
+        elseif (preg_match('#^https://([A-Za-z0-9_-]+)\.freeonlinegames\.com/game/([A-Za-z0-9_-]+)#', $_POST['game'], $match)) { // SECURITY: escaped dots, forced https
           $upload = true;
           $game_link = Wo_Secure($_POST['game']);
           if (!empty($_POST['name'])) {
             $game_name = Wo_Secure($_POST['name']);
           }
           else{
-            $game_name = Wo_Secure($match[3]);
+            $game_name = Wo_Secure($match[2]);
           }
         }
         // elseif (preg_match('/([A-Za-z0-9_-]+):\/\/zone.msn.com\/gameplayer\/gameplayerHTML.aspx(.*)game=([A-Za-z0-9_-]+)/m', $_POST['game'], $match)) {

@@ -8,14 +8,14 @@ if ($f == 'fluttewave') {
 
 		    //* Prepare our rave request
 		    $request = [
-		        'tx_ref' => time(),
+		        'tx_ref' => bin2hex(random_bytes(8)), // SECURITY: was time() — predictable
 		        'amount' => $amount,
 		        'currency' => 'NGN',
 		        'payment_options' => 'card',
 		        'redirect_url' => $wo['config']['site_url'] . "/requests.php?f=fluttewave&s=success",
 		        'customer' => [
 		            'email' => $email,
-		            'name' => 'user_'.uniqid()
+		            'name' => 'user_'.bin2hex(random_bytes(4)) // SECURITY: was uniqid() — predictable
 		        ],
 		        'meta' => [
 		            'price' => $amount
@@ -92,8 +92,14 @@ if ($f == 'fluttewave') {
             curl_close($curl);
               
             $res = json_decode($response);
-            if($res->status){
-                $amount = $res->data->charged_amount;
+            if(!empty($res) && $res->status == 'success' && !empty($res->data) && $res->data->status == 'successful'){
+                $amount = floatval($res->data->charged_amount);
+                // SECURITY: verify amount matches what was originally requested (stored in meta)
+                $expected_amount = floatval($res->data->meta->price ?? 0);
+                if ($expected_amount <= 0 || abs($amount - $expected_amount) > 0.01) {
+                    header("Location: " . Wo_SeoLink('index.php?link1=wallet'));
+                    exit();
+                }
                 $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array(
                     'wallet' => $db->inc($amount)
                 ));
@@ -103,8 +109,12 @@ if ($f == 'fluttewave') {
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'fluttewave')");
                 $_SESSION['replenished_amount'] = $amount;
                 if (!empty($_COOKIE['redirect_page'])) {
-                	$redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-				    $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
+                    $parsed_redir  = parse_url($_COOKIE['redirect_page']);
+                    $site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+                    $has_host      = !empty($parsed_redir['host']);
+                    $same_host     = $has_host && $parsed_redir['host'] === $site_host;
+                    $is_relative   = !$has_host && strncmp($_COOKIE['redirect_page'], '//', 2) !== 0;
+                    $redirect_page = ($is_relative || $same_host) ? $_COOKIE['redirect_page'] : Wo_SeoLink('index.php?link1=wallet');
                 	header("Location: " . $redirect_page);
                 }
                 else{

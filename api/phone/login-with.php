@@ -68,8 +68,7 @@ if (isset($_GET['provider']) && in_array($_GET['provider'], $types) && !empty($_
                     exit();
                 }
             } else {
-                $str          = md5(microtime());
-                $id           = substr($str, 0, 9);
+                $id           = substr(bin2hex(random_bytes(8)), 0, 9); // SECURITY: was md5(microtime()) — predictable
                 $user_uniq_id = (Wo_UserExists($id) === false) ? $id : 'u_' . $id;
                 $social_url   = substr($user_profile->profileURL, strrpos($user_profile->profileURL, '/') + 1);
                 $re_data      = array(

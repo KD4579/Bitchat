@@ -69,7 +69,7 @@ if ($f == 'cashfree') {
 		    }
 
 		    $result = array();
-		    $order_id = uniqid();
+		    $order_id = bin2hex(random_bytes(8)); // SECURITY: was uniqid() — weak entropy, predictable
 		    $name = Wo_Secure($_POST['name']);
 		    $email = Wo_Secure($_POST['email']);
 		    $phone = Wo_Secure($_POST['phone']);
@@ -175,7 +175,7 @@ if ($f == 'cashfree') {
 			$data = $orderId.$orderAmount.$referenceId.$txStatus.$paymentMode.$txMsg.$txTime;
 			$hash_hmac = hash_hmac('sha256', $data, $wo['config']['cashfree_secret_key'], true) ;
 			$computedSignature = base64_encode($hash_hmac);
-			if ($signature == $computedSignature) {
+			if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
 	        	$is_pro = 1;
 	        }
 	        else{
@@ -302,17 +302,21 @@ if ($f == 'cashfree') {
 			$data = $orderId.$orderAmount.$referenceId.$txStatus.$paymentMode.$txMsg.$txTime;
 			$hash_hmac = hash_hmac('sha256', $data, $wo['config']['cashfree_secret_key'], true) ;
 			$computedSignature = base64_encode($hash_hmac);
-			if ($signature == $computedSignature) {
+			if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
 				$wo["loggedin"] = true;
 	            if (Wo_ReplenishingUserBalance($_GET['amount'])) {
 	                $_GET['amount'] = floatval($_GET['amount']);
 	                $safe_amount = floatval($_GET['amount']);
-	                $safe_userid = intval($wo['user']['id']);
+	                $safe_userid = intval($wo['user']['user_id']);
 	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Cashfree')");
 	                $_SESSION['replenished_amount'] = $_GET['amount'];
 	                if (!empty($_COOKIE['redirect_page'])) {
-	                	$redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-					    $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
+	                    $parsed_redir  = parse_url($_COOKIE['redirect_page']);
+	                    $site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+	                    $has_host      = !empty($parsed_redir['host']);
+	                    $same_host     = $has_host && $parsed_redir['host'] === $site_host;
+	                    $is_relative   = !$has_host && strncmp($_COOKIE['redirect_page'], '//', 2) !== 0;
+	                    $redirect_page = (\$is_relative || \$same_host) ? \$_COOKIE['redirect_page'] : Wo_SeoLink('index.php?link1=wallet');
 	                	header("Location: " . $redirect_page);
 	                }
 	                else{
@@ -345,7 +349,7 @@ if ($f == 'cashfree') {
 		$data = $orderId.$orderAmount.$referenceId.$txStatus.$paymentMode.$txMsg.$txTime;
 		$hash_hmac = hash_hmac('sha256', $data, $wo['config']['cashfree_secret_key'], true) ;
 		$computedSignature = base64_encode($hash_hmac);
-		if ($signature == $computedSignature) {
+		if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
     		$fund_id = Wo_Secure($_GET['fund_id']);
 	    	$amount = Wo_Secure($_GET['amount']);
 	    	$fund = $db->where('id',$fund_id)->getOne(T_FUNDING);

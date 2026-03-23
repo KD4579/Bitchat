@@ -1377,11 +1377,16 @@ function Wo_GetCode($code = "") {
     if (empty($code)) {
         return false;
     }
-    $code      = Wo_Secure($code);
-    $query_one = mysqli_query($sqlConnect, "SELECT * FROM " . T_CODES . " WHERE `code` = '{$code}'");
+    $code    = Wo_Secure($code);
+    $expiry  = time() - 600; // SECURITY: authorization codes expire after 10 minutes
+    // SECURITY: delete stale codes first, then fetch — single-use via immediate deletion
+    mysqli_query($sqlConnect, "DELETE FROM " . T_CODES . " WHERE `time` < {$expiry}");
+    $query_one = mysqli_query($sqlConnect, "SELECT * FROM " . T_CODES . " WHERE `code` = '{$code}' AND `time` >= {$expiry}");
     if (mysqli_num_rows($query_one)) {
         if (mysqli_num_rows($query_one) == 1) {
             $sql_query_one = mysqli_fetch_assoc($query_one);
+            // SECURITY: invalidate authorization code immediately after retrieval (single-use)
+            mysqli_query($sqlConnect, "DELETE FROM " . T_CODES . " WHERE `code` = '{$code}'");
             return $sql_query_one;
         }
     }
@@ -5449,7 +5454,7 @@ function Wo_ConfirmUserSMS($user_id, $code) {
     $query  = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`)  FROM " . T_USERS . "  WHERE `email_code` = '{$code}' AND `user_id` = '{$user_id}' AND `active` = '0'");
     $result = Wo_Sql_Result($query, 0);
     if ($result == 1) {
-        $email_code = md5(rand(1111, 9999) . time());
+        $email_code = bin2hex(random_bytes(16)); // SECURITY: invalidate old code post-activation; was md5(rand(1111,9999).time()) — only ~36K values
         $query_two  = mysqli_query($sqlConnect, " UPDATE " . T_USERS . "  SET `active` = '1', `email_code` = '$email_code' WHERE `user_id` = '{$user_id}' ");
         if ($query_two) {
             return true;
@@ -5472,7 +5477,8 @@ function Wo_ConfirmUser($user_id, $code) {
     $result = Wo_Sql_Result($query, 0);
     if ($result == 1) {
         $email_code = bin2hex(random_bytes(16)); // replaced weak md5(rand+time)
-        $query_two  = mysqli_query($sqlConnect, " UPDATE " . T_USERS . "  SET `active` = '1', `email_code` = '$email_code' WHERE `user_id` = '{$user_id}' ");
+        // SECURITY: clear sms_code after use to prevent replay attacks
+        $query_two  = mysqli_query($sqlConnect, " UPDATE " . T_USERS . "  SET `active` = '1', `email_code` = '$email_code', `sms_code` = '' WHERE `user_id` = '{$user_id}' ");
         if ($query_two) {
             return true;
         }
@@ -5490,11 +5496,13 @@ function Wo_ConfirmSMSUser($user_id, $code, $email_code = "") {
     if (!is_numeric($user_id) || $user_id <= 0) {
         return false;
     }
-    $query  = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`)  FROM " . T_USERS . "  WHERE `sms_code` = '{$code}' AND `user_id` = '{$user_id}'");
+    $expiry = time() - 900; // SECURITY: OTP valid for 15 minutes
+    $query  = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`)  FROM " . T_USERS . "  WHERE `sms_code` = '{$code}' AND `user_id` = '{$user_id}' AND (`time_code_sent` = '0' OR `time_code_sent` > '{$expiry}')");
     $result = Wo_Sql_Result($query, 0);
     if ($result == 1) {
         $email_code = bin2hex(random_bytes(16)); // replaced weak md5(rand+time)
-        $query_two  = mysqli_query($sqlConnect, " UPDATE " . T_USERS . "  SET `active` = '1', `email_code` = '$email_code' WHERE `user_id` = '{$user_id}' ");
+        // SECURITY: clear sms_code after use to prevent replay attacks
+        $query_two  = mysqli_query($sqlConnect, " UPDATE " . T_USERS . "  SET `active` = '1', `email_code` = '$email_code', `sms_code` = '' WHERE `user_id` = '{$user_id}' ");
         if ($query_two) {
             return true;
         }

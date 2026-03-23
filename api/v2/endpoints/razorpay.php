@@ -214,7 +214,7 @@ else{
 			if (!empty($json) && empty($json->error_code) && empty($json->error)) {
 				$price = $price / 100;
 				if (Wo_ReplenishingUserBalance($price)) {
-	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $price . "', 'razorpay')");
+	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $price . "', 'razorpay')");
 	                $_SESSION['replenished_amount'] = $price;
 	                $response_data = array(
 		                                'api_status' => 200,

@@ -210,7 +210,7 @@ else{
 			$data = $orderId.$orderAmount.$referenceId.$txStatus.$paymentMode.$txMsg.$txTime;
 			$hash_hmac = hash_hmac('sha256', $data, $wo['config']['cashfree_secret_key'], true) ;
 			$computedSignature = base64_encode($hash_hmac);
-			if ($signature == $computedSignature) {
+			if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
 	        	$is_pro = 1;
 	        }
 	        else{
@@ -350,10 +350,11 @@ else{
 		$data = $orderId.$orderAmount.$referenceId.$txStatus.$paymentMode.$txMsg.$txTime;
 		$hash_hmac = hash_hmac('sha256', $data, $wo['config']['cashfree_secret_key'], true) ;
 		$computedSignature = base64_encode($hash_hmac);
-		if ($signature == $computedSignature) {
+		if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
             if (Wo_ReplenishingUserBalance($_POST['amount'])) {
                 $_POST['amount'] = floatval($_POST['amount']);
-                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $_POST['amount'] . "', 'Cashfree')");
+                // SECURITY: was $wo['user']['id'] (wrong field — null). amount is floatval'd on line above — safe.
+                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $_POST['amount'] . "', 'Cashfree')");
                 $_SESSION['replenished_amount'] = $_POST['amount'];
                 $response_data = array(
 	                                'api_status' => 200,
@@ -392,7 +393,7 @@ else{
 		$data = $orderId.$orderAmount.$referenceId.$txStatus.$paymentMode.$txMsg.$txTime;
 		$hash_hmac = hash_hmac('sha256', $data, $wo['config']['cashfree_secret_key'], true) ;
 		$computedSignature = base64_encode($hash_hmac);
-		if ($signature == $computedSignature) {
+		if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
     		$fund_id = Wo_Secure($_POST['fund_id']);
 	    	$amount = Wo_Secure($_POST['amount']);
 	    	$fund = $db->where('id',$fund_id)->getOne(T_FUNDING);

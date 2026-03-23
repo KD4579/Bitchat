@@ -5,8 +5,12 @@ $response_data   = array(
 );
 
 if (!empty($_POST['type']) && $_POST['type'] == 'verify') {
-	
-	if (empty($_POST['code'])) {
+	// SECURITY: rate-limit 2FA verify attempts — 6-digit OTP is brute-forceable
+	if (function_exists('bitchat_rate_limit') && !bitchat_rate_limit('2fa_verify_' . $wo['user']['user_id'], $wo['user']['user_id'], 5, 600)) {
+		$error_code    = 99;
+		$error_message = 'Too many attempts. Please try again later.';
+	}
+	elseif (empty($_POST['code'])) {
         $error_code    = 7;
         $error_message = 'code can not be empty';
     }
@@ -49,7 +53,8 @@ if (!empty($_POST['type']) && $_POST['type'] == 'verify') {
             }
         }
         else{
-            if ($wo['user']['email_code'] == md5($_POST['code'])) {
+            // SECURITY: hash_equals prevents timing attacks; md5 consistent with stored hash format
+            if (!empty($wo['user']['email_code']) && hash_equals($wo['user']['email_code'], hash('sha256', $_POST['code']))) { // SECURITY: was md5()
 
             	if (!empty($wo['user']['new_email']) && filter_var($wo['user']['new_email'], FILTER_VALIDATE_EMAIL)) {
 	                $Update_data['email'] = $wo['user']['new_email'];
@@ -91,8 +96,8 @@ else{
 	                        2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|
 	                        4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$/', $_POST['phone_number'], $matches);
 		        if (!empty($matches[1][0]) && !empty($matches[0][0])) {
-		        	$code = rand(111111, 999999);
-			        $hash_code = md5($code);
+		        	$code = random_int(111111, 999999); // SECURITY: random_int() is CSPRNG; rand() is predictable
+			        $hash_code = hash('sha256', $code); // SECURITY: was md5() — precomputable for 6-digit codes
 			        $message = "Your confirmation code is: $code";
 			        $send = Wo_SendSMSMessage($_POST['phone_number'], $message);
 		            if ($send) {
@@ -122,8 +127,8 @@ else{
 			}
 		}
 		else{
-			$code = rand(111111, 999999);
-	        $hash_code = md5($code);
+			$code = random_int(111111, 999999); // SECURITY: random_int() is CSPRNG; rand() is predictable
+	        $hash_code = hash('sha256', $code); // SECURITY: was md5()
 	        $message = "Your confirmation code is: $code";
 	        $send_message_data       = array(
 	            'from_email' => $wo['config']['siteEmail'],

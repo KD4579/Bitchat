@@ -54,7 +54,7 @@ elseif ($_POST['type'] == 'handle') {
                         if ($wo['user']['user_id'] == $value['metadata']['user_key']) {
                         	$amount = intval(Wo_Secure($value['amount'])) / 100;
                         	if (Wo_ReplenishingUserBalance($amount)) {
-	                            $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'securionpay')");
+	                            $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'securionpay')");
 	                            $response_data = array(
 					                'api_status' => 200,
 					                'message' => 'payment successfully done'

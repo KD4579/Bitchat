@@ -65,7 +65,7 @@ if ($f == 'paysera') {
             $request = WebToPay::redirectToPayment(array(
                 'projectid' => $wo['config']['paysera_project_id'],
                 'sign_password' => $wo['config']['paysera_sign_password'],
-                'orderid' => rand(111111, 999999),
+                'orderid' => random_int(111111, 999999),
                 'amount' => $price,
                 'currency' => $wo['config']['currency'],
                 'country' => 'LT',
@@ -265,11 +265,15 @@ if ($f == 'paysera') {
             } else {
                 if (Wo_ReplenishingUserBalance($amount)) {
                     $amount                         = Wo_Secure($amount);
-                    $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'Paysera')");
+                    $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'Paysera')");
                     $_SESSION['replenished_amount'] = $amount;
                     if (!empty($_COOKIE['redirect_page'])) {
-                        $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-                        $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
+                        $parsed_redir  = parse_url($_COOKIE['redirect_page']);
+                        $site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+                        $has_host      = !empty($parsed_redir['host']);
+                        $same_host     = $has_host && $parsed_redir['host'] === $site_host;
+                        $is_relative   = !$has_host && strncmp($_COOKIE['redirect_page'], '//', 2) !== 0;
+                        $redirect_page = ($is_relative || $same_host) ? $_COOKIE['redirect_page'] : Wo_SeoLink('index.php?link1=wallet');
                         header("Location: " . $redirect_page);
                     } else {
                         header("Location: " . Wo_SeoLink('index.php?link1=wallet'));

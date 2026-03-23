@@ -85,12 +85,12 @@ if ($type == 'create_video_call') {
             //
             $user_1       = $user_login_data;
 		    $user_2       = $user_login_data2;
-		    $room_script  = sha1(rand(1111111, 9999999999));
+		    $room_script  = bin2hex(random_bytes(16)); // SECURITY: was sha1(rand()) — predictable room ID, lets attackers eavesdrop/hijack calls;
 		    $accountSid   = $wo['config']['video_accountSid'];
 		    $apiKeySid    = $wo['config']['video_apiKeySid'];
 		    $apiKeySecret = $wo['config']['video_apiKeySecret'];
-		    $call_id      = substr(md5(microtime()), 0, 15);
-		    $call_id_2    = substr(md5(time()), 0, 15);
+		    $call_id      = bin2hex(random_bytes(8)); // SECURITY: was substr(md5(microtime()), 0, 15) — predictable
+		    $call_id_2    = bin2hex(random_bytes(8));
 		    $token        = new AccessToken($accountSid, $apiKeySid, $apiKeySecret, 3600, $call_id);
 		    $grant        = new VideoGrant();
 		    $grant->setRoom($room_script);
