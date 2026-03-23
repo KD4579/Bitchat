@@ -54,7 +54,7 @@ if ($f == 'aamarpay') {
 
 	        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
 	        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	        // SECURITY: SSL verification must remain enabled to prevent MITM against payment API.
 	        $result = curl_exec($ch);
 	        $url_forward = str_replace('"', '', stripslashes($result));
 	        curl_close($ch);

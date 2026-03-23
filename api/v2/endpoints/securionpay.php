@@ -41,8 +41,7 @@ elseif ($_POST['type'] == 'handle') {
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        // SECURITY: SSL verification must remain enabled to prevent MITM against payment API.
         curl_setopt($curl, CURLOPT_USERPWD, $wo['config']['securionpay_secret_key'].":password");
         $resp = curl_exec($curl);
         curl_close($curl);
