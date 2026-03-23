@@ -5569,18 +5569,23 @@ function Wo_ReplenishingUserBalance($sum) {
     if ($wo["loggedin"] == false || !$sum) {
         return false;
     }
-    $user      = $wo["user"]["user_id"];
-    $user_data = Wo_UserData($user);
-    if (empty($user_data)) {
+    $user = intval($wo["user"]["user_id"]);
+    if ($user <= 0) {
         return false;
     }
-    $user_balance = $user_data["wallet"];
-    $user_balance += $sum;
-    $update_data = array(
-        "wallet" => $user_balance
-    );
-    $update      = Wo_UpdateUserData($wo["user"]["user_id"], $update_data);
-    return $update;
+    $safe_sum = floatval($sum);
+    if ($safe_sum <= 0) {
+        return false;
+    }
+    // SECURITY: use atomic SQL increment to prevent race conditions.
+    // Previous read-then-write (Wo_UserData → wallet+= → Wo_UpdateUserData) allowed
+    // concurrent payment callbacks to each read the same balance and only credit once.
+    $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + {$safe_sum} WHERE `user_id` = {$user}");
+    if ($result && mysqli_affected_rows($sqlConnect) > 0) {
+        cache($user, 'users', 'delete');
+        return true;
+    }
+    return false;
 }
 function Wo_ReplenishWallet($sum) {
     global $wo;
