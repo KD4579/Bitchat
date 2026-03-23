@@ -420,7 +420,9 @@ function Wo_UserIDFromSMSCode($email_code) {
         return false;
     }
     $email_code = Wo_Secure($email_code);
-    $query      = mysqli_query($sqlConnect, "SELECT `user_id` FROM " . T_USERS . " WHERE `sms_code` = '{$email_code}'");
+    // SECURITY: add expiry check — SMS OTPs without time_code_sent set (= 0) are treated as
+    // account-activation codes (no expiry needed); reset codes must have time_code_sent > now.
+    $query      = mysqli_query($sqlConnect, "SELECT `user_id` FROM " . T_USERS . " WHERE `sms_code` = '{$email_code}' AND (`time_code_sent` = '0' OR `time_code_sent` > '" . time() . "')");
     return Wo_Sql_Result($query, 0, 'user_id');
 }
 function Wo_IsBlocked($user_id) {
@@ -11078,14 +11080,14 @@ function fluttewavePay($amount,$email)
 
     //* Prepare our rave request
     $request = [
-        'tx_ref' => time(),
+        'tx_ref' => bin2hex(random_bytes(8)), // SECURITY: was time() — predictable, enables replay
         'amount' => $amount,
         'currency' => 'NGN',
         'payment_options' => 'card',
         'redirect_url' => $wo['config']['site_url'] . "/requests.php?f=fluttewave&s=success",
         'customer' => [
             'email' => $email,
-            'name' => 'user_'.uniqid()
+            'name' => 'user_'.bin2hex(random_bytes(4)) // SECURITY: was uniqid() — predictable
         ],
         'meta' => [
             'price' => $amount
@@ -11204,7 +11206,7 @@ function payUsingAamarpay($amount,$name,$email,$phone)
     else {
         $url = 'https://secure.aamarpay.com/request.php';
     }
-    $tran_id = rand(1111111,9999999);
+    $tran_id = random_int(100000000, 999999999); // SECURITY: rand() is not CSPRNG — predictable transaction IDs enable replay attacks
     $fields = array(
         'store_id' => $wo['config']['aamarpay_store_id'], //store id will be aamarpay,  contact integration@aamarpay.com for test/live id
         'amount' => $amount, //transaction amount

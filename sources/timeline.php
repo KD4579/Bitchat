@@ -86,7 +86,9 @@ if ($type == 'timeline' && $wo['loggedin'] == true) {
             $block = Wo_RegisterBlock($user_id);
             if ($block) {
                 if (!empty($_GET['redirect'])) {
-                    header("Location: " . Wo_SeoLink("index.php?link1={$_GET['redirect']}"));
+                    // SECURITY: restrict to alphanumeric/dash/underscore page slugs only — prevents open redirect
+                    $safe_redirect = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['redirect']);
+                    header("Location: " . Wo_SeoLink("index.php?link1={$safe_redirect}"));
                     exit();
                 }
                 header("Location: " . Wo_SeoLink('index.php?link1=welcome'));

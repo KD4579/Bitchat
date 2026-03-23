@@ -5403,7 +5403,7 @@ function Wo_SendSMSMessage($to, $message) {
         //Multiple mobiles numbers separated by comma
         $mobileNumber = $to;
         //Sender ID,While using route4 sender id should be 6 characters long.
-        $senderId     = uniqid();
+        $senderId     = substr(bin2hex(random_bytes(6)), 0, 11); // SECURITY: was uniqid() — predictable microsecond-based ID
         //Define route
         $route        = "4";
         //Prepare you post parameters

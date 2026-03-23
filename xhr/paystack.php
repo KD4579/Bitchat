@@ -63,7 +63,7 @@ if ($f == 'paystack') {
                 }
             }
             $result    = array();
-            $reference = uniqid();
+            $reference = bin2hex(random_bytes(8)); // SECURITY: was uniqid() — predictable, enables callback replay/hijack
             $postdata  = array(
                 'email' => $_POST['email'],
                 'amount' => $price,

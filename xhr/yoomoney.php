@@ -3,7 +3,7 @@ if ($f == "yoomoney") {
 	if ($s == 'create') {
 		if (!empty($_GET['amount']) && is_numeric($_GET['amount']) && $_GET['amount'] > 0) {
 			$amount = Wo_Secure($_GET['amount']);
-			$order_id = uniqid();
+			$order_id = bin2hex(random_bytes(8)); // SECURITY: was uniqid() — predictable, enables callback replay
 			$receiver = $wo['config']['yoomoney_wallet_id'];
 			$successURL = $wo['config']['site_url'] . "/requests.php?f=yoomoney&s=success";
 			$form = '<form id="yoomoney_form" method="POST" action="https://yoomoney.ru/quickpay/confirm.xml">    
