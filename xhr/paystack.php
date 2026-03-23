@@ -258,7 +258,7 @@ if ($f == 'paystack') {
             $verified_amount = floatval($payment['amount']);
             if (Wo_ReplenishingUserBalance($verified_amount)) {
                 $safe_amount                    = $verified_amount;
-                $safe_userid                    = intval($wo['user']['id']);
+                $safe_userid                    = intval($wo['user']['user_id']);
                 $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Paystack')");
                 $_SESSION['replenished_amount'] = $_GET['amount'];
                 if (!empty($_COOKIE['redirect_page'])) {

@@ -18,7 +18,7 @@ if ($f == "threadreply" && Wo_CheckMainSession($hash_id) === true) {
         $registration_data = array(
             'thread_id' => Wo_Secure($_GET['tid']),
             'forum_id' => Wo_Secure($_GET['fid']),
-            'poster_id' => $wo['user']['id'],
+            'poster_id' => $wo['user']['user_id'],
             'post_subject' => Wo_Secure($_POST['subject']),
             'post_text' => Wo_BbcodeSecure($_POST['content']),
             'post_quoted' => Wo_Secure($_GET['q']),

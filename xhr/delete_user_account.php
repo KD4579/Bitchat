@@ -5,7 +5,8 @@ if ($f == 'delete_user_account' && $wo['config']['deleteAccount'] == 1) {
         $errors[] = $error_icon . 'Invalid security token. Please refresh and try again.';
     }
     if (empty($errors) && isset($_POST['password'])) {
-        if (Wo_HashPassword($_POST['password'], $wo['user']['password']) == false) {
+        // SECURITY: !== true catches both false (wrong pw) and '' (empty pw) — safe regardless of empty pre-check
+        if (Wo_HashPassword($_POST['password'], $wo['user']['password']) !== true) {
             $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
         }
         if (empty($errors)) {

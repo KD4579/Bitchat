@@ -7,9 +7,9 @@ if (!empty($_POST['story_id']) && is_numeric($_POST['story_id']) && $_POST['stor
 	}
 	$users_data = array();
 	$story_id = Wo_Secure($_POST['story_id']);
-	$story = $db->where('id',$story_id)->where('user_id',$wo['user']['id'])->getOne(T_USER_STORY);
+	$story = $db->where('id',$story_id)->where('user_id',$wo['user']['user_id'])->getOne(T_USER_STORY);
 	if (!empty($story)) {
-		$users = $db->where('story_id',$story_id)->where('user_id',$wo['user']['id'],'!=')->get(T_STORY_SEEN,$limit);
+		$users = $db->where('story_id',$story_id)->where('user_id',$wo['user']['user_id'],'!=')->get(T_STORY_SEEN,$limit);
 		if (!empty($users)) {
 			foreach ($users as $key => $value) {
 				$user = Wo_UserData($value->user_id);

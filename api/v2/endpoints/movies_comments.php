@@ -72,7 +72,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
         if (!empty($_POST['text']) && isset($_POST['movie_id']) && is_numeric(($_POST['movie_id'])) && $_POST['movie_id'] > 0) {
             $registration_data = array(
                 'movie_id' => Wo_Secure($_POST['movie_id']),
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'text' => Wo_Secure($_POST['text']),
                 'posted' => time()
             );
@@ -157,7 +157,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $registration_data = array(
                 'comm_id' => Wo_Secure($_POST['comment_id']),
                 'movie_id' => Wo_Secure($_POST['movie_id']),
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'text' => Wo_Secure($_POST['text']),
                 'posted' => time()
             );

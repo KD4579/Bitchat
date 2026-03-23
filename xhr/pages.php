@@ -88,7 +88,7 @@ if ($f == 'pages') {
                     $errors[] = $error_icon . $wo['lang']['website_invalid_characters'];
                 }
             }
-            if ($PageData['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'info')) {
+            if ($PageData['user_id'] == $wo['user']['user_id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'info')) {
                 if (empty($errors)) {
                     $Update_data = array(
                         'website' => Wo_Secure($_POST['website']),
@@ -119,7 +119,7 @@ if ($f == 'pages') {
     if ($s == 'update_sociallink_setting') {
         if (!empty($_POST['page_id']) && is_numeric($_POST['page_id']) && $_POST['page_id'] > 0 && Wo_CheckSession($hash_id) === true) {
             $PageData = Wo_PageData($_POST['page_id']);
-            if ($PageData['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'social')) {
+            if ($PageData['user_id'] == $wo['user']['user_id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'social')) {
                 if (empty($errors)) {
                     $Update_data = array(
                         'facebook' => Wo_Secure($_POST['facebook']),
@@ -146,7 +146,7 @@ if ($f == 'pages') {
         if (isset($_POST['page_id']) && is_numeric($_POST['page_id']) && $_POST['page_id'] > 0 && Wo_CheckSession($hash_id) === true) {
             $Userdata = Wo_PageData($_POST['page_id']);
             if (!empty($Userdata['page_id'])) {
-                if ($Userdata['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'avatar')) {
+                if ($Userdata['user_id'] == $wo['user']['user_id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'avatar')) {
                     if (isset($_FILES['avatar']['name'])) {
                         if (Wo_UploadImage($_FILES["avatar"]["tmp_name"], $_FILES['avatar']['name'], 'avatar', $_FILES['avatar']['type'], $_POST['page_id'], 'page') === true) {
                             $page_data = Wo_PageData($_POST['page_id']);
@@ -221,7 +221,7 @@ if ($f == 'pages') {
                         $errors[] = $error_icon . $wo['lang']['call_action_type_url_invalid'];
                     }
                 }
-                if ($PageData['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'general')) {
+                if ($PageData['user_id'] == $wo['user']['user_id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'general')) {
                     if (empty($errors)) {
                         $sub_category = '';
                         if (!empty($_POST['page_sub_category']) && !empty($wo['page_sub_categories'][$_POST['page_category']])) {
@@ -302,7 +302,7 @@ if ($f == 'pages') {
             }
             if (empty($errors)) {
                 $page_data = Wo_PageData($_POST['page_id']);
-                if ($page_data['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'delete_page')) {
+                if ($page_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'delete_page')) {
                     if (Wo_DeletePage($_POST['page_id']) === true) {
                         $data = array(
                             'status' => 200,
@@ -329,7 +329,7 @@ if ($f == 'pages') {
         );
         if (isset($_GET['page_id']) && isset($_GET['user_id'])) {
             $page_data = Wo_PageData($_GET['page_id']);
-            if ($page_data['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_GET['page_id'], 'admins')) {
+            if ($page_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanPageUpdate($_GET['page_id'], 'admins')) {
                 $page = Wo_Secure($_GET['page_id']);
                 $user = Wo_Secure($_GET['user_id']);
                 $code = Wo_AddPageAdmin($user, $page);
@@ -454,7 +454,7 @@ if ($f == 'pages') {
     if ($s == 'privileges') {
         if (!empty($_POST['page_id']) && is_numeric($_POST['page_id']) && $_POST['page_id'] > 0 && !empty($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0) {
             $page_data = Wo_PageData($_POST['page_id']);
-            if ($page_data['user_id'] == $wo['user']['id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'admins')) {
+            if ($page_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanPageUpdate($_POST['page_id'], 'admins')) {
                 $update_array = array(
                     'general' => 0,
                     'info' => 0,

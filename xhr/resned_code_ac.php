@@ -5,8 +5,12 @@ if ($f == 'resned_code_ac') {
         if (empty($user) || empty($_SESSION['code_id']) || empty($user['phone_number'])) {
             $errors[] = $error_icon . $wo['lang']['failed_to_send_code'];
         }
+        // SECURITY: rate limit SMS resends — no limit before means SMS toll fraud + brute force
+        if (empty($errors) && function_exists('bitchat_rate_limit') && !bitchat_rate_limit('resend_sms_ac_' . $user['user_id'], $user['user_id'], 5, 600)) {
+            $errors[] = $error_icon . ($wo['lang']['login_attempts'] ?? 'Too many attempts. Please wait before requesting another code.');
+        }
         if (empty($errors)) {
-            $random_activation = Wo_Secure(rand(11111, 99999));
+            $random_activation = Wo_Secure(random_int(11111, 99999)); // SECURITY: rand() is not CSPRNG
             $message           = "Your confirmation code is: {$random_activation}";
             $user_id           = $user['user_id'];
             $query             = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `sms_code` = '{$random_activation}' WHERE `user_id` = {$user_id}");

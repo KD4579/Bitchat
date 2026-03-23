@@ -14,7 +14,7 @@ if ($f == "addtopic" && Wo_CheckMainSession($hash_id) === true && $wo['config'][
     }
     if (empty($error)) {
         $registration_data = array(
-            'user' => $wo['user']['id'],
+            'user' => $wo['user']['user_id'],
             'views' => 0,
             'headline' => Wo_Secure($_POST['headline']),
             'post' => Wo_Secure($_POST['topicpost']),

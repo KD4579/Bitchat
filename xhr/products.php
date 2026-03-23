@@ -273,7 +273,7 @@ if ($f == 'products') {
                             $small_image = $explode3[0] . '_small.' . $explode2;
 
                             $product = Wo_GetProduct($image['product_id']);
-                            if (!empty($product) && $wo['user']['id'] == $product['user_id']) {
+                            if (!empty($product) && $wo['user']['user_id'] == $product['user_id']) {
                                 $deleted = Wo_DeleteProductImage($value);
                                 if ($deleted) {
                                     if (($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1)) {
@@ -984,7 +984,7 @@ if ($f == 'products') {
     //         $image = Wo_ProductImageData(array('id' => $_POST['image_id']));
     //         if (!empty($image)) {
     //             $product = Wo_GetProduct($image['product_id']);
-    //             if (!empty($product) && $wo['user']['id'] == $product['user_id']) {
+    //             if (!empty($product) && $wo['user']['user_id'] == $product['user_id']) {
     //                 $deleted = Wo_DeleteProductImage($_POST['image_id']);
     //                 if ($deleted) {
     //                     @unlink($image['image']);

@@ -97,7 +97,7 @@ if ($f == 'experience') {
                                  'link' => $link,
                                  'headline' => $headline,
                                  'time' => time(),
-                                 'user_id' => $wo['user']['id'],
+                                 'user_id' => $wo['user']['user_id'],
                                  'employment_type' => Wo_Secure($_POST['employment_type']));
             $id = $db->insert(T_USER_EXPERIENCE,$insert_data);
             if (!empty($id)) {
@@ -352,7 +352,7 @@ if ($f == 'certification') {
                                  'pdf' => $pdf,
                                  'filename' => $filename,
                                  'time' => time(),
-                                 'user_id' => $wo['user']['id']);
+                                 'user_id' => $wo['user']['user_id']);
             $id = $db->insert(T_USER_CERTIFICATION,$insert_data);
             if (!empty($id)) {
                 $data = array('status' => 200,
@@ -589,7 +589,7 @@ if ($f == 'project') {
                                  'project_start' => Wo_Secure($_POST['project_start']),
                                  'project_end' => $project_end,
                                  'time' => time(),
-                                 'user_id' => $wo['user']['id']);
+                                 'user_id' => $wo['user']['user_id']);
             $id = $db->insert(T_USER_PROJECTS,$insert_data);
             if (!empty($id)) {
                 $data = array('status' => 200,
@@ -732,7 +732,7 @@ if ($f == 'open_to') {
                     exit();
                 }
             }
-            $insert_data = array('user_id' => $wo['user']['id'],
+            $insert_data = array('user_id' => $wo['user']['user_id'],
                                  'job_title' => Wo_Secure($_POST['job_title']),
                                  'job_location' => Wo_Secure($_POST['job_location']),
                                  'workplaces' => Wo_Secure(implode(",",$_POST['workplaces'])),
@@ -827,7 +827,7 @@ if ($f == 'open_to') {
         if (empty($data['message'])) {
             $_POST['services'] = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_POST['services']);
       $_POST['services'] = strip_tags($_POST['services']);
-            $insert_data = array('user_id' => $wo['user']['id'],
+            $insert_data = array('user_id' => $wo['user']['user_id'],
                                'services' => Wo_Secure($_POST['services']),
                                'job_location' => Wo_Secure($_POST['job_location']),
                                'description' => Wo_Secure($_POST['description'],0,true,1),

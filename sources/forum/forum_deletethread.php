@@ -10,9 +10,9 @@ if ($wo['config']['forum'] == 0) {
     exit();
 }
 if (isset($_GET['tid']) && is_numeric($_GET['tid'])) {
-	$thread = Wo_GetForumThreads(array('id' => $_GET['tid'], 'user' => $wo['user']['id']));
+	$thread = Wo_GetForumThreads(array('id' => $_GET['tid'], 'user' => $wo['user']['user_id']));
 	if (!empty($thread)) {
-		if ($thread[0]['poster_id'] == $wo['user']['id'] || $wo['user']['admin'] == 1) {
+		if ($thread[0]['poster_id'] == $wo['user']['user_id'] || $wo['user']['admin'] == 1) {
 			Wo_DeleteForumThread($_GET['tid']);
 			header("Location: " . Wo_SeoLink('index.php?link1=forum'));
 			exit();

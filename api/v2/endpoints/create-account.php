@@ -129,7 +129,7 @@ if (empty($error_code)) {
             }
             
             if ($activate == 1) {
-                $access_token        = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+                $access_token        = bin2hex(random_bytes(32)); // SECURITY: was sha1(rand())/md5(microtime())/rand() — predictable PRNG
                 $time                = time();
                 $user_id             = Wo_UserIdFromUsername($username);
                 $device_type = 'phone';
@@ -172,7 +172,7 @@ if (empty($error_code)) {
                 }
             }
             elseif ($wo['config']['sms_or_email'] == 'sms' && !empty($_POST['phone_num'])) {
-                $random_activation = Wo_Secure(rand(11111, 99999));
+                $random_activation = Wo_Secure(random_int(11111, 99999)); // SECURITY: rand() is not CSPRNG
                 $message           = "Your confirmation code is: {$random_activation}";
 
                 if (Wo_SendSMSMessage($_POST['phone_num'], $message) === true) {

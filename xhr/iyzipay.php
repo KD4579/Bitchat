@@ -52,18 +52,28 @@ if ($f == "iyzipay") {
             # print result
             if ($checkoutForm->getPaymentStatus() == 'SUCCESS') {
                 $amount          = floatval($_GET['amount']);
-                $_GET['user_id'] = intval($_GET['user_id']);
-                $db->where('user_id', $_GET['user_id'])->update(T_USERS, array(
-                    'wallet' => $db->inc($amount)
+                // SECURITY: ignore $_GET['user_id'] — always credit the logged-in user.
+                // Previously trusted GET param, allowing attacker to redirect any valid
+                // payment callback to an arbitrary victim's user_id (IDOR).
+                if (!$wo['loggedin'] || empty($wo['user']['user_id'])) {
+                    header("Location: " . Wo_SeoLink('index.php?link1=wallet'));
+                    exit();
+                }
+                $safe_userid = intval($wo['user']['user_id']);
+                $safe_amount = floatval($amount);
+                $db->where('user_id', $safe_userid)->update(T_USERS, array(
+                    'wallet' => $db->inc($safe_amount)
                 ));
-                cache($_GET['user_id'], 'users', 'delete');
-                $safe_userid                    = intval($_GET['user_id']);
-                $safe_amount                    = floatval($amount);
+                cache($safe_userid, 'users', 'delete');
                 $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'iyzipay')");
                 $_SESSION['replenished_amount'] = $amount;
                 if (!empty($_COOKIE['redirect_page'])) {
-                    $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-                    $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
+                    $parsed_redir  = parse_url($_COOKIE['redirect_page']);
+                    $site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+                    $has_host      = !empty($parsed_redir['host']);
+                    $same_host     = $has_host && $parsed_redir['host'] === $site_host;
+                    $is_relative   = !$has_host && strncmp($_COOKIE['redirect_page'], '//', 2) !== 0;
+                    $redirect_page = ($is_relative || $same_host) ? $_COOKIE['redirect_page'] : Wo_SeoLink('index.php?link1=wallet');
                     header("Location: " . $redirect_page);
                 } else {
                     header("Location: " . Wo_SeoLink('index.php?link1=wallet'));

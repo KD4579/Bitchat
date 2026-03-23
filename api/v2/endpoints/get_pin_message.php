@@ -1,6 +1,6 @@
 <?php
 if (!empty($_POST['chat_id']) && is_numeric($_POST['chat_id']) && $_POST['chat_id'] > 0) {
-    $chats = $db->where('user_id',$wo['user']['id'])->where('chat_id',Wo_Secure($_POST['chat_id']))->where('pin','yes')->where('message_id',0,'>')->get(T_MUTE);
+    $chats = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',Wo_Secure($_POST['chat_id']))->where('pin','yes')->where('message_id',0,'>')->get(T_MUTE);
     $array = array();
     if (!empty($chats)) {
         foreach ($chats as $key => $value) {

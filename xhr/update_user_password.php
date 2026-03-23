@@ -12,7 +12,8 @@ if ($f == "update_user_password") {
             } else {
                 // Verify current password against the TARGET user's password (not logged-in user)
                 $targetPassword = $Userdata['password'];
-                if (Wo_HashPassword($_POST['current_password'], $targetPassword) == false) {
+                // SECURITY: strict === avoids type juggling (0 == false in PHP)
+                if (Wo_HashPassword($_POST['current_password'], $targetPassword) === false) {
                     $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
                 }
                 if ($_POST['new_password'] != $_POST['repeat_new_password']) {
@@ -30,8 +31,8 @@ if ($f == "update_user_password") {
                     );
                     if (Wo_UpdateUserData($_POST['user_id'], $Update_data)) {
                         $user_id    = Wo_Secure($_POST['user_id']);
-                        $session_id = (!empty($_SESSION['user_id'])) ? $_SESSION['user_id'] : $_COOKIE['user_id'];
-                        $session_id = Wo_Secure($session_id);
+                        // SECURITY: use only server-side session — cookie is user-controlled and must not be trusted
+                        $session_id = Wo_Secure($_SESSION['user_id'] ?? '');
                         $mysqli     = mysqli_query($sqlConnect, "DELETE FROM " . T_APP_SESSIONS . " WHERE `user_id` = '{$user_id}' AND `session_id` <> '{$session_id}'");
                         $data       = array(
                             'status' => 200,

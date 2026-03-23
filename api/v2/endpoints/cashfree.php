@@ -353,7 +353,7 @@ else{
 		if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
             if (Wo_ReplenishingUserBalance($_POST['amount'])) {
                 $_POST['amount'] = floatval($_POST['amount']);
-                // SECURITY: was $wo['user']['id'] (wrong field — null). amount is floatval'd on line above — safe.
+                // SECURITY: was $wo['user']['user_id'] (wrong field — null). amount is floatval'd on line above — safe.
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $_POST['amount'] . "', 'Cashfree')");
                 $_SESSION['replenished_amount'] = $_POST['amount'];
                 $response_data = array(

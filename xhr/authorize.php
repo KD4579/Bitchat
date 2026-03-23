@@ -45,7 +45,7 @@ if ($f == "authorize") {
                     $trans = $Aresponse->getTransactionResponse();
                     if ($trans != null && $trans->getMessages() != null) {
                     	if (Wo_ReplenishingUserBalance($amount)) {
-                            // SECURITY: fixed $wo['user']['id'] → $wo['user']['user_id'] (was recording null user_id)
+                            // SECURITY: fixed $wo['user']['user_id'] → $wo['user']['user_id'] (was recording null user_id)
                             $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'authorize')");
 			                $_SESSION['replenished_amount'] = $amount;
 			                $url = Wo_SeoLink('index.php?link1=wallet');

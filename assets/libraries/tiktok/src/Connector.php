@@ -115,7 +115,7 @@ class Connector {
 				throw new \Exception('Invalid Permission Requested. Valid permissions are: '.implode(", ", self::VALID_PERMISSIONS));
 			}
 		}
-		$state = uniqid();
+		$state = bin2hex(random_bytes(16)); // SECURITY: was uniqid() — microsecond timestamp, predictable ~1000 values/sec
 		$_SESSION[self::SESS_STATE] = $state;
 		return sprintf(self::BASE_REDIRECT_URL, $this->client_id, implode(",", $permissions), urlencode($this->redirect), $state);
 	}
@@ -145,9 +145,14 @@ class Connector {
 	 */
 	public function verifyCode(string $code) {
 		if (!isset($_SESSION[self::SESS_STATE]) || !isset($_GET['state'])) {
-			throw new \Exception('Invalid State Variable: Session: '.$_SESSION[self::SESS_STATE].' VS GET : '.$_GET['state']);
-			return false;
+			throw new \Exception('Invalid State Variable: missing session or GET state');
 		}
+		// SECURITY: verify state matches to prevent CSRF — was missing entirely
+		if (!hash_equals($_SESSION[self::SESS_STATE], $_GET['state'])) {
+			unset($_SESSION[self::SESS_STATE]);
+			throw new \Exception('Invalid State Variable: CSRF detected');
+		}
+		unset($_SESSION[self::SESS_STATE]); // invalidate after successful use
 
 		try {
 			$url = sprintf(self::BASE_AUTH_URL, $this->client_id, $this->client_secret, $code);

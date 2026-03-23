@@ -21,7 +21,7 @@ if ($f == 'funding' && $wo['config']['funding_system'] == 1) {
                         'description' => Wo_Secure($_POST['description'],1),
                         'amount' => Wo_Secure($_POST['amount']),
                         'time' => time(),
-                        'user_id' => $wo['user']['id'],
+                        'user_id' => $wo['user']['user_id'],
                         'image' => $media['filename'],
                         'hashed_id' => Wo_GenerateKey(15, 15)
                     );
@@ -135,7 +135,7 @@ if ($f == 'funding' && $wo['config']['funding_system'] == 1) {
     if ($s == 'load_user_fund') {
         if (!empty($_GET['offset']) && is_numeric($_GET['offset']) && $_GET['offset'] > 0) {
             $id      = Wo_Secure($_GET['offset']);
-            $user_id = $wo['user']['id'];
+            $user_id = $wo['user']['user_id'];
             if (!empty($_GET['user_id']) && is_numeric($_GET['user_id']) && $_GET['user_id'] > 0) {
                 $user_id = Wo_Secure($_GET['user_id']);
             }
@@ -279,7 +279,7 @@ if ($f == 'funding' && $wo['config']['funding_system'] == 1) {
             $mediaFilename = $media['filename'];
             if (!empty($mediaFilename)) {
                 $insert_id = Wo_InsertBankTrnsfer(array(
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'description' => $description,
                     'price' => $amount,
                     'receipt_file' => $mediaFilename,
@@ -344,7 +344,7 @@ if ($f == 'funding' && $wo['config']['funding_system'] == 1) {
                         )
                     ));
                     if ($charge['response']['responseCode'] == 'APPROVED') {
-                        Wo_UpdateUserData($wo['user']['id'], array(
+                        Wo_UpdateUserData($wo['user']['user_id'], array(
                             'address' => Wo_Secure($_POST['card_address']),
                             'city' => Wo_Secure($_POST['card_city']),
                             'state' => Wo_Secure($_POST['card_state']),

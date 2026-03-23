@@ -14,7 +14,7 @@ if ($wo['config']['video_chat'] == 0) {
 $id = Wo_Secure($_GET['call_id']);
 if ($wo['config']['agora_chat_video'] == 1) {
     $wo['video_call'] = array();
-    $call             = $db->where('room_name', $id)->where('(to_id = ' . $wo['user']['id'] . ' OR from_id = ' . $wo['user']['id'] . ')')->getOne(T_AGORA);
+    $call             = $db->where('room_name', $id)->where('(to_id = ' . $wo['user']['user_id'] . ' OR from_id = ' . $wo['user']['user_id'] . ')')->getOne(T_AGORA);
     if (!empty($call)) {
         $wo['video_call']['room']         = $call->room_name;
         $wo['video_call']['access_token'] = $call->access_token;

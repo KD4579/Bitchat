@@ -198,7 +198,7 @@ if ($f == 'razorpay') {
 			if (!empty($json) && empty($json->error_code)) {
 				$price = $price / 100;
 				if (Wo_ReplenishingUserBalance($price)) {
-	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $price . "', 'razorpay')"); // SECURITY: was $wo['user']['id'] — wrong field (null)
+	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $price . "', 'razorpay')"); // SECURITY: was $wo['user']['user_id'] — wrong field (null)
 	                $_SESSION['replenished_amount'] = $price;
 	                $data['url'] = Wo_SeoLink('index.php?link1=wallet');
 	            } else {

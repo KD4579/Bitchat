@@ -27,7 +27,7 @@ if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
 			if (!empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0) {
 				$message['to_id'] = Wo_Secure($_POST['recipient_id']);
 			}
-			$message['from_id'] = $wo['user']['id'];
+			$message['from_id'] = $wo['user']['user_id']; // SECURITY: was $wo['user']['user_id'] — wrong field, resolves to null
 			$message['forward'] = 1;
 			$id = $db->insert(T_MESSAGES,$message);
 			if (!empty($id)) {

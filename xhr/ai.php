@@ -106,7 +106,7 @@ elseif ($s == "openai") {
 				}, $result['data']);
 				$data['status'] = 200;
 				$data['output'] = $urls;
-				$data['credits'] = $db->where('user_id',$wo['user']['id'])->getValue(T_USERS,'credits');
+				$data['credits'] = $db->where('user_id',$wo['user']['user_id'])->getValue(T_USERS,'credits');
 			}
 			else{
 				$data['message'] = $wo['lang']['something_wrong'];

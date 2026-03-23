@@ -42,8 +42,7 @@ if ($f == "securionpay") {
 	        $curl = curl_init($url);
 	        curl_setopt($curl, CURLOPT_URL, $url);
 	        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-	        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+	        // SECURITY: SSL verification must remain enabled to prevent MITM attacks against the payment API.
 	        curl_setopt($curl, CURLOPT_USERPWD, $wo['config']['securionpay_secret_key'].":password");
 	        $resp = curl_exec($curl);
 	        curl_close($curl);
@@ -55,7 +54,7 @@ if ($f == "securionpay") {
 	                        if ($wo['user']['user_id'] == $value['metadata']['user_key']) {
 	                        	$amount = intval(Wo_Secure($value['amount'])) / 100;
 	                        	if (Wo_ReplenishingUserBalance($amount)) {
-		                            $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'securionpay')");
+		                            $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'securionpay')");
 					                $_SESSION['replenished_amount'] = $amount;
 					                $url = Wo_SeoLink('index.php?link1=wallet');
 					                if (!empty($_COOKIE['redirect_page'])) {

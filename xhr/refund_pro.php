@@ -2,11 +2,11 @@
 if ($f == "refund_pro") {
     if (Wo_CheckSession($hash_id) === true) {
         if ($wo['user']['is_pro'] != 0) {
-            $requested = $db->where('user_id',$wo['user']['id'])->getValue(T_REFUND,"COUNT(*)");
+            $requested = $db->where('user_id',$wo['user']['user_id'])->getValue(T_REFUND,"COUNT(*)");
             if (!empty($_POST['pro_type']) && !empty($_POST['description']) && $requested == 0) {
                 if (in_array($_POST['pro_type'], array_keys($wo['pro_packages'])) && $_POST['pro_type'] == $wo['user']['pro_type']) {
                     $registration_data = array(
-                        'user_id' => $wo['user']['id'],
+                        'user_id' => $wo['user']['user_id'],
                         'pro_type' => Wo_Secure($_POST['pro_type']),
                         'description' => Wo_Secure($_POST['description']),
                         'time' => time(),

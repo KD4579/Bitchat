@@ -27,9 +27,14 @@ foreach ($required_fields as $key => $value) {
         $error_message = $value . ' (POST) is missing';
     }
 }
-if (empty(Wo_GetPostIDFromProdcutID($_POST['product_id'])) && empty($error_message)) {
+$_edit_product = $db->where('id', intval($_POST['product_id']))->getOne(T_PRODUCTS);
+if (empty($_edit_product) && empty($error_message)) {
     $error_code    = 4;
     $error_message = 'Product not found';
+} elseif (!empty($_edit_product) && intval($_edit_product['user_id']) !== intval($wo['user']['user_id']) && empty($error_code)) {
+    // SECURITY: verify the requester owns this product (IDOR fix)
+    $error_code    = 5;
+    $error_message = 'You are not authorized to edit this product';
 }
 
 if (empty($error_code)) {
@@ -164,7 +169,7 @@ if (empty($error_code)) {
                             $small_image = $explode3[0] . '_small.' . $explode2;
 
                             $product = Wo_GetProduct($image['product_id']);
-                            if (!empty($product) && $wo['user']['id'] == $product['user_id']) {
+                            if (!empty($product) && $wo['user']['user_id'] == $product['user_id']) {
                                 $deleted = Wo_DeleteProductImage($value);
                                 if ($deleted) {
                                     if (($wo['config']['amazone_s3'] == 1 || $wo['config']['wasabi_storage'] == 1 || $wo['config']['ftp_upload'] == 1 || $wo['config']['spaces'] == 1 || $wo['config']['cloud_upload'] == 1 || $wo['config']['backblaze_storage'] == 1)) {

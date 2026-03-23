@@ -8,7 +8,7 @@ if ($f == "add-blog-commreply") {
         $registration_data = array(
             'comm_id' => Wo_Secure($_POST['c_id']),
             'blog_id' => Wo_Secure($_POST['b_id']),
-            'user_id' => $wo['user']['id'],
+            'user_id' => $wo['user']['user_id'],
             'text' => Wo_Secure($_POST['text']),
             'posted' => time()
         );

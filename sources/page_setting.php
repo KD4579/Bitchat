@@ -45,7 +45,7 @@ $s_page = 'general';
 if (!empty($_GET['link3']) && in_array($_GET['link3'], array_keys($array))) {
     $s_page = $array[$_GET['link3']];
 }
-if ($wo['setting']['user_id'] != $wo['user']['id'] && !Wo_IsCanPageUpdate($wo['setting']['page_id'], $s_page)) {
+if ($wo['setting']['user_id'] != $wo['user']['user_id'] && !Wo_IsCanPageUpdate($wo['setting']['page_id'], $s_page)) {
     $allowed = Wo_GetAllowedPages($page_id);
     if (!empty($allowed) && !empty($allowed[0])) {
         $_GET['link3'] = $allowed[0];

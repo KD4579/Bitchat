@@ -2805,7 +2805,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         }
     }
     if ($s == 'reset_windows_app_keys') {
-        $app_key    = sha1(rand(111111111, 999999999)) . '-' . md5(microtime()) . '-' . rand(11111111, 99999999);
+        $app_key    = bin2hex(random_bytes(20)) . '-' . bin2hex(random_bytes(16)); // SECURITY: was sha1(rand())/md5(microtime())/rand() — predictable, breakable
         $data_array = array(
             'widnows_app_api_key' => $app_key
         );

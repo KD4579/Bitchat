@@ -927,7 +927,7 @@ if ($f == 'posts') {
             if (is_callable('litespeed_finish_request')) {
                 litespeed_finish_request();
             }
-            $wo['story'] = $db->where('id', Wo_Secure($_POST['post_id']))->where('user_id', $wo['user']['id'])->getOne(T_POSTS);
+            $wo['story'] = $db->where('id', Wo_Secure($_POST['post_id']))->where('user_id', $wo['user']['user_id'])->getOne(T_POSTS);
             if ($wo['config']['notify_new_post'] == 1 && !empty($wo['story']->send_notify)) {
                 if (empty($wo['story']->page_id) && empty($wo['story']->group_id) && empty($wo['story']->event_id) && $wo['story']->postPrivacy < 3) {
                     $post_id = $wo['story']->id;
@@ -1198,7 +1198,7 @@ if ($f == 'posts') {
             $post_id    = Wo_Secure($_POST['post_id']);
             $post       = $db->where('id', $post_id)->getOne(T_POSTS);
             $updatePost = '';
-            if (!empty($post) && Wo_IsPostOnwer($post_id, $wo['user']['id'])) {
+            if (!empty($post) && Wo_IsPostOnwer($post_id, $wo['user']['user_id'])) {
                 $wo['no_mention'] = array();
                 $mention_regex    = '/@\[([0-9]+)\]/i';
                 preg_match_all($mention_regex, $post->postText, $matches);
@@ -1375,7 +1375,7 @@ if ($f == 'posts') {
         } elseif (!empty($_POST['post_id']) && is_numeric($_POST['post_id'])) {
             $post_id = Wo_Secure($_POST['post_id']);
             $post    = $db->where('id', $post_id)->getOne(T_POSTS);
-            if (!empty($post) && Wo_IsPostOnwer($post_id, $wo['user']['id'])) {
+            if (!empty($post) && Wo_IsPostOnwer($post_id, $wo['user']['user_id'])) {
                 $image_count = $db->where('post_id', $post_id)->getValue(T_ALBUMS_MEDIA, 'COUNT(*)');
                 if ($image_count == 1) {
                     $image = $db->where('post_id', $post_id)->getOne(T_ALBUMS_MEDIA);
@@ -1402,7 +1402,7 @@ if ($f == 'posts') {
             $post_id     = Wo_Secure($_POST['post_id']);
             $post        = $db->where('id', $post_id)->getOne(T_POSTS);
             $image_count = $db->where('post_id', $post_id)->getValue(T_ALBUMS_MEDIA, 'COUNT(*)');
-            if (!empty($post) && Wo_IsPostOnwer($post_id, $wo['user']['id'])) {
+            if (!empty($post) && Wo_IsPostOnwer($post_id, $wo['user']['user_id'])) {
                 if (!empty($_POST['image_id']) && is_numeric($_POST['image_id'])) {
                     $image_id = Wo_Secure($_POST['image_id']);
                     if ($image_count > 1) {
@@ -2507,7 +2507,7 @@ if ($f == 'posts') {
             'status' => 200
         );
         $post_id = Wo_Secure($_GET['post_id']);
-        $db->where('id', $post_id)->where('user_id', $wo['user']['id'])->update(T_POSTS, array(
+        $db->where('id', $post_id)->where('user_id', $wo['user']['user_id'])->update(T_POSTS, array(
             'processing' => 0
         ));
         header("Content-type: application/json");

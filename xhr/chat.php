@@ -270,8 +270,8 @@ if ($f == 'chat') {
         if (isset($_GET['color']) && in_array($_GET['color'], $colors)) {
             $color = $_GET['color'];
         }
-        if (isset($wo['user']['id'])) {
-            $user_id = $wo['user']['id'];
+        if (isset($wo['user']['user_id'])) {
+            $user_id = $wo['user']['user_id'];
         }
         $page_id = 0;
         if (!empty($_GET['page_id']) && is_numeric($_GET['page_id']) && $_GET['page_id'] > 0) {
@@ -791,7 +791,7 @@ if ($f == 'chat') {
     }
     if ($s == 'change_chat_color') {
         $recipient_id = (isset($_GET['recipient_id'])) ? Wo_Secure($_GET['recipient_id']) : false;
-        $user_id      = (isset($wo['user']['id'])) ? $wo['user']['id'] : false;
+        $user_id      = (isset($wo['user']['user_id'])) ? $wo['user']['user_id'] : false;
         $color        = (isset($_GET['color'])) ? Wo_Secure($_GET['color']) : false;
         if ($recipient_id && $user_id && $color) {
             if (Wo_UpdateChatColor($recipient_id, $user_id, $color)) {
@@ -1129,7 +1129,7 @@ if ($f == 'chat') {
         }
         if (!$error) {
             $users   = explode(',', Wo_Secure($_POST['parts']));
-            $users[] = $wo['user']['id'];
+            $users[] = $wo['user']['user_id'];
             $name    = Wo_Secure($_POST['group_name'],1);
             $id      = Wo_CreateGChat($name, $users);
             if ($id && is_numeric($id)) {
@@ -1163,12 +1163,12 @@ if ($f == 'chat') {
         exit();
     }
     if ($s == 'delete_group_request' && !empty($_GET['group_id']) && is_numeric($_GET['group_id']) && $_GET['group_id'] > 0) {
-        $db->where('user_id', $wo['user']['id'])->where('group_id', Wo_Secure($_GET['group_id']))->delete(T_GROUP_CHAT_USERS);
+        $db->where('user_id', $wo['user']['user_id'])->where('group_id', Wo_Secure($_GET['group_id']))->delete(T_GROUP_CHAT_USERS);
         $group_id          = Wo_Secure($_GET['group_id']);
         $group_chat        = Wo_GroupTabData($group_id);
         $notification_data = array(
             'recipient_id' => $group_chat['user_id'],
-            'notifier_id' => $wo['user']['id'],
+            'notifier_id' => $wo['user']['user_id'],
             'group_chat_id' => $group_id,
             'type' => 'declined_group_chat_request',
             'url' => 'index.php?link1=timeline&u=' . $wo['user']['username']
@@ -1181,14 +1181,14 @@ if ($f == 'chat') {
     }
     if ($s == 'accept_group_request' && !empty($_GET['group_id']) && is_numeric($_GET['group_id']) && $_GET['group_id'] > 0) {
         $group_id = Wo_Secure($_GET['group_id']);
-        $db->where('user_id', $wo['user']['id'])->where('group_id', $group_id)->update(T_GROUP_CHAT_USERS, array(
+        $db->where('user_id', $wo['user']['user_id'])->where('group_id', $group_id)->update(T_GROUP_CHAT_USERS, array(
             'last_seen' => time(),
             'active' => '1'
         ));
         $group_chat        = Wo_GroupTabData($group_id);
         $notification_data = array(
             'recipient_id' => $group_chat['user_id'],
-            'notifier_id' => $wo['user']['id'],
+            'notifier_id' => $wo['user']['user_id'],
             'group_chat_id' => $group_id,
             'type' => 'accept_group_chat_request',
             'url' => 'index.php?link1=timeline&u=' . $wo['user']['username']
@@ -1200,7 +1200,7 @@ if ($f == 'chat') {
         exit();
     }
     if ($s == 'seen' && !empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0) {
-        $db->where('from_id', Wo_Secure($_POST['recipient_id']))->where('to_id', $wo['user']['id'])->update(T_MESSAGES, array(
+        $db->where('from_id', Wo_Secure($_POST['recipient_id']))->where('to_id', $wo['user']['user_id'])->update(T_MESSAGES, array(
             'seen' => time()
         ));
         $data['status'] = 200;

@@ -1,7 +1,7 @@
 <?php
 $live = array();
 $time = (time() - 10);
-$live_posts = $db->rawQuery("SELECT P.id FROM ".T_POSTS." P WHERE P.user_id = (SELECT following_id FROM ".T_FOLLOWERS." WHERE P.user_id = following_id AND follower_id = ".$wo['user']['id'].") AND P.postType = 'live' AND P.live_time >= '".$time."' ORDER BY P.id DESC");
+$live_posts = $db->rawQuery("SELECT P.id FROM ".T_POSTS." P WHERE P.user_id = (SELECT following_id FROM ".T_FOLLOWERS." WHERE P.user_id = following_id AND follower_id = ".$wo['user']['user_id'].") AND P.postType = 'live' AND P.live_time >= '".$time."' ORDER BY P.id DESC");
 if (!empty($live_posts)) {
 	foreach ($live_posts as $key => $value) {
 		$post_data = Wo_PostData($value->id);

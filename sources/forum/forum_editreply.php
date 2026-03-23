@@ -12,7 +12,7 @@ if ($wo['config']['forum'] == 0) {
 if (isset($_GET['tid']) && is_numeric($_GET['tid'])) {
 	$reply  = Wo_GetThreadReplies(array("id" => $_GET['tid']));
 	if (count($reply) > 0) {
-		if ($reply[0]['poster_id'] == $wo['user']['id'] || $wo['user']['admin'] == 1) {
+		if ($reply[0]['poster_id'] == $wo['user']['user_id'] || $wo['user']['admin'] == 1) {
 			$wo['description'] = $wo['config']['siteDesc'];
 			$wo['keywords']    = $wo['config']['siteKeywords'];
 			$wo['page']        = 'forum';

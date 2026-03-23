@@ -2,7 +2,7 @@
 if ($f == 'view_all_stories') {
     $data['status'] = 400;
     if (!empty($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0) {
-        $stories = $db->where("(user_id = ".Wo_Secure($_POST['user_id'])." AND id NOT IN (SELECT story_id FROM ".T_STORY_SEEN." WHERE user_id = ".$wo['user']['user_id']."))")->get(T_USER_STORY,null,array('id')); // SECURITY: was $wo['user']['id'] — wrong field (null)
+        $stories = $db->where("(user_id = ".Wo_Secure($_POST['user_id'])." AND id NOT IN (SELECT story_id FROM ".T_STORY_SEEN." WHERE user_id = ".$wo['user']['user_id']."))")->get(T_USER_STORY,null,array('id')); // SECURITY: was $wo['user']['user_id'] — wrong field (null)
         if (!empty($stories)) {
             $show_ids = array();
             foreach ($stories as $key => $value) {

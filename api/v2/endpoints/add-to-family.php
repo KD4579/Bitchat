@@ -31,17 +31,17 @@ else{
             'member_id' => Wo_Secure($_POST['user_id']),
             'member' => Wo_Secure($_POST['type']),
             'active' => 0,
-            'user_id' => Wo_Secure($wo['user']['id']),
-            'requesting' => Wo_Secure($wo['user']['id'])
+            'user_id' => Wo_Secure($wo['user']['user_id']),
+            'requesting' => Wo_Secure($wo['user']['user_id'])
         )
     );
     if (in_array($_GET['type'], $relationship_type)) {
         $registration_data_array[] = array(
-            'member_id' => Wo_Secure($wo['user']['id']),
+            'member_id' => Wo_Secure($wo['user']['user_id']),
             'member' => Wo_Secure($_POST['type']),
             'active' => 0,
             'user_id' => Wo_Secure($_POST['user_id']),
-            'requesting' => Wo_Secure($wo['user']['id'])
+            'requesting' => Wo_Secure($wo['user']['user_id'])
         );
     }
     foreach ($registration_data_array as $registration_data) {
@@ -52,7 +52,7 @@ else{
         $notification_data_array = array(
             'recipient_id' => $_POST['user_id'],
             'type' => 'added_u_as',
-            'user_id' => $wo['user']['id'],
+            'user_id' => $wo['user']['user_id'],
             'text' => $wo['lang']['sent_u_request'] . $wo['lang'][$wo['family'][Wo_Secure($_POST['type'])]],
             'url' => 'index.php?link1=timeline&u=' . $member_data['username'] . '&type=requests'
         );

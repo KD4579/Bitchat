@@ -115,13 +115,13 @@ if (empty($error_code)) {
 		if (!empty($data['liked_pages'])) {
 			$response_data['liked_pages'] = Wo_GetLikes($recipient_data['user_id'], 'profile', 50);
 			foreach ($response_data['liked_pages'] as $key => $value) {
-                $response_data['liked_pages'][$key]['is_liked'] = Wo_IsPageLiked($value['page_id'], $wo['user']['id']);
+                $response_data['liked_pages'][$key]['is_liked'] = Wo_IsPageLiked($value['page_id'], $wo['user']['user_id']);
             }
 		}
 		if (!empty($data['joined_groups'])) {
 			$response_data['joined_groups'] = Wo_GetUsersGroups($recipient_data['user_id'], 50);
 			foreach ($response_data['joined_groups'] as $key => $value) {
-                $response_data['joined_groups'][$key]['is_joined'] = Wo_IsGroupJoined($value['group_id'], $wo['user']['id']);
+                $response_data['joined_groups'][$key]['is_joined'] = Wo_IsGroupJoined($value['group_id'], $wo['user']['user_id']);
             }
 		}
 		if (!empty($data['family'])) {

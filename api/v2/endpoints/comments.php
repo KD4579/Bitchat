@@ -385,7 +385,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                 $reactions_types = array_keys($wo['reactions_types']);
                 if (!empty($_POST['reaction']) && in_array($_POST['reaction'], $reactions_types)) {
                     $reaction = Wo_Secure($_POST['reaction']);
-                    Wo_AddReplayReactions($wo['user']['id'],$reply_id, $reaction);
+                    Wo_AddReplayReactions($wo['user']['user_id'],$reply_id, $reaction);
 
                     Wo_CanSenEmails();
                     $response_data = array(

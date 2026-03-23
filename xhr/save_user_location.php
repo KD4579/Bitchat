@@ -18,7 +18,7 @@ if ($f == 'save_user_location' && isset($_POST['lat']) && isset($_POST['lng'])) 
         'last_location_update' => $next_update
     );
     $data = array('status' => 304);
-    if (Wo_UpdateUserData($wo['user']['id'], $update_array)) {
+    if (Wo_UpdateUserData($wo['user']['user_id'], $update_array)) {
         $data['status'] = 200;
         $data['lat']    = floatval($safe_lat);
         $data['lng']    = floatval($safe_lng);

@@ -21,7 +21,7 @@ if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
     }
     $story->thumb['filename'] = Wo_GetMedia($story->thumb['filename']);
     $story->videos            = Wo_GetStoryMedia($story->id, 'video');
-    $story->is_owner          = ($story->user_id == $wo['user']['id'] || Wo_IsAdmin() || Wo_IsModerator()) ? true : false;
+    $story->is_owner          = ($story->user_id == $wo['user']['user_id'] || Wo_IsAdmin() || Wo_IsModerator()) ? true : false;
 
     $is_viewed = $db->where('story_id',$id)->where('user_id',$wo['user']['user_id'])->getValue(T_STORY_SEEN,'COUNT(*)');
     if ($is_viewed == 0) {

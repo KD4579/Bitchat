@@ -54,7 +54,7 @@ if (empty($error_code)) {
     else{
         $time           = time();
         $cookie         = '';
-        $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+        $access_token   = bin2hex(random_bytes(32)); // SECURITY: was sha1(rand())/md5(microtime())/rand() — predictable PRNG
         $add_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$access_token}', 'windows', '{$time}')");
         if ($add_session) {
             if (!empty($_POST['timezone'])) {

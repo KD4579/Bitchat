@@ -55,7 +55,7 @@ if (empty($error_code)) {
             'start_time' => $event_start_time,
             'end_date' => $event_end_date,
             'end_time' => $event_end_time,
-            'poster_id' => $wo['user']['id']
+            'poster_id' => $wo['user']['user_id']
         );
         $last_id    = Wo_InsertEvent($event_data);
         if ($last_id && is_numeric($last_id)) {

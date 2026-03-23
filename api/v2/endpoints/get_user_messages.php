@@ -2,7 +2,7 @@
 
 if (!empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0) {
 	$json_success_data   = array();
-	$user_id         = $wo['user']['id'];
+	$user_id         = $wo['user']['user_id'];
 	$user_login_data = $wo['user'];
 	if (!empty($user_login_data)) {
 		$recipient_id    = $_POST['recipient_id'];
@@ -157,7 +157,7 @@ if (!empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_PO
 			if ($check_typing) {
 			    $typing = 1;
 			}
-            $is_recording = $db->where('follower_id',$wo['user']['id'])->where('following_id',$recipient_id)->where('is_typing',2)->getValue(T_FOLLOWERS,"COUNT(*)");
+            $is_recording = $db->where('follower_id',$wo['user']['user_id'])->where('following_id',$recipient_id)->where('is_typing',2)->getValue(T_FOLLOWERS,"COUNT(*)");
             $response_data = array('api_status' => 200,
             	                   'messages' => $json_success_data,
             	                   'typing' => $typing,

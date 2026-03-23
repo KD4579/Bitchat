@@ -5,8 +5,8 @@ if ($wo['user']['code_sent'] > 0 && $wo['user']['code_sent'] > (time() - 120)) {
 }
 else{
 	if (!Wo_TwoFactor($wo['user']['username'])) {
-		$db->where('user_id',$wo['user']['id'])->update(T_USERS,array('code_sent' => time()));
-		cache($wo['user']['id'], 'users', 'delete');
+		$db->where('user_id',$wo['user']['user_id'])->update(T_USERS,array('code_sent' => time()));
+		cache($wo['user']['user_id'], 'users', 'delete');
 		$response_data = array(
                 'status' => 200,
                 'message' => 'code is sent'

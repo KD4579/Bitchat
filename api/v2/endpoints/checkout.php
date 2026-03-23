@@ -220,7 +220,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $types)) {
         	}
         	elseif ($_POST['type'] == 'fund') {
         		$amount = $amount1;
-        		Wo_UpdateUserData($wo['user']['id'], array(
+        		Wo_UpdateUserData($wo['user']['user_id'], array(
                     'address' => Wo_Secure($_POST['card_address']),
                     'city' => Wo_Secure($_POST['card_city']),
                     'state' => Wo_Secure($_POST['card_state']),
@@ -268,7 +268,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $types)) {
         	}
         	elseif ($_POST['type'] == 'wallet') {
         		$amount = $amount1;
-        		Wo_UpdateUserData($wo['user']['id'], array(
+        		Wo_UpdateUserData($wo['user']['user_id'], array(
                     'address' => Wo_Secure($_POST['card_address']),
                     'city' => Wo_Secure($_POST['card_city']),
                     'state' => Wo_Secure($_POST['card_state']),

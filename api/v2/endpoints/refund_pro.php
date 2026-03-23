@@ -1,11 +1,11 @@
 <?php
 if ($wo['user']['is_pro'] != 0) {
-    $requested = $db->where('user_id',$wo['user']['id'])->getValue(T_REFUND,"COUNT(*)");
+    $requested = $db->where('user_id',$wo['user']['user_id'])->getValue(T_REFUND,"COUNT(*)");
     if (!empty($_POST['pro_type']) && !empty($_POST['description']) && $requested == 0) {
         $types = array('star' => 1,'hot' => 2,'ultima' => 3,'vip' => 4);
         if (in_array($_POST['pro_type'], array_keys($types)) && $types[$_POST['pro_type']] == $wo['user']['pro_type']) {
             $registration_data = array(
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'pro_type' => Wo_Secure($_POST['pro_type']),
                 'description' => Wo_Secure($_POST['description']),
                 'time' => time(),

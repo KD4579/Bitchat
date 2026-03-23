@@ -15,7 +15,11 @@ if (!empty($_POST['message_id']) && is_numeric($_POST['message_id']) && $_POST['
 	$message_id = Wo_Secure($_POST['message_id']);
     $message = $db->where('id',$message_id)->getOne(T_MESSAGES);
     if (!empty($message) && !empty($message_id) && is_numeric($message_id) && $message_id > 0) {
-        if (Wo_DeleteMessage($message_id) === true) {
+        // SECURITY: verify the requester is the sender or recipient (IDOR fix)
+        if (intval($message->from_id) !== intval($wo['user']['user_id']) && intval($message->to_id) !== intval($wo['user']['user_id'])) {
+            $error_code    = 7;
+            $error_message = 'Not authorized to delete this message';
+        } elseif (Wo_DeleteMessage($message_id) === true) {
             $response_data = array(
                                 'api_status' => 200,
                                 'message' => 'message successfully deleted.'

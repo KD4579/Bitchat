@@ -104,7 +104,7 @@ if ($type == 'create_agora_call') {
                 exit();
             }
             $call_type = ($_POST['call_type'] == 'video') ? 'video' : 'audio';
-		    $room_script  = sha1(rand(1111111, 9999999999));
+		    $room_script  = bin2hex(random_bytes(16)); // SECURITY: was sha1(rand()) — predictable room ID, lets attackers eavesdrop/hijack calls;
 		    $insertData = Wo_CreateNewAgoraCall(array(
 		        'from_id' => Wo_Secure($user_id),
 		        'to_id' => Wo_Secure($recipient_id),

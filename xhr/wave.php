@@ -3,7 +3,7 @@ if ($f == 'wave') {
     $data = array('status' => 304);
     if (!empty($_POST['receiver_id']) && Wo_CheckMainSession($hash_id) === true) {
         $receiver_id = Wo_Secure($_POST['receiver_id']);
-        $sender_id   = Wo_Secure($wo['user']['id']);
+        $sender_id   = Wo_Secure($wo['user']['user_id']);
 
         if ($receiver_id == $sender_id) {
             $data['status']  = 400;

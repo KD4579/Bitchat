@@ -29,7 +29,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             if (empty($group_data)) {
                 $error_code    = 5;
                 $error_message = 'Group not found';
-            } elseif ($group_data['user_id'] != $wo['user']['id']) {
+            } elseif ($group_data['user_id'] != $wo['user']['user_id']) {
                 $error_code    = 6;
                 $error_message = 'You are not the group owner';
             }
@@ -69,7 +69,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             if (empty($group_data)) {
                 $error_code    = 5;
                 $error_message = 'Group not found';
-            } elseif ($group_data['user_id'] != $wo['user']['id']) {
+            } elseif ($group_data['user_id'] != $wo['user']['user_id']) {
                 $error_code    = 6;
                 $error_message = 'You are not the group owner';
             }
@@ -103,7 +103,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             if (empty($group_data)) {
                 $error_code    = 5;
                 $error_message = 'Group not found';
-            } elseif ($group_data['user_id'] != $wo['user']['id']) {
+            } elseif ($group_data['user_id'] != $wo['user']['user_id']) {
                 $error_code    = 6;
                 $error_message = 'You are not the group owner';
             }

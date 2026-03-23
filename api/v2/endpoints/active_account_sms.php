@@ -24,7 +24,7 @@ foreach ($required_fields as $key => $value) {
 }
 if (empty($error_code)) {
 	$confirm_code = $_POST['code'];
-	$user_id      = $_POST['user_id'];
+	$user_id      = intval($_POST['user_id']); // SECURITY: intval prevents SQL injection via user_id
 
     $confirm_code = Wo_ConfirmUser($user_id, $confirm_code);
     if (empty($confirm_code)) {
@@ -34,7 +34,7 @@ if (empty($error_code)) {
     elseif($confirm_code === true){
         $time           = time();
         $cookie         = '';
-        $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+        $access_token   = bin2hex(random_bytes(32)); // SECURITY: was sha1(rand())/md5(microtime())/rand() — predictable PRNG
         $timezone       = 'UTC';
         $create_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$access_token}', 'phone', '{$time}')");
         if (!empty($_POST['timezone'])) {

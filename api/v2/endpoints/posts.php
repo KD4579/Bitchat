@@ -587,7 +587,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 	        if (empty($post['user_id'])) {
 	            $user_id = $page['user_id'];
 	        }
-	        if (!empty($post) && !empty($page) && $page['user_id'] == $wo['user']['id']) {
+	        if (!empty($post) && !empty($page) && $page['user_id'] == $wo['user']['user_id']) {
 	            $result = Wo_SharePostOn($post['id'],$page['id'],'page');
 	            if (!empty($_POST['text'])) {
 		            $updatePost = Wo_UpdatePost(array(
@@ -636,7 +636,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 	        if (empty($post['user_id'])) {
 	            $user_id = $page['user_id'];
 	        }
-	        if (!empty($post) && !empty($group) && $group['user_id'] == $wo['user']['id']) {
+	        if (!empty($post) && !empty($group) && $group['user_id'] == $wo['user']['user_id']) {
 	            $result = Wo_SharePostOn($post['id'],$group['id'],'group');
 	            if (!empty($_POST['text'])) {
 		            $updatePost = Wo_UpdatePost(array(

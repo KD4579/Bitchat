@@ -759,7 +759,7 @@ if ($f == 'messages') {
                     $data['status'] = 200;
                     if (!empty($message)) {
                         $user_id = $message->to_id;
-                        if ($message->to_id == $wo['user']['id']) {
+                        if ($message->to_id == $wo['user']['user_id']) {
                             $user_id = $message->from_id;
                         }
                         $recipient              = Wo_UserData($user_id);
@@ -841,7 +841,7 @@ if ($f == 'messages') {
                     $db->where('user_id', $wo['user']['user_id'])->where('message_id', $message_id)->delete(T_REACTIONS);
                 }
                 $db->insert(T_REACTIONS, array(
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'message_id' => $message_id,
                     'reaction' => Wo_Secure($_GET['reaction'])
                 ));

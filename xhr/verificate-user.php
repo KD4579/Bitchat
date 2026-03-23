@@ -43,7 +43,7 @@ if ($f == 'verificate-user') {
     }
     if (!$error) {
         $registration_data = array(
-            'user_id' => $wo['user']['id'],
+            'user_id' => $wo['user']['user_id'],
             'message' => Wo_Secure($_POST['text']),
             'user_name' => Wo_Secure($_POST['name']),
             'passport' => '',

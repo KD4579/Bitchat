@@ -66,7 +66,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 	        while ($fetched_data = mysqli_fetch_assoc($query)) {
 	        	$page_data = Wo_PageData($fetched_data['page_id']);
 	        	$page_data['likes'] = Wo_CountPageLikes($fetched_data['page_id']);
-	        	$page_data['is_liked'] = Wo_IsPageLiked($page_data['page_id'], $wo['user']['id']);
+	        	$page_data['is_liked'] = Wo_IsPageLiked($page_data['page_id'], $wo['user']['user_id']);
 	            $pages[] = $page_data;
 	        }
 	        $response_data = array(

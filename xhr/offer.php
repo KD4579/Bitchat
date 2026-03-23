@@ -114,7 +114,7 @@ if ($f == 'offer' && $wo['config']['offer_system'] == 1) {
                         'expire_time' => Wo_Secure($_POST['expire_time']),
                         'discounted_items' => Wo_Secure($_POST['discounted_items']),
                         'page_id' => $page_data->page_id,
-                        'user_id' => $wo['user']['id'],
+                        'user_id' => $wo['user']['user_id'],
                         'image' => $media['filename'],
                         'currency' => Wo_Secure($_POST['currency']),
                         'time' => time()
@@ -144,7 +144,7 @@ if ($f == 'offer' && $wo['config']['offer_system'] == 1) {
     if ($s == 'delete_offer' && !empty($_GET['offer_id']) && is_numeric($_GET['offer_id']) && $_GET['offer_id'] > 0) {
         $offer_id = Wo_Secure($_GET['offer_id']);
         $offer    = $db->where('id', $offer_id)->getOne(T_OFFER);
-        if (!empty($offer) && ($offer->user_id == $wo['user']['id'] || Wo_IsModerator() || Wo_IsAdmin())) {
+        if (!empty($offer) && ($offer->user_id == $wo['user']['user_id'] || Wo_IsModerator() || Wo_IsAdmin())) {
             @unlink($offer->image);
             Wo_DeleteFromToS3($offer->image);
             $db->where('id', $offer_id)->delete(T_OFFER);
@@ -186,7 +186,7 @@ if ($f == 'offer' && $wo['config']['offer_system'] == 1) {
     if ($s == 'edit_offer' && !empty($_POST['offer_id']) && is_numeric($_POST['offer_id']) && $_POST['offer_id'] > 0) {
         $offer_id = Wo_Secure($_POST['offer_id']);
         $offer    = $db->where('id', $offer_id)->getOne(T_OFFER);
-        if (!empty($offer) && (Wo_IsPageOnwer($offer->page_id) || $offer->user_id == $wo['user']['id'] || Wo_IsModerator() || Wo_IsAdmin())) {
+        if (!empty($offer) && (Wo_IsPageOnwer($offer->page_id) || $offer->user_id == $wo['user']['user_id'] || Wo_IsModerator() || Wo_IsAdmin())) {
             if (!empty($_POST['discount_type']) && in_array($_POST['discount_type'], $discount_type) && !empty($_POST['page_id'])) {
                 $page_data = $db->where('page_id', Wo_Secure($_POST['page_id']))->getOne(T_PAGES);
                 if (!empty($page_data) && Wo_IsPageOnwer($page_data->page_id)) {

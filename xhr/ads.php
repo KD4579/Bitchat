@@ -229,7 +229,7 @@ if ($f == 'ads') {
 
             $table       = T_USER_ADS;
             
-            $user_id     = $wo['user']['id'];
+            $user_id     = $wo['user']['user_id'];
             $db->where("id", $adid)->where("user_id", $user_id)->update($table, $update_data);
             $data = array(
                 'message' => $success_icon . $wo['lang']['ad_saved'],
@@ -282,7 +282,7 @@ if ($f == 'ads') {
             'status' => 304
         );
         $request = (!empty($_GET['ad_id']) && is_numeric($_GET['ad_id']));
-        $user_id = $wo['user']['id'];
+        $user_id = $wo['user']['user_id'];
         if ($request === true) {
             $ad_id   = Wo_Secure($_GET['ad_id']);
             $ad_data = $db->where('id', $ad_id)->where('user_id', $user_id)->getOne(T_USER_ADS);

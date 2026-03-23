@@ -46,7 +46,7 @@ if (empty($error_code)) {
     $story_description = (!empty($_POST['story_description'])) ? Wo_Secure($_POST['story_description']) : '';
     $file_type         = Wo_Secure($_POST['file_type']);
     $story_data        = array(
-        'user_id' => $wo['user']['id'],
+        'user_id' => $wo['user']['user_id'],
         'posted' => time(),
         'expire' => time()+(60*60*24),
         'title' => $story_title,

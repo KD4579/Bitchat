@@ -23,24 +23,24 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $error_code    = 4;
             $error_message = 'user_id (POST) is missing';
         }
-        if (!empty($_POST['user_id']) && $wo['user']['id'] == $_POST['user_id']) {
+        if (!empty($_POST['user_id']) && $wo['user']['user_id'] == $_POST['user_id']) {
             $error_code    = 6;
             $error_message = 'you can not poke your self';
         }
-        if (empty($error_code) && Wo_IsPoked(Wo_Secure($_POST['user_id']), $wo['user']['id'])) {
+        if (empty($error_code) && Wo_IsPoked(Wo_Secure($_POST['user_id']), $wo['user']['user_id'])) {
             $error_code    = 7;
             $error_message = 'this user is poked';
         }
 
         if (empty($error_code)) {
-            if (Wo_IsPoked($wo['user']['id'],Wo_Secure($_POST['user_id']))) {
-                $received_user_id = $wo['user']['id'];
+            if (Wo_IsPoked($wo['user']['user_id'],Wo_Secure($_POST['user_id']))) {
+                $received_user_id = $wo['user']['user_id'];
                 $send_user_id = Wo_Secure($_POST['user_id']);
                 mysqli_query($sqlConnect, "DELETE FROM " . T_POKES . " WHERE `received_user_id` = '{$received_user_id}' AND `send_user_id` = {$send_user_id}");
                 mysqli_query($sqlConnect, "DELETE FROM " . T_POKES . " WHERE `received_user_id` = '{$send_user_id}' AND `send_user_id` = {$received_user_id}");
             }
             $received_user_id = Wo_Secure($_POST['user_id']);
-            $send_user_id     = $wo['user']['id'];
+            $send_user_id     = $wo['user']['user_id'];
             $query = mysqli_query($sqlConnect, " INSERT INTO " . T_POKES . " (`received_user_id`,`send_user_id`) VALUES ({$received_user_id},{$send_user_id})");
             $poke_id = mysqli_insert_id($sqlConnect);
             if ($query) {
@@ -78,7 +78,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $error_code    = 9;
             $error_message = 'poke not found';
         }
-        if (empty($error_code) && !empty($poke) && $poke['send_user_id'] != $wo['user']['id']) {
+        if (empty($error_code) && !empty($poke) && $poke['send_user_id'] != $wo['user']['user_id']) {
             $error_code    = 10;
             $error_message = 'you are not the poke owner';
         }
@@ -94,7 +94,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     }
 
     if ($_POST['type'] == 'fetch') {
-        $user_id       = Wo_Secure($wo['user']['id']);
+        $user_id       = Wo_Secure($wo['user']['user_id']);
         $query         = " SELECT * FROM " . T_POKES . " WHERE `received_user_id` = {$user_id}";
         $sql_query = mysqli_query($sqlConnect, $query);
         $pokes     = array();

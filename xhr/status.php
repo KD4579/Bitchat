@@ -36,7 +36,7 @@ if ($f == 'status') {
             $spaces                       = $wo['config']['spaces'];
             $cloud_upload                 = $wo['config']['cloud_upload'];
             $registration_data            = array();
-            $registration_data['user_id'] = $wo['user']['id'];
+            $registration_data['user_id'] = $wo['user']['user_id'];
             $registration_data['posted']  = time();
             $registration_data['expire']  = time() + (60 * 60 * 24);
             if (isset($_POST['title']) && strlen($_POST['title']) >= 2) {
@@ -366,7 +366,7 @@ if ($f == 'status') {
                     $db->where('user_id', $wo['user']['user_id'])->where('story_id', $story_id)->delete(T_REACTIONS);
                 }
                 $db->insert(T_REACTIONS, array(
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'story_id' => $story_id,
                     'reaction' => Wo_Secure($_GET['reaction'])
                 ));

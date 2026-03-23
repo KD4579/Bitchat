@@ -47,7 +47,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
         $pages = Wo_PageSug($limit);
         foreach ($pages as $key => $page) {
             $pages[$key]['likes'] = Wo_CountPageLikes($page['page_id']);
-            $pages[$key]['is_liked'] = Wo_IsPageLiked($page['page_id'], $wo['user']['id']);
+            $pages[$key]['is_liked'] = Wo_IsPageLiked($page['page_id'], $wo['user']['user_id']);
         }
         $response_data = array(
                                 'api_status' => 200,

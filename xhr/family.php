@@ -13,7 +13,7 @@ if ($f == 'family') {
         if (!is_numeric($_GET['type']) || $_GET['type'] < 1 || $_GET['type'] > 43) {
             $error = true;
         }
-        if ($_GET['member_id'] == $wo['user']['id']) {
+        if ($_GET['member_id'] == $wo['user']['user_id']) {
             $error = true;
         }
         if (!$error) {
@@ -37,17 +37,17 @@ if ($f == 'family') {
                     'member_id' => Wo_Secure($_GET['member_id']),
                     'member' => Wo_Secure($_GET['type']),
                     'active' => 0,
-                    'user_id' => Wo_Secure($wo['user']['id']),
-                    'requesting' => Wo_Secure($wo['user']['id'])
+                    'user_id' => Wo_Secure($wo['user']['user_id']),
+                    'requesting' => Wo_Secure($wo['user']['user_id'])
                 )
             );
             if (in_array($_GET['type'], $relationship_type)) {
                 $registration_data_array[] = array(
-                    'member_id' => Wo_Secure($wo['user']['id']),
+                    'member_id' => Wo_Secure($wo['user']['user_id']),
                     'member' => Wo_Secure($_GET['type']),
                     'active' => 0,
                     'user_id' => Wo_Secure($_GET['member_id']),
-                    'requesting' => Wo_Secure($wo['user']['id'])
+                    'requesting' => Wo_Secure($wo['user']['user_id'])
                 );
             }
             foreach ($registration_data_array as $registration_data) {
@@ -58,7 +58,7 @@ if ($f == 'family') {
                 $notification_data_array = array(
                     'recipient_id' => $_GET['member_id'],
                     'type' => 'added_u_as',
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'text' => $wo['lang']['sent_u_request'] . $wo['lang'][$wo['family'][Wo_Secure($_GET['type'])]],
                     'url' => 'index.php?link1=timeline&u=' . $member_data['username'] . '&type=requests'
                 );
@@ -87,7 +87,7 @@ if ($f == 'family') {
             $notification_data_array = array(
                 'recipient_id' => $member_id,
                 'type' => 'accept_u_as',
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'text' => $wo['lang']['request_accepted'] . $wo['lang'][$wo['family'][Wo_Secure($_GET['type'])]],
                 'url' => 'index.php?link1=timeline&u=' . $member_data['username'] . '&type=family_list'
             );
@@ -106,7 +106,7 @@ if ($f == 'family') {
             $notification_data_array = array(
                 'recipient_id' => $member_id,
                 'type' => 'accept_u_as',
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'text' => $wo['lang']['relhip_request_accepted'] . $wo['relationship'][Wo_Secure($_GET['type'])],
                 'url' => 'index.php?link1=timeline&u=' . $member_data['username']
             );
@@ -127,7 +127,7 @@ if ($f == 'family') {
                 $notification_data_array = array(
                     'recipient_id' => $user_id,
                     'type' => 'rejected_u_as',
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'text' => $wo['lang']['relation_rejected'] . $wo['relationship'][$type],
                     'url' => 'index.php?link1=timeline&u=' . $wo['user']['username']
                 );

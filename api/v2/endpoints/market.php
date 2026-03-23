@@ -130,7 +130,7 @@ elseif ($_POST['type'] == 'buy') {
 	}
 }
 elseif ($_POST['type'] == 'checkout') {
-	$wo['items'] = $db->where('user_id', $wo['user']['id'])->get(T_USERCARD);
+	$wo['items'] = $db->where('user_id', $wo['user']['user_id'])->get(T_USERCARD);
 	$wo['total'] = 0;
 	$data = [];
 	if (!empty($wo['items'])) {

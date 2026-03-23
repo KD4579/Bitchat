@@ -7,7 +7,7 @@ if ($wo['loggedin'] == false) {
     header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
     exit();
 }
-$wo['items'] = $db->where('user_id', $wo['user']['id'])->get(T_USERCARD);
+$wo['items'] = $db->where('user_id', $wo['user']['user_id'])->get(T_USERCARD);
 $wo['html']  = '';
 $wo['total'] = 0;
 if (!empty($wo['items'])) {

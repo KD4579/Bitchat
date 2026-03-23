@@ -22,12 +22,12 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     		$ids = array();
     		if (!empty($users) && is_array($users)) {
     			foreach ($users as $key => $value) {
-    				if (!empty($value) && is_numeric($value) && $value > 0 && $wo['user']['id'] != $value) {
+    				if (!empty($value) && is_numeric($value) && $value > 0 && $wo['user']['user_id'] != $value) {
     					$ids[] = Wo_Secure($value);
     				}
     			}
     			if (!empty($ids)) {
-    				$insert_array = array('user_id' => $wo['user']['id'],
+    				$insert_array = array('user_id' => $wo['user']['user_id'],
     			                          'name' => Wo_Secure($_POST['name']),
     			                          'time' => time());
     				if (!empty($_FILES['image'])) {
@@ -102,7 +102,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     	}
     }
     elseif ($_POST['type'] == 'get') {
-    	$broadcast = GetBroadcastChatByUserId($wo['user']['id'],$limit,$offset);
+    	$broadcast = GetBroadcastChatByUserId($wo['user']['user_id'],$limit,$offset);
     	foreach ($broadcast as $key => $value) {
     		foreach ($broadcast[$key]->users as $key2 => $value2) {
     			foreach ($non_allowed as $key3 => $value3) {
@@ -115,9 +115,9 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     }
     elseif ($_POST['type'] == 'delete') {
     	if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
-    		$broadcast = $db->where('id',Wo_Secure($_POST['id']))->where('user_id',$wo['user']['id'])->getOne(T_CAST);
+    		$broadcast = $db->where('id',Wo_Secure($_POST['id']))->where('user_id',$wo['user']['user_id'])->getOne(T_CAST);
     		if (!empty($broadcast)) {
-    			$db->where('id',Wo_Secure($_POST['id']))->where('user_id',$wo['user']['id'])->delete(T_CAST);
+    			$db->where('id',Wo_Secure($_POST['id']))->where('user_id',$wo['user']['user_id'])->delete(T_CAST);
     			$db->where('broadcast_id',Wo_Secure($_POST['id']))->delete(T_CAST_USERS);
     			$response_data = array('api_status' => 200,
 					            	   'message' => 'broadcast removed');
@@ -135,7 +135,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     elseif ($_POST['type'] == 'edit') {
     	if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
     		$id = Wo_Secure($_POST['id']);
-    		$cast = $db->where('id',$id)->where('user_id',$wo['user']['id'])->getOne(T_CAST);
+    		$cast = $db->where('id',$id)->where('user_id',$wo['user']['user_id'])->getOne(T_CAST);
     		if (!empty($cast)) {
     			$update_array = array();
     			if (!empty($_POST['name'])) {
@@ -160,7 +160,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 					$added_users = explode(",", $_POST['added_users']);
 					if (!empty($added_users) && is_array($added_users)) {
 		    			foreach ($added_users as $key => $value) {
-		    				if (!empty($value) && is_numeric($value) && $value > 0 && $wo['user']['id'] != $value) {
+		    				if (!empty($value) && is_numeric($value) && $value > 0 && $wo['user']['user_id'] != $value) {
 		    					$is_exist = $db->where('user_id',Wo_Secure($value))->where('broadcast_id',$cast->id)->getValue(T_CAST_USERS,"COUNT(*)");
 		    					if ($is_exist < 1) {
 		    						$db->insert(T_CAST_USERS,array('user_id' => Wo_Secure($value),
@@ -175,7 +175,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 					$remove_users = explode(",", $_POST['remove_users']);
 					if (!empty($remove_users) && is_array($remove_users)) {
 		    			foreach ($remove_users as $key => $value) {
-		    				if (!empty($value) && is_numeric($value) && $value > 0 && $wo['user']['id'] != $value) {
+		    				if (!empty($value) && is_numeric($value) && $value > 0 && $wo['user']['user_id'] != $value) {
 		    					$db->where('broadcast_id',$cast->id)->where('user_id',Wo_Secure($value))->delete(T_CAST_USERS);
 		    				}
 		    			}

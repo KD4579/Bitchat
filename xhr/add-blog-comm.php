@@ -7,7 +7,7 @@ if ($f == "add-blog-comm") {
     if (isset($_POST['text']) && isset($_POST['blog']) && is_numeric(($_POST['blog'])) && strlen($_POST['text']) > 2) {
         $registration_data = array(
             'blog_id' => Wo_Secure($_POST['blog']),
-            'user_id' => $wo['user']['id'],
+            'user_id' => $wo['user']['user_id'],
             'text' => Wo_Secure($_POST['text']),
             'posted' => time()
         );

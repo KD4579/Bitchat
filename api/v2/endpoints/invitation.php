@@ -18,9 +18,9 @@ $required_fields =  array(
                     );
 if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     if ($_POST['type'] == 'create') {
-    	if (Wo_IfCanGenerateLink($wo['user']['user_id'])) { // SECURITY: was $wo['user']['id'] — wrong field (null)
+    	if (Wo_IfCanGenerateLink($wo['user']['user_id'])) { // SECURITY: was $wo['user']['user_id'] — wrong field (null)
     		$code  = bin2hex(random_bytes(16)); // SECURITY: was uniqid(rand(), true) — predictable, brute-forceable
-			$id = $db->insert(T_INVITAION_LINKS,array('user_id' => $wo['user']['user_id'], // SECURITY: was $wo['user']['id']
+			$id = $db->insert(T_INVITAION_LINKS,array('user_id' => $wo['user']['user_id'], // SECURITY: was $wo['user']['user_id']
 				                                'code' => $code,
 				                                'time' => time()));
 			if ($id) {
@@ -39,7 +39,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     }
     if ($_POST['type'] == 'get') {
     	$data = array();
-    	$invite = Wo_GetMyInvitaionCodes($wo['user']['id']);
+    	$invite = Wo_GetMyInvitaionCodes($wo['user']['user_id']);
     	if (!empty($invite)) {
     		$data = $invite;
     		foreach ($data as $key => $value) {
@@ -53,14 +53,14 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     			}
     		}
     	}
-    	$response_data['available_links'] = Wo_GetAvailableLinks($wo['user']['id']);
+    	$response_data['available_links'] = Wo_GetAvailableLinks($wo['user']['user_id']);
 		if ($wo['config']['user_links_limit'] > 0) {
 			$response_data['generated_links'] = $wo['config']['user_links_limit'] - $wo['available_links'];
 		}
 		else{
-			$response_data['generated_links'] = Wo_GetGeneratedLinks($wo['user']['id']);
+			$response_data['generated_links'] = Wo_GetGeneratedLinks($wo['user']['user_id']);
 		}
-		$response_data['used_links'] = Wo_GetUsedLinks($wo['user']['id']);
+		$response_data['used_links'] = Wo_GetUsedLinks($wo['user']['user_id']);
     	$response_data['data'] = $data;
         $response_data['api_status'] = 200;
 

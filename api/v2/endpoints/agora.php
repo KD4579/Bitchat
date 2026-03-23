@@ -13,9 +13,9 @@ $required_fields =  array(
 if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
     if ($_POST['type'] == 'create') {
-    	if (!empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0 && !empty($_POST['call_type']) && in_array($_POST['call_type'], array('video','audio')) && $_POST['recipient_id'] != $wo['user']['id']) {
+    	if (!empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0 && !empty($_POST['call_type']) && in_array($_POST['call_type'], array('video','audio')) && $_POST['recipient_id'] != $wo['user']['user_id']) {
 		    $user_2       = Wo_UserData(Wo_Secure($_POST['recipient_id']));
-		    $room_script  = sha1(rand(1111111, 9999999999));
+		    $room_script  = bin2hex(random_bytes(16)); // SECURITY: was sha1(rand()) — predictable room ID, lets attackers eavesdrop/hijack calls;
     		$wo['AgoraToken'] = null;
 	        if (!empty($wo['config']['agora_chat_app_certificate']) && empty($_POST['token'])) {
 	            include_once 'assets/libraries/AgoraDynamicKey/src/RtcTokenBuilder.php';
@@ -35,7 +35,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
 	        $call_type = Wo_Secure($_POST['call_type']);
 	        $insertData = Wo_CreateNewAgoraCall(array(
-	            'from_id' => $wo['user']['id'],
+	            'from_id' => $wo['user']['user_id'],
 	            'to_id' => $user_2['user_id'],
 	            'room_name' => $room_script,
 	            'type' => $call_type,
@@ -101,7 +101,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     	}
     }
     if ($_POST['type'] == 'invite') {
-    	if (!empty($_POST['room_name']) && !empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0 && $_POST['recipient_id'] != $wo['user']['id']) {
+    	if (!empty($_POST['room_name']) && !empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0 && $_POST['recipient_id'] != $wo['user']['user_id']) {
     		$room_name = Wo_Secure($_POST['room_name']);
     		$recipient_id = Wo_Secure($_POST['recipient_id']);
     		$call = $db->where('room_name',$room_name)->where('to_id',$recipient_id,'!=')->getOne(T_AGORA);
@@ -115,7 +115,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
 		        $call_type = $call->type;
 		        $insertData = Wo_CreateNewAgoraCall(array(
-		            'from_id' => $wo['user']['id'],
+		            'from_id' => $wo['user']['user_id'],
 		            'to_id' => $user_2['user_id'],
 		            'room_name' => $room_script,
 		            'type' => $call_type,
@@ -209,6 +209,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     if ($_POST['type'] == 'action') {
     	if (!empty($_POST['call_id']) && is_numeric($_POST['call_id']) && $_POST['call_id'] > 0 && !empty($_POST['action']) && in_array($_POST['action'], array('answer','close','decline'))) {
     		$id = Wo_Secure($_POST['call_id']);
+    		$user_id = $wo['user']['user_id']; // SECURITY: use authenticated user_id, not from POST
     		if ($_POST['action'] == 'answer') {
 		        $query = mysqli_query($sqlConnect, "UPDATE " . T_AGORA . " SET `status` = 'answered' , `active` = '1' , `declined` = '0'  WHERE `id` = '$id'");
     		} else if ($_POST['action'] == 'close') {

@@ -10,7 +10,7 @@ if ($wo['config']['forum'] == 0) {
     exit();
 }
 if (isset($_GET['tid']) && is_numeric($_GET['tid'])) {
-	$thread	=  Wo_GetForumThreads(array('id' => $_GET['tid'],'user' => $wo['user']['id']));
+	$thread	=  Wo_GetForumThreads(array('id' => $_GET['tid'],'user' => $wo['user']['user_id']));
 	if (!empty($thread)) {	
 		$wo['description'] = $wo['config']['siteDesc'];
 		$wo['keywords']    = $wo['config']['siteKeywords'];

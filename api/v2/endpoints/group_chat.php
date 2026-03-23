@@ -64,7 +64,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
         if (empty($error_code)) {
             $users   = explode(',', Wo_Secure($_POST['parts']));
-            $users[] = $wo['user']['id'];
+            $users[] = $wo['user']['user_id'];
             $name    = Wo_Secure($_POST['group_name']);
             $id      = Wo_CreateGChat($name, $users);
             
@@ -244,7 +244,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $users   = explode(',', Wo_Secure($_POST['parts']));
             $group_tab = Wo_GroupTabData($_POST['id']);
             if (!empty($group_tab)) {
-                if ($group_tab['user_id'] == $wo['user']['id']) {
+                if ($group_tab['user_id'] == $wo['user']['user_id']) {
                     foreach ($users as $key => $user) {
                         if (!Wo_IsGChatMemeberExists($id, $user)) {
                             @mysqli_query($sqlConnect, "INSERT INTO " . T_GROUP_CHAT_USERS . " (`id`,`user_id`,`group_id`) VALUES (null,$user,$id)");
@@ -281,7 +281,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $users   = explode(',', Wo_Secure($_POST['parts']));
             $group_tab = Wo_GroupTabData($_POST['id']);
             if (!empty($group_tab)) {
-                if ($group_tab['user_id'] == $wo['user']['id']) {
+                if ($group_tab['user_id'] == $wo['user']['user_id']) {
                     foreach ($users as $key => $user) {
                         if (Wo_IsGChatMemeberExists($id, $user)) {
                             @mysqli_query($sqlConnect, "DELETE FROM " . T_GROUP_CHAT_USERS . " WHERE `user_id` = {$user} AND `group_id` = {$id}");
@@ -320,7 +320,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $error_code    = 8;
             $error_message = 'group not found or removed';
         }
-        if (!Wo_IsGChatMemeberExists($_POST['id'], $wo['user']['id']) && $group_tab['user_id'] != $wo['user']['id']) {
+        if (!Wo_IsGChatMemeberExists($_POST['id'], $wo['user']['user_id']) && $group_tab['user_id'] != $wo['user']['user_id']) {
             $error_code    = 13;
             $error_message = 'sorry you are not a group memeber';
 
@@ -503,7 +503,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $error_code    = 8;
             $error_message = 'group not found or removed';
         }
-        if (!Wo_IsGChatMemeberExists($_POST['id'], $wo['user']['id']) && $group_tab['user_id'] != $wo['user']['id']) {
+        if (!Wo_IsGChatMemeberExists($_POST['id'], $wo['user']['user_id']) && $group_tab['user_id'] != $wo['user']['user_id']) {
             $error_code    = 13;
             $error_message = 'sorry you are not a group memeber';
 
@@ -552,7 +552,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                 }
                 $message['time_text'] = Wo_Time_Elapsed_String($message['time']);
                 $message_po  = 'left';
-                if ($message['from_id'] == $wo['user']['id']) {
+                if ($message['from_id'] == $wo['user']['user_id']) {
                     $message_po  = 'right';
                 }
                 
@@ -592,7 +592,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
                     $message['reply']['time_text'] = Wo_Time_Elapsed_String($message['reply']['time']);
                     $message_po  = 'left';
-                    if ($message['reply']['from_id'] == $wo['user']['id']) {
+                    if ($message['reply']['from_id'] == $wo['user']['user_id']) {
                         $message_po  = 'right';
                     }
                     
@@ -678,7 +678,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                                'archive' => 'no',
                                'fav' => 'no',
                                'pin' => 'no');
-            $mute = $db->where('user_id',$wo['user']['id'])->where('chat_id',$groups[$key]['chat_id'])->where('type','group')->getOne(T_MUTE);
+            $mute = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',$groups[$key]['chat_id'])->where('type','group')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $groups[$key]['mute']['notify'] = $mute->notify;
                 $groups[$key]['mute']['call_chat'] = $mute->call_chat;
@@ -697,13 +697,13 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     if ($_POST['type'] == 'accept') {
         if (!empty($_POST['group_id']) && is_numeric($_POST['group_id']) && $_POST['group_id'] > 0) {
             $group_id = Wo_Secure($_POST['group_id']);
-            $db->where('user_id',$wo['user']['id'])->where('group_id',$group_id)->update(T_GROUP_CHAT_USERS,array('last_seen' => time(),'active' => '1'));
+            $db->where('user_id',$wo['user']['user_id'])->where('group_id',$group_id)->update(T_GROUP_CHAT_USERS,array('last_seen' => time(),'active' => '1'));
 
             $group_chat = Wo_GroupTabData($group_id);
 
             $notification_data = array(
                 'recipient_id' => $group_chat['user_id'],
-                'notifier_id' => $wo['user']['id'],
+                'notifier_id' => $wo['user']['user_id'],
                 'group_chat_id' => $group_id,
                 'type' => 'accept_group_chat_request',
                 'url' => 'index.php?link1=timeline&u=' . $wo['user']['username']
@@ -725,13 +725,13 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
         if (!empty($_POST['group_id']) && is_numeric($_POST['group_id']) && $_POST['group_id'] > 0) {
             $group_id = Wo_Secure($_POST['group_id']);
 
-            $db->where('user_id',$wo['user']['id'])->where('group_id',$group_id)->delete(T_GROUP_CHAT_USERS);
+            $db->where('user_id',$wo['user']['user_id'])->where('group_id',$group_id)->delete(T_GROUP_CHAT_USERS);
 
             $group_chat = Wo_GroupTabData($group_id);
 
             $notification_data = array(
                 'recipient_id' => $group_chat['user_id'],
-                'notifier_id' => $wo['user']['id'],
+                'notifier_id' => $wo['user']['user_id'],
                 'group_chat_id' => $group_id,
                 'type' => 'declined_group_chat_request',
                 'url' => 'index.php?link1=timeline&u=' . $wo['user']['username']

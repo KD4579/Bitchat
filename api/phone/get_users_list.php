@@ -139,7 +139,7 @@ if ($type == 'get_users_list') {
                                            'archive' => 'no',
                                            'fav' => 'no',
                                            'pin' => 'no');
-                    $mute = $db->where('user_id',$wo['user']['id'])->where('chat_id',$user_list['chat_id'])->where('type','user')->getOne(T_MUTE);
+                    $mute = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',$user_list['chat_id'])->where('type','user')->getOne(T_MUTE);
                     if (!empty($mute)) {
                         $json_data['mute']['notify'] = $mute->notify;
                         $json_data['mute']['call_chat'] = $mute->call_chat;

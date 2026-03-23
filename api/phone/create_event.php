@@ -110,7 +110,7 @@ if ($type == 'create_event') {
                     'start_time' => Wo_Secure($_POST['event-start-time']),
                     'end_date' => Wo_Secure($_POST['event-end-date']),
                     'end_time' => Wo_Secure($_POST['event-end-time']),
-                    'poster_id' => $wo['user']['id']
+                    'poster_id' => $wo['user']['user_id']
                 );
                 $last_id           = Wo_InsertEvent($registration_data);
                 if ($last_id && is_numeric($last_id)) {

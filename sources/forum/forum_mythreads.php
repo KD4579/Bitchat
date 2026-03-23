@@ -11,7 +11,7 @@ $wo['description']   = $wo['config']['siteDesc'];
 $wo['keywords']      = $wo['config']['siteKeywords'];
 $wo['page']          = 'forum';
 $wo['active']        = null;
-$wo['threads']       = Wo_GetForumThreads(array('user' => $wo['user']['id'], 'limit' => 10 ));
+$wo['threads']       = Wo_GetForumThreads(array('user' => $wo['user']['user_id'], 'limit' => 10 ));
 $wo['forums']        = Wo_GetForums();
 $wo['title']         = $wo['config']['siteTitle'];
 $wo['content']       = Wo_LoadPage('forum/mythreads');

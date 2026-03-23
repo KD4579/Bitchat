@@ -31,7 +31,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
     		$page_data = $db->where('page_id',Wo_Secure($_POST['page_id']))->getOne(T_PAGES);
 
-    		if (!empty($page_data) && $page_data->user_id == $wo['user']['id']) {
+    		if (!empty($page_data) && $page_data->user_id == $wo['user']['user_id']) {
 
 	    		$discount_type = 'free_shipping';
 	    		$discount_percent = 0;
@@ -141,7 +141,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 	    		                                          'expire_time' => Wo_Secure($_POST['expire_time']),
 	    		                                          'discounted_items' => Wo_Secure($_POST['discounted_items']),
 	    		                                          'page_id' => $page_data->page_id,
-	    		                                          'user_id' => $wo['user']['id'],
+	    		                                          'user_id' => $wo['user']['user_id'],
 	    		                                          'image' => $media['filename'],
 	    		                                          'time' => time()));
                     $description = mb_substr(Wo_Secure($_POST['description']),0,175,"UTF-8") . "...";
@@ -173,7 +173,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     	if (!empty($_POST['offer_id']) && is_numeric($_POST['offer_id']) && $_POST['offer_id'] > 0) {
     		$offer_id = Wo_Secure($_POST['offer_id']);
 	        $offer = $db->where('id',$offer_id)->getOne(T_OFFER);
-	        if (!empty($offer) && ($offer->user_id == $wo['user']['id'] || Wo_IsModerator() || Wo_IsAdmin())) {
+	        if (!empty($offer) && ($offer->user_id == $wo['user']['user_id'] || Wo_IsModerator() || Wo_IsAdmin())) {
 	            @unlink($offer->image);
 	            Wo_DeleteFromToS3($offer->image);
 	            $db->where('id',$offer_id)->delete(T_OFFER);
@@ -200,13 +200,13 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     	if (!empty($_POST['offer_id']) && is_numeric($_POST['offer_id']) && $_POST['offer_id'] > 0) {
     		$offer_id = Wo_Secure($_POST['offer_id']);
 	        $offer = $db->where('id',$offer_id)->getOne(T_OFFER);
-	        if (!empty($offer) && ($offer->user_id == $wo['user']['id'] || Wo_IsModerator() || Wo_IsAdmin())) {
+	        if (!empty($offer) && ($offer->user_id == $wo['user']['user_id'] || Wo_IsModerator() || Wo_IsAdmin())) {
 
 	        	if (!empty($_POST['discount_type']) && in_array($_POST['discount_type'], $discount_type)) {
 
 		    		$page_data = $db->where('page_id',$offer->page_id)->getOne(T_PAGES);
 
-		    		if (!empty($page_data) && $page_data->user_id == $wo['user']['id']) {
+		    		if (!empty($page_data) && $page_data->user_id == $wo['user']['user_id']) {
 
 			    		$discount_type = 'free_shipping';
 			    		$discount_percent = 0;

@@ -11,7 +11,7 @@ if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0 && !emp
 			                );
 	}
 	else{
-		$db->insert(T_REACTIONS,array('user_id' => $wo['user']['id'],
+		$db->insert(T_REACTIONS,array('user_id' => $wo['user']['user_id'],
 	                                   'story_id' => $story_id,
 	                                   'reaction' => Wo_Secure($_POST['reaction'])));
 		$response_data = array(

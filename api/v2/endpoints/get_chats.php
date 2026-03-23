@@ -32,7 +32,7 @@ if (!empty($_POST['data_type']) && $_POST['data_type'] != 'all') {
     }
 }
 $fetch_array = array(
-    'user_id' => $wo['user']['id'],
+    'user_id' => $wo['user']['user_id'],
     'limit' => $user_limit,
     'offset' => $user_offset,
     'type' => $user_type
@@ -46,7 +46,7 @@ if (in_array('all',$data_type) || in_array('groups',$data_type)) {
 }
 
 $fetch_page_array = array(
-    'user_id' => $wo['user']['id'], 
+    'user_id' => $wo['user']['user_id'], 
     'limit' => $page_limit,
     'offset' => $page_offset
 );
@@ -65,7 +65,7 @@ if (!empty($messages)) {
                                'archive' => 'no',
                                'fav' => 'no',
                                'pin' => 'no');
-        $mute = $db->where('user_id',$wo['user']['id'])->where('chat_id',$value['chat_id'])->where('type','user')->getOne(T_MUTE);
+        $mute = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',$value['chat_id'])->where('type','user')->getOne(T_MUTE);
         if (!empty($mute)) {
             $value['mute']['notify'] = $mute->notify;
             $value['mute']['call_chat'] = $mute->call_chat;
@@ -87,7 +87,7 @@ if (!empty($messages)) {
         }
         $message['time_text'] = Wo_Time_Elapsed_String($message['time']);
         $message_po  = 'left';
-        if ($message['from_id'] == $wo['user']['id']) {
+        if ($message['from_id'] == $wo['user']['user_id']) {
             $message_po  = 'right';
         }
         
@@ -139,7 +139,7 @@ if (!empty($groups)) {
                                'archive' => 'no',
                                'fav' => 'no',
                                'pin' => 'no');
-        $mute = $db->where('user_id',$wo['user']['id'])->where('chat_id',$value['chat_id'])->where('type','group')->getOne(T_MUTE);
+        $mute = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',$value['chat_id'])->where('type','group')->getOne(T_MUTE);
         if (!empty($mute)) {
             $value['mute']['notify'] = $mute->notify;
             $value['mute']['call_chat'] = $mute->call_chat;
@@ -179,7 +179,7 @@ if (!empty($groups)) {
             }
             $message['time_text'] = Wo_Time_Elapsed_String($message['time']);
             $message_po  = 'left';
-            if ($message['from_id'] == $wo['user']['id']) {
+            if ($message['from_id'] == $wo['user']['user_id']) {
                 $message_po  = 'right';
             }
             
@@ -237,7 +237,7 @@ if (!empty($pages)) {
                                'archive' => 'no',
                                'fav' => 'no',
                                'pin' => 'no');
-        $mute = $db->where('user_id',$wo['user']['id'])->where('chat_id',$value['chat_id'])->where('type','page')->getOne(T_MUTE);
+        $mute = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',$value['chat_id'])->where('type','page')->getOne(T_MUTE);
         if (!empty($mute)) {
             $page['mute']['notify'] = $mute->notify;
             $page['mute']['call_chat'] = $mute->call_chat;
@@ -246,7 +246,7 @@ if (!empty($pages)) {
             $page['mute']['pin'] = $mute->pin;
         }
         if (!empty($page) && !empty($value['message']) && !empty($value['message']['page_id']) && !empty($value['message']['user_id']) && !empty($value['message']['conversation_user_id'])) {
-            $user_id = $wo['user']['id'];
+            $user_id = $wo['user']['user_id'];
             $timezone = new DateTimeZone($wo['user']['timezone']);
             $message = Wo_GetPageMessages(array(
                                         'page_id' => $value['message']['page_id'],

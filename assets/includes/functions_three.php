@@ -8507,7 +8507,8 @@ function FFMPEGUpload($data) {
     }
     if (empty($data['video_thumb'])) {
         $uniq_id    = rand(1111, 9999);
-        $hash       = sha1(time() + time() - rand(9999, 9999)) . Wo_GenerateKey();
+        // SECURITY: was sha1(2*time()-9999) — predictable per second. Use CSPRNG instead.
+        $hash       = bin2hex(random_bytes(16)) . Wo_GenerateKey();
         $file_thumb = "upload/photos/" . date('Y') . '/' . date('m') . "/$hash.video_thumb_$uniq_id" . ".jpeg";
         $thumb      = $dir . "/" . $file_thumb;
         shell_exec("$ffmpeg_b -ss " . escapeshellarg($time) . " -i " . escapeshellarg($video_file_full_path) . " -vframes 1 -f mjpeg " . escapeshellarg($thumb) . " 2<&1");

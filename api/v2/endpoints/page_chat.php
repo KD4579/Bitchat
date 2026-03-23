@@ -355,7 +355,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $search_key = Wo_Secure($_POST['search_key']);
         }
         $fetch_array = array(
-            'user_id' => $wo['user']['id'], 
+            'user_id' => $wo['user']['user_id'], 
             'searchQuery' => $search_key, 
             'limit' => $limit,
             'offset' => $offset
@@ -371,7 +371,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                                        'archive' => 'no',
                                        'fav' => 'no',
                                        'pin' => 'no');
-                $mute = $db->where('user_id',$wo['user']['id'])->where('chat_id',$value['chat_id'])->where('type','page')->getOne(T_MUTE);
+                $mute = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',$value['chat_id'])->where('type','page')->getOne(T_MUTE);
                 if (!empty($mute)) {
                     $page['mute']['notify'] = $mute->notify;
                     $page['mute']['call_chat'] = $mute->call_chat;

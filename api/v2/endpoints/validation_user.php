@@ -2,17 +2,8 @@
 if (!empty($_POST['code']) && !empty($_POST['email'])) {
 	$code   = Wo_Secure($_POST['code']);
 	$email   = Wo_Secure($_POST['email']);
-	if (Wo_EmailExists($email) === false) {
-        $response_data       = array(
-	        'api_status'     => '400',
-	        'errors'         => array(
-	            'error_id'   => '5',
-	            'error_text' => 'wrong email'
-	        )
-	    );
-	    echo json_encode($response_data, JSON_PRETTY_PRINT);
-	    exit();
-    } else if (Wo_ActivateUser($email, $code) === false) {   
+	// SECURITY: always return the same error to prevent email enumeration
+	if (Wo_EmailExists($email) === false || Wo_ActivateUser($email, $code) === false) {
         $response_data       = array(
 	        'api_status'     => '400',
 	        'errors'         => array(
@@ -37,7 +28,7 @@ if (!empty($_POST['code']) && !empty($_POST['email'])) {
         $user_id = Wo_UserIdFromEmail($email);
         $time           = time();
         $cookie         = '';
-        $access_token   = sha1(rand(111111111, 999999999)) . md5(microtime()) . rand(11111111, 99999999) . md5(rand(5555, 9999));
+        $access_token   = bin2hex(random_bytes(32)); // SECURITY: was sha1(rand())/md5(microtime())/rand() — predictable PRNG
         $timezone       = 'UTC';
         $create_session = mysqli_query($sqlConnect, "INSERT INTO " . T_APP_SESSIONS . " (`user_id`, `session_id`, `platform`, `time`) VALUES ('{$user_id}', '{$access_token}', 'phone', '{$time}')");
         if (!empty($_POST['timezone'])) {

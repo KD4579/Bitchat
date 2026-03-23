@@ -24,7 +24,7 @@ if (empty($error_code)) {
 		        $error_message = 'price can not be empty';
 	        }
 	        else{
-	        	$insert_id = Wo_InsertBankTrnsfer(array('user_id' => $wo['user']['id'],
+	        	$insert_id = Wo_InsertBankTrnsfer(array('user_id' => $wo['user']['user_id'],
                                                        'description' => $description,
                                                        'price'       => Wo_Secure($_POST['price']),
                                                        'receipt_file' => $mediaFilename,
@@ -40,7 +40,7 @@ if (empty($error_code)) {
                 $fund_id = Wo_Secure($_POST['fund_id']);
                 $fund = $db->where('id',$fund_id)->getOne(T_FUNDING);
                 if (!empty($fund)) {
-                    $insert_id = Wo_InsertBankTrnsfer(array('user_id' => $wo['user']['id'],
+                    $insert_id = Wo_InsertBankTrnsfer(array('user_id' => $wo['user']['user_id'],
                                                            'description' => $description,
                                                            'price'       => Wo_Secure($_POST['price']),
                                                            'receipt_file' => $mediaFilename,
@@ -60,7 +60,7 @@ if (empty($error_code)) {
     		}
     		else{
     			$pro = $wo['pro_packages'][$wo['pro_packages_types'][$_POST['type']]];
-    			$insert_id = Wo_InsertBankTrnsfer(array('user_id' => $wo['user']['id'],
+    			$insert_id = Wo_InsertBankTrnsfer(array('user_id' => $wo['user']['user_id'],
 		                                               'description' => $description,
 		                                               'price'       => $pro['price'],
 		                                               'receipt_file' => $mediaFilename,

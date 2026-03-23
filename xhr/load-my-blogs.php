@@ -1,7 +1,7 @@
 <?php 
 if ($f == "load-my-blogs" && $wo['loggedin'] === true) {
     $html  = '';
-    $blogs = Wo_GetMyBlogs($wo['user']['id'], $_GET['offset']);
+    $blogs = Wo_GetMyBlogs($wo['user']['user_id'], $_GET['offset']);
     if (count($blogs) > 0) {
         foreach ($blogs as $key => $wo['blog']) {
             $html .= Wo_LoadPage('blog/includes/card-lg-list');

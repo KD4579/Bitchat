@@ -14,8 +14,8 @@ else{
 	if (!empty($_POST['token']) && !empty($_POST['request']) && in_array($_POST['request'], array('wallet','fund','pro')) && !empty($_POST['price']) && is_numeric($_POST['price']) && $_POST['price'] > 0) {
 		try {
 			$price = Wo_Secure($_POST['price']);
-			$db->where('user_id',$wo['user']['id'])->update(T_USERS,array('StripeSessionId' => ''));
-			cache($wo['user']['id'], 'users', 'delete');
+			$db->where('user_id',$wo['user']['user_id'])->update(T_USERS,array('StripeSessionId' => ''));
+			cache($wo['user']['user_id'], 'users', 'delete');
 			$customer = \Stripe\Customer::create(array(
                 'source' => $_POST['token']
             ));
@@ -25,10 +25,10 @@ else{
                 'currency' => $wo['config']['stripe_currency']
             ));
             if ($charge) {
-            	$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = '" . $wo['user']['id'] . "'");
+            	$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = '" . $wo['user']['user_id'] . "'");
 	            if ($result) {
-					cache($wo['user']['id'], 'users', 'delete');
-	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'stripe')");
+					cache($wo['user']['user_id'], 'users', 'delete');
+	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'stripe')");
 	            }
 				$response_data = array(
 	                                'api_status' => 200,

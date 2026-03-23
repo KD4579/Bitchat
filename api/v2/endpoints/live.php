@@ -30,7 +30,7 @@ else{
             if (!empty($_POST['token']) && !is_null($_POST['token'])) {
                 $token = Wo_Secure($_POST['token']);
             }
-    		$post_id = $db->insert(T_POSTS,array('user_id' => $wo['user']['id'],
+    		$post_id = $db->insert(T_POSTS,array('user_id' => $wo['user']['user_id'],
 		    	                                 'postText' => '',
                                                  'postType' => 'live',
                                                  'postPrivacy' => $postPrivacy,
@@ -90,7 +90,7 @@ else{
                 	$response_data = array('api_status' => 200);
 
                     // //if ($_POST['page'] == 'story') {
-                    //     $user_comment = $db->where('post_id',$post_id)->where('user_id',$wo['user']['id'])->getOne(T_COMMENTS);
+                    //     $user_comment = $db->where('post_id',$post_id)->where('user_id',$wo['user']['user_id'])->getOne(T_COMMENTS);
                     //     if (!empty($user_comment)) {
                     //         $db->where('id',$user_comment->id,'>');
                     //     }
@@ -103,7 +103,7 @@ else{
                     //     $db->where('id',$ids,'NOT IN')->where('id',end($ids),'>');
                     // }
                     //if ($_POST['page'] == 'story') {
-                        //$db->where('user_id',$wo['user']['id'],'!=');
+                        //$db->where('user_id',$wo['user']['user_id'],'!=');
                     //}
                     $offset = (!empty($_POST['offset']) && is_numeric($_POST['offset']) && $_POST['offset'] > 0 ? Wo_Secure($_POST['offset']) : 0);
                     $limit = (!empty($_POST['limit']) && is_numeric($_POST['limit']) && $_POST['limit'] > 0 && $_POST['limit'] <= 50 ? Wo_Secure($_POST['limit']) : 20);
@@ -132,7 +132,7 @@ else{
                         $word = $wo['lang']['live'];
                         $count = $db->where('post_id',$post_id)->where('time',time()-6,'>=')->getValue(T_LIVE_SUB,'COUNT(*)');
 
-                        if ($wo['user']['id'] == $post_data->user_id) {
+                        if ($wo['user']['user_id'] == $post_data->user_id) {
                             $joined_users = $db->where('post_id',$post_id)->where('time',time()-6,'>=')->where('is_watching',0)->get(T_LIVE_SUB);
                             $joined_ids = array();
                             if (!empty($joined_users)) {
@@ -181,7 +181,7 @@ else{
                     //     'still_live' => $still_live
                     // ));
                     
-                    if ($wo['user']['id'] == $post_data->user_id) {
+                    if ($wo['user']['user_id'] == $post_data->user_id) {
                         if ($_POST['page'] == 'live') {
                             $time = time();
                             $update_array = array('live_time' => $time);
@@ -203,12 +203,12 @@ else{
                     }
                     else{
                         if (!empty($post_data->live_time) && $post_data->live_time >= (time() - 10) && $_POST['page'] == 'story') {
-                            $is_watching = $db->where('user_id',$wo['user']['id'])->where('post_id',$post_id)->getValue(T_LIVE_SUB,'COUNT(*)');
+                            $is_watching = $db->where('user_id',$wo['user']['user_id'])->where('post_id',$post_id)->getValue(T_LIVE_SUB,'COUNT(*)');
                             if ($is_watching > 0) {
-                                $db->where('user_id',$wo['user']['id'])->where('post_id',$post_id)->update(T_LIVE_SUB,array('time' => time()));
+                                $db->where('user_id',$wo['user']['user_id'])->where('post_id',$post_id)->update(T_LIVE_SUB,array('time' => time()));
                             }
                             else{
-                                $db->insert(T_LIVE_SUB,array('user_id' => $wo['user']['id'],
+                                $db->insert(T_LIVE_SUB,array('user_id' => $wo['user']['user_id'],
                                                              'post_id' => $post_id,
                                                              'time' => time(),
                                                              'is_watching' => 0));
@@ -235,9 +235,9 @@ else{
 
     if ($_POST['type'] == 'delete') {
         if (!empty($_POST['post_id']) && is_numeric($_POST['post_id']) && $_POST['post_id'] > 0) {
-            $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['id'])->update(T_POSTS,array('live_ended' => 1));
+            $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['user_id'])->update(T_POSTS,array('live_ended' => 1));
             if ($wo['config']['live_video_save'] == 0) {
-                // $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['id'])->delete(T_POSTS);
+                // $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['user_id'])->delete(T_POSTS);
                 // $db->where('parent_id',Wo_Secure($_POST['post_id']))->delete(T_POSTS);
 
                 Wo_DeletePost(Wo_Secure($_POST['post_id']));
@@ -280,7 +280,7 @@ else{
 
     if ($_POST['type'] == 'create_thumb') {
         if (!empty($_POST['post_id']) && is_numeric($_POST['post_id']) && $_POST['post_id'] > 0 && !empty($_FILES['thumb'])) {
-            $is_post = $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['id'])->getValue(T_POSTS,'COUNT(*)');
+            $is_post = $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['user_id'])->getValue(T_POSTS,'COUNT(*)');
             if ($is_post > 0) {
                 $fileInfo = array(
                     'file' => $_FILES["thumb"]["tmp_name"],
@@ -297,7 +297,7 @@ else{
                 if (!empty($media)) {
                     $thumb = $media['filename'];
                     if (!empty($thumb)) {
-                        $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['id'])->update(T_POSTS,array('postFileThumb' => $thumb));
+                        $db->where('post_id',Wo_Secure($_POST['post_id']))->where('user_id',$wo['user']['user_id'])->update(T_POSTS,array('postFileThumb' => $thumb));
                         $response_data = array(
                                             'api_status' => 200,
                                             'message' => 'created successfully'

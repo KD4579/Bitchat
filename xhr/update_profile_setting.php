@@ -30,7 +30,7 @@ if ($f == "update_profile_setting") {
             if (isset($_POST['relationship_user']) && is_numeric($_POST['relationship_user']) && $_POST['relationship_user'] > 0) {
                 if (is_numeric($_POST['relationship']) && $_POST['relationship'] > 0 && $_POST['relationship'] <= 4) {
                     $relationship_user = Wo_Secure($_POST['relationship_user']);
-                    $user              = Wo_Secure($wo['user']['user_id']); // SECURITY: was $wo['user']['id'] — wrong field (null), relationship inserted with null from_id
+                    $user              = Wo_Secure($wo['user']['user_id']); // SECURITY: was $wo['user']['user_id'] — wrong field (null), relationship inserted with null from_id
                     if (!Wo_IsRelationRequestExists($user, $relationship_user, $_POST['relationship'])) {
                         $registration_data = array(
                             'from_id' => $user,
@@ -44,7 +44,7 @@ if ($f == "update_profile_setting") {
                             $notification_data_array = array(
                                 'recipient_id' => $relationship_user,
                                 'type' => 'added_u_as',
-                                'user_id' => $wo['user']['id'],
+                                'user_id' => $wo['user']['user_id'],
                                 'text' => $wo['lang']['relationship_request'],
                                 'url' => 'index.php?link1=timeline&u=' . $relationship_user_data['username'] . '&type=requests'
                             );

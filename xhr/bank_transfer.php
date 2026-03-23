@@ -20,7 +20,7 @@ if ($f == "trdc_payments") {
             $mediaFilename = $media['filename'];
             if (!empty($mediaFilename)) {
                 $insert_id = Wo_InsertBankTrnsfer(array(
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'description' => $description,
                     'price' => $pro['price'],
                     'receipt_file' => $mediaFilename,

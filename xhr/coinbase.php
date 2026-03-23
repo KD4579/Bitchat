@@ -91,7 +91,7 @@ if ($f == "coinbase") {
 	            	if (Wo_ReplenishingUserBalance($amount)) {
 	            		$db->where('user_id', $user_data->user_id)->where('payment_data', $coinbase_code)->delete(T_PENDING_PAYMENTS);
 		                $amount                 = Wo_Secure($amount);
-		                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'Coinbase')"); // SECURITY: was \$wo['user']['id'] — wrong field (null)
+		                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'Coinbase')"); // SECURITY: was \$wo['user']['user_id'] — wrong field (null)
 		                \$_SESSION['replenished_amount'] = \$amount;
 		                if (!empty(\$_COOKIE['redirect_page'])) {
 		                    \$parsed_redir  = parse_url(\$_COOKIE['redirect_page']);

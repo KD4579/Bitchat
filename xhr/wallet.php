@@ -157,11 +157,11 @@ if ($f == 'wallet') {
                 $data['message'] = "$success_msg@ $recipient_name";
                 $data['sender_balance'] = sprintf('%.2f', $wallet - $amount);
                 cache($user_id, 'users', 'delete');
-                cache($wo['user']['id'], 'users', 'delete');
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['user_id'] — wrong field, resolves to null
                 $notification_data_array = array(
                     'recipient_id' => $user_id,
                     'type' => 'sent_u_money',
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'], // SECURITY: was $wo['user']['user_id'] — wrong field
                     'text' => "$notif_msg $amount$currency!",
                     'url' => 'index.php?link1=wallet'
                 );
@@ -325,7 +325,7 @@ if ($f == 'wallet') {
                                 $safe_uid = intval($wo['user']['user_id']);
                                 $points_dec = ($wo['config']['point_allow_withdrawal'] == 0) ? ", `points` = `points` - {$safe_points}" : "";
                                 $query_one = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_price}{$points_dec} WHERE `user_id` = {$safe_uid} AND `wallet` >= {$safe_price}");
-                                cache($wo['user']['id'], 'users', 'delete');
+                                cache($wo['user']['user_id'], 'users', 'delete');
                                 $data['status'] = 200;
                                 $data['url']    = Wo_SeoLink('index.php?link1=upgraded');
                             }
@@ -345,7 +345,7 @@ if ($f == 'wallet') {
                     $safe_price_f = floatval($price);
                     $safe_uid_f = intval($wo['user']['user_id']);
                     $query_one = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_price_f} WHERE `user_id` = {$safe_uid_f} AND `wallet` >= {$safe_price_f}");
-                    cache($wo['user']['id'], 'users', 'delete');
+                    cache($wo['user']['user_id'], 'users', 'delete');
                     $admin_com          = 0;
                     if (!empty($wo['config']['donate_percentage']) && is_numeric($wo['config']['donate_percentage']) && $wo['config']['donate_percentage'] > 0) {
                         $admin_com = ($wo['config']['donate_percentage'] * $amount) / 100;
@@ -438,7 +438,7 @@ if ($f == 'wallet') {
                 $notes = $wo['lang']['ai_credit_purchase'];
                 $dec = ($amount / $wo['config']['credit_price']);
                 mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'Credits', {$dec}, '{$notes}')");
-                $db->where('user_id',$wo['user']['id'])->update(T_USERS,[
+                $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,[
                     'wallet' => $db->dec($dec),
                     'credits' => $db->inc($amount)
                 ]);

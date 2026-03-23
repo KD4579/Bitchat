@@ -34,8 +34,12 @@ if ($type == 'update_user_data' || $type == 'u_user_data') {
         );
     }
     if (empty($json_error_data)) {
-        $user_id         = $_POST['user_id'];
+        $user_id         = intval($_POST['user_id']); // SECURITY: cast to int to prevent injection
         $s               = Wo_Secure($_POST['s']);
+        // SECURITY: validate token ownership — confirm $s belongs to $user_id being modified.
+        // Previously only checked $wo['loggedin'] (session-based), which allowed any authenticated
+        // user to modify another user's data by supplying a different user_id in POST.
+        $token_owner_id  = Wo_ValidateAccessToken($s);
         $user_login_data = Wo_UserData($user_id);
         $wo['lang'] = Wo_LangsFromDB($user_login_data['language']);
         if (empty($user_login_data)) {
@@ -51,7 +55,8 @@ if ($type == 'update_user_data' || $type == 'u_user_data') {
             header("Content-type: application/json");
             echo json_encode($json_error_data, JSON_PRETTY_PRINT);
             exit();
-        } else if ($wo['loggedin'] == false) {
+        } else if ($token_owner_id === false || intval($token_owner_id) !== $user_id) {
+            // SECURITY: token must belong to the exact user_id being modified
             $json_error_data = array(
                 'api_status' => '400',
                 'api_text' => 'failed',
@@ -125,7 +130,7 @@ if ($type == 'update_user_data' || $type == 'u_user_data') {
                             }
                         } else if ($_POST['type'] == 'password_settings') {
                             $user_data = $json_decode;
-                            if (Wo_HashPassword($user_data['current_password'], $Userdata['password']) == false) {
+                            if (Wo_HashPassword($user_data['current_password'], $Userdata['password']) !== true) {
                                 $errors[] = $wo['lang']['current_password_mismatch'];
                             }
                             if ($user_data['new_password'] != $user_data['repeat_new_password']) {

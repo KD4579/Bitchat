@@ -40,7 +40,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                                       'description'   => Wo_Secure($_POST['description']),
                                       'amount'   => Wo_Secure($_POST['amount']),
                                       'time'   => time(),
-                                      'user_id'  => $wo['user']['id'],
+                                      'user_id'  => $wo['user']['user_id'],
                                       'image' => $media['filename'],
                                       'hashed_id' => Wo_GenerateKey(15,15));
                 $fund_id = $db->insert(T_FUNDING,$insert_array);
@@ -190,7 +190,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     }
 
     if ($_POST['type'] == 'user_funding') {
-        $user_id = $wo['user']['id'];
+        $user_id = $wo['user']['user_id'];
         if (!empty($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0) {
             $user_id = Wo_Secure($_POST['user_id']);
         }
@@ -215,7 +215,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     }
 
     if ($_POST['type'] == 'pay') {
-        $user_id = $wo['user']['id'];
+        $user_id = $wo['user']['user_id'];
         if (!empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0 && !empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
             $amount = Wo_Secure($_POST['amount']);
             $fund_id = Wo_Secure($_POST['id']);

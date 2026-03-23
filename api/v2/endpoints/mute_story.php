@@ -2,12 +2,12 @@
 if (!empty($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && !empty($_POST['type']) && in_array($_POST['type'], array('mute','unmute'))) {
 	$user_id = Wo_Secure($_POST['user_id']);
 	if ($_POST['type'] == 'mute') {
-		if ($user_id != $wo['user']['id']) {
-			$info = $db->where('user_id',$wo['user']['id'])->where('story_user_id',$user_id)->get(T_MUTE_STORY);
+		if ($user_id != $wo['user']['user_id']) {
+			$info = $db->where('user_id',$wo['user']['user_id'])->where('story_user_id',$user_id)->get(T_MUTE_STORY);
 			if (empty($info)) {
 				cache($user_id, 'users', 'delete');
-				cache($wo['user']['id'], 'users', 'delete');
-				$db->insert(T_MUTE_STORY,array('user_id' => $wo['user']['id'],
+				cache($wo['user']['user_id'], 'users', 'delete');
+				$db->insert(T_MUTE_STORY,array('user_id' => $wo['user']['user_id'],
 			                                   'story_user_id' => $user_id,
 			                                   'time' => time()));
 				$response_data = array(
@@ -25,7 +25,7 @@ if (!empty($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_i
 		}
 	}
 	else{
-		$db->where('user_id',$wo['user']['id'])->where('story_user_id',$user_id)->delete(T_MUTE_STORY);
+		$db->where('user_id',$wo['user']['user_id'])->where('story_user_id',$user_id)->delete(T_MUTE_STORY);
 		$response_data = array(
 		                    'api_status' => 200,
 		                    'message' => 'user unmuted'

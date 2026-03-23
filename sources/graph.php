@@ -4,7 +4,8 @@ if (empty($_GET['app_id']) && empty($_GET['app_secret'])) {
 }
 
 if (Wo_AccessToken($_GET['app_id'], $_GET['app_secret']) === true) {
-	header('Location: http://localhost/wowonder_update/oauth?app_id=' . urlencode($_GET['app_id']));
+	// SECURITY: was hardcoded to http://localhost/wowonder_update/oauth — broken on live server.
+	header('Location: ' . rtrim($wo['config']['site_url'], '/') . '/oauth?app_id=' . urlencode($_GET['app_id']));
 	exit();
 }
 

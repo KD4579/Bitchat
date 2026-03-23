@@ -48,7 +48,7 @@ if ($f == "insert-blog") {
             $_POST['blog_tags'] = strip_tags($_POST['blog_tags']);
             $_POST['blog_tags'] = htmlspecialchars($_POST['blog_tags'], ENT_QUOTES, 'UTF-8');
             $registration_data  = array(
-                'user' => $wo['user']['id'],
+                'user' => $wo['user']['user_id'],
                 'title' => Wo_Secure($_POST['blog_title']),
                 'content' => Wo_Secure($_POST['blog_content'], 0, false,0,false),
                 'description' => substr(Wo_Secure($_POST['blog_description']), 0, 290),

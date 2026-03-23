@@ -7,7 +7,7 @@ if ($f == 'follow_user' && $wo['loggedin'] === true) {
     );
 
     if (isset($_GET['following_id']) && Wo_CheckMainSession($hash_id) === true) {
-        $user_followers = Wo_CountFollowing($wo['user']['id'], true);
+        $user_followers = Wo_CountFollowing($wo['user']['user_id'], true);
         $friends_limit  = $wo['config']['connectivitySystemLimit'];
         if (Wo_IsFollowing($_GET['following_id'], $wo['user']['user_id']) === true || Wo_IsFollowRequested($_GET['following_id'], $wo['user']['user_id']) === true) {
             if (Wo_DeleteFollow($_GET['following_id'], $wo['user']['user_id'])) {

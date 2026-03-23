@@ -127,7 +127,7 @@ if ($f == 'job' && $wo['config']['job_system'] == 1) {
                     $insert_array['image_type'] = 'upload';
                 }
                 if (!empty($insert_array['image'])) {
-                    $insert_array['user_id'] = $wo['user']['id'];
+                    $insert_array['user_id'] = $wo['user']['user_id'];
                     if (!empty($page_data)) {
                         $insert_array['page_id'] = $page_data->page_id;
                         $insert_array['user_id'] = $page_data->user_id;
@@ -136,7 +136,7 @@ if ($f == 'job' && $wo['config']['job_system'] == 1) {
                     $job_id               = $db->insert(T_JOB, $insert_array);
                     $post_id              = $db->insert(T_POSTS, array(
                         'page_id' => !empty($page_data) ? $page_data->page_id : 0,
-                        'user_id' => !empty($page_data) ? 0 : $wo['user']['id'],
+                        'user_id' => !empty($page_data) ? 0 : $wo['user']['user_id'],
                         'postText' => '"' . $insert_array['title'] . '"',
                         'job_id' => $job_id,
                         'postType' => 'job',
@@ -217,7 +217,7 @@ if ($f == 'job' && $wo['config']['job_system'] == 1) {
                 $insert_data['location']     = Wo_Secure($_POST['location']);
                 $insert_data['email']        = Wo_Secure($_POST['email']);
                 $insert_data['job_id']       = Wo_Secure($_POST['job_id']);
-                $insert_data['user_id']      = $wo['user']['id'];
+                $insert_data['user_id']      = $wo['user']['user_id'];
                 $insert_data['page_id']      = $job['page_id'];
                 $insert_data['time']         = time();
                 if (!empty($_POST['position'])) {
@@ -306,7 +306,7 @@ if ($f == 'job' && $wo['config']['job_system'] == 1) {
     }
     if ($s == 'edit_job' && !empty($_POST['job_id']) && is_numeric($_POST['job_id']) && $_POST['job_id'] > 0) {
         $job = Wo_GetJobById($_POST['job_id']);
-        if (!empty($job) && (((!empty($job['page']) && $job['page']['is_page_onwer']) || empty($job['page'])) || $job['user_id'] == $wo['user']['id'] || Wo_IsAdmin() || Wo_IsModerator())) {
+        if (!empty($job) && (((!empty($job['page']) && $job['page']['is_page_onwer']) || empty($job['page'])) || $job['user_id'] == $wo['user']['user_id'] || Wo_IsAdmin() || Wo_IsModerator())) {
             $insert_array = array();
             if (!empty($_POST['job_title'])) {
                 $insert_array['title'] = Wo_Secure($_POST['job_title'],1);
@@ -369,7 +369,7 @@ if ($f == 'job' && $wo['config']['job_system'] == 1) {
     if ($s == 'delete_job' && !empty($_GET['job_id']) && is_numeric($_GET['job_id']) && $_GET['job_id'] > 0) {
         $job_id = Wo_Secure($_GET['job_id']);
         $job    = $db->where('id', $job_id)->getOne(T_JOB);
-        if (!empty($job) && ($job->user_id == $wo['user']['id'] || Wo_IsModerator() || Wo_IsAdmin())) {
+        if (!empty($job) && ($job->user_id == $wo['user']['user_id'] || Wo_IsModerator() || Wo_IsAdmin())) {
             if ($job->image_type != 'cover') {
                 @unlink($job->image);
                 Wo_DeleteFromToS3($job->image);

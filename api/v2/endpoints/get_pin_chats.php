@@ -1,5 +1,5 @@
 <?php
-$chats = $db->where('user_id',$wo['user']['id'])->where('pin','yes')->where('chat_id',0,'>')->get(T_MUTE);
+$chats = $db->where('user_id',$wo['user']['user_id'])->where('pin','yes')->where('chat_id',0,'>')->get(T_MUTE);
 $array = array();
 if (!empty($chats)) {
 	foreach ($chats as $key => $value) {
@@ -24,7 +24,7 @@ if (!empty($chats)) {
 		                               'archive' => 'no',
 		                               'fav' => 'no',
 		                               'pin' => 'no');
-		        $mute = $db->where('user_id',$wo['user']['id'])->where('chat_id',$new_data['chat_id'])->where('type','user')->getOne(T_MUTE);
+		        $mute = $db->where('user_id',$wo['user']['user_id'])->where('chat_id',$new_data['chat_id'])->where('type','user')->getOne(T_MUTE);
 		        if (!empty($mute)) {
 		            $new_data['mute']['notify'] = $mute->notify;
 		            $new_data['mute']['call_chat'] = $mute->call_chat;

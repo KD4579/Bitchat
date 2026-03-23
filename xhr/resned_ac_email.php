@@ -45,7 +45,7 @@ if ($f == 'resned_ac_email') {
             if ($email == 1 && $phone == 0) {
                 $wo['user']             = $_POST;
                 $wo['user']['username'] = $user['username'];
-                $code                   = md5(rand(1111, 9999));
+                $code                   = bin2hex(random_bytes(16)); // SECURITY: was md5(rand(1111,9999)) — only 8,889 possible values
                 $wo['code']             = $code;
                 $body                   = Wo_LoadPage('emails/activate');
                 $send_message_data      = array(
@@ -69,7 +69,7 @@ if ($f == 'resned_ac_email') {
                     );
                 }
             } else if ($email == 0 && $phone == 1) {
-                $random_activation = Wo_Secure(rand(11111, 99999));
+                $random_activation = Wo_Secure(random_int(11111, 99999)); // SECURITY: rand() is not CSPRNG
                 $message           = "Your confirmation code is: {$random_activation}";
                 $user_id           = $_SESSION['code_id'];
                 $phone_num         = Wo_Secure($_POST['phone_number']);

@@ -47,7 +47,8 @@ if ($_POST['type'] == 'pay') {
                 $trans = $Aresponse->getTransactionResponse();
                 if ($trans != null && $trans->getMessages() != null) {
                 	if (Wo_ReplenishingUserBalance($amount)) {
-                        $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'authorize')");
+                        // SECURITY: was $wo['user']['user_id'] — wrong field, records NULL; user_id is the correct field
+                        $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'authorize')");
                         $response_data = array(
 			                'api_status' => 200,
 			                'url' => $url

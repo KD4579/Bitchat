@@ -14,7 +14,7 @@ if ($f == "busd_bep20_payment") {
             // For example, insert the payment details into a 'wallet_payments' table
             
             $insert_id = Wo_InsertWalletPayment(array(
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'wallet_method' => 'BUSD BEP-20',
                 'wallet_address' => $address,
                 'amount' => $amount

@@ -15,13 +15,21 @@ if ($f == 'coinpayments_procallback') {
                 $CP->setSecretKey($wo['config']['coinpayments_secret']);
                 if ($CP->listen($_POST, $_SERVER)) {
                     // The payment is successful and passed all security measures
-                    $user_id        = $_POST['user_id'];
+                    $user_id        = intval($_POST['user_id']); // SECURITY: cast to int; value is HMAC-verified by $CP->listen()
                     $user_type      = $_POST['user_type'];
                     $txn_id         = $_POST['txn_id'];
                     $item_name      = $_POST['item_name'];
                     $amount1        = floatval($_POST['amount1']); //   The total amount of the payment in your original currency/coin.
                     $amount2        = floatval($_POST['amount2']); //  The total amount of the payment in the buyer's selected coin.
                     $status         = intval($_POST['status']);
+                    // SECURITY: only upgrade when payment is fully complete (status >= 100).
+                    // Previously $status was read but never checked — pending (0) and cancelled (<0)
+                    // IPN callbacks would incorrectly trigger pro upgrades.
+                    if ($status < 100) {
+                        $data = array('status' => 400, 'error' => 'payment not yet complete');
+                        header("Location: " . Wo_SeoLink('index.php?link1=oops'));
+                        exit();
+                    }
                     // $impload        = "`is_pro` = '1', `pro_time` = '" . time() . "', `verified` = '1', `pro_type` = '" . $user_type . "'";
                     // $query_one      = " UPDATE " . T_USERS . " SET {$impload} WHERE `user_id` = {$user_id} ";
                     // $mysqli         = mysqli_query($sqlConnect, $query_one);
@@ -34,7 +42,9 @@ if ($f == 'coinpayments_procallback') {
                     if (in_array($user_type, array_keys($wo['pro_packages_types'])) && $wo['pro_packages'][$wo['pro_packages_types'][$user_type]]['verified_badge'] == 1) {
                         $update_array['verified'] = 1;
                     }
-                    $mysqli       = Wo_UpdateUserData($wo['user']['user_id'], $update_array);
+                    // SECURITY: IPN callbacks arrive server-to-server with no session.
+                    // $wo['user']['user_id'] is null here — use the HMAC-verified $user_id from POST.
+                    $mysqli       = Wo_UpdateUserData($user_id, $update_array);
                     
                     $date           = date('n') . '/' . date("Y");
                     $time = time();

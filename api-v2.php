@@ -8,7 +8,9 @@ $wo['loggedin'] = false;
 $response_data  = array();
 $error_code     = 0;
 $error_message  = '';
-$type           = (!empty($_GET['type'])) ? Wo_Secure($_GET['type'], 0) : false;
+// SECURITY: strip any characters that could enable path traversal (e.g. "../config")
+// Only allow alphanumeric, hyphen, and underscore in the endpoint type.
+$type           = (!empty($_GET['type'])) ? preg_replace('/[^a-zA-Z0-9_\-]/', '', Wo_Secure($_GET['type'], 0)) : false;
 $server_key     = (!empty($_POST['server_key'])) ? Wo_Secure($_POST['server_key'], 0) : false;
 if (empty($type)) {
     $response_data = array(

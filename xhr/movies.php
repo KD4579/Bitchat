@@ -97,7 +97,7 @@ if ($f == "movies") {
         if (isset($_POST['text']) && isset($_POST['movie']) && is_numeric(($_POST['movie'])) && strlen($_POST['text']) > 2) {
             $registration_data = array(
                 'movie_id' => Wo_Secure($_POST['movie']),
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'text' => Wo_Secure($_POST['text']),
                 'posted' => time()
             );
@@ -124,7 +124,7 @@ if ($f == "movies") {
             $registration_data = array(
                 'comm_id' => Wo_Secure($_POST['c_id']),
                 'movie_id' => Wo_Secure($_POST['m_id']),
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'text' => Wo_Secure($_POST['text']),
                 'posted' => time()
             );

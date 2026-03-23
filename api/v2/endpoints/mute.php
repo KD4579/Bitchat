@@ -15,13 +15,13 @@ if (!empty($_POST['chat_id']) && is_numeric($_POST['chat_id']) && $_POST['chat_i
 			$update_data['pin'] = Wo_Secure($_POST['pin']);
 		}
 		if (!empty($update_data)) {
-			$info = $db->where('type',Wo_Secure($_POST['type']))->where('user_id',$wo['user']['id'])->where('chat_id',Wo_Secure($_POST['chat_id']))->getOne(T_MUTE);
+			$info = $db->where('type',Wo_Secure($_POST['type']))->where('user_id',$wo['user']['user_id'])->where('chat_id',Wo_Secure($_POST['chat_id']))->getOne(T_MUTE);
 			if (!empty($info)) {
 				$update_data['chat_id'] = Wo_Secure($_POST['chat_id']);
 				$db->where('id',$info->id)->update(T_MUTE,$update_data);
 			}
 			else{
-				$update_data['user_id'] = $wo['user']['id'];
+				$update_data['user_id'] = $wo['user']['user_id'];
 				$update_data['type'] = Wo_Secure($_POST['type']);
 				$update_data['time'] = time();
 				$update_data['chat_id'] = Wo_Secure($_POST['chat_id']);

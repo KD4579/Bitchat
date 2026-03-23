@@ -72,7 +72,9 @@ if ($type == 'new_post') {
 
                 if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $_POST["postText"], $match)) {
                     $youtube_video = Wo_Secure($match[1]);
-                    $api_request   = file_get_contents('https://www.googleapis.com/youtube/v3/videos?id=' . $youtube_video . '&key=AIzaSyDoOC41IwRzX5XvP7bNiCJXJfcK14HalM0&part=snippet,contentDetails,statistics,status');
+                    // SECURITY: API key moved to config — set $wo['config']['youtube_api_key'] in config.php
+                    $youtube_api_key = !empty($wo['config']['youtube_api_key']) ? $wo['config']['youtube_api_key'] : '';
+                    $api_request   = !empty($youtube_api_key) ? file_get_contents('https://www.googleapis.com/youtube/v3/videos?id=' . $youtube_video . '&key=' . $youtube_api_key . '&part=snippet,contentDetails,statistics,status') : '';
                     $thumbnail     = '';
                     if (!empty($api_request)) {
                         $json_decode = json_decode($api_request);

@@ -14,16 +14,16 @@ $required_fields =  array(
 if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
     if ($_POST['type'] == 'create') {
-    	if (!empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0 && !empty($_POST['call_type']) && in_array($_POST['call_type'], array('video','audio')) && $_POST['recipient_id'] != $wo['user']['id']) {
+    	if (!empty($_POST['recipient_id']) && is_numeric($_POST['recipient_id']) && $_POST['recipient_id'] > 0 && !empty($_POST['call_type']) && in_array($_POST['call_type'], array('video','audio')) && $_POST['recipient_id'] != $wo['user']['user_id']) {
     		include_once('assets/libraries/twilio/vendor/autoload.php');
-            $user_id = $wo['user']['id'];
+            $user_id = $wo['user']['user_id']; // SECURITY: was $wo['user']['user_id'] — wrong field, resolves to null
             $recipient_id = Wo_Secure($_POST['recipient_id']);
-		    $room_script  = sha1(rand(1111111, 9999999999));
+		    $room_script  = bin2hex(random_bytes(16)); // SECURITY: was sha1(rand()) — predictable
 		    $accountSid   = $wo['config']['video_accountSid'];
 		    $apiKeySid    = $wo['config']['video_apiKeySid'];
 		    $apiKeySecret = $wo['config']['video_apiKeySecret'];
-		    $call_id      = substr(md5(microtime()), 0, 15);
-		    $call_id_2    = substr(md5(time()), 0, 15);
+		    $call_id      = bin2hex(random_bytes(8)); // SECURITY: was md5(microtime()) — predictable
+		    $call_id_2    = bin2hex(random_bytes(8));
 		    $token        = new AccessToken($accountSid, $apiKeySid, $apiKeySecret, 3600, $call_id);
 		    $grant        = new VideoGrant();
 		    $grant->setRoom($room_script);
@@ -34,7 +34,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 		    $grant2->setRoom($room_script);
 		    $token2->addGrant($grant2);
 		    $token_2    = $token2->toJWT();
-            $create_room_name = sha1(rand(1111111, 9999999999));
+            $create_room_name = bin2hex(random_bytes(16)); // SECURITY: was sha1(rand()) — predictable room ID, lets attackers eavesdrop/hijack calls;
             if ($_POST['call_type'] == 'video') {
             	$insertData = Wo_CreateNewVideoCall(array(
 			        'access_token' => Wo_Secure($token_),
@@ -148,7 +148,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     elseif ($_POST['type'] == 'action') {
     	if (!empty($_POST['call_id']) && is_numeric($_POST['call_id']) && $_POST['call_id'] > 0 && !empty($_POST['action']) && in_array($_POST['action'], array('answer','close','decline')) && !empty($_POST['call_type']) && in_array($_POST['call_type'], array('video','audio'))) {
     		$id = Wo_Secure($_POST['call_id']);
-    		$user_id = $wo['user']['id'];
+    		$user_id = $wo['user']['user_id']; // SECURITY: was $wo['user']['user_id'] — wrong field, resolves to null
     		$table = T_AUDIO_CALLES;
     		if ($_POST['call_type'] == 'video') {
     			$table = T_VIDEOS_CALLES;

@@ -46,13 +46,13 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $currency        = Wo_GetCurrency($wo['config']['ads_currency']);
             $notif_msg       = $wo['lang']['sent_you'];
             $db->where('user_id', $user_id)->update(T_USERS, $up_data1);
-            $db->where('user_id', $wo['user']['id'])->update(T_USERS, $up_data2);
-            cache($wo['user']['id'], 'users', 'delete');
+            $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, $up_data2);
+            cache($wo['user']['user_id'], 'users', 'delete');
             cache($user_id, 'users', 'delete');
             $notification_data_array = array(
                 'recipient_id' => $user_id,
                 'type' => 'sent_u_money',
-                'user_id' => $wo['user']['id'],
+                'user_id' => $wo['user']['user_id'],
                 'text' => "$notif_msg $amount$currency!",
                 'url' => 'index.php?link1=wallet'
             );
@@ -126,7 +126,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                 }
                 updatePoints($price);
                 
-                cache($wo['user']['id'], 'users', 'delete');
+                cache($wo['user']['user_id'], 'users', 'delete');
 
                 $response_data = array(
                     'api_status' => 200,
@@ -141,7 +141,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'DONATE', {$amount}, '{$notes}')");
                 $wallet_amount      = ($wo["user"]['wallet'] - $price);
                 $query_one          = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = '{$wallet_amount}' WHERE `user_id` = {$wo['user']['user_id']} ");
-                cache($wo['user']['id'], 'users', 'delete');
+                cache($wo['user']['user_id'], 'users', 'delete');
                 $admin_com          = 0;
                 if (!empty($wo['config']['donate_percentage']) && is_numeric($wo['config']['donate_percentage']) && $wo['config']['donate_percentage'] > 0) {
                     $admin_com = ($wo['config']['donate_percentage'] * $amount) / 100;

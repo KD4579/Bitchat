@@ -69,7 +69,7 @@ if ($f == 'groups') {
             if ($register_group) {
                 if ($privacy == 2) {
                     $group_id = Wo_GroupIdFromGroupname(Wo_Secure($_POST['group_name']));
-                    $user_id  = $wo['user']['id'];
+                    $user_id  = $wo['user']['user_id'];
                     $active   = 1;
                     $query    = mysqli_query($sqlConnect, " INSERT INTO " . T_GROUP_MEMBERS . " (`user_id`,`group_id`,`active`,`time`) VALUES ({$user_id},{$group_id},'{$active}'," . time() . ")");
                 }
@@ -152,7 +152,7 @@ if ($f == 'groups') {
                     $join_privacy = $_POST['join_privacy'];
                 }
             }
-            if ($group_data['user_id'] == $wo['user']['id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'privacy')) {
+            if ($group_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'privacy')) {
                 if (empty($errors)) {
                     $Update_data = array(
                         'privacy' => $privacy,
@@ -178,7 +178,7 @@ if ($f == 'groups') {
             $Userdata = Wo_GroupData($_POST['group_id']);
             if (!empty($Userdata['id'])) {
                 // SECURITY: Check ownership BEFORE processing uploads (prevents IDOR file upload)
-                if ($Userdata['user_id'] != $wo['user']['id'] && !Wo_IsCanGroupUpdate($_POST['group_id'], 'avatar') && !Wo_IsAdmin()) {
+                if ($Userdata['user_id'] != $wo['user']['user_id'] && !Wo_IsCanGroupUpdate($_POST['group_id'], 'avatar') && !Wo_IsAdmin()) {
                     header("Content-type: application/json");
                     echo json_encode(array('status' => 403, 'message' => 'Permission denied'));
                     exit();
@@ -193,7 +193,7 @@ if ($f == 'groups') {
                         $page_data = Wo_GroupData($_POST['group_id']);
                     }
                 }
-                if ($Userdata['user_id'] == $wo['user']['id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'avatar')) {
+                if ($Userdata['user_id'] == $wo['user']['user_id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'avatar')) {
                     if (empty($errors)) {
                         $Update_data = array(
                             'active' => '1'
@@ -246,7 +246,7 @@ if ($f == 'groups') {
                 if (empty($_POST['group_category'])) {
                     $_POST['group_category'] = 1;
                 }
-                if ($group_data['user_id'] == $wo['user']['id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'general')) {
+                if ($group_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'general')) {
                     if (empty($errors)) {
                         $sub_category = '';
                         if (!empty($_POST['group_sub_category']) && !empty($wo['group_sub_categories'][$_POST['group_category']])) {
@@ -306,7 +306,7 @@ if ($f == 'groups') {
                 $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
             }
             $group_data = Wo_GroupData($_POST['group_id']);
-            if ($group_data['user_id'] == $wo['user']['id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'delete_group')) {
+            if ($group_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'delete_group')) {
                 if (empty($errors)) {
                     if (Wo_DeleteGroup($_POST['group_id']) === true) {
                         $data = array(
@@ -357,7 +357,7 @@ if ($f == 'groups') {
     if ($s == 'delete_joined_user') {
         if (isset($_GET['user_id']) && is_numeric($_GET['user_id']) && $_GET['user_id'] > 0 && !empty($_GET['group_id']) && is_numeric($_GET['group_id']) && $_GET['group_id'] > 0) {
             $group_data = Wo_GroupData($_GET['group_id']);
-            if ($group_data['user_id'] == $wo['user']['id'] || Wo_IsCanGroupUpdate($_GET['group_id'], 'members')) {
+            if ($group_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanGroupUpdate($_GET['group_id'], 'members')) {
                 if (Wo_LeaveGroup($_GET['group_id'], $_GET['user_id']) === true) {
                     $data = array(
                         'status' => 200
@@ -372,7 +372,7 @@ if ($f == 'groups') {
     if ($s == 'add_admin') {
         if (isset($_GET['user_id']) && is_numeric($_GET['user_id']) && $_GET['user_id'] > 0 && !empty($_GET['group_id']) && is_numeric($_GET['group_id']) && $_GET['group_id'] > 0) {
             $group_data = Wo_GroupData($_GET['group_id']);
-            if ($group_data['user_id'] == $wo['user']['id'] || Wo_IsCanGroupUpdate($_GET['group_id'], 'members')) {
+            if ($group_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanGroupUpdate($_GET['group_id'], 'members')) {
                 $member = Wo_Secure($_GET['user_id']);
                 $group  = Wo_Secure($_GET['group_id']);
                 $data   = array(
@@ -395,7 +395,7 @@ if ($f == 'groups') {
     if ($s == 'privileges') {
         if (!empty($_POST['group_id']) && is_numeric($_POST['group_id']) && $_POST['group_id'] > 0 && !empty($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0) {
             $group_data = Wo_GroupData($_POST['group_id']);
-            if ($group_data['user_id'] == $wo['user']['id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'members')) {
+            if ($group_data['user_id'] == $wo['user']['user_id'] || Wo_IsCanGroupUpdate($_POST['group_id'], 'members')) {
                 $update_array = array(
                     'general' => 0,
                     'privacy' => 0,

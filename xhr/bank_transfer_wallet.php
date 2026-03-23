@@ -20,7 +20,7 @@ if ($f == "bank_transfer_wallet") {
             $mediaFilename = $media['filename'];
             if (!empty($mediaFilename)) {
                 $insert_id = Wo_InsertBankTrnsfer(array(
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'description' => $description,
                     'price' => Wo_Secure($_POST['price']),
                     'receipt_file' => $mediaFilename,

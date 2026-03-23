@@ -120,10 +120,10 @@ if ($f == 'stripe') {
 					}
 					$amount = ($checkout_session->amount_total / 100);
 					if ($_GET['type'] == 'wallet') {
-						$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . floatval($amount) . " WHERE `user_id` = '" . intval($wo['user']['user_id']) . "'"); // SECURITY: was $wo['user']['id'] — wrong field (null)
+						$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . floatval($amount) . " WHERE `user_id` = '" . intval($wo['user']['user_id']) . "'"); // SECURITY: was $wo['user']['user_id'] — wrong field (null)
 			            if ($result) {
-							cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field (null)
-			                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . intval($wo['user']['user_id']) . "', 'WALLET', '" . floatval($amount) . "', 'stripe_{$safe_session_id}')"); // SECURITY: was $wo['user']['id']
+							cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['user_id'] — wrong field (null)
+			                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . intval($wo['user']['user_id']) . "', 'WALLET', '" . floatval($amount) . "', 'stripe_{$safe_session_id}')"); // SECURITY: was $wo['user']['user_id']
 			            }
 			            if (!empty($_COOKIE['redirect_page'])) {
 		                	$parsed_redir  = parse_url($_COOKIE['redirect_page']);

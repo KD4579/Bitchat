@@ -23,7 +23,7 @@ if ($f == "update-blog") {
             $_POST['blog_tags'] = htmlspecialchars($_POST['blog_tags'], ENT_QUOTES, 'UTF-8');
             $_POST['blog_content'] = preg_replace($wo['regx_attr'], '', $_POST['blog_content']);
             $registration_data = array(
-                'user' => $wo['user']['id'],
+                'user' => $wo['user']['user_id'],
                 'title' => $_POST['blog_title'],
                 'content' => $_POST['blog_content'],
                 'description' => $_POST['blog_description'],

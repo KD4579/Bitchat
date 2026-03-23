@@ -75,7 +75,7 @@ if (!empty($user_data['email'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_email'      => Wo_Secure($user_data['email'])));
 
-                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['user_id'] — wrong field
                 $response_data['type'] = 'code sent';
                 unset($user_data['email']);
             }
@@ -90,7 +90,7 @@ if (!empty($user_data['email'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_email'  => Wo_Secure($user_data['email'])));
                 $response_data['type'] = 'code sent';
-                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['user_id'] — wrong field
                 unset($user_data['email']);
             }
             else{
@@ -127,7 +127,7 @@ if (!empty($user_data['phone_number'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_phone'      => Wo_Secure($user_data['phone_number'])));
                 $response_data['type'] = 'code sent';
-                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['user_id'] — wrong field
                 unset($user_data['phone_number']);
             }
             else{
@@ -141,7 +141,7 @@ if (!empty($user_data['phone_number'])) {
                 $update_code =  $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array('email_code' => $hash_code,
                                                                                                      'new_phone'  => Wo_Secure($user_data['phone_number'])));
                 $response_data['type'] = 'code sent';
-                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
+                cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['user_id'] — wrong field
                 unset($user_data['phone_number']);
             }
             else{
@@ -268,7 +268,7 @@ else{
 if (!empty($_POST['relationship']) && is_numeric($_POST['relationship']) && $_POST['relationship'] > 0 && $_POST['relationship'] <= 4) {
     if ($_POST['relationship'] > 1 && isset($_POST['relationship_user']) && is_numeric($_POST['relationship_user']) && $_POST['relationship_user'] > 0) {
         $relationship_user = Wo_Secure($_POST['relationship_user']);
-        $user              = Wo_Secure($wo['user']['id']);
+        $user              = Wo_Secure($wo['user']['user_id']);
         if (!Wo_IsRelationRequestExists($user, $relationship_user, $_POST['relationship'])) {
             $registration_data = array(
                 'from_id' => $user,
@@ -282,7 +282,7 @@ if (!empty($_POST['relationship']) && is_numeric($_POST['relationship']) && $_PO
                 $notification_data_array = array(
                     'recipient_id' => $relationship_user,
                     'type' => 'added_u_as',
-                    'user_id' => $wo['user']['id'],
+                    'user_id' => $wo['user']['user_id'],
                     'text' => $wo['lang']['relationship_request'],
                     'url' => 'index.php?link1=timeline&u=' . $relationship_user_data['username'] . '&type=requests'
                 );
@@ -401,7 +401,7 @@ if (empty($error_code)) {
     $update2 = $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,array(
             'notification_settings' => $Update_data
         ));
-    cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['id'] — wrong field
+    cache($wo['user']['user_id'], 'users', 'delete'); // SECURITY: was $wo['user']['user_id'] — wrong field
     // $update2 = Wo_UpdateUserData($wo['user']['user_id'], array(
     //         'notification_settings' => $Update_data
     //     ));

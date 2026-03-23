@@ -31,7 +31,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
     		$page_data = $db->where('page_id',Wo_Secure($_POST['page_id']))->getOne(T_PAGES);
 
-    		if (!empty($page_data) && $page_data->user_id == $wo['user']['id']) {
+    		if (!empty($page_data) && $page_data->user_id == $wo['user']['user_id']) {
 
 	    		$insert_array = array();
 
@@ -184,7 +184,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     if ($_POST['type'] == 'edit') {
     	if (!empty($_POST['job_id']) && is_numeric($_POST['job_id']) && $_POST['job_id'] > 0) {
 	        $job = Wo_GetJobById($_POST['job_id']);
-	        if (!empty($job) && ($job['page']['is_page_onwer'] || $job['user_id'] == $wo['user']['id'])) {
+	        if (!empty($job) && ($job['page']['is_page_onwer'] || $job['user_id'] == $wo['user']['user_id'])) {
 
 	            $insert_array = array();
 
@@ -289,7 +289,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 	    			$insert_data['location'] = Wo_Secure($_POST['location']);
 	    			$insert_data['email'] = Wo_Secure($_POST['email']);
 	    			$insert_data['job_id'] = Wo_Secure($_POST['job_id']);
-	    			$insert_data['user_id'] = $wo['user']['id'];
+	    			$insert_data['user_id'] = $wo['user']['user_id'];
 	    			$insert_data['page_id'] = $job['page_id'];
 	                $insert_data['time'] = time();
 

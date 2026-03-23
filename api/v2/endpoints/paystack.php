@@ -112,8 +112,8 @@ else{
 			    $result = json_decode($request, true);
 			    if (!empty($result)) {
 					 if (!empty($result['status']) && $result['status'] == 1 && !empty($result['data']) && !empty($result['data']['authorization_url']) && !empty($result['data']['access_code'])) {
-					 	$db->where('user_id',$wo['user']['id'])->update(T_USERS,array('paystack_ref' => $reference));
-						 cache($wo['user']['id'], 'users', 'delete');
+					 	$db->where('user_id',$wo['user']['user_id'])->update(T_USERS,array('paystack_ref' => $reference));
+						 cache($wo['user']['user_id'], 'users', 'delete');
 					  	$response_data = array(
 			                                'api_status' => 200,
 			                                'url' => $result['data']['authorization_url']
@@ -315,7 +315,7 @@ else{
             $verified_amount = floatval($payment['amount']);
             if (Wo_ReplenishingUserBalance($verified_amount)) {
                 $safe_amount = $verified_amount;
-                $safe_userid = intval($wo['user']['id']);
+                $safe_userid = intval($wo['user']['user_id']);
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Paystack')");
                 $_SESSION['replenished_amount'] = $_POST['amount'];
                 $response_data = array(

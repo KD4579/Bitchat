@@ -11,7 +11,7 @@ if ($wo['config']['agora_live_video'] != 1 && $wo['config']['millicast_live_vide
     header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
     exit();
 }
-$if_live = $db->where('user_id', $wo['user']['id'])->where('stream_name', '', '!=')->where('live_time', time() - 5, '>=')->getValue(T_POSTS, 'COUNT(*)');
+$if_live = $db->where('user_id', $wo['user']['user_id'])->where('stream_name', '', '!=')->where('live_time', time() - 5, '>=')->getValue(T_POSTS, 'COUNT(*)');
 if ($if_live > 0) {
     header("Location: " . Wo_SeoLink('index.php?link1=welcome'));
     exit();

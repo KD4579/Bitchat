@@ -54,7 +54,7 @@ elseif ($_POST['type'] == 'coinbase_handle') {
 	            	if (Wo_ReplenishingUserBalance($amount)) {
 	            		$db->where('user_id', $pt->user->id)->where('payment_data', $coinbase_code)->delete(T_PENDING_PAYMENTS);
 		                $amount                 = Wo_Secure($amount);
-		                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['id'] . "', 'WALLET', '" . $amount . "', 'Coinbase')");
+		                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'Coinbase')");
 
 	                	$response_data = array(
 			                'api_status' => 200,

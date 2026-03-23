@@ -254,7 +254,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                 }
 
                 
-                $user_id     = $wo['user']['id'];
+                $user_id     = $wo['user']['user_id'];
                 $db->where("id", $adid)->where("user_id", $user_id)->update(T_USER_ADS, $update_data);
                 $response_data = array(
                                     'api_status' => 200,

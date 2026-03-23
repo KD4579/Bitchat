@@ -37,12 +37,12 @@ if (empty($error_code)) {
             $page_data['call_action_type_text'] = $wo['call_action'][$page_data['call_action_type']];
         }
         $page_data['is_rated'] = false;
-        if (Wo_IsPageRatingExists($page_id, $wo['user']['id'])) {
+        if (Wo_IsPageRatingExists($page_id, $wo['user']['user_id'])) {
             $page_data['is_rated'] = true;
         }
         $page_data['admin_info'] = array();
-        if ($wo['user']['id'] != $page_data['user_id'] && Wo_IsPageAdminExists($wo['user']['id'],$page_id)) {
-            $page_data['admin_info'] = Wo_GetPageAdminInfo($wo['user']['id'],$page_id);
+        if ($wo['user']['user_id'] != $page_data['user_id'] && Wo_IsPageAdminExists($wo['user']['user_id'],$page_id)) {
+            $page_data['admin_info'] = Wo_GetPageAdminInfo($wo['user']['user_id'],$page_id);
         }
 
         $response_data['page_data'] = $page_data;

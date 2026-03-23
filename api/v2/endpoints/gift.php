@@ -45,7 +45,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
     		$sql = mysqli_query($sqlConnect, $query_one);
     		$fetched_data = mysqli_fetch_assoc($sql);
 		    if (!empty($fetched_data)) {
-		        $from     = $wo['user']['id'];
+		        $from     = $wo['user']['user_id'];
 		        $to    = Wo_Secure($_POST['user_id']);
 		        $user_data = Wo_UserData($to);
 		        if (!empty($user_data)) {

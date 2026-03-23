@@ -33,7 +33,7 @@ if ($f == '2checkout_wallet') {
                 )
             ));
             if ($charge['response']['responseCode'] == 'APPROVED') {
-                Wo_UpdateUserData($wo['user']['id'], array(
+                Wo_UpdateUserData($wo['user']['user_id'], array(
                     'address' => Wo_Secure($_POST['card_address']),
                     'city' => Wo_Secure($_POST['card_city']),
                     'state' => Wo_Secure($_POST['card_state']),
