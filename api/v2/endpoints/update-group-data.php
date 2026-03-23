@@ -30,9 +30,13 @@ if (empty($error_code)) {
 		if (!empty($_POST)) {
 			$group_data = $_POST;
 		}
-		$escape = array('server_key');
-		if (isset($group_data['server_key'])) {
-			unset($group_data['server_key']);
+		// SECURITY: block privileged/internal fields from mass assignment.
+		// Previously only 'server_key' was excluded — any DB column could be overwritten.
+		$escape = array('server_key', 'user_id', 'active', 'created', 'time', 'members', 'is_default');
+		foreach ($escape as $blocked_key) {
+			if (isset($group_data[$blocked_key])) {
+				unset($group_data[$blocked_key]);
+			}
 		}
 		if (!empty($group_data['group_name'])) {
 			$is_exist = Wo_IsNameExist($group_data['group_name'], 0);

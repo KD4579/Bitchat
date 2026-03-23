@@ -27,9 +27,12 @@ if (empty($error_code)) {
 		if (!empty($_POST)) {
 			$page_data = $_POST;
 		}
-		$escape = array('server_key');
-		if (isset($page_data['server_key'])) {
-			unset($page_data['server_key']);
+		// SECURITY: block privileged/internal fields from mass assignment.
+		$escape = array('server_key', 'user_id', 'active', 'created', 'time', 'likes', 'is_default');
+		foreach ($escape as $blocked_key) {
+			if (isset($page_data[$blocked_key])) {
+				unset($page_data[$blocked_key]);
+			}
 		}
 		if (!empty($page_data['page_name'])) {
 			$is_exist = Wo_IsNameExist($page_data['page_name'], 0);

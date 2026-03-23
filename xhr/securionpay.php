@@ -57,10 +57,14 @@ if ($f == "securionpay") {
 		                            $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'securionpay')");
 					                $_SESSION['replenished_amount'] = $amount;
 					                $url = Wo_SeoLink('index.php?link1=wallet');
+					                // SECURITY: validate same-origin before redirecting via cookie (open redirect fix)
 					                if (!empty($_COOKIE['redirect_page'])) {
-					                    $redirect_page = preg_replace('/on[^<>=]+=[^<>]*/m', '', $_COOKIE['redirect_page']);
-					                    $redirect_page = preg_replace('/\((.*?)\)/m', '', $redirect_page);
-					                    $url = $redirect_page;
+					                    $parsed_redir = parse_url($_COOKIE['redirect_page']);
+					                    $site_host    = parse_url($wo['config']['site_url'], PHP_URL_HOST);
+					                    $has_host     = !empty($parsed_redir['host']);
+					                    $same_host    = $has_host && $parsed_redir['host'] === $site_host;
+					                    $is_relative  = !$has_host && strncmp($_COOKIE['redirect_page'], '//', 2) !== 0;
+					                    $url = ($is_relative || $same_host) ? $_COOKIE['redirect_page'] : Wo_SeoLink('index.php?link1=wallet');
 					                }
 					                $data['status'] = 200;
 	               					$data['url'] = $url;
