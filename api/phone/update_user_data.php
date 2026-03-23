@@ -239,6 +239,16 @@ if ($type == 'update_user_data' || $type == 'u_user_data') {
                             }
                         } else if ($_POST['type'] == 'custom_settings') {
                             $user_data = $json_decode;
+                            // SECURITY: block privileged/internal fields from mass assignment.
+                            // Previously the entire JSON body was passed to Wo_UpdateUserData() unchecked,
+                            // allowing a user to set is_pro=1, verified=1, wallet=99999, etc.
+                            $blocked_fields = array('user_id','password','email','is_pro','pro_time','pro_type',
+                                'verified','is_admin','is_moderator','wallet','balance','credits',
+                                'active','last_login','ip_address','email_code','sms_code','time_code_sent',
+                                'access_token','app_session','points','referrer');
+                            foreach ($blocked_fields as $bf) {
+                                unset($user_data[$bf]);
+                            }
                             if (empty($errors)) {
                                 $update_user_data = Wo_UpdateUserData($user_id, $user_data);
                                 if ($update_user_data) {

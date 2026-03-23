@@ -5473,7 +5473,10 @@ function Wo_ConfirmUser($user_id, $code) {
     if (!is_numeric($user_id) || $user_id <= 0) {
         return false;
     }
-    $query  = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`)  FROM " . T_USERS . "  WHERE `sms_code` = '{$code}' AND `user_id` = '{$user_id}' AND `active` = '0'");
+    // SECURITY: enforce 15-minute OTP expiry. Previously had no time check — OTPs never expired.
+    // Wo_ConfirmSMSUser() already does this correctly; keep both functions consistent.
+    $expiry = time() - 900;
+    $query  = mysqli_query($sqlConnect, " SELECT COUNT(`user_id`)  FROM " . T_USERS . "  WHERE `sms_code` = '{$code}' AND `user_id` = '{$user_id}' AND `active` = '0' AND (`time_code_sent` = '0' OR `time_code_sent` > '{$expiry}')");
     $result = Wo_Sql_Result($query, 0);
     if ($result == 1) {
         $email_code = bin2hex(random_bytes(16)); // replaced weak md5(rand+time)
