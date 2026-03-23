@@ -54,8 +54,15 @@ elseif ($_POST['type'] == 'callback') {
             $amount1   = floatval($_POST['amount1']); //    The total amount of the payment in your original currency/coin.
             $amount2   = floatval($_POST['amount2']); //  The total amount of the payment in the buyer's selected coin.
             $status    = intval($_POST['status']);
-            //encrease wallet value with posted amount
-            $result    = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount1 . " WHERE `user_id` = '$user_id'");
+            // SECURITY: only credit wallet for fully completed payments (status >= 100).
+            if ($status < 100) {
+                $error_code    = 6;
+                $error_message = 'payment not yet complete';
+                throw new Exception('payment not yet complete');
+            }
+            $safe_amount = floatval($amount1);
+            $safe_uid    = intval($user_id);
+            $result      = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $safe_amount . " WHERE `user_id` = {$safe_uid}");
             if ($result) {
                 cache($user_id, 'users', 'delete');
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$user_id}, 'WALLET', {$amount1}, 'coinpayments')");

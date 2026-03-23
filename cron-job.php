@@ -119,7 +119,7 @@ foreach ($users as $key => $value) {
 	                    "time" => time()
 	                ));
 	                $db->where('user_id',$wo["user"]["id"])->update(T_USERS,array('pro_remainder' => time()));
-            		cache($wo['user']['id'], 'users', 'delete');
+            		cache($wo['user']['user_id'], 'users', 'delete');
 	            }
 	        }
 	    }

@@ -714,8 +714,8 @@ function Wo_UserData($user_id, $password = true) {
         $fetched_data['is_reported'] = true;
     }
     $fetched_data['is_story_muted'] = false;
-    if (!empty($wo['user']['id'])) {
-        $is_muted = $db->where('user_id', $wo['user']['id'])->where('story_user_id', $user_id)->getValue(T_MUTE_STORY, 'COUNT(*)');
+    if (!empty($wo['user']['user_id'])) {
+        $is_muted = $db->where('user_id', $wo['user']['user_id'])->where('story_user_id', $user_id)->getValue(T_MUTE_STORY, 'COUNT(*)');
         if ($is_muted > 0) {
             $fetched_data['is_story_muted'] = true;
         }
@@ -2576,7 +2576,7 @@ function GetGroupChatRequests() {
     if ($wo['loggedin'] == false) {
         return false;
     }
-    return $db->where('user_id', $wo['user']['id'])->where('active', '0')->get(T_GROUP_CHAT_USERS);
+    return $db->where('user_id', $wo['user']['user_id'])->where('active', '0')->get(T_GROUP_CHAT_USERS);
 }
 function Wo_CountFollowers($user_id) {
     global $wo, $sqlConnect;
@@ -2663,7 +2663,7 @@ function Wo_GetFollowing($user_id, $type = '', $limit = '', $after_user_id = '',
         while ($fetched_data = mysqli_fetch_assoc($sql_query)) {
             $user_data = Wo_UserData($fetched_data['user_id'], false);
             if ($wo['loggedin']) {
-                $user_data['family_member'] = Wo_GetFamalyMember($fetched_data['user_id'], $wo['user']['id']);
+                $user_data['family_member'] = Wo_GetFamalyMember($fetched_data['user_id'], $wo['user']['user_id']);
             }
             $data[] = $user_data;
         }
@@ -2756,7 +2756,7 @@ function Wo_GetFollowers($user_id, $type = '', $limit = '', $after_user_id = '',
         while ($fetched_data = mysqli_fetch_assoc($sql_query)) {
             $user_data = Wo_UserData($fetched_data['user_id'], false);
             if ($wo['loggedin']) {
-                $user_data['family_member'] = Wo_GetFamalyMember($fetched_data['user_id'], $wo['user']['id']);
+                $user_data['family_member'] = Wo_GetFamalyMember($fetched_data['user_id'], $wo['user']['user_id']);
             }
             $data[] = $user_data;
         }
@@ -3835,12 +3835,12 @@ function GetMessageById($id) {
             }
             $fetched_data['reaction'] = Wo_GetPostReactionsTypes($fetched_data['id'], 'message');
             $fetched_data['pin']      = 'no';
-            $mute                     = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
+            $mute                     = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['pin'] = 'yes';
             }
             $fetched_data['fav']      = 'no';
-            $mute                     = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
+            $mute                     = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['fav'] = 'yes';
             }
@@ -3910,12 +3910,12 @@ function Wo_GetGroupMessages($args = array()) {
                 $fetched_data['reply'] = GetMessageById($fetched_data['reply_id']);
             }
             $fetched_data['pin'] = 'no';
-            $mute                = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
+            $mute                = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['pin'] = 'yes';
             }
             $fetched_data['fav'] = 'no';
-            $mute                = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
+            $mute                = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['fav'] = 'yes';
             }
@@ -4001,12 +4001,12 @@ function Wo_GetPageMessages($args = array()) {
             }
             $fetched_data['reaction'] = Wo_GetPostReactionsTypes($fetched_data['id'], 'message');
             $fetched_data['pin']      = 'no';
-            $mute                     = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
+            $mute                     = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['pin'] = 'yes';
             }
             $fetched_data['fav']      = 'no';
-            $mute                     = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
+            $mute                     = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['fav'] = 'yes';
             }
@@ -6124,7 +6124,7 @@ function Wo_PostData($post_id, $placement = '', $limited = '', $comments_limit =
             $story['options'] = $options;
         }
         if ($wo['loggedin']) {
-            $option = $db->where('post_id', $post_id)->where('user_id', $wo['user']['id'])->getOne(T_VOTES, 'option_id');
+            $option = $db->where('post_id', $post_id)->where('user_id', $wo['user']['user_id'])->getOne(T_VOTES, 'option_id');
             if (!empty($option)) {
                 $story['voted_id'] = $option->option_id;
             }
@@ -6390,7 +6390,7 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
                 $query_text .= " AND `postMap` <> ''";
                 break;
         }
-        if (!$wo['loggedin'] || $Wo_publisher['user_id'] != $wo['user']['id']) {
+        if (!$wo['loggedin'] || $Wo_publisher['user_id'] != $wo['user']['user_id']) {
             $query_text .= " AND `postPrivacy` <> '3'";
         }
         $query_text .= " AND `postPrivacy` <> '4' ";
@@ -6434,7 +6434,7 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
                 }
                 break;
         }
-        if (!$wo['loggedin'] || $Wo_page_publisher['user_id'] != $wo['user']['id']) {
+        if (!$wo['loggedin'] || $Wo_page_publisher['user_id'] != $wo['user']['user_id']) {
             $query_text .= " AND `postPrivacy` <> '3'";
         }
     } else if (isset($Wo_group_publisher['id'])) {
@@ -6460,7 +6460,7 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
                 $query_text .= " AND `postMap` <> ''";
                 break;
         }
-        if (!$wo['loggedin'] || $Wo_group_publisher['user_id'] != $wo['user']['id']) {
+        if (!$wo['loggedin'] || $Wo_group_publisher['user_id'] != $wo['user']['user_id']) {
             $query_text .= " AND `postPrivacy` <> '3'";
         }
     } else if (isset($Wo_event_publisher['id'])) {
@@ -6486,7 +6486,7 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
                 $query_text .= " AND `postMap` <> ''";
                 break;
         }
-        if (!$wo['loggedin'] || $Wo_event_publisher['id'] != $wo['user']['id']) {
+        if (!$wo['loggedin'] || $Wo_event_publisher['id'] != $wo['user']['user_id']) {
             $query_text .= " AND `postPrivacy` <> '3'";
         }
     } else {
@@ -6560,7 +6560,7 @@ function Wo_GetPosts($data = array('filter_by' => 'all', 'after_post_id' => 0, '
             $query_text .= " AND `job_id` = '0' ";
         }
     }
-    $user = ($wo['loggedin']) ? $wo['user']['id'] : 0;
+    $user = ($wo['loggedin']) ? $wo['user']['user_id'] : 0;
     if ((!isset($data['publisher_id']) || $data['publisher_id'] == $user) && empty($Wo_page_publisher['page_id']) && empty($Wo_group_publisher['id'])) {
         $query_text .= " AND `shared_from` <>  {$user}";
     }
@@ -7825,7 +7825,7 @@ function Wo_GetPostReactionsTypes($object_id, $col = "post", $type = "post") {
     if (mysqli_num_rows($sql_query_one)) {
         while ($fetched_data = mysqli_fetch_assoc($sql_query_one)) {
             $reactions[$fetched_data['reaction']] = 1;
-            if ($wo['loggedin'] && $fetched_data['user_id'] == $wo['user']['id']) {
+            if ($wo['loggedin'] && $fetched_data['user_id'] == $wo['user']['user_id']) {
                 $reactions['is_reacted'] = true;
                 $reactions['type']       = $fetched_data['reaction'];
             }
@@ -8558,7 +8558,7 @@ function Wo_RegisterPostComment($data = array()) {
             }
         }
         //Register point level system for comments
-        if ($getPost['user_id'] != $wo['user']['id']) {
+        if ($getPost['user_id'] != $wo['user']['user_id']) {
             Wo_RegisterPoint(Wo_Secure($data['post_id']), "comments");
         }
         return $inserted_comment_id;
@@ -8569,7 +8569,7 @@ function Wo_GetGroupsListAPP($fetch_array = array()) {
     if ($wo['loggedin'] == false) {
         return false;
     }
-    $user         = Wo_Secure($wo['user']['id']);
+    $user         = Wo_Secure($wo['user']['user_id']);
     $data         = array();
     $offset_query = "";
     $limit        = 20;
@@ -9527,12 +9527,12 @@ function Wo_GetMessagesAPPN($data = array(), $limit = 50) {
                 mysqli_query($sqlConnect, " UPDATE " . T_MESSAGES . " SET `seen` = " . time() . " WHERE `id` = " . $fetched_data['id']);
             }
             $fetched_data['pin'] = 'no';
-            $mute                = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
+            $mute                = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('pin', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['pin'] = 'yes';
             }
             $fetched_data['fav'] = 'no';
-            $mute                = $db->where('user_id', $wo['user']['id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
+            $mute                = $db->where('user_id', $wo['user']['user_id'])->where('message_id', $fetched_data['id'])->where('fav', 'yes')->getOne(T_MUTE);
             if (!empty($mute)) {
                 $fetched_data['fav'] = 'yes';
             }
@@ -10188,7 +10188,7 @@ function getMidJeournyUser($text,$type = 'avatar')
 
     if (!empty($result->status) && in_array($result->status, ['succeeded','starting','processing'])) {
         if ($wo['config']['images_credit_system'] == 1 && $wo['config']['generated_image_price'] > 0) {
-            $db->where('user_id',$wo['user']['id'])->update(T_USERS,[
+            $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,[
                 'credits' => $db->dec(($wo['config']['generated_image_price'] * 1))
             ]);
         }
@@ -10222,7 +10222,7 @@ function getMidJeournyImage($text,$size,$num_outputs = 1)
 
     if (!empty($result->status) && in_array($result->status, ['succeeded','starting','processing'])) {
         if ($wo['config']['images_credit_system'] == 1 && $wo['config']['generated_image_price'] > 0) {
-            $db->where('user_id',$wo['user']['id'])->update(T_USERS,[
+            $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,[
                 'credits' => $db->dec(($wo['config']['generated_image_price'] * $num_outputs))
             ]);
         }
@@ -10314,7 +10314,7 @@ function getOpenAiImage($text,$size = '',$num_outputs = 1)
 
     if (!empty($result->data)) {
         if ($wo['config']['images_credit_system'] == 1 && $wo['config']['generated_image_price'] > 0) {
-            $db->where('user_id',$wo['user']['id'])->update(T_USERS,[
+            $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,[
                 'credits' => $db->dec(($wo['config']['generated_image_price'] * $num_outputs))
             ]);
         }
@@ -10375,7 +10375,7 @@ function getPollinationsImage($text, $size = '1024x1024', $num_outputs = 1)
     }
 
     if ($wo['config']['images_credit_system'] == 1 && $wo['config']['generated_image_price'] > 0) {
-        $db->where('user_id', $wo['user']['id'])->update(T_USERS, [
+        $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, [
             'credits' => $db->dec($wo['config']['generated_image_price'] * count($outputs))
         ]);
     }
@@ -10383,7 +10383,7 @@ function getPollinationsImage($text, $size = '1024x1024', $num_outputs = 1)
     return [
         'status'  => 200,
         'output'  => $outputs,
-        'credits' => $db->where('user_id', $wo['user']['id'])->getValue(T_USERS, 'credits'),
+        'credits' => $db->where('user_id', $wo['user']['user_id'])->getValue(T_USERS, 'credits'),
     ];
 }
 
@@ -10444,7 +10444,7 @@ function getPollinationsText($text, $count = 500)
 
     if ($wo['config']['text_credit_system'] == 1 && $wo['config']['generated_word_price'] > 0) {
         $wordCount = str_word_count($response);
-        $db->where('user_id', $wo['user']['id'])->update(T_USERS, [
+        $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, [
             'credits' => $db->dec($wo['config']['generated_word_price'] * $wordCount)
         ]);
     }
@@ -10452,7 +10452,7 @@ function getPollinationsText($text, $count = 500)
     return [
         'status'  => 200,
         'output'  => $response,
-        'credits' => $db->where('user_id', $wo['user']['id'])->getValue(T_USERS, 'credits'),
+        'credits' => $db->where('user_id', $wo['user']['user_id'])->getValue(T_USERS, 'credits'),
     ];
 }
 
@@ -10472,14 +10472,14 @@ function getOpenAiText($text,$count)
     $result = requestOpenAi($url,$js);
     if (!empty($result->choices)) {
         if ($wo['config']['text_credit_system'] == 1 && $wo['config']['generated_word_price'] > 0) {
-            $db->where('user_id',$wo['user']['id'])->update(T_USERS,[
+            $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,[
                 'credits' => $db->dec(($wo['config']['generated_word_price'] * str_word_count($result->choices[0]->message->content)))
             ]);
         }
         return [
             'status' => 200,
             'output' => $result->choices[0]->message->content,
-            'credits' => $db->where('user_id',$wo['user']['id'])->getValue(T_USERS,'credits')
+            'credits' => $db->where('user_id',$wo['user']['user_id'])->getValue(T_USERS,'credits')
         ];
     }
     elseif (!empty($result->error) && !empty($result->error->message)) {
@@ -10682,7 +10682,7 @@ function getOpenAiBlog($text,$count,$thumbnail = false)
             if ($dec > $wo['user']['credits']) {
                 $dec = $wo['user']['credits'];
             }
-            $db->where('user_id',$wo['user']['id'])->update(T_USERS,[
+            $db->where('user_id',$wo['user']['user_id'])->update(T_USERS,[
                 'credits' => $db->dec($dec)
             ]);
         }
@@ -10710,7 +10710,7 @@ function getOpenAiBlog($text,$count,$thumbnail = false)
             'content' => $content,
             'output' => $output,
             'tags' => $tags,
-            'credits' => $db->where('user_id',$wo['user']['id'])->getValue(T_USERS,'credits')
+            'credits' => $db->where('user_id',$wo['user']['user_id'])->getValue(T_USERS,'credits')
         ];
     }
     elseif (!empty($titleResult->error) && !empty($titleResult->error->message)) {
