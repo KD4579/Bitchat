@@ -21,7 +21,12 @@ if ($f == 'coinpayments_callback') {
                     $amount1   = floatval($_POST['amount1']); //    The total amount of the payment in your original currency/coin.
                     $amount2   = floatval($_POST['amount2']); //  The total amount of the payment in the buyer's selected coin.
                     $status    = intval($_POST['status']);
-                    //encrease wallet value with posted amount
+                    // SECURITY: only credit wallet for fully completed payments (status >= 100).
+                    // Pending (0) and failed/cancelled (<0) IPNs must not add funds.
+                    if ($status < 100) {
+                        header("Location: " . Wo_SeoLink('index.php?link1=oops'));
+                        exit();
+                    }
                     $safe_amount = floatval($amount1);
                     $safe_userid = intval($user_id);
                     $result    = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $safe_amount . " WHERE `user_id` = '" . $safe_userid . "'");
