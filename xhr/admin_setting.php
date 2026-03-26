@@ -506,11 +506,12 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
                 $updated = true;
                 if ($updated === true) {
                     if ($receipt->mode == 'wallet') {
-                        $amount = $receipt->price;
-                        $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = '" . $receipt->user_id . "'");
+                        $amount = floatval($receipt->price);
+                        $safe_receipt_uid = intval($receipt->user_id);
+                        $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = " . $safe_receipt_uid);
                         if ($result) {
-                            cache($receipt->user_id, 'users', 'delete');
-                            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $receipt->user_id . "', 'WALLET', '" . $amount . "', 'TRDC Payment')");
+                            cache($safe_receipt_uid, 'users', 'delete');
+                            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES (" . $safe_receipt_uid . ", 'WALLET', " . $amount . ", 'TRDC Payment')");
                         }
                         $notification_data_array = array(
                             'recipient_id' => $receipt->user_id,
@@ -527,8 +528,10 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
                             $fund_id            = $receipt->fund_id;
                             //$notes              = "Doanted to " . mb_substr($fund->title, 0, 100, "UTF-8");
                             //$notes = str_replace('{text}', mb_substr($fund->title, 0, 100, "UTF-8"), $wo['lang']['trans_doanted_to']);
-                            $notes = mb_substr($fund->title, 0, 100, "UTF-8");
-                            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$receipt->user_id}, 'DONATE', {$amount}, '{$notes}')");
+                            $notes = Wo_Secure(mb_substr($fund->title, 0, 100, "UTF-8"), 0);
+                            $safe_receipt_uid = intval($receipt->user_id);
+                            $safe_amount = floatval($amount);
+                            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_receipt_uid}, 'DONATE', {$safe_amount}, '{$notes}')");
                             $admin_com          = 0;
                             if (!empty($wo['config']['donate_percentage']) && is_numeric($wo['config']['donate_percentage']) && $wo['config']['donate_percentage'] > 0) {
                                 $admin_com = ($wo['config']['donate_percentage'] * $amount) / 100;
