@@ -1,6 +1,6 @@
 <?php 
 if ($f == 'paypro_with_bitcoin') {
-    if (empty($_GET['amount'])) {
+    if (empty($_GET['amount']) || !is_numeric($_GET['amount']) || floatval($_GET['amount']) <= 0) {
         header("Location: " . Wo_SeoLink('index.php?link1=oops'));
         exit();
     }
@@ -16,7 +16,7 @@ if ($f == 'paypro_with_bitcoin') {
             $CP->setFormElement('amountf', Wo_Secure($_GET['amount']));
             $desc = 'Replenish my Wallet balance';
             if (!empty($_GET['desc'])) {
-                $desc = $_GET['desc'];
+                $desc = Wo_Secure($_GET['desc'], 0); // SECURITY: sanitize to prevent XSS in form
             }
             $CP->setFormElement('item_name', $desc);
             //OPTIONAL

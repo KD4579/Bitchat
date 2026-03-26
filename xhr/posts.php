@@ -1192,7 +1192,7 @@ if ($f == 'posts') {
         }
         exit();
     }
-    if ($s == 'edit_post') {
+    if ($s == 'edit_post' && Wo_CheckMainSession($hash_id) === true) {
         $_POST['text'] = trim($_POST['text']);
         if (!empty($_POST['post_id']) && is_numeric($_POST['post_id']) && (!empty($_POST['text']) || !empty($_FILES['images']))) {
             $post_id    = Wo_Secure($_POST['post_id']);
