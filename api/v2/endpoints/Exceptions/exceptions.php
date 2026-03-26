@@ -84,7 +84,7 @@ function yoomoneySuccessValidation()
 
     $_POST['codepro'] = (is_string($_POST['codepro']) && strtolower($_POST['codepro']) == 'true' ? true : false);
 
-    if ($_POST['sha1_hash'] != $hash || $_POST['codepro'] == true) {
+    if (!hash_equals($hash, $_POST['sha1_hash']) || $_POST['codepro'] == true) { // SECURITY: hash_equals prevents timing attack
         throw new Exception("hash not match or codepro = true");
     }
 

@@ -35,7 +35,7 @@ foreach ($required_fields as $key => $value) {
 }
 if (empty($error_code)) {
     $confirm_code = $_POST['code'];
-    $user_id      = $_POST['user_id'];
+    $user_id      = intval($_POST['user_id']); // SECURITY: cast to int before any SQL use
     $confirm_code = $db->where('user_id', $user_id)->where('email_code', hash('sha256', $confirm_code))->getValue(T_USERS, 'count(*)');
     if (empty($confirm_code)) {
         $json_error_data = array(
