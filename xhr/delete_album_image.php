@@ -1,5 +1,5 @@
 <?php 
-if ($f == 'delete_album_image') {
+if ($f == 'delete_album_image' && Wo_CheckMainSession($hash_id) === true) {
     if (!empty($_GET['post_id']) && !empty($_GET['id'])) {
         if (Wo_DeleteImageFromAlbum($_GET['post_id'], $_GET['id']) === true) {
             $data = array(

@@ -1,5 +1,5 @@
 <?php 
-if ($f == "notgoing-to-event") {
+if ($f == "notgoing-to-event" && Wo_CheckMainSession($hash_id) === true) {
     $data = array(
         'status' => 500
     );

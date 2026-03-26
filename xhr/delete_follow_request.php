@@ -1,5 +1,5 @@
 <?php 
-if ($f == 'delete_follow_request') {
+if ($f == 'delete_follow_request' && Wo_CheckMainSession($hash_id) === true) {
     // Initialize with error state
     $data = array(
         'status' => 400,

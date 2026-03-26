@@ -1,5 +1,5 @@
 <?php 
-if ($f == 'register_group_add') {
+if ($f == 'register_group_add' && Wo_CheckMainSession($hash_id) === true) {
     if (!empty($_GET['user_id']) && !empty($_GET['group_id'])) {
         $register_add = Wo_RegsiterGroupAdd($_GET['user_id'], $_GET['group_id']);
         if ($register_add === true) {

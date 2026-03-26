@@ -1,5 +1,5 @@
 <?php
-if ($f == 'update_user_avatar_picture') {
+if ($f == 'update_user_avatar_picture' && Wo_CheckMainSession($hash_id) === true) {
     $images = array(
         '1',
         '2',

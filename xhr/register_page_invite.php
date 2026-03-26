@@ -1,5 +1,5 @@
 <?php 
-if ($f == 'register_page_invite') {
+if ($f == 'register_page_invite' && Wo_CheckMainSession($hash_id) === true) {
     if (!empty($_GET['user_id']) && !empty($_GET['page_id'])) {
         // SECURITY: Prevent inviting blocked users
         if (Wo_IsBlocked($_GET['user_id'])) {
