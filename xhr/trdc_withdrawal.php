@@ -107,7 +107,7 @@ if ($f == 'trdc_withdrawal') {
 
         // Check global daily limit
         $dailyLimit = floatval($wo['config']['trdc_withdrawal_daily_limit'] ?? 100000);
-        $todayStart = strtotime('today midnight');
+        $todayStart = (int)(time() / 86400) * 86400; // UTC midnight — avoids server timezone mismatch
         $dailyQ = mysqli_query($sqlConnect, "SELECT COALESCE(SUM(amount), 0) as total FROM " . T_TRDC_WITHDRAWALS . " WHERE status NOT IN ('cancelled','failed') AND created_at >= {$todayStart}");
         if ($dailyQ) {
             $dailyRow = mysqli_fetch_assoc($dailyQ);

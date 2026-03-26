@@ -5,13 +5,11 @@ if ($f == 'reset_password') {
         $errors = $error_icon . $wo['lang']['login_attempts'];
     }
 
-    if (empty($errors) && isset($_POST['id'])) {
+    if (empty($errors) && !empty($_POST['id'])) {
         $user_id     = explode("_", $_POST['id']);
         $user_id_int = intval($user_id[0]); // SECURITY: sanitize before any use in queries/calls
         if (Wo_isValidPasswordResetToken($_POST['id']) === false && Wo_isValidPasswordResetToken2($_POST['id']) === false) {
             $errors = $error_icon . $wo['lang']['invalid_token'];
-        } elseif (empty($_POST['id'])) {
-            $errors = $error_icon . $wo['lang']['processing_error'];
         } elseif (empty($_POST['password'])) {
             $errors = $error_icon . $wo['lang']['please_check_details'];
         } elseif (strlen($_POST['password']) < 8) {

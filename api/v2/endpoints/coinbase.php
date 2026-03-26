@@ -41,7 +41,7 @@ elseif ($_POST['type'] == 'coinbase_handle') {
 	        $user_id = Wo_Secure($_POST['user_id']);
 		    $payment_data           = $db->objectBuilder()->where('user_id',$user_id)->where('method_name', 'coinbase')->orderBy('id','DESC')->getOne(T_PENDING_PAYMENTS);
 	        if (!empty($payment_data)) {
-	            $user_data           = $db->objectBuilder()->where('id',$user_id)->getOne(T_USERS);
+	            $user_data           = $db->objectBuilder()->where('user_id',$user_id)->getOne(T_USERS);
 	            $coinbase_code = $payment_data->payment_data;
 	        }
 
@@ -52,7 +52,7 @@ elseif ($_POST['type'] == 'coinbase_handle') {
 	            if (!empty($result) && !empty($result['data']) && !empty($result['data']['pricing']) && !empty($result['data']['pricing']['local']) && !empty($result['data']['pricing']['local']['amount']) && !empty($result['data']['payments']) && !empty($result['data']['payments'][0]['status']) && $result['data']['payments'][0]['status'] == 'CONFIRMED') {
 	            	$amount = (int)$result['data']['pricing']['local']['amount'];
 	            	if (Wo_ReplenishingUserBalance($amount)) {
-	            		$db->where('user_id', $pt->user->id)->where('payment_data', $coinbase_code)->delete(T_PENDING_PAYMENTS);
+	            		$db->where('user_id', $user_id)->where('payment_data', $coinbase_code)->delete(T_PENDING_PAYMENTS);
 		                $amount                 = Wo_Secure($amount);
 		                $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'Coinbase')");
 

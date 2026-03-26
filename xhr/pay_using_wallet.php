@@ -45,8 +45,10 @@ if ($f == 'pay_using_wallet') {
             //$balance = $wo["user"]["balance"];
         }
         if ($can_buy == true) {
-            $wallet_amount      = ($wo["user"]['wallet'] - $price);
-            $points_amount      = ($wo['config']['point_allow_withdrawal'] == 0) ? ($wo["user"]['points'] - $points) : $wo["user"]['points'];
+            $safe_price         = floatval($price);
+            $safe_uid           = intval($wo['user']['user_id']);
+            $points             = $price * $dollar_to_point_cost;
+            $safe_points        = floatval($points);
             $update_array       = array(
                 'is_pro' => 1,
                 'pro_time' => time(),
@@ -58,8 +60,10 @@ if ($f == 'pay_using_wallet') {
             }
             $mysqli             = Wo_UpdateUserData($wo['user']['user_id'], $update_array);
             $notes              = $wo['lang']['upgrade_to_pro'] . " " . $img . " : Wallet";
-            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'PRO', {$price}, '{$notes}')");
-            $query_one          = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `points` = '{$points_amount}', `wallet` = '{$wallet_amount}' WHERE `user_id` = {$wo['user']['user_id']} ");
+            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$safe_uid}, 'PRO', {$safe_price}, '{$notes}')");
+            // SECURITY: atomic deduction — prevents race condition double-spend
+            $points_dec = ($wo['config']['point_allow_withdrawal'] == 0) ? ", `points` = `points` - {$safe_points}" : "";
+            $query_one  = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_price}{$points_dec} WHERE `user_id` = {$safe_uid} AND `wallet` >= {$safe_price}");
             cache($wo['user']['user_id'], 'users', 'delete');
             $data['status']     = 200;
             $data['url']        = Wo_SeoLink('index.php?link1=upgraded');

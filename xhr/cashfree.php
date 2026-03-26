@@ -304,12 +304,13 @@ if ($f == 'cashfree') {
 			$computedSignature = base64_encode($hash_hmac);
 			if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
 				$wo["loggedin"] = true;
-	            if (Wo_ReplenishingUserBalance($_GET['amount'])) {
-	                $_GET['amount'] = floatval($_GET['amount']);
-	                $safe_amount = floatval($_GET['amount']);
+				// SECURITY: use HMAC-verified $orderAmount, not client-supplied $_GET['amount']
+				$verified_amount = floatval($orderAmount);
+	            if (Wo_ReplenishingUserBalance($verified_amount)) {
+	                $safe_amount = $verified_amount;
 	                $safe_userid = intval($wo['user']['user_id']);
 	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Cashfree')");
-	                $_SESSION['replenished_amount'] = $_GET['amount'];
+	                $_SESSION['replenished_amount'] = $safe_amount;
 	                if (!empty($_COOKIE['redirect_page'])) {
 	                    $parsed_redir  = parse_url($_COOKIE['redirect_page']);
 	                    $site_host     = parse_url($wo['config']['site_url'], PHP_URL_HOST);
@@ -351,7 +352,8 @@ if ($f == 'cashfree') {
 		$computedSignature = base64_encode($hash_hmac);
 		if (hash_equals($computedSignature, $signature)) { // SECURITY: was == — timing attack
     		$fund_id = Wo_Secure($_GET['fund_id']);
-	    	$amount = Wo_Secure($_GET['amount']);
+	    	// SECURITY: use HMAC-verified $orderAmount, not client-supplied $_GET['amount']
+	    	$amount = floatval($orderAmount);
 	    	$fund = $db->where('id',$fund_id)->getOne(T_FUNDING);
 
 	    	if (!empty($fund) && !empty($fund_id) && !empty($amount)) {

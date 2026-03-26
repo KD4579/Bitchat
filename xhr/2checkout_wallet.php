@@ -39,12 +39,13 @@ if ($f == '2checkout_wallet') {
                     'state' => Wo_Secure($_POST['card_state']),
                     'zip' => Wo_Secure($_POST['card_zip'])
                 ));
-                $user   = Wo_UserData($wo['user']['user_id']);
-                $amount = Wo_Secure($_POST['amount']);
-                $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = '" . $user['id'] . "'");
+                // SECURITY: use charge-verified amount ($amount1), not client-supplied $_POST['amount']
+                $safe_uid    = intval($wo['user']['user_id']);
+                $safe_amount = floatval($amount1);
+                $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $safe_amount . " WHERE `user_id` = '" . $safe_uid . "'");
                 if ($result) {
-                    cache($user_id, 'users', 'delete');
-                    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $user['id'] . "', 'WALLET', '" . $amount . "', '2Checkout')");
+                    cache($safe_uid, 'users', 'delete');
+                    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_uid . "', 'WALLET', '" . $safe_amount . "', '2Checkout')");
                 }
                 $data = array(
                     'status' => 200,

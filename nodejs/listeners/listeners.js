@@ -125,7 +125,7 @@ module.exports.registerListeners = async (socket, io, ctx) => {
         ctx.userHashUserId[data.user_id] = user_id;
         ctx.userIdCount[user_id] = ctx.userIdCount[user_id] ? ctx.userIdCount[user_id] + 1 : 1;
         
-        //await funcs.Wo_LastSeen(ctx, user_id)
+        await funcs.Wo_LastSeen(ctx, user_id)
 
         if (data.recipient_ids && data.recipient_ids.length) {
             for (let recipient_id of data.recipient_ids) {

@@ -43,6 +43,8 @@ if ($f == "securionpay") {
 	        curl_setopt($curl, CURLOPT_URL, $url);
 	        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 	        // SECURITY: SSL verification must remain enabled to prevent MITM attacks against the payment API.
+	        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+	        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
 	        curl_setopt($curl, CURLOPT_USERPWD, $wo['config']['securionpay_secret_key'].":password");
 	        $resp = curl_exec($curl);
 	        curl_close($curl);

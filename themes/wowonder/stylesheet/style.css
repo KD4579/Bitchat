@@ -1392,7 +1392,7 @@ ul#filterby-post {position: sticky;top: 46px;z-index: 9;box-shadow: 0 1px 2px rg
 .btn-upload-image:hover{background:0 0;text-shadow:#444 0 0 3px}
 .nopadding-left{padding-left:0!important}
 .lightbox-backgrond{width:100%;z-index:1030;background:rgba(0,0,0,.8)}
-.lightbox-content{transition:all .4s;margin-right:auto;margin-left:auto;width:1110px;margin-top:50px;z-index:1031}
+.lightbox-content{transition:all .4s;margin-right:auto;margin-left:auto;max-width:1110px;width:90vw;margin-top:50px;z-index:1031}
 .lightbox-content .story-img{border-radius:3px 0 0 3px;display:table-cell;vertical-align:middle;height:calc(100vh - 100px)}
 .lightbox-content .story-img img{max-width:100%;display:block;max-height:calc(100vh - 100px);margin-left:auto;margin-right:auto}
 .lightbox-content .comment-section{background-color:#fff;height:calc(100vh - 100px);border-radius:0 3px 3px 0;padding-top:10px;display:table-cell;width:35%}
@@ -7448,4 +7448,63 @@ input[type=checkbox]:checked + .w-check-trail .w-check-handler::before {
 div#modal_light_box {
     background: rgb(0 0 0 / 30%);
     backdrop-filter: blur(7.5px);
+}
+/* =========================================================
+   Mobile / UX Fixes — Security & Accessibility Pass
+   ========================================================= */
+
+/* Fix lightbox: responsive width instead of fixed 1110px */
+.lightbox-content {
+    max-width: 1110px;
+    width: 90vw;
+}
+
+/* Touch targets: WCAG 2.5.5 — 44px minimum tap area */
+@media (max-width: 767px) {
+    .btn, button, [role="button"],
+    .nav-link, .dropdown-item,
+    .like-btn, .comment-btn, .share-btn,
+    .reactions-popup .reaction,
+    input[type="submit"], input[type="button"], input[type="reset"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    /* iOS auto-zoom prevention: inputs must be >= 16px */
+    input[type="text"], input[type="email"], input[type="password"],
+    input[type="tel"], input[type="number"], input[type="search"],
+    input[type="url"], textarea, select {
+        font-size: 16px !important;
+    }
+    /* Modals: prevent overflow on small screens */
+    .modal-body {
+        max-height: calc(100vh - 150px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* Reactions box: clamp to screen on mobile */
+    .post .post-footer .comments-list .comment .comment-body .reactions-box {
+        left: 0;
+    }
+    .post .post-footer .comments-list .reply .comment-body .reactions-box {
+        left: 0;
+    }
+    .reactions-box {
+        left: 0 !important;
+        right: auto;
+        max-width: 100vw;
+    }
+    /* Safe area insets for Android/iOS notch/cutout */
+    .header-container, nav.navbar {
+        padding-top: env(safe-area-inset-top);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+    .footer-wrapper {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Eliminate 300ms tap delay on all interactive elements */
+a, button, .btn, [role="button"], input, select, textarea, label {
+    touch-action: manipulation;
 }

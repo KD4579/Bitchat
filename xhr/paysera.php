@@ -182,11 +182,6 @@ if ($f == 'paysera') {
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'PRO', {$amount1}, '{$notes}')");
                 $create_payment     = Wo_CreatePayment($pro_type);
                 if ($mysqli) {
-                    if ($pro_type == 1) { // Weekly plan
-                        $user_data = Wo_UserData($wo['user']['user_id']);
-                        $new_balance = $user_data['wallet'] + $amount1;
-                        Wo_UpdateUserData($wo['user']['user_id'], array('wallet' => $new_balance));
-                    }
                     if ((!empty($_SESSION['ref']) || !empty($wo['user']['ref_user_id'])) && $wo['config']['affiliate_type'] == 0 && $wo['user']['referrer'] == 0) {
                         if (!empty($_SESSION['ref'])) {
                             $ref_user_id = Wo_UserIdFromUsername($_SESSION['ref']);

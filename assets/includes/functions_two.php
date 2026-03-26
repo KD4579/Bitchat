@@ -856,7 +856,7 @@ function Wo_GetChatUsers($type) {
     }
     $data = array();
     if ($wo["config"]["node_socket_flow"] == "1") {
-        $time = time() - 03;
+        $time = time() - 10; // 10s window — allows for 2s ping interval with latency headroom
     } else {
         $time = time() - 60;
     }
@@ -933,7 +933,7 @@ function Wo_IsOnline($user_id) {
     $user_id  = Wo_Secure($user_id);
     $lastseen = Wo_UserData($user_id);
     if ($wo["config"]["node_socket_flow"] == "1") {
-        $time = time() - 03;
+        $time = time() - 10;
     } else {
         $time = time() - 60;
     }

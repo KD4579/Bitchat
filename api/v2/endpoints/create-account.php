@@ -89,6 +89,12 @@ if (empty($error_code)) {
                 $ref_user_id = Wo_UserIdFromUsername($_POST['ref']);
                 $user_date = Wo_UserData($ref_user_id);
                 if (!empty($user_date)) {
+                    // SECURITY: prevent self-referral (user signing up with their own ref code)
+                    if ($user_date['username'] === $_POST['username'] || $user_date['email'] === $_POST['email']) {
+                        $user_date = null;
+                    }
+                }
+                if (!empty($user_date)) {
                     if (ip_in_range($user_date['ip_address'], '/24') === false && $user_date['ip_address'] != $get_ip) {
                         $_SESSION['ref'] = $user_date['username'];
                         if (!empty($_SESSION['ref']) && $wo['config']['affiliate_type'] == 0) {

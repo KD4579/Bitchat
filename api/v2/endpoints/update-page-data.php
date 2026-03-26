@@ -22,6 +22,9 @@ if (empty($error_code)) {
 	if (empty($page)) {
 		$error_code    = 2;
     	$error_message = 'Page not found';
+	} else if ($page['user_id'] != $wo['user']['user_id'] && !Wo_IsAdmin()) {
+		$error_code    = 3;
+    	$error_message = 'Permission denied: you are not the page owner';
 	} else {
 		$page_data = array();
 		if (!empty($_POST)) {

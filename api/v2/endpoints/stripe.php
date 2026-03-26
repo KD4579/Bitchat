@@ -25,10 +25,12 @@ else{
                 'currency' => $wo['config']['stripe_currency']
             ));
             if ($charge) {
-            	$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = '" . $wo['user']['user_id'] . "'");
+            	$safe_price = floatval($price);
+            	$safe_uid   = intval($wo['user']['user_id']);
+            	$result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $safe_price . " WHERE `user_id` = '" . $safe_uid . "'");
 	            if ($result) {
-					cache($wo['user']['user_id'], 'users', 'delete');
-	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'stripe')");
+					cache($safe_uid, 'users', 'delete');
+	                $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_uid . "', 'WALLET', '" . $safe_price . "', 'stripe')");
 	            }
 				$response_data = array(
 	                                'api_status' => 200,

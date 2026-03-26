@@ -22,10 +22,10 @@ if ($f == 'stripe_payment_wallet') {
             //encrease wallet value with posted amount
             $_POST['amount'] = floatval($_POST['amount']);
             $safe_amount = floatval($_POST['amount']);
-            $safe_userid = intval($user['id']);
+            $safe_userid = intval($user['user_id']);
             $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $safe_amount . " WHERE `user_id` = '" . $safe_userid . "'");
             if ($result) {
-                cache($user['id'], 'users', 'delete');
+                cache($user['user_id'], 'users', 'delete');
                 $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'stripe')");
             }
             $data = array(

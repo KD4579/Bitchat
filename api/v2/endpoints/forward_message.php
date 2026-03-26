@@ -19,7 +19,15 @@ if (!empty($_POST['id']) && is_numeric($_POST['id']) && $_POST['id'] > 0) {
 			unset($message['seen']);
 			$message['time'] = time();
 			if (!empty($_POST['group_id']) && is_numeric($_POST['group_id']) && $_POST['group_id'] > 0) {
-				$message['group_id'] = Wo_Secure($_POST['group_id']);
+				// SECURITY: verify user is a member of the target group before forwarding
+				$gid = Wo_Secure($_POST['group_id']);
+				$is_group_member = $db->where('group_id', $gid)->where('user_id', $wo['user']['user_id'])->where('active', '1')->getValue(T_GROUP_MEMBERS, 'COUNT(*)');
+				if ($is_group_member < 1) {
+					$error_code    = 8;
+					$error_message = 'You are not a member of this group';
+				} else {
+					$message['group_id'] = $gid;
+				}
 			}
 			if (!empty($_POST['page_id']) && is_numeric($_POST['page_id']) && $_POST['page_id'] > 0) {
 				$message['page_id'] = Wo_Secure($_POST['page_id']);

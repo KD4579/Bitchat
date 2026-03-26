@@ -260,7 +260,7 @@ if ($f == 'paystack') {
                 $safe_amount                    = $verified_amount;
                 $safe_userid                    = intval($wo['user']['user_id']);
                 $create_payment_log             = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $safe_userid . "', 'WALLET', '" . $safe_amount . "', 'Paystack')");
-                $_SESSION['replenished_amount'] = $_GET['amount'];
+                $_SESSION['replenished_amount'] = $verified_amount;
                 // SECURITY: validate same-origin before redirecting via cookie (open redirect fix)
                 if (!empty($_COOKIE['redirect_page'])) {
                     $parsed_redir  = parse_url($_COOKIE['redirect_page']);

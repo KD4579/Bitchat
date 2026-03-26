@@ -26,13 +26,13 @@ elseif ($_POST['type'] == 'success') {
 		aamarpaySuccessValidation();
 		
 		$amount   = (int)Wo_Secure($_POST['amount']);
-		$db->where('user_id', $wo['user']->user_id)->update(T_USERS, array(
+		$db->where('user_id', $wo['user']['user_id'])->update(T_USERS, array(
 	        'wallet' => $db->inc($amount)
 	    ));
 
-		cache($wo['user']->user_id, 'users', 'delete');
+		cache($wo['user']['user_id'], 'users', 'delete');
 
-	    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']->user_id . "', 'WALLET', '" . $amount . "', 'aamarpay')");
+	    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $wo['user']['user_id'] . "', 'WALLET', '" . $amount . "', 'aamarpay')");
 
 	    $response_data = array(
 	        'api_status' => 200,
