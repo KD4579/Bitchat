@@ -36,31 +36,35 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
             $error_code    = 6;
             $error_message = 'The amount exceded your current wallet!';
         } else {
-            $amount          = ($amount <= $wallet) ? $amount : $wallet;
-            $up_data1        = array(
-                'wallet' => sprintf('%.2f', $userdata->wallet + $amount)
-            );
-            $up_data2        = array(
-                'wallet' => sprintf('%.2f', $wallet - $amount)
-            );
-            $currency        = Wo_GetCurrency($wo['config']['ads_currency']);
-            $notif_msg       = $wo['lang']['sent_you'];
-            $db->where('user_id', $user_id)->update(T_USERS, $up_data1);
-            $db->where('user_id', $wo['user']['user_id'])->update(T_USERS, $up_data2);
-            cache($wo['user']['user_id'], 'users', 'delete');
-            cache($user_id, 'users', 'delete');
-            $notification_data_array = array(
-                'recipient_id' => $user_id,
-                'type' => 'sent_u_money',
-                'user_id' => $wo['user']['user_id'],
-                'text' => "$notif_msg $amount$currency!",
-                'url' => 'index.php?link1=wallet'
-            );
-            Wo_RegisterNotification($notification_data_array);
-            $response_data = array(
-                                    'api_status' => 200,
-                                    'message' => "Money successfully sent."
-                                );
+            $safe_amount    = floatval($amount);
+            $safe_sender_id = intval($wo['user']['user_id']);
+            $safe_recv_id   = intval($user_id);
+            // SECURITY: atomic deduct prevents race condition / double-spend
+            $deduct = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet - {$safe_amount} WHERE user_id = {$safe_sender_id} AND wallet >= {$safe_amount}");
+            if (!$deduct || mysqli_affected_rows($sqlConnect) == 0) {
+                $error_code    = 6;
+                $error_message = 'Insufficient wallet balance.';
+            } else {
+                mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet + {$safe_amount} WHERE user_id = {$safe_recv_id}");
+            }
+            if (empty($error_code)) {
+                $currency       = Wo_GetCurrency($wo['config']['ads_currency']);
+                $notif_msg      = $wo['lang']['sent_you'];
+                cache($safe_sender_id, 'users', 'delete');
+                cache($safe_recv_id, 'users', 'delete');
+                $notification_data_array = array(
+                    'recipient_id' => $safe_recv_id,
+                    'type' => 'sent_u_money',
+                    'user_id' => $safe_sender_id,
+                    'text' => "$notif_msg $safe_amount$currency!",
+                    'url' => 'index.php?link1=wallet'
+                );
+                Wo_RegisterNotification($notification_data_array);
+                $response_data = array(
+                                        'api_status' => 200,
+                                        'message' => "Money successfully sent."
+                                    );
+            }
         }
 
 
@@ -68,14 +72,20 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
 
     if ($_POST['type'] == 'top_up') {
         if (!empty($_POST['user_id']) && is_numeric($_POST['user_id']) && $_POST['user_id'] > 0 && !empty($_POST['amount']) && is_numeric($_POST['amount']) && $_POST['amount'] > 0) {
+            // SECURITY: only allow topping up own wallet via API; admin top_up is handled via admin panel
+            if (intval($_POST['user_id']) != intval($wo['user']['user_id']) && !Wo_IsAdmin()) {
+                $error_code    = 7;
+                $error_message = 'Permission denied';
+            } else {
             $user   = Wo_UserData(Wo_Secure($_POST['user_id']));
-            $amount = Wo_Secure($_POST['amount']);
+            $amount = floatval($_POST['amount']);
             if (!empty($user)) {
-                //encrease wallet value with posted amount
-                $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = '" . $user['id'] . "'");
+                //increase wallet value with posted amount
+                $safe_uid = intval($user['user_id']);
+                $result = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` + " . $amount . " WHERE `user_id` = " . $safe_uid);
                 if ($result) {
-                    cache($user['id'], 'users', 'delete');
-                    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ('" . $user['id'] . "', 'WALLET', '" . $amount . "', 'paypal')");
+                    cache($safe_uid, 'users', 'delete');
+                    $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES (" . $safe_uid . ", 'WALLET', " . $amount . ", 'paypal')");
                 }
                 $response_data = array(
                                     'api_status' => 200,
@@ -86,6 +96,7 @@ if (!empty($_POST['type']) && in_array($_POST['type'], $required_fields)) {
                 $error_code    = 7;
                 $error_message = 'user not found';
             }
+            } // end else (permission check passed)
         }
         else{
             $error_code    = 5;
