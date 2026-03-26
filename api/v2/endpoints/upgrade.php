@@ -12,7 +12,13 @@ $response_data = array(
     'api_status' => 400
 );
 
-if (empty($_POST['type'])) {
+// SECURITY: this endpoint grants pro membership with no payment verification.
+// Restrict to admin-only — all legitimate upgrades go through payment callbacks.
+if (!Wo_IsAdmin()) {
+    $error_code    = 2;
+    $error_message = 'Permission denied';
+}
+if (empty($error_code) && empty($_POST['type'])) {
     $error_code    = 3;
     $error_message = 'type (POST) is missing';
 }
