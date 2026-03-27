@@ -76,12 +76,30 @@
 				<div style="flex:1; min-width:220px; background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius:12px; padding:24px; color:#fff;">
 					<p style="font-size:12px; color:#94a3b8; margin:0 0 6px;">Your TRDC Balance</p>
 					<h3 style="font-size:28px; font-weight:700; margin:0; color:#fcd535;"><?php echo number_format($wo['setting']['balance'], 4); ?></h3>
+					<p style="font-size:12px;color:#94a3b8;margin:4px 0 0;">≈ <span id="trdc-wallet-usd" style="color:#e2e8f0;">—</span> USD &nbsp;<span id="trdc-wallet-price" style="color:#fcd535;font-size:11px;"></span> <span id="trdc-wallet-change" style="font-size:11px;"></span></p>
+					<script>
+					(function(){
+						var bal = <?php echo floatval($wo['setting']['balance']); ?>;
+						$.get('<?php echo rtrim($wo['config']['site_url'],'/'); ?>/requests.php?f=trdc_price', function(d){
+							if(!d||!d.price) return;
+							$('#trdc-wallet-price').text('$'+d.price.toFixed(6));
+							$('#trdc-wallet-usd').text('$'+(bal*d.price).toFixed(4));
+							if(d.change24h!==0){
+								var s=(d.change24h>0?'+':'')+d.change24h.toFixed(2)+'%';
+								var col=d.change24h>=0?'#10b981':'#ef4444';
+								$('#trdc-wallet-change').html('<span style="color:'+col+'">'+s+'</span>');
+							}
+						});
+					})();
+					</script>
 					<div style="margin-top:14px;">
 						<div class="dropdown" style="display:inline-block;">
 							<button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown" style="background:#fcd535; color:#1a1a2e; font-size:11px; font-weight:600; border:none; border-radius:6px; padding:6px 14px;">
 								Buy TRDC Now
 							</button>
 							<div class="dropdown-menu">
+								<a class="dropdown-item" href="https://tradex24.com/trade/TRDC-USDT?ref=bitchat&utm_source=bitchat&utm_medium=wallet&utm_campaign=ecosystem" target="_blank" style="font-weight:600;color:#0073CE;">&#9733; Tradex24 (Recommended)</a>
+								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" href="https://pancakeswap.finance/swap?outputCurrency=0x39006641db2d9c3618523a1778974c0d7e98e39d&chain=bsc&inputCurrency=0x55d398326f99059fF775485246999027B3197955" target="_blank">PancakeSwap</a>
 								<a class="dropdown-item" href="https://app.uniswap.org/swap?chain=bnb&inputCurrency=0x55d398326f99059fF775485246999027B3197955&outputCurrency=0x39006641db2d9c3618523a1778974c0d7e98e39d" target="_blank">Uniswap</a>
 								<a class="dropdown-item" href="https://tokpie.com/dashboard/make_reqcauest/trdc-usdt/" target="_blank">Tokpie</a>

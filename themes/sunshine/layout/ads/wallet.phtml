@@ -42,6 +42,37 @@
 					<?php } ?>
 				</div>
 			</div>
+			<!-- ═══ Tradex24 Ecosystem ═══ -->
+			<div class="trdc-tradex-banner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:12px;padding:16px 20px;margin:14px 0;">
+				<div style="color:#fff;">
+					<p style="font-size:11px;color:#94a3b8;margin:0 0 2px;text-transform:uppercase;letter-spacing:.5px;">TRDC · Live Price</p>
+					<div style="display:flex;align-items:baseline;gap:8px;">
+						<span id="trdc-wallet-price" style="font-size:20px;font-weight:700;color:#fcd535;">—</span>
+						<span id="trdc-wallet-change" style="font-size:12px;"></span>
+					</div>
+					<p style="font-size:12px;color:#94a3b8;margin:4px 0 0;">Your balance ≈ <span id="trdc-wallet-usd" style="color:#e2e8f0;">—</span> USD</p>
+				</div>
+				<a href="https://tradex24.com/trade/TRDC-USDT?ref=bitchat&utm_source=bitchat&utm_medium=wallet&utm_campaign=ecosystem" target="_blank" rel="noopener" style="background:#fcd535;color:#0f172a;font-weight:700;font-size:13px;padding:10px 20px;border-radius:8px;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M3 3h18v2H3zm0 16h18v2H3zm3-8h12v2H6zm0-4h12v2H6zm0 8h12v2H6z"/></svg>
+					Trade TRDC on Tradex24 &rarr;
+				</a>
+			</div>
+			<script>
+			(function(){
+				var bal = <?php echo floatval($wo['user']['wallet']); ?>;
+				$.get('<?php echo rtrim($wo['config']['site_url'],'/'); ?>/requests.php?f=trdc_price', function(d){
+					if(!d||!d.price) return;
+					$('#trdc-wallet-price').text('$'+d.price.toFixed(6));
+					$('#trdc-wallet-usd').text('$'+(bal*d.price).toFixed(4));
+					if(d.change24h!==0){
+						var s=(d.change24h>0?'+':'')+d.change24h.toFixed(2)+'%';
+						var col=d.change24h>=0?'#10b981':'#ef4444';
+						$('#trdc-wallet-change').html('<span style="color:'+col+'">'+s+'</span>');
+					}
+				});
+			})();
+			</script>
+			<!-- ═══ /Tradex24 Ecosystem ═══ -->
 			<div class="wow_add_money_hid_form text-center">
 				<form class="form" id="replenish-user-account">
 					<div class="my_wallet wow_mini_wallets">
