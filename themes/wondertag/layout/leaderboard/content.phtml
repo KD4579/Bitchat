@@ -201,11 +201,12 @@ function bcLoadTradex24Traders() {
             var html = '';
             data.traders.forEach(function(t, i) {
                 html += '<div class="bc-lb-row">'
-                    + '<div class="bc-lb-rank"><span class="bc-lb-rank-num">' + (i+1) + '</span></div>'
+                    + '<div class="bc-lb-rank"><span class="bc-lb-rank-num">' + (t.rank||i+1) + '</span></div>'
                     + '<div class="bc-lb-user" style="flex:1;padding:10px 0;">'
-                    + '<div class="bc-lb-info"><span class="bc-lb-name">' + (t.display_name||t.username||'Trader') + '</span></div>'
+                    + '<div class="bc-lb-info"><span class="bc-lb-name">' + (t.displayName||'Trader') + '</span>'
+                    + '<span style="font-size:11px;color:#94a3b8;margin-left:6px;">' + (t.orders||0) + ' orders</span></div>'
                     + '</div>'
-                    + '<div class="bc-lb-metric"><span class="bc-lb-metric-val">' + (t.volume_trdc||0) + '</span>'
+                    + '<div class="bc-lb-metric"><span class="bc-lb-metric-val">' + Number(t.volume||0).toLocaleString(undefined,{maximumFractionDigits:0}) + '</span>'
                     + '<span class="bc-lb-metric-label">TRDC vol</span></div></div>';
             });
             el.innerHTML = html;
