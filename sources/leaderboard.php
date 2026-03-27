@@ -86,4 +86,34 @@ if ($q) {
     }
 }
 
+// Top TRDC Earners THIS WEEK — from rewards log
+$wo['lb_top_earners_week'] = array();
+$week_start = time() - (7 * 86400);
+if (defined('T_TRDC_REWARDS')) {
+    $sql = "SELECT tr.user_id, SUM(tr.amount) AS earned_week
+            FROM " . T_TRDC_REWARDS . " tr
+            JOIN " . T_USERS . " u ON u.user_id = tr.user_id
+            WHERE tr.created_at >= {$week_start}
+              AND u.active = '1' AND u.admin = '0' AND u.src != 'Fake'
+            GROUP BY tr.user_id
+            ORDER BY earned_week DESC
+            LIMIT 10";
+    $q = mysqli_query($sqlConnect, $sql);
+    if ($q) {
+        while ($row = mysqli_fetch_assoc($q)) {
+            $userData = Wo_UserData($row['user_id']);
+            if (!empty($userData)) {
+                $wo['lb_top_earners_week'][] = array(
+                    'user'        => $userData,
+                    'earned_week' => round(floatval($row['earned_week']), 4),
+                );
+            }
+        }
+    }
+}
+
+// Tradex24 referral link for logged-in user
+$wo['tradex24_referral_url'] = 'https://tradex24.com/register?ref=bitchat&uid=' . intval($wo['user']['user_id'])
+    . '&utm_source=bitchat&utm_medium=leaderboard&utm_campaign=ecosystem_referral';
+
 $wo['content'] = Wo_LoadPage('leaderboard/content');

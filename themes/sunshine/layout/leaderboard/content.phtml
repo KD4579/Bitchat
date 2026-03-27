@@ -1,0 +1,118 @@
+<div class="page-margin">
+    <div class="row">
+        <div class="col-md-2 leftcol"><?php echo Wo_LoadPage("sidebar/left-sidebar"); ?></div>
+        <div class="col-md-7 singlecol">
+            <div class="page-margin wow_content mt-0">
+                <div class="wo_page_hdng pag_neg_padd pag_alone">
+                    <div class="wo_page_hdng_innr big_size">
+                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+                        Leaderboard
+                    </div>
+                </div>
+            </div>
+
+            <div class="wow_content">
+                <!-- Tabs -->
+                <div class="bc-lb-tabs" style="display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap;">
+                    <button class="btn btn-main btn-mat bc-lb-tab bc-lb-tab-active" onclick="bcLbTab(this,'creators')">Top Creators</button>
+                    <button class="btn btn-default btn-mat bc-lb-tab" onclick="bcLbTab(this,'inviters')">Top Inviters</button>
+                    <button class="btn btn-default btn-mat bc-lb-tab" onclick="bcLbTab(this,'earners')">Top Earners</button>
+                    <button class="btn btn-default btn-mat bc-lb-tab" onclick="bcLbTab(this,'earners-week')">&#9889; This Week</button>
+                    <button class="btn btn-default btn-mat bc-lb-tab" onclick="bcLbTab(this,'traders')" style="border-color:#0073CE;color:#0073CE;">&#9733; Tradex24 Traders</button>
+                </div>
+
+                <?php
+                $panels = [
+                    ['id'=>'creators',     'items'=>$wo['lb_top_creators'],     'metric_key'=>'engagement', 'metric_label'=>'engagement'],
+                    ['id'=>'inviters',     'items'=>$wo['lb_top_inviters'],     'metric_key'=>'invited',    'metric_label'=>'invited'],
+                    ['id'=>'earners',      'items'=>$wo['lb_top_earners'],      'metric_key'=>'balance',    'metric_label'=>'TRDC'],
+                    ['id'=>'earners-week', 'items'=>$wo['lb_top_earners_week'], 'metric_key'=>'earned_week','metric_label'=>'TRDC this week'],
+                ];
+                foreach ($panels as $pi => $panel):
+                ?>
+                <div class="bc-lb-panel wowonder-well" id="bc-lb-<?php echo $panel['id']; ?>" style="<?php echo $pi > 0 ? 'display:none;' : ''; ?>">
+                    <?php if (empty($panel['items'])): ?>
+                        <p class="text-muted text-center" style="padding:24px 0;">No data yet.</p>
+                    <?php else: ?>
+                        <?php foreach ($panel['items'] as $i => $item): ?>
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+                            <div style="width:30px;text-align:center;font-weight:700;color:<?php echo $i==0?'#f59e0b':($i==1?'#94a3b8':($i==2?'#cd7f32':'#64748b')); ?>;">
+                                <?php echo $i + 1; ?>
+                            </div>
+                            <a href="<?php echo Wo_SeoLink('index.php?link1=timeline&u=' . $item['user']['username']); ?>" style="display:flex;align-items:center;gap:10px;flex:1;text-decoration:none;color:inherit;">
+                                <img src="<?php echo $item['user']['avatar']; ?>" style="width:38px;height:38px;border-radius:50%;object-fit:cover;" alt="">
+                                <div>
+                                    <div style="font-weight:600;font-size:14px;"><?php echo htmlspecialchars($item['user']['name']); ?></div>
+                                    <div style="font-size:12px;color:#64748b;">@<?php echo $item['user']['username']; ?></div>
+                                </div>
+                            </a>
+                            <div style="text-align:right;">
+                                <div style="font-weight:700;font-size:15px;color:#0f172a;"><?php echo number_format(floatval($item[$panel['metric_key']]), 2); ?></div>
+                                <div style="font-size:11px;color:#94a3b8;"><?php echo $panel['metric_label']; ?></div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+
+                <!-- Tradex24 Traders panel -->
+                <div class="bc-lb-panel wowonder-well" id="bc-lb-traders" style="display:none;">
+                    <div id="bc-lb-traders-inner" style="text-align:center;padding:32px 0;color:#64748b;">
+                        <p style="font-weight:600;margin:0 0 4px;">Top TRDC Traders on Tradex24</p>
+                        <p style="font-size:12px;margin:0;">Loading...</p>
+                    </div>
+                    <div style="text-align:center;margin-top:16px;">
+                        <a href="https://tradex24.com/trade/TRDC-USDT?ref=bitchat&utm_source=bitchat&utm_medium=leaderboard&utm_campaign=ecosystem" target="_blank" rel="noopener" style="font-size:13px;color:#0073CE;font-weight:600;">
+                            Trade TRDC on Tradex24 &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invite to Tradex24 -->
+            <div class="wow_content" style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:12px;padding:20px 24px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+                <div style="color:#fff;">
+                    <p style="font-weight:700;font-size:15px;margin:0 0 4px;">Invite friends to Tradex24</p>
+                    <p style="font-size:12px;color:#94a3b8;margin:0;">They buy TRDC. You both benefit from a stronger ecosystem.</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <input id="tradex-ref-link" readonly value="<?php echo htmlspecialchars($wo['tradex24_referral_url']); ?>"
+                        style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:8px 12px;font-size:12px;width:260px;max-width:100%;">
+                    <button onclick="var i=document.getElementById('tradex-ref-link');i.select();document.execCommand('copy');this.textContent='Copied!';" style="background:#fcd535;color:#0f172a;font-weight:700;font-size:12px;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;white-space:nowrap;">
+                        Copy Link
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 rightcol"><?php echo Wo_LoadPage("sidebar/right-sidebar"); ?></div>
+    </div>
+</div>
+
+<script>
+function bcLbTab(btn, panel) {
+    document.querySelectorAll('.bc-lb-tab').forEach(function(t){t.classList.remove('bc-lb-tab-active');t.classList.add('btn-default');t.classList.remove('btn-main');});
+    document.querySelectorAll('.bc-lb-panel').forEach(function(p){p.style.display='none';});
+    btn.classList.add('bc-lb-tab-active','btn-main');btn.classList.remove('btn-default');
+    var el = document.getElementById('bc-lb-'+panel);
+    if (el) el.style.display='block';
+    if (panel === 'traders') { bcLoadTradex24Traders(); }
+}
+var _tradex24Loaded = false;
+function bcLoadTradex24Traders() {
+    if (_tradex24Loaded) return; _tradex24Loaded = true;
+    fetch('https://tradex24.com/api/public/leaderboard/traders?ref=bitchat', { signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            if (!data||!data.traders||!data.traders.length) return;
+            var html='';
+            data.traders.forEach(function(t,i){
+                html+='<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;">'
+                    +'<div style="width:30px;text-align:center;font-weight:700;color:#64748b;">'+(i+1)+'</div>'
+                    +'<div style="flex:1;font-weight:600;">'+(t.display_name||t.username||'Trader')+'</div>'
+                    +'<div style="text-align:right;"><div style="font-weight:700;">'+(t.volume_trdc||0)+'</div><div style="font-size:11px;color:#94a3b8;">TRDC vol</div></div></div>';
+            });
+            document.getElementById('bc-lb-traders-inner').innerHTML=html;
+        }).catch(function(){});
+}
+</script>

@@ -11,6 +11,8 @@
         <button class="bc-lb-tab bc-lb-tab-active" onclick="bcLbTab(this, 'creators')">Top Creators</button>
         <button class="bc-lb-tab" onclick="bcLbTab(this, 'inviters')">Top Inviters</button>
         <button class="bc-lb-tab" onclick="bcLbTab(this, 'earners')">Top Earners</button>
+        <button class="bc-lb-tab" onclick="bcLbTab(this, 'earners-week')">&#9889; This Week</button>
+        <button class="bc-lb-tab bc-lb-tab-tradex" onclick="bcLbTab(this, 'traders')">&#9733; Tradex24 Traders</button>
     </div>
 
     <!-- Top Creators -->
@@ -116,11 +118,102 @@
     </div>
 </div>
 
+    <!-- This Week TRDC Earners -->
+    <div class="bc-lb-panel" id="bc-lb-earners-week">
+        <?php if (empty($wo['lb_top_earners_week'])): ?>
+            <div class="bc-lb-empty">No rewards issued yet this week.</div>
+        <?php else: ?>
+            <?php foreach ($wo['lb_top_earners_week'] as $i => $item): ?>
+            <div class="bc-lb-row">
+                <div class="bc-lb-rank <?php echo ($i < 3) ? 'bc-lb-rank-' . ($i + 1) : ''; ?>">
+                    <?php if ($i == 0): ?><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" fill="#f59e0b"/></svg>
+                    <?php elseif ($i == 1): ?><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#94a3b8" stroke="#94a3b8" stroke-width="1"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" fill="#94a3b8"/></svg>
+                    <?php elseif ($i == 2): ?><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#cd7f32" stroke="#cd7f32" stroke-width="1"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" fill="#cd7f32"/></svg>
+                    <?php else: ?><span class="bc-lb-rank-num"><?php echo $i + 1; ?></span><?php endif; ?>
+                </div>
+                <a href="<?php echo Wo_SeoLink('index.php?link1=timeline&u=' . $item['user']['username']); ?>" class="bc-lb-user">
+                    <img class="bc-lb-avatar" src="<?php echo $item['user']['avatar']; ?>" alt="">
+                    <div class="bc-lb-info">
+                        <span class="bc-lb-name"><?php echo htmlspecialchars($item['user']['name']); ?></span>
+                        <span class="bc-lb-username">@<?php echo $item['user']['username']; ?></span>
+                    </div>
+                </a>
+                <div class="bc-lb-metric">
+                    <span class="bc-lb-metric-val"><?php echo number_format($item['earned_week'], 2); ?></span>
+                    <span class="bc-lb-metric-label">TRDC this week</span>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <!-- Tradex24 Top Traders (placeholder — loads when Tradex24 API is live) -->
+    <div class="bc-lb-panel" id="bc-lb-traders">
+        <div id="bc-lb-traders-inner">
+            <div style="text-align:center;padding:32px 16px;color:#64748b;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" style="opacity:.4;margin-bottom:12px;display:block;margin:0 auto 12px;"><path fill="currentColor" d="M3 3h18v2H3zm0 16h18v2H3zm3-8h12v2H6zm0-4h12v2H6zm0 8h12v2H6z"/></svg>
+                <p style="font-weight:600;margin:0 0 4px;">Top TRDC Traders on Tradex24</p>
+                <p style="font-size:12px;margin:0;">Loading from Tradex24...</p>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:16px;">
+            <a href="https://tradex24.com/trade/TRDC-USDT?ref=bitchat&utm_source=bitchat&utm_medium=leaderboard&utm_campaign=ecosystem" target="_blank" rel="noopener" style="font-size:13px;color:#0073CE;font-weight:600;text-decoration:none;">
+                Trade TRDC on Tradex24 &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- Invite to Tradex24 -->
+    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:12px;padding:20px 24px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+        <div style="color:#fff;">
+            <p style="font-weight:700;font-size:15px;margin:0 0 4px;">Invite friends to Tradex24</p>
+            <p style="font-size:12px;color:#94a3b8;margin:0;">They buy TRDC. You both benefit.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <input id="tradex-ref-link" readonly value="<?php echo htmlspecialchars($wo['tradex24_referral_url']); ?>"
+                style="background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:8px 12px;font-size:12px;width:260px;max-width:100%;">
+            <button onclick="var i=document.getElementById('tradex-ref-link');i.select();document.execCommand('copy');this.textContent='Copied!';" style="background:#fcd535;color:#0f172a;font-weight:700;font-size:12px;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;white-space:nowrap;">
+                Copy Link
+            </button>
+        </div>
+    </div>
+
 <script>
 function bcLbTab(btn, panel) {
     document.querySelectorAll('.bc-lb-tab').forEach(function(t) { t.classList.remove('bc-lb-tab-active'); });
     document.querySelectorAll('.bc-lb-panel').forEach(function(p) { p.classList.remove('bc-lb-panel-active'); });
     btn.classList.add('bc-lb-tab-active');
     document.getElementById('bc-lb-' + panel).classList.add('bc-lb-panel-active');
+    if (panel === 'traders') { bcLoadTradex24Traders(); }
+}
+
+var _tradex24Loaded = false;
+function bcLoadTradex24Traders() {
+    if (_tradex24Loaded) return;
+    _tradex24Loaded = true;
+    // Placeholder — swap URL for real Tradex24 leaderboard API once live
+    var apiUrl = 'https://tradex24.com/api/public/leaderboard/traders?ref=bitchat';
+    var el = document.getElementById('bc-lb-traders-inner');
+    fetch(apiUrl, { signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            if (!data || !data.traders || !data.traders.length) { return; }
+            var html = '';
+            data.traders.forEach(function(t, i) {
+                html += '<div class="bc-lb-row">'
+                    + '<div class="bc-lb-rank"><span class="bc-lb-rank-num">' + (i+1) + '</span></div>'
+                    + '<div class="bc-lb-user" style="flex:1;padding:10px 0;">'
+                    + '<div class="bc-lb-info"><span class="bc-lb-name">' + (t.display_name||t.username||'Trader') + '</span></div>'
+                    + '</div>'
+                    + '<div class="bc-lb-metric"><span class="bc-lb-metric-val">' + (t.volume_trdc||0) + '</span>'
+                    + '<span class="bc-lb-metric-label">TRDC vol</span></div></div>';
+            });
+            el.innerHTML = html;
+        })
+        .catch(function(){ /* API not live yet — keep placeholder */ });
 }
 </script>
+<style>
+.bc-lb-tab-tradex { border-color: #0073CE !important; }
+.bc-lb-tab-tradex.bc-lb-tab-active { background: #0073CE !important; }
+</style>
