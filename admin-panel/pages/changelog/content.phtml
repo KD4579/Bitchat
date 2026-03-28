@@ -16,6 +16,31 @@
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                   <div class="card">
                       <div class="card-body">
+                      <h6 class="card-title">v4.3.0 <small> 28 Mar 2026 </small> </h6>
+                          <ul>
+                            <li> [Added] Tradex24 ecosystem integration — full two-way sync between Bitchat and Tradex24 exchange.</li>
+                            <li> [Added] <code>api/ecosystem/stats.php</code> — public stats API (total users, TRDC distributed, active users, top earner) with Redis cache and rate limiting.</li>
+                            <li> [Added] <code>api/v2/tradex24/referral_converted.php</code> — inbound webhook: awards TRDC to referrer when referred user completes first trade on Tradex24.</li>
+                            <li> [Added] <code>api/v2/tradex24/vip_status.php</code> — inbound webhook: grants Bitchat Pro based on Tradex24 VIP tier (bronze/silver/gold/platinum).</li>
+                            <li> [Added] <code>assets/includes/ecosystem_helpers.php</code> — outbound HMAC-signed fee-discount call to Tradex24 on every Pro purchase.</li>
+                            <li> [Added] Fee discount hook in all 6 Pro payment handlers: wallet, Stripe, Razorpay, Cashfree, Paystack, 2Checkout.</li>
+                            <li> [Added] Tradex24 Ecosystem admin panel page — master toggle, ECOSYSTEM_SECRET, IP allowlist, reward config, webhook URLs.</li>
+                            <li> [Added] "Connect Tradex24" card in Settings → Social Links (all 3 themes) — lets users link their Tradex24 account ID.</li>
+                            <li> [Added] Leaderboard upgrades: "This Week" tab (weekly TRDC earners) + "Tradex24 Traders" tab with live data from Tradex24 API (all 3 themes).</li>
+                            <li> [Added] Tradex24 referral invite card on leaderboard page.</li>
+                            <li> [Added] Live TRDC price + 24h change on wallet page (all 3 themes).</li>
+                            <li> [Added] <code>sql/009_ecosystem_columns.sql</code> — migration adds <code>show_on_leaderboard</code> and <code>tradex24_user_id</code> columns to users table.</li>
+                            <li> [Fixed] <code>api/ecosystem/stats.php</code> — standardised <code>top_earner_week.trdc_earned</code> field name to match Tradex24 TRDCStatsWidget.</li>
+                            <li> [Security] All inbound Tradex24 webhooks verified with HMAC-SHA256 + IP allowlist + timestamp freshness + idempotency keys.</li>
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+           </div>
+            <div class="row clearfix">
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                  <div class="card">
+                      <div class="card-body">
                       <h6 class="card-title">v4.2.1 <small> 17 May 2023 </small> </h6>
                           <ul>
                             <li> [Fixed] contact us page on sunshien theme.</li>

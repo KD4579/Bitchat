@@ -88,6 +88,7 @@ $pages = array(
     'trading-bot',
     'trading-bot-dashboard',
     'staking-settings',
+    'tradex24-settings',
     'creator-mode',
     'news-bots',
     'growth-intelligence',
@@ -1345,7 +1346,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     </li>
                     <?php } ?>
                     <?php if ($is_admin) { ?>
-                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','trdc-withdrawals','trading-bot','trading-bot-dashboard','staking-settings','creator-mode','news-bots']) ? 'class="open"' : ''; ?>>
+                    <li <?php echo in_array($page, ['growth-intelligence','growth-presets','admin-activity-log','feed-algorithm','scheduled-posts','ghost-activity','announcement-banner','trdc-rewards','trdc-withdrawals','trading-bot','trading-bot-dashboard','staking-settings','tradex24-settings','creator-mode','news-bots']) ? 'class="open"' : ''; ?>>
                         <a href="#">
                             <span class="nav-link-icon">
                                 <i class="material-icons">trending_up</i>
@@ -1385,6 +1386,9 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                             </li>
                             <li>
                                 <a <?php echo ($page == 'staking-settings') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('staking-settings'); ?>" data-ajax="?path=staking-settings">Staking Settings</a>
+                            </li>
+                            <li>
+                                <a <?php echo ($page == 'tradex24-settings') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('tradex24-settings'); ?>" data-ajax="?path=tradex24-settings">Tradex24 Ecosystem</a>
                             </li>
                             <li>
                                 <a <?php echo ($page == 'creator-mode') ? 'class="active"' : ''; ?> href="<?php echo Wo_LoadAdminLinkSettings('creator-mode'); ?>" data-ajax="?path=creator-mode">Creator Mode</a>

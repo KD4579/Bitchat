@@ -145,6 +145,9 @@ if ($f == "2checkout_pro") {
                             }
                             $notes              = $wo['lang']['upgrade_to_pro'] . " " . $img . " : Credit Card";
                             $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'PRO', {$amount1}, '{$notes}')");
+                            if (function_exists('Wo_FireTradex24FeeDiscount')) {
+                                Wo_FireTradex24FeeDiscount($wo['user']['user_id'], $pro_type, '2checkout_pro_purchase');
+                            }
                             $data               = array(
                                 'status' => 200,
                                 'location' => Wo_SeoLink('index.php?link1=upgraded')

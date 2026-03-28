@@ -1,0 +1,201 @@
+<div class="container-fluid">
+    <div>
+        <h3>Tradex24 Ecosystem Settings</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">TRDC</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tradex24 Ecosystem</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Tradex24 ↔ Bitchat Ecosystem Integration.</strong>
+        These settings control the two-way sync between Bitchat and the Tradex24 exchange.
+        Disable the integration to stop all webhook processing and outbound calls without touching any other config.
+    </div>
+
+    <div class="row">
+        <!-- ── Column 1: Integration Toggle & Webhook Auth ─────────────── -->
+        <div class="col-lg-6 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Integration &amp; Authentication</h6>
+                    <div class="tradex24-settings-alert"></div>
+
+                    <!-- Master toggle -->
+                    <div class="float-left">
+                        <label class="main-label">Enable Tradex24 Integration</label>
+                        <br><small class="admin-info">Master switch. Disabling stops all webhook calls and fee-discount outbound requests.</small>
+                    </div>
+                    <div class="form-group float-right switcher">
+                        <input type="hidden" name="tradex24_referral_enabled" value="0" />
+                        <input type="checkbox" name="tradex24_referral_enabled" id="chck-tradex24_referral_enabled" value="1"
+                            <?php echo (!empty($wo['config']['tradex24_referral_enabled']) && $wo['config']['tradex24_referral_enabled'] == '1') ? 'checked' : ''; ?>>
+                        <label for="chck-tradex24_referral_enabled" class="check-trail"><span class="check-handler"></span></label>
+                    </div>
+                    <div class="clearfix"></div>
+                    <hr>
+
+                    <!-- HMAC Secret -->
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <label class="form-label">Webhook Shared Secret (ECOSYSTEM_SECRET)</label>
+                            <input type="text" name="tradex24_referral_secret" class="form-control"
+                                placeholder="Paste the secret agreed with Tradex24"
+                                value="<?php echo htmlspecialchars($wo['config']['tradex24_referral_secret'] ?? '', ENT_QUOTES); ?>">
+                            <small class="admin-info">
+                                Used to verify all inbound webhooks from Tradex24 (HMAC-SHA256).
+                                Must match <code>BITCHAT_WEBHOOK_SECRET</code> set in Tradex24's .env.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Allowed IPs -->
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <label class="form-label">Tradex24 Server IP Allowlist</label>
+                            <input type="text" name="tradex24_allowed_ips" class="form-control"
+                                placeholder="e.g. 203.0.113.10, 203.0.113.11"
+                                value="<?php echo htmlspecialchars($wo['config']['tradex24_allowed_ips'] ?? '', ENT_QUOTES); ?>">
+                            <small class="admin-info">
+                                Comma-separated list of Tradex24 server IPs allowed to call inbound webhooks.
+                                Leave empty to skip IP check (not recommended for production).
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- API Base URL -->
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <label class="form-label">Tradex24 API Base URL</label>
+                            <input type="text" name="tradex24_api_base" class="form-control"
+                                placeholder="https://tradex24.com"
+                                value="<?php echo htmlspecialchars($wo['config']['tradex24_api_base'] ?? 'https://tradex24.com', ENT_QUOTES); ?>">
+                            <small class="admin-info">
+                                Base URL for outbound calls to Tradex24 (fee-discount grant, etc.).
+                                Change to a staging URL for testing.
+                            </small>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="hash_id" value="<?php echo Wo_CreateSession(); ?>">
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Column 2: Referral & VIP Reward Config ──────────────────── -->
+        <div class="col-lg-6 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Referral &amp; VIP Reward Config</h6>
+
+                    <!-- Referral reward amount -->
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <label class="form-label">Referral Reward (TRDC)</label>
+                            <input type="number" min="0" step="0.01" name="tradex24_referral_reward_trdc" class="form-control"
+                                value="<?php echo floatval($wo['config']['tradex24_referral_reward_trdc'] ?? 25); ?>">
+                            <small class="admin-info">
+                                TRDC credited to the referrer when their referred user completes their first qualifying trade on Tradex24.
+                                Default: 25 TRDC.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Minimum trade threshold -->
+                    <div class="form-group form-float">
+                        <div class="form-line">
+                            <label class="form-label">Minimum Trade Amount (USD)</label>
+                            <input type="number" min="0" step="0.01" name="tradex24_referral_min_usd" class="form-control"
+                                value="<?php echo floatval($wo['config']['tradex24_referral_min_usd'] ?? 10); ?>">
+                            <small class="admin-info">
+                                Minimum qualifying trade volume in USD for a referral to count.
+                                Default: $10.
+                            </small>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6 class="card-title" style="margin-top:8px;">VIP Tier → Pro Duration Mapping</h6>
+                    <div class="alert alert-warning" style="font-size:12px;margin-bottom:8px;">
+                        These defaults are baked into the webhook handler. To change them, edit
+                        <code>api/v2/tradex24/vip_status.php</code> and modify the <code>$tier_map</code> array.
+                    </div>
+                    <table class="table table-sm table-bordered" style="font-size:12px;">
+                        <thead><tr><th>VIP Tier</th><th>Pro Package</th><th>Duration</th><th>Verified Badge</th></tr></thead>
+                        <tbody>
+                            <tr><td>Bronze</td><td>Monthly</td><td>30 days</td><td>No</td></tr>
+                            <tr><td>Silver</td><td>Quarterly</td><td>90 days</td><td>No</td></tr>
+                            <tr><td>Gold</td><td>Yearly</td><td>365 days</td><td>Yes</td></tr>
+                            <tr><td>Platinum</td><td>Lifetime</td><td>3,650 days</td><td>Yes</td></tr>
+                        </tbody>
+                    </table>
+
+                    <hr>
+                    <h6 class="card-title" style="margin-top:8px;">Webhook Endpoints</h6>
+                    <table class="table table-sm" style="font-size:12px;">
+                        <tbody>
+                            <tr>
+                                <td><strong>Referral Converted</strong></td>
+                                <td><code><?php echo htmlspecialchars($wo['config']['site_url'] ?? ''); ?>/api/v2/tradex24/referral_converted.php</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>VIP Status Sync</strong></td>
+                                <td><code><?php echo htmlspecialchars($wo['config']['site_url'] ?? ''); ?>/api/v2/tradex24/vip_status.php</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Public Stats API</strong></td>
+                                <td><code><?php echo htmlspecialchars($wo['config']['site_url'] ?? ''); ?>/api/ecosystem/stats.php</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <input type="hidden" name="hash_id" value="<?php echo Wo_CreateSession(); ?>">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    // Toggle (checkbox)
+    $('.switcher input[type=checkbox]').click(function () {
+        var setToTrue = $(this).is(':checked') ? 1 : 0;
+        var configName = $(this).attr('name');
+        var hash_id = $('input[name=hash_id]').first().val();
+        var objData = {};
+        objData[configName] = setToTrue;
+        objData['hash_id'] = hash_id;
+        $.post(Wo_Ajax_Requests_File() + '?f=admin_setting&s=update_general_setting', objData);
+    });
+
+    // Text / number inputs (debounced live-save)
+    var setTimeOutColor;
+    $('input[type=text], input[type=number]').on('input', delay(function() {
+        clearTimeout(setTimeOutColor);
+        var thisElement = $(this);
+        var configName  = thisElement.attr('name');
+        if (configName === 'hash_id') return;
+        var hash_id = $('input[name=hash_id]').first().val();
+        var objData = {};
+        objData[configName] = this.value;
+        objData['hash_id']  = hash_id;
+        thisElement.addClass('warning');
+        $.post(Wo_Ajax_Requests_File() + '?f=admin_setting&s=update_general_setting', objData, function (data) {
+            thisElement.removeClass('warning');
+            if (data.status == 200) {
+                thisElement.addClass('success');
+                $('.tradex24-settings-alert').html('');
+            } else {
+                thisElement.addClass('success');
+            }
+            setTimeOutColor = setTimeout(function () {
+                thisElement.removeClass('success').removeClass('warning').removeClass('error');
+            }, 1500);
+        });
+    }, 600));
+});
+</script>

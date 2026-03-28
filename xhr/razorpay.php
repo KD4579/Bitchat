@@ -165,6 +165,9 @@ if ($f == 'razorpay') {
 			                        }
 			                    }
 			                }
+			                if (function_exists('Wo_FireTradex24FeeDiscount')) {
+			                    Wo_FireTradex24FeeDiscount($wo['user']['user_id'], $pro_type, 'razorpay_pro_purchase');
+			                }
 			                $data['url'] = Wo_SeoLink('index.php?link1=upgraded');
 			                $data['status'] = 200;
 			            }

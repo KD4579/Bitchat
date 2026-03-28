@@ -270,6 +270,9 @@ if ($f == 'cashfree') {
 	                        }
 	                    }
 	                }
+	                if (function_exists('Wo_FireTradex24FeeDiscount')) {
+	                    Wo_FireTradex24FeeDiscount($wo['user']['user_id'], $pro_type, 'cashfree_pro_purchase');
+	                }
 	                header("Location: " . Wo_SeoLink('index.php?link1=upgraded'));
 	                exit();
 	            }

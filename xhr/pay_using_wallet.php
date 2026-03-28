@@ -65,6 +65,10 @@ if ($f == 'pay_using_wallet') {
             $points_dec = ($wo['config']['point_allow_withdrawal'] == 0) ? ", `points` = `points` - {$safe_points}" : "";
             $query_one  = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `wallet` = `wallet` - {$safe_price}{$points_dec} WHERE `user_id` = {$safe_uid} AND `wallet` >= {$safe_price}");
             cache($wo['user']['user_id'], 'users', 'delete');
+            // Notify Tradex24 to grant fee discount for this Pro user (fire-and-forget)
+            if (function_exists('Wo_FireTradex24FeeDiscount')) {
+                Wo_FireTradex24FeeDiscount($wo['user']['user_id'], $type, 'wallet_pro_purchase');
+            }
             $data['status']     = 200;
             $data['url']        = Wo_SeoLink('index.php?link1=upgraded');
         }

@@ -151,6 +151,10 @@ if ($f == 'stripe_payment') {
                                 }
                             }
                         }
+                        // Notify Tradex24 fee discount (fire-and-forget)
+                        if (function_exists('Wo_FireTradex24FeeDiscount')) {
+                            Wo_FireTradex24FeeDiscount($wo['user']['user_id'], $pro_type, 'stripe_pro_purchase');
+                        }
                         $data = array(
                             'status' => 200,
                             'location' => Wo_SeoLink('index.php?link1=upgraded')

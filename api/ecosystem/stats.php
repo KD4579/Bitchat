@@ -125,8 +125,8 @@ try {
         );
         if ($r && $row = mysqli_fetch_assoc($r)) {
             $stats['top_earner_week'] = [
-                'username' => htmlspecialchars($row['username'], ENT_QUOTES),
-                'earned'   => round(floatval($row['earned']), 4),
+                'username'   => htmlspecialchars($row['username'], ENT_QUOTES),
+                'trdc_earned' => round(floatval($row['earned']), 4),
             ];
         }
     }

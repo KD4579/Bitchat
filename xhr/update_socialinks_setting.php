@@ -18,6 +18,9 @@ if ($f == "update_socialinks_setting") {
                     'twitter' => $_POST['twitter'],
                     'youtube' => $_POST['youtube']
                 );
+                if (isset($_POST['tradex24_user_id'])) {
+                    $Update_data['tradex24_user_id'] = Wo_Secure(preg_replace('/[^a-zA-Z0-9_\-]/', '', $_POST['tradex24_user_id']), 0);
+                }
                 if (Wo_UpdateUserData($_POST['user_id'], $Update_data)) {
                     $field_data = array();
                     if (!empty($_POST['custom_fields'])) {
