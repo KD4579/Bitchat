@@ -227,14 +227,17 @@ function Wo_SaveConfig($update_name, $value) {
     if ($wo['loggedin'] == false) {
         return false;
     }
-    if (!array_key_exists($update_name, $config)) {
-        return false;
-    }
     $update_name = Wo_Secure($update_name);
     $value       = mysqli_real_escape_string($sqlConnect, $value);
-    $query_one   = " UPDATE " . T_CONFIG . " SET `value` = '{$value}' WHERE `name` = '{$update_name}'";
-    $query       = mysqli_query($sqlConnect, $query_one);
+    if (!array_key_exists($update_name, $config)) {
+        // Key doesn't exist yet — INSERT it
+        $query = mysqli_query($sqlConnect, "INSERT INTO " . T_CONFIG . " (`name`, `value`) VALUES ('{$update_name}', '{$value}')");
+    } else {
+        $query = mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '{$value}' WHERE `name` = '{$update_name}'");
+    }
     if ($query) {
+        $config[$update_name]        = $value;
+        $wo['config'][$update_name]  = $value;
         return true;
     } else {
         return false;
