@@ -25,23 +25,14 @@
 					</h4>
 					<hr>
 					<div class="form-inline">
-						<button onclick="Wo_AcceptPermissions(<?php echo $wo['app']['id'];?>);" class="btn btn-main okdok" style="padding: 10px 60px;">
+						<button onclick="Wo_AcceptPermissions(<?php echo intval($wo['app']['id']);?>);" class="btn btn-main okdok" style="padding: 10px 60px;">
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>
 							Accept
 						</button>
-						<?php 
-							$url = $wo['app']['app_website_url'];
-							if (isset($_GET['redirect_uri']) && !empty($_GET['redirect_uri'])) {
-								$url = $_GET['redirect_uri'];
-							} else if (!empty($wo['app']['app_callback_url'])) {
-								$url = $wo['app']['app_callback_url'];
-							}
-						?>
-						<input type="hidden" id="url" name="url" value="<?php echo urlencode($url);?>">
 					</div>
-			
+
 					<div class="form-inline">
-						<a href="<?php echo $wo['app']['app_website_url'];?>" class="btn btn-link" style="margin-top: 50px;font-size: 15px;color: #7f7f7f;padding: 6px 40px;">Back</a>
+						<a href="<?php echo htmlspecialchars($wo['app']['app_website_url'], ENT_QUOTES);?>" class="btn btn-link" style="margin-top: 50px;font-size: 15px;color: #7f7f7f;padding: 6px 40px;">Back</a>
 					</div>
 				</div>
 			</div>
@@ -53,8 +44,9 @@
 <script>
   function Wo_AcceptPermissions(id) {
 	  $('.okdok').addClass('disabled');
-    var url = $('#url').val();
-    $.post(Wo_Ajax_Requests_File() + '?f=apps&s=acceptPermissions', {id:id, url:url}, function (data) {
+    // SECURITY: redirect destination is resolved server-side from the registered
+    // app_callback_url — we never send a URL from the client.
+    $.post(Wo_Ajax_Requests_File() + '?f=apps&s=acceptPermissions', {id: id}, function (data) {
       if (data.status == 200) {
         window.location.href = data.location;
       }

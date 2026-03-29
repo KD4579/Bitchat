@@ -9,6 +9,139 @@
 // | Copyright (c) 2017 WoWonder. All rights reserved.
 // +------------------------------------------------------------------------+
 require_once('assets/init.php');
+
+// ── Tradex24 OAuth2 provider (handled before the Hybridauth flow) ─────────────
+if (isset($_GET['provider']) && $_GET['provider'] === 'tradex24') {
+    $tradex24_enabled = !empty($wo['config']['tradex24_oauth_enabled']);
+    $tradex24_client_id = $wo['config']['tradex24_client_id'] ?? '';
+    $tradex24_secret    = $wo['config']['tradex24_client_secret'] ?? '';
+    $tradex24_base      = rtrim($wo['config']['tradex24_base_url'] ?? 'https://trade.bitchat.live', '/');
+    $redirect_uri       = $wo['config']['site_url'] . '/login-with.php?provider=tradex24';
+
+    if (!$tradex24_enabled || empty($tradex24_client_id)) {
+        header('Location: ' . $wo['config']['site_url'] . '/login');
+        exit();
+    }
+
+    if (isset($_GET['code']) && isset($_GET['state'])) {
+        // ── Callback: verify CSRF state ──────────────────────────────────────
+        if (empty($_SESSION['oauth2_state_tradex24']) || !hash_equals($_SESSION['oauth2_state_tradex24'], $_GET['state'])) {
+            header('Location: ' . $wo['config']['site_url'] . '/login?error=state_mismatch');
+            exit();
+        }
+        unset($_SESSION['oauth2_state_tradex24']);
+
+        $code = Wo_Secure($_GET['code']);
+
+        // ── Exchange code for token ──────────────────────────────────────────
+        $token_url  = $tradex24_base . '/api/auth/oauth/token';
+        $token_resp = @file_get_contents($token_url, false, stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => 'Content-Type: application/x-www-form-urlencoded',
+                'content' => http_build_query([
+                    'grant_type'    => 'authorization_code',
+                    'code'          => $code,
+                    'client_id'     => $tradex24_client_id,
+                    'client_secret' => $tradex24_secret,
+                    'redirect_uri'  => $redirect_uri,
+                ]),
+                'timeout' => 10,
+            ],
+        ]));
+
+        if (!$token_resp) {
+            header('Location: ' . $wo['config']['site_url'] . '/login?error=token_exchange_failed');
+            exit();
+        }
+
+        $token_data = json_decode($token_resp, true);
+        if (empty($token_data['access_token'])) {
+            header('Location: ' . $wo['config']['site_url'] . '/login?error=no_access_token');
+            exit();
+        }
+
+        // ── Fetch user info ──────────────────────────────────────────────────
+        $me_url  = $tradex24_base . '/api/auth/oauth/me';
+        $me_resp = @file_get_contents($me_url, false, stream_context_create([
+            'http' => [
+                'method'  => 'GET',
+                'header'  => 'Authorization: Bearer ' . $token_data['access_token'],
+                'timeout' => 10,
+            ],
+        ]));
+
+        if (!$me_resp) {
+            header('Location: ' . $wo['config']['site_url'] . '/login?error=user_fetch_failed');
+            exit();
+        }
+
+        $tx_user = json_decode($me_resp, true);
+        if (empty($tx_user['id']) || empty($tx_user['email'])) {
+            header('Location: ' . $wo['config']['site_url'] . '/login?error=invalid_user_data');
+            exit();
+        }
+
+        $email = Wo_Secure($tx_user['email']);
+        $tx_id = Wo_Secure((string)$tx_user['id']);
+
+        // ── Find or create Bitchat user ──────────────────────────────────────
+        $r    = mysqli_query($sqlConnect, "SELECT * FROM " . T_USERS . " WHERE `email` = '{$email}' LIMIT 1");
+        $user = $r ? mysqli_fetch_assoc($r) : null;
+
+        if (!$user) {
+            // Build a unique username
+            $username = Wo_Secure($tx_user['username'] ?? 'tx24_' . $tx_id);
+            $chk = mysqli_query($sqlConnect, "SELECT user_id FROM " . T_USERS . " WHERE `username` = '{$username}' LIMIT 1");
+            if ($chk && mysqli_num_rows($chk) > 0) {
+                $username = $username . '_' . substr($tx_id, 0, 4);
+            }
+            $first_name = Wo_Secure($tx_user['first_name'] ?? '');
+            $last_name  = Wo_Secure($tx_user['last_name']  ?? '');
+            $password   = bin2hex(random_bytes(16));
+            $pass_hash  = password_hash($password, PASSWORD_BCRYPT);
+            $email_code = bin2hex(random_bytes(16));
+
+            mysqli_query($sqlConnect,
+                "INSERT INTO " . T_USERS . " (`username`, `email`, `password`, `email_code`, `first_name`, `last_name`, `active`, `registered`, `src`, `social_login`) " .
+                "VALUES ('{$username}', '{$email}', '" . Wo_Secure($pass_hash) . "', '" . Wo_Secure($email_code) . "', '{$first_name}', '{$last_name}', '1', '" . time() . "', 'Tradex24', '1')"
+            );
+            $new_id = mysqli_insert_id($sqlConnect);
+            $r2   = mysqli_query($sqlConnect, "SELECT * FROM " . T_USERS . " WHERE `user_id` = " . intval($new_id) . " LIMIT 1");
+            $user = $r2 ? mysqli_fetch_assoc($r2) : null;
+        }
+
+        if (!$user) {
+            header('Location: ' . $wo['config']['site_url'] . '/login?error=account_create_failed');
+            exit();
+        }
+
+        // Store tradex24_user_id (gracefully skipped if column does not exist)
+        @mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `tradex24_user_id` = '{$tx_id}' WHERE `user_id` = " . intval($user['user_id']));
+
+        // ── Log the user in ──────────────────────────────────────────────────
+        Wo_Login($user);
+        header('Location: ' . $wo['config']['site_url'] . '/');
+        exit();
+
+    } else {
+        // ── Initiate: redirect to Tradex24 authorize endpoint ────────────────
+        $state = bin2hex(random_bytes(16));
+        $_SESSION['oauth2_state_tradex24'] = $state;
+
+        $auth_url = $tradex24_base . '/api/auth/oauth/authorize?' . http_build_query([
+            'client_id'     => $tradex24_client_id,
+            'redirect_uri'  => $redirect_uri,
+            'response_type' => 'code',
+            'scope'         => 'profile',
+            'state'         => $state,
+        ]);
+        header('Location: ' . $auth_url);
+        exit();
+    }
+}
+// ── End Tradex24 OAuth2 ───────────────────────────────────────────────────────
+
 $provider = "";
 $types = array(
     'Google',

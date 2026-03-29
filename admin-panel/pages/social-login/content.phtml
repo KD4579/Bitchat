@@ -148,12 +148,24 @@
                         <hr>
                         <div class="float-left">
                             <label for="tiktok_login" class="main-label">TikTok Login</label>
-                            <br><small class="admin-info">Enable the ability for users to login to your site using their ok.ru account.</small>
+                            <br><small class="admin-info">Enable the ability for users to login to your site using their TikTok account.</small>
                         </div>
                         <div class="form-group float-right switcher">
                             <input type="hidden" name="tiktok_login" value="0" />
                             <input type="checkbox" name="tiktok_login" id="chck-tiktok_login" value="1" <?php echo ($wo['config']['tiktok_login'] == 1) ? 'checked': '';?>>
                             <label for="chck-tiktok_login" class="check-trail"><span class="check-handler"></span></label>
+                        </div>
+                        <div class="clearfix"></div>
+                        <hr>
+
+                        <div class="float-left">
+                            <label for="tradex24_oauth_enabled" class="main-label">Tradex24 Login</label>
+                            <br><small class="admin-info">Enable the ability for users to login to your site using their Tradex24 account (OAuth2 SSO).</small>
+                        </div>
+                        <div class="form-group float-right switcher">
+                            <input type="hidden" name="tradex24_oauth_enabled" value="0" />
+                            <input type="checkbox" name="tradex24_oauth_enabled" id="chck-tradex24_oauth_enabled" value="1" <?php echo ($wo['config']['tradex24_oauth_enabled'] == 1) ? 'checked': '';?>>
+                            <label for="chck-tradex24_oauth_enabled" class="check-trail"><span class="check-handler"></span></label>
                         </div>
                         <div class="clearfix"></div>
                         <input type="hidden" name="hash_id" value="<?php echo Wo_CreateSession();?>">
@@ -322,6 +334,25 @@
                         <div class="form-group form-float">
                             <div class="form-line">
                                 <input type="text" id="tiktok_client_secret" name="tiktok_client_secret" class="form-control" value="<?php echo $wo['config']['tiktok_client_secret']?>" placeholder="Client secret">
+                            </div>
+                        </div>
+                        <hr>
+
+                        <label class="form-label main-label" style="background: #0f172a; color: #f59e0b; margin-bottom: 12px;">Tradex24 Configuration</label>
+                        <div class="alert alert-info">OAuth2 SSO with Tradex24. Obtain credentials from the Tradex24 admin panel.</div>
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="text" id="tradex24_client_id" name="tradex24_client_id" class="form-control" value="<?php echo htmlspecialchars($wo['config']['tradex24_client_id'] ?? '')?>" placeholder="Client ID (e.g. bitchat_tx24_oauth_client)">
+                            </div>
+                        </div>
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="password" id="tradex24_client_secret" name="tradex24_client_secret" class="form-control" value="<?php echo htmlspecialchars($wo['config']['tradex24_client_secret'] ?? '')?>" placeholder="Client Secret">
+                            </div>
+                        </div>
+                        <div class="form-group form-float">
+                            <div class="form-line">
+                                <input type="text" id="tradex24_base_url" name="tradex24_base_url" class="form-control" value="<?php echo htmlspecialchars($wo['config']['tradex24_base_url'] ?? 'https://trade.bitchat.live')?>" placeholder="Tradex24 base URL (e.g. https://trade.bitchat.live)">
                             </div>
                         </div>
                         <input type="hidden" name="hash_id" value="<?php echo Wo_CreateSession();?>">
