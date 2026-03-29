@@ -88,7 +88,7 @@ $stats = [
 
 try {
     // Total registered users
-    $r = mysqli_query($sqlConnect, "SELECT COUNT(*) AS cnt FROM " . T_USERS . " WHERE `activated` = '1'");
+    $r = mysqli_query($sqlConnect, "SELECT COUNT(*) AS cnt FROM " . T_USERS . " WHERE `active` = '1'");
     if ($r && $row = mysqli_fetch_assoc($r)) {
         $stats['total_users'] = intval($row['cnt']);
     }
