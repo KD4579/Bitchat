@@ -58,9 +58,10 @@ async function main() {
     const bnbBalance = ethers.formatEther(await provider.getBalance(hotWallet.address));
     log.info(`Hot wallet BNB balance: ${bnbBalance} BNB`);
 
+    let sweepingEnabled = true;
     if (parseFloat(bnbBalance) < 0.01) {
-        log.error('Hot wallet BNB too low for gas/sweeps. Fund with at least 0.05 BNB. Exiting.');
-        process.exit(1);
+        log.warn('Hot wallet BNB too low for sweeping (< 0.01 BNB). Monitoring and crediting deposits will continue, but sweeping to hot wallet is disabled until funded with at least 0.05 BNB.');
+        sweepingEnabled = false;
     }
 
     // Validate HD seed by deriving first address
@@ -138,10 +139,23 @@ async function main() {
                 log.info(`Credited ${credited} deposit(s)`);
             }
 
-            // Process sweep queue
-            const swept = await processSweeps(hotWallet, provider, seedPhrase);
-            if (swept > 0) {
-                log.info(`Swept ${swept} deposit(s) to hot wallet`);
+            // Process sweep queue (only when hot wallet has enough BNB for gas)
+            if (sweepingEnabled) {
+                const swept = await processSweeps(hotWallet, provider, seedPhrase);
+                if (swept > 0) {
+                    log.info(`Swept ${swept} deposit(s) to hot wallet`);
+                }
+            } else {
+                // Re-check BNB balance every 20 cycles and re-enable sweeping if funded
+                if (cycleCount % 20 === 0) {
+                    const currentBnb = parseFloat(ethers.formatEther(await provider.getBalance(hotWallet.address)));
+                    if (currentBnb >= 0.01) {
+                        log.info(`Hot wallet funded (${currentBnb} BNB). Re-enabling sweeping.`);
+                        sweepingEnabled = true;
+                    } else {
+                        log.warn(`Sweeping disabled — hot wallet BNB: ${currentBnb}. Fund ${hotWallet.address} with at least 0.05 BNB.`);
+                    }
+                }
             }
 
         } catch (e) {

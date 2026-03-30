@@ -36,26 +36,24 @@ if ($f == 'deposit_address') {
         $scriptPath = escapeshellarg(dirname(__FILE__) . '/../nodejs/deposit-monitor/derive-address.js');
         $safeUserId = escapeshellarg((string)$userId);
 
-        // Try to find node binary
-        $nodeBin = trim(shell_exec('which node 2>/dev/null') ?: '');
-        if (empty($nodeBin)) {
-            // Common paths on Linux servers
-            foreach (array('/usr/bin/node', '/usr/local/bin/node', '/opt/nvm/versions/node/current/bin/node') as $path) {
-                if (file_exists($path)) {
-                    $nodeBin = $path;
-                    break;
-                }
+        // Known node binary path on the server (/usr/bin/node)
+        // Apache runs with a restricted PATH so we use the absolute path directly
+        $nodeBin = '/usr/bin/node';
+        if (!file_exists($nodeBin)) {
+            // Fallback search
+            foreach (array('/usr/local/bin/node', '/opt/nvm/versions/node/current/bin/node') as $path) {
+                if (file_exists($path)) { $nodeBin = $path; break; }
             }
         }
 
-        if (empty($nodeBin)) {
+        if (!file_exists($nodeBin)) {
             $data['message'] = 'Address generation service unavailable. Please try again later.';
             header("Content-type: application/json");
             echo json_encode($data);
             exit();
         }
 
-        $cmd = escapeshellcmd($nodeBin) . ' ' . $scriptPath . ' ' . $safeUserId . ' 2>&1';
+        $cmd = escapeshellarg($nodeBin) . ' ' . $scriptPath . ' ' . $safeUserId . ' 2>&1';
         $output = shell_exec($cmd);
 
         if (empty($output)) {
