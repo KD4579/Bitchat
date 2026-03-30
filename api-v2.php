@@ -1,5 +1,4 @@
 <?php
-// API v2 is not yet finished, you have to use the old API version.
 header_remove('Server');
 header("Content-type: application/json");
 require('assets/init.php');
@@ -50,7 +49,6 @@ $pages_without_access_token = array(
     'get-site-settings',
     'active_account_sms',
     'auth',
-    'regsiter',
     'send-reset-password-email',
     'create-account',
     'social-login',
@@ -63,7 +61,6 @@ $pages_without_loggedin     = array(
     'get-site-settings',
     'active_account_sms',
     'auth',
-    'regsiter',
     'send-reset-password-email',
     'create-account',
     'social-login',

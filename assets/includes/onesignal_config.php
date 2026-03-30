@@ -31,6 +31,10 @@ function Wo_SendPushNotification($data = array(), $push_type = 'chat') {
         $app_id  = $wo['config']['web_push_id'];
         $app_key = $wo['config']['web_push_key'];
     }
+    if (empty($app_id) || empty($app_key)) {
+        error_log("Bitchat Push: OneSignal keys not configured for push_type=$push_type. Set keys in Admin Panel > General Settings > Push Notifications.");
+        return false;
+    }
     $data['notification']['notification_content'] = Wo_EmoPhone($data['notification']['notification_content']);
     $data['notification']['notification_content'] = Wo_EditMarkup($data['notification']['notification_content']);
     $final_request_data                           = array(
