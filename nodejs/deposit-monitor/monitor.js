@@ -4,7 +4,7 @@ const { ethers } = require('ethers');
 const log = require('./logger');
 const {
     TRDC_CONTRACT, USDT_CONTRACT, TRANSFER_TOPIC,
-    ERC20_ABI, getDbPool, getConfig,
+    getDbPool, getConfig,
 } = require('./config');
 
 // Map contract address → token name
@@ -17,61 +17,85 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function isRateLimitError(e) {
-    return e.code === 'BAD_DATA' ||
-        (e.message && e.message.includes('rate limit')) ||
-        (e.message && e.message.includes('-32005'));
+let _rpcUrl = null;
+let _rpcId = 1;
+
+/** Set the RPC URL used for all direct fetch calls */
+function setRpcUrl(url) {
+    _rpcUrl = url;
 }
 
 /**
- * Scan a range of blocks for deposits to any of our monitored addresses.
+ * Make a single, non-batched JSON-RPC call directly via fetch.
+ * Bypasses ethers.js batching which triggers rate limits on public nodes.
+ */
+async function rpc(method, params) {
+    const body = JSON.stringify({ jsonrpc: '2.0', id: _rpcId++, method, params });
+    const res = await fetch(_rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        signal: AbortSignal.timeout(10000),
+    });
+    const json = await res.json();
+    if (json.error) {
+        const err = new Error(json.error.message || 'RPC error');
+        err.code = json.error.code;
+        err.rpcError = true;
+        throw err;
+    }
+    return json.result;
+}
+
+function isRateLimitError(e) {
+    return e.rpcError && (e.code === -32005 || (e.message && e.message.includes('rate limit')));
+}
+
+/**
+ * Scan a range of blocks for deposits.
  * Returns { found: number, rateLimited: boolean }
  */
 async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
     const db = getDbPool();
     const now = Math.floor(Date.now() / 1000);
     let depositsFound = 0;
-    let rateLimited = false;
+
+    const fromHex = '0x' + fromBlock.toString(16);
+    const toHex   = '0x' + toBlock.toString(16);
 
     // 1. Scan BEP-20 Transfer events for TRDC and USDT
-    const tokenContracts = [TRDC_CONTRACT, USDT_CONTRACT];
-
-    for (let i = 0; i < tokenContracts.length; i++) {
-        if (i > 0) await sleep(500); // space out requests to avoid rate limits
-        const contractAddr = tokenContracts[i];
-        const tokenName = TOKEN_MAP[contractAddr.toLowerCase()];
-
+    for (const [contractAddr, tokenName] of Object.entries(TOKEN_MAP)) {
         try {
-            const logs = await provider.getLogs({
-                fromBlock,
-                toBlock,
-                address: contractAddr,
-                topics: [TRANSFER_TOPIC, null],
-            });
+            const logs = await rpc('eth_getLogs', [{
+                fromBlock: fromHex,
+                toBlock:   toHex,
+                address:   contractAddr,
+                topics:    [TRANSFER_TOPIC, null],
+            }]);
 
             for (const logEntry of logs) {
                 if (!logEntry.topics[2]) continue;
                 const toAddr = '0x' + logEntry.topics[2].slice(26).toLowerCase();
-
                 if (!addressMap.has(toAddr)) continue;
 
                 const userId = addressMap.get(toAddr);
-                const contract = new ethers.Contract(contractAddr, ERC20_ABI, provider);
-                const decimals = await contract.decimals();
+
+                // Decode amount using token-specific decimals
+                const decimals = tokenName === 'USDT' ? 18 : 18; // both 18 on BSC
                 const amount = ethers.formatUnits(BigInt(logEntry.data), decimals);
 
                 const minKey = `deposit_min_${tokenName.toLowerCase()}`;
                 const minAmount = parseFloat(await getConfig(minKey, '0'));
-                if (parseFloat(amount) < minAmount) {
-                    log.info(`Skipping small ${tokenName} deposit: ${amount} < min ${minAmount} (user ${userId})`);
-                    continue;
-                }
+                if (parseFloat(amount) < minAmount) continue;
+
+                const logIndex = parseInt(logEntry.logIndex, 16);
+                const blockNumber = parseInt(logEntry.blockNumber, 16);
 
                 const [result] = await db.execute(
                     `INSERT IGNORE INTO Wo_Deposits
                      (user_id, address, token, amount, tx_hash, log_index, block_number, confirmations, status, created_at, updated_at)
                      VALUES (?, ?, ?, ?, ?, ?, ?, 0, 'detected', ?, ?)`,
-                    [userId, toAddr, tokenName, amount, logEntry.transactionHash, logEntry.index, logEntry.blockNumber, now, now]
+                    [userId, toAddr, tokenName, amount, logEntry.transactionHash, logIndex, blockNumber, now, now]
                 );
 
                 if (result.affectedRows > 0) {
@@ -82,29 +106,24 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
         } catch (e) {
             if (isRateLimitError(e)) {
                 log.warn(`Rate limited scanning ${tokenName} logs — will rotate RPC`);
-                rateLimited = true;
                 return { found: depositsFound, rateLimited: true };
             }
             log.error(`Error scanning ${tokenName} logs: ${e.message}`);
         }
+
+        await sleep(600); // gap between requests on same endpoint
     }
 
-    await sleep(500); // gap before BNB block scan
-
-    // 2. Scan native BNB transfers by fetching each block's transactions
+    // 2. Scan native BNB transfers block by block
     try {
         for (let blockNum = fromBlock; blockNum <= toBlock; blockNum++) {
-            // Get block with full transaction objects (works with single JsonRpcProvider)
-            const block = await provider.send('eth_getBlockByNumber', [
-                '0x' + blockNum.toString(16),
-                true, // include full transactions
-            ]);
-            if (!block || !block.transactions) continue;
+            const hexNum = '0x' + blockNum.toString(16);
+            const block = await rpc('eth_getBlockByNumber', [hexNum, true]);
+            if (!block || !Array.isArray(block.transactions)) continue;
 
             for (const tx of block.transactions) {
                 if (!tx.to) continue;
                 const toAddr = tx.to.toLowerCase();
-
                 if (!addressMap.has(toAddr)) continue;
 
                 const value = BigInt(tx.value);
@@ -128,6 +147,8 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
                     depositsFound++;
                 }
             }
+
+            await sleep(200); // avoid flooding with block requests
         }
     } catch (e) {
         if (isRateLimitError(e)) {
@@ -145,7 +166,7 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
  */
 async function processConfirmations(provider) {
     const db = getDbPool();
-    const currentBlock = await provider.getBlockNumber();
+    const currentBlock = parseInt(await rpc('eth_blockNumber', []), 16);
     const requiredConf = parseInt(await getConfig('deposit_confirmations', '15'));
     const now = Math.floor(Date.now() / 1000);
 
@@ -192,7 +213,6 @@ async function processConfirmations(provider) {
  */
 async function creditUser(db, deposit, now) {
     let balanceColumn;
-
     switch (deposit.token) {
         case 'TRDC': balanceColumn = 'wallet'; break;
         case 'USDT': balanceColumn = 'balance_usdt'; break;
@@ -221,7 +241,7 @@ async function creditUser(db, deposit, now) {
             [deposit.user_id, deposit.amount, notes]
         );
 
-        // Notify user — include all NOT NULL columns in Wo_Notifications
+        // Notify user — provide all NOT NULL columns
         await db.execute(
             `INSERT INTO Wo_Notifications
              (notifier_id, recipient_id, post_id, page_id, group_id, group_chat_id, event_id, thread_id, blog_id, story_id, type, type2, text, url, full_link, seen, sent_push, admin, time)
@@ -235,4 +255,4 @@ async function creditUser(db, deposit, now) {
     return false;
 }
 
-module.exports = { scanBlocks, processConfirmations };
+module.exports = { scanBlocks, processConfirmations, setRpcUrl };

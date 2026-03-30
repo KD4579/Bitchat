@@ -6,13 +6,13 @@ const { ethers } = require('ethers');
 const log = require('./logger');
 const { getConfig, setConfig, closeDb } = require('./config');
 const { loadAllAddresses } = require('./address-manager');
-const { scanBlocks, processConfirmations } = require('./monitor');
+const { scanBlocks, processConfirmations, setRpcUrl } = require('./monitor');
 const { processSweeps } = require('./sweeper');
 
 const POLL_INTERVAL = 15000; // 15 seconds
-const MAX_BLOCKS_PER_SCAN = 50; // Reduced to avoid rate limits
+const MAX_BLOCKS_PER_SCAN = 50;
 
-// Multiple public BSC RPC endpoints for rotation
+// Multiple public BSC RPC endpoints — rotated on rate-limit errors
 const RPC_URLS = (process.env.RPC_URL ? [process.env.RPC_URL] : []).concat([
     'https://bsc-dataseed1.binance.org',
     'https://bsc-dataseed2.binance.org',
@@ -25,27 +25,14 @@ const RPC_URLS = (process.env.RPC_URL ? [process.env.RPC_URL] : []).concat([
 
 let rpcIndex = 0;
 
-/**
- * Create a JsonRpcProvider with batching disabled.
- * batchMaxCount: 1 sends each request individually — avoids rate-limit errors
- * on batch endpoints.
- */
-function makeProvider(urlIndex) {
-    const url = RPC_URLS[urlIndex % RPC_URLS.length];
-    return new ethers.JsonRpcProvider(url, 56, {
-        batchMaxCount: 1,
-        staticNetwork: true,
-    });
-}
+function currentRpcUrl() { return RPC_URLS[rpcIndex % RPC_URLS.length]; }
 
-/**
- * Rotate to the next RPC provider. Called on rate-limit or network errors.
- */
-function nextProvider() {
+function rotateRpc() {
     rpcIndex = (rpcIndex + 1) % RPC_URLS.length;
-    const url = RPC_URLS[rpcIndex];
+    const url = currentRpcUrl();
     log.info(`Rotating RPC → ${url}`);
-    return makeProvider(rpcIndex);
+    setRpcUrl(url);
+    return url;
 }
 
 function sleep(ms) {
@@ -57,7 +44,6 @@ async function main() {
     log.info('BSC Deposit Monitor starting...');
     log.info('========================================');
 
-    // Validate keys
     const hotWalletKey = process.env.HOT_WALLET_KEY;
     if (!hotWalletKey || hotWalletKey === '0x_YOUR_PRIVATE_KEY_HERE') {
         log.error('HOT_WALLET_KEY not set in .env file. Exiting.');
@@ -70,17 +56,22 @@ async function main() {
         process.exit(1);
     }
 
-    // Check if deposits are enabled
     const enabled = await getConfig('deposit_enabled', '0');
     if (enabled !== '1') {
-        log.warn('Deposits are DISABLED in admin panel.');
-        log.warn('Entering standby mode — will check config every 60s...');
+        log.warn('Deposits DISABLED in admin panel. Entering standby...');
         await standbyLoop();
     }
 
-    // Connect to BSC with batching disabled
-    let provider = makeProvider(rpcIndex);
-    log.info(`RPC: ${RPC_URLS[rpcIndex]} (batching disabled, ${RPC_URLS.length} endpoints available)`);
+    // Set initial RPC URL for monitor's direct fetch calls
+    setRpcUrl(currentRpcUrl());
+    log.info(`RPC: ${currentRpcUrl()} (${RPC_URLS.length} endpoints, no batching)`);
+
+    // Use a plain provider only for wallet balance checks and sweeping
+    // monitor.js makes ALL blockchain reads via direct fetch (no batching)
+    const provider = new ethers.JsonRpcProvider(currentRpcUrl(), 56);
+    const hotWallet = new ethers.Wallet(hotWalletKey, provider);
+
+    log.info(`Hot Wallet: ${hotWallet.address}`);
 
     // Verify BSC mainnet
     const network = await provider.getNetwork();
@@ -90,17 +81,13 @@ async function main() {
     }
     log.info('Connected to BSC Mainnet');
 
-    const hotWallet = new ethers.Wallet(hotWalletKey, provider);
-    log.info(`Hot Wallet: ${hotWallet.address}`);
-
     // Check hot wallet BNB balance
     const bnbBalance = ethers.formatEther(await provider.getBalance(hotWallet.address));
     log.info(`Hot wallet BNB balance: ${bnbBalance} BNB`);
 
-    let sweepingEnabled = true;
-    if (parseFloat(bnbBalance) < 0.01) {
-        log.warn(`Hot wallet BNB too low for sweeping (${bnbBalance} BNB < 0.01). Monitoring and crediting will continue. Fund ${hotWallet.address} with at least 0.05 BNB to enable sweeping.`);
-        sweepingEnabled = false;
+    let sweepingEnabled = parseFloat(bnbBalance) >= 0.01;
+    if (!sweepingEnabled) {
+        log.warn(`Sweeping disabled (${bnbBalance} BNB < 0.01). Monitoring and crediting will continue. Fund ${hotWallet.address} with 0.05+ BNB to enable sweeping.`);
     }
 
     // Validate HD seed
@@ -115,20 +102,26 @@ async function main() {
     // Initialize last scanned block
     let lastBlock = parseInt(await getConfig('deposit_monitor_last_block', '0'));
     if (lastBlock === 0) {
-        lastBlock = (await provider.getBlockNumber()) - 10;
+        const res = await fetch(currentRpcUrl(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_blockNumber', params: [] }),
+        });
+        const json = await res.json();
+        lastBlock = parseInt(json.result, 16) - 10;
         await setConfig('deposit_monitor_last_block', lastBlock.toString());
         log.info(`Initialized last block to ${lastBlock}`);
     }
 
     log.info(`Starting deposit monitor loop (poll every ${POLL_INTERVAL / 1000}s)`);
     let cycleCount = 0;
-    let consecutiveErrors = 0;
+    let consecutiveRateLimits = 0;
 
     while (true) {
         try {
             cycleCount++;
 
-            // Check enabled every 10 cycles
+            // Check if still enabled every 10 cycles
             if (cycleCount % 10 === 0) {
                 const stillEnabled = await getConfig('deposit_enabled', '0');
                 if (stillEnabled !== '1') {
@@ -138,7 +131,6 @@ async function main() {
                 }
             }
 
-            // Load monitored addresses
             const addressMap = await loadAllAddresses();
             if (addressMap.size === 0) {
                 if (cycleCount % 20 === 0) log.info('No deposit addresses to monitor yet');
@@ -146,76 +138,67 @@ async function main() {
                 continue;
             }
 
-            // Get current block
-            const currentBlock = await provider.getBlockNumber();
-            const fromBlock = lastBlock + 1;
+            // Get current block via direct fetch
+            const blkRes = await fetch(currentRpcUrl(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_blockNumber', params: [] }),
+                signal: AbortSignal.timeout(8000),
+            });
+            const blkJson = await blkRes.json();
+            const currentBlock = parseInt(blkJson.result, 16);
 
+            const fromBlock = lastBlock + 1;
             if (fromBlock > currentBlock) {
                 await sleep(POLL_INTERVAL);
                 continue;
             }
 
-            // Cap scan range
             const toBlock = Math.min(fromBlock + MAX_BLOCKS_PER_SCAN - 1, currentBlock);
 
-            if (cycleCount % 20 === 0) {
-                log.info(`Scanning blocks ${fromBlock}-${toBlock} (${addressMap.size} addresses monitored, RPC: ${RPC_URLS[rpcIndex]})`);
+            if (cycleCount % 10 === 0) {
+                log.info(`Scanning blocks ${fromBlock}-${toBlock} (${addressMap.size} addresses, RPC: ${currentRpcUrl()})`);
             }
 
-            // Scan for deposits
             const { found, rateLimited } = await scanBlocks(provider, addressMap, fromBlock, toBlock);
-            if (found > 0) {
-                log.info(`Found ${found} new deposit(s) in blocks ${fromBlock}-${toBlock}`);
-            }
 
-            // Rotate RPC if rate limited
+            if (found > 0) log.info(`Found ${found} new deposit(s)`);
+
             if (rateLimited) {
-                provider = nextProvider();
-                consecutiveErrors++;
-                if (consecutiveErrors >= RPC_URLS.length) {
-                    log.warn('All RPCs rate-limited. Waiting 30s...');
-                    await sleep(30000);
-                    consecutiveErrors = 0;
+                consecutiveRateLimits++;
+                rotateRpc();
+                if (consecutiveRateLimits >= RPC_URLS.length) {
+                    log.warn('All RPCs rate-limited. Pausing 60s...');
+                    await sleep(60000);
+                    consecutiveRateLimits = 0;
+                } else {
+                    await sleep(5000);
                 }
-                await sleep(POLL_INTERVAL);
                 continue;
             }
 
-            consecutiveErrors = 0;
-
-            // Update last scanned block
+            consecutiveRateLimits = 0;
             lastBlock = toBlock;
             await setConfig('deposit_monitor_last_block', lastBlock.toString());
 
-            // Process confirmations and credit
             const credited = await processConfirmations(provider);
-            if (credited > 0) {
-                log.info(`Credited ${credited} deposit(s)`);
-            }
+            if (credited > 0) log.info(`Credited ${credited} deposit(s)`);
 
-            // Process sweep queue (only when hot wallet has enough BNB for gas)
             if (sweepingEnabled) {
                 const swept = await processSweeps(hotWallet, provider, seedPhrase);
-                if (swept > 0) {
-                    log.info(`Swept ${swept} deposit(s) to hot wallet`);
-                }
+                if (swept > 0) log.info(`Swept ${swept} deposit(s) to hot wallet`);
             } else if (cycleCount % 20 === 0) {
-                const currentBnb = parseFloat(ethers.formatEther(await provider.getBalance(hotWallet.address)));
-                if (currentBnb >= 0.01) {
-                    log.info(`Hot wallet funded (${currentBnb} BNB). Re-enabling sweeping.`);
+                const bnb = parseFloat(ethers.formatEther(await provider.getBalance(hotWallet.address)));
+                if (bnb >= 0.01) {
+                    log.info(`Hot wallet funded (${bnb} BNB). Sweeping enabled.`);
                     sweepingEnabled = true;
-                    hotWallet.connect(provider);
                 } else {
-                    log.warn(`Sweeping disabled — hot wallet: ${currentBnb} BNB. Fund ${hotWallet.address} with 0.05+ BNB.`);
+                    log.warn(`Sweeping disabled — ${bnb} BNB. Fund ${hotWallet.address} with 0.05+ BNB.`);
                 }
             }
 
         } catch (e) {
             log.error(`Cycle ${cycleCount} error: ${e.message}`);
-            // On network errors, rotate provider
-            if (e.code === 'BAD_DATA' || e.code === 'NETWORK_ERROR' || e.message.includes('rate limit')) {
-                provider = nextProvider();
-            }
         }
 
         await sleep(POLL_INTERVAL);
@@ -227,33 +210,15 @@ async function standbyLoop() {
         await sleep(60000);
         try {
             const enabled = await getConfig('deposit_enabled', '0');
-            if (enabled === '1') {
-                log.info('Deposits enabled! Exiting standby.');
-                return;
-            }
+            if (enabled === '1') { log.info('Deposits enabled! Exiting standby.'); return; }
         } catch (e) {
-            log.error('Standby config check failed', { error: e.message });
+            log.error('Standby check failed', { error: e.message });
         }
     }
 }
 
-process.on('SIGINT', async () => {
-    log.info('Received SIGINT. Shutting down...');
-    await closeDb();
-    process.exit(0);
-});
+process.on('SIGINT', async () => { log.info('Shutting down...'); await closeDb(); process.exit(0); });
+process.on('SIGTERM', async () => { log.info('Shutting down...'); await closeDb(); process.exit(0); });
+process.on('unhandledRejection', (reason) => { log.error('Unhandled rejection', { error: String(reason) }); });
 
-process.on('SIGTERM', async () => {
-    log.info('Received SIGTERM. Shutting down...');
-    await closeDb();
-    process.exit(0);
-});
-
-process.on('unhandledRejection', (reason) => {
-    log.error('Unhandled rejection', { error: String(reason) });
-});
-
-main().catch(e => {
-    log.error('Fatal error', { error: e.message, stack: e.stack });
-    process.exit(1);
-});
+main().catch(e => { log.error('Fatal error', { error: e.message, stack: e.stack }); process.exit(1); });
