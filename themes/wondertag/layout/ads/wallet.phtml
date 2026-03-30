@@ -455,7 +455,7 @@
 					<p style="font-size:13px;color:#0369a1;margin:0 0 12px;">Your BSC Deposit Address</p>
 					<div id="deposit-address-display" style="display:none;">
 						<div id="deposit-qr-code" style="margin:0 auto 12px;width:200px;height:200px;background:#fff;border-radius:8px;padding:8px;display:flex;align-items:center;justify-content:center;">
-							<canvas id="deposit-qr-canvas"></canvas>
+							<div id="deposit-qr-canvas" style="width:184px;height:184px;"></div>
 						</div>
 						<div style="display:flex;align-items:center;gap:8px;justify-content:center;">
 							<code id="deposit-address-text" style="font-size:13px;word-break:break-all;background:#fff;padding:8px 12px;border-radius:6px;border:1px solid #e2e8f0;"></code>
@@ -540,20 +540,24 @@
 			}
 
 			function generateQR(address) {
-				var canvas = document.getElementById('deposit-qr-canvas');
-				if (typeof QRCode !== 'undefined') {
-					QRCode.toCanvas(canvas, address, { width: 184, margin: 0 }, function(err) {
-						if (err) console.error('QR error:', err);
+				var el = document.getElementById('deposit-qr-canvas');
+				el.innerHTML = '';
+				function makeQR() {
+					new QRCode(el, {
+						text: address,
+						width: 184,
+						height: 184,
+						colorDark: '#000000',
+						colorLight: '#ffffff',
+						correctLevel: QRCode.CorrectLevel.M
 					});
+				}
+				if (typeof QRCode !== 'undefined' && typeof QRCode.CorrectLevel !== 'undefined') {
+					makeQR();
 				} else {
-					// Load QRCode library dynamically
 					var script = document.createElement('script');
-					script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-					script.onload = function() {
-						QRCode.toCanvas(canvas, address, { width: 184, margin: 0 }, function(err) {
-							if (err) console.error('QR error:', err);
-						});
-					};
+					script.src = '<?php echo $wo['config']['site_url']; ?>/themes/wondertag/javascript/qrcode.js';
+					script.onload = makeQR;
 					document.head.appendChild(script);
 				}
 			}
