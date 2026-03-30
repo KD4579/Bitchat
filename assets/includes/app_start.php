@@ -34,7 +34,11 @@ if (isset($ServerErrors) && !empty($ServerErrors)) {
     }
     die();
 }
-$baned_ips = Wo_GetBanned("user");
+$baned_ips = BitchatCache::get('banned_ips_list');
+if ($baned_ips === false) {
+    $baned_ips = Wo_GetBanned("user");
+    BitchatCache::set('banned_ips_list', $baned_ips, 300);
+}
 if (in_array($_SERVER["REMOTE_ADDR"], $baned_ips)) {
     exit();
 }

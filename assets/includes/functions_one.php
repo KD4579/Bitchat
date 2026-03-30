@@ -161,6 +161,8 @@ function Wo_SaveHTMLEmails($update_name, $value) {
 }
 function Wo_GetConfig() {
     global $sqlConnect;
+    $cached = BitchatCache::get('site_config');
+    if ($cached !== false) return $cached;
     $data  = array();
     $query = mysqli_query($sqlConnect, "SELECT * FROM " . T_CONFIG);
     if (mysqli_num_rows($query)) {
@@ -168,6 +170,7 @@ function Wo_GetConfig() {
             $data[$fetched_data['name']] = $fetched_data['value'];
         }
     }
+    BitchatCache::set('site_config', $data, 120);
     return $data;
 }
 function Wo_GetLangDetails($lang_key = '') {
@@ -238,6 +241,7 @@ function Wo_SaveConfig($update_name, $value) {
     if ($query) {
         $config[$update_name]        = $value;
         $wo['config'][$update_name]  = $value;
+        BitchatCache::delete('site_config');
         return true;
     } else {
         return false;
@@ -9668,6 +9672,8 @@ function FilterStripTags($string='')
 function GetIso()
 {
     global $wo,$db,$all_langs;
+    $cached = BitchatCache::get('lang_iso_codes');
+    if ($cached !== false) return $cached;
     $iso = array();
     foreach ($all_langs as $key => $value) {
         try {
@@ -9676,9 +9682,10 @@ function GetIso()
                 $iso[$value] = $info;
             }
         } catch (Exception $e) {
-            
+
         }
     }
+    BitchatCache::set('lang_iso_codes', $iso, 3600);
     return $iso;
 }
 function BackblazeConnect($args=[])
