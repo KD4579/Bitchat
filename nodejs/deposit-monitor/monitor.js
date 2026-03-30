@@ -25,7 +25,9 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
     // 1. Scan BEP-20 Transfer events for TRDC and USDT
     const tokenContracts = [TRDC_CONTRACT, USDT_CONTRACT];
 
-    for (const contractAddr of tokenContracts) {
+    for (let i = 0; i < tokenContracts.length; i++) {
+        if (i > 0) await sleep(800); // avoid rate limiting on public RPCs
+        const contractAddr = tokenContracts[i];
         const tokenName = TOKEN_MAP[contractAddr.toLowerCase()];
 
         try {
@@ -118,6 +120,10 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
     return depositsFound;
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
  * Update confirmation counts and credit confirmed deposits.
  */
@@ -208,9 +214,9 @@ async function creditUser(db, deposit, now) {
             [deposit.user_id, deposit.amount, notes]
         );
 
-        // Notify user
+        // Notify user (include all NOT NULL columns)
         await db.execute(
-            "INSERT INTO Wo_Notifications (notifier_id, recipient_id, type, text, url, time) VALUES (0, ?, 'deposit', ?, '/wallet', ?)",
+            "INSERT INTO Wo_Notifications (notifier_id, recipient_id, post_id, page_id, group_id, group_chat_id, event_id, thread_id, blog_id, story_id, type, type2, text, url, full_link, seen, sent_push, admin, time) VALUES (0, ?, 0, 0, 0, 0, 0, 0, 0, 0, 'deposit', '', ?, '/wallet', '', 0, 0, 0, ?)",
             [deposit.user_id, `Your ${deposit.token} deposit of ${deposit.amount} has been credited to your account.`, now]
         );
 

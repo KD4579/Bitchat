@@ -38,13 +38,26 @@ async function main() {
         await standbyLoop();
     }
 
-    // Connect to BSC
-    const rpcUrl = process.env.RPC_URL || 'https://bsc-dataseed1.binance.org';
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    // Connect to BSC — use multiple public RPCs for rate-limit resilience
+    const rpcUrls = (process.env.RPC_URL ? [process.env.RPC_URL] : []).concat([
+        'https://bsc-dataseed1.binance.org',
+        'https://bsc-dataseed2.binance.org',
+        'https://bsc-dataseed3.binance.org',
+        'https://bsc-dataseed1.defibit.io',
+        'https://bsc-dataseed1.ninicoin.io',
+    ]);
+
+    // Build a FallbackProvider that round-robins across public nodes
+    const subProviders = rpcUrls.map(url => ({
+        provider: new ethers.JsonRpcProvider(url),
+        priority: 1,
+        stallTimeout: 2000,
+    }));
+    const provider = new ethers.FallbackProvider(subProviders, 56, { quorum: 1 });
     const hotWallet = new ethers.Wallet(hotWalletKey, provider);
 
     log.info(`Hot Wallet: ${hotWallet.address}`);
-    log.info(`RPC: ${rpcUrl}`);
+    log.info(`RPC: ${rpcUrls[0]} (+${rpcUrls.length - 1} fallbacks)`);
 
     // Verify BSC mainnet
     const network = await provider.getNetwork();
