@@ -10,7 +10,47 @@ const { scanBlocks, processConfirmations } = require('./monitor');
 const { processSweeps } = require('./sweeper');
 
 const POLL_INTERVAL = 15000; // 15 seconds
-const MAX_BLOCKS_PER_SCAN = 100; // Don't scan more than 100 blocks at once
+const MAX_BLOCKS_PER_SCAN = 50; // Reduced to avoid rate limits
+
+// Multiple public BSC RPC endpoints for rotation
+const RPC_URLS = (process.env.RPC_URL ? [process.env.RPC_URL] : []).concat([
+    'https://bsc-dataseed1.binance.org',
+    'https://bsc-dataseed2.binance.org',
+    'https://bsc-dataseed3.binance.org',
+    'https://bsc-dataseed4.binance.org',
+    'https://bsc-dataseed1.defibit.io',
+    'https://bsc-dataseed2.defibit.io',
+    'https://bsc-dataseed1.ninicoin.io',
+]);
+
+let rpcIndex = 0;
+
+/**
+ * Create a JsonRpcProvider with batching disabled.
+ * batchMaxCount: 1 sends each request individually — avoids rate-limit errors
+ * on batch endpoints.
+ */
+function makeProvider(urlIndex) {
+    const url = RPC_URLS[urlIndex % RPC_URLS.length];
+    return new ethers.JsonRpcProvider(url, 56, {
+        batchMaxCount: 1,
+        staticNetwork: true,
+    });
+}
+
+/**
+ * Rotate to the next RPC provider. Called on rate-limit or network errors.
+ */
+function nextProvider() {
+    rpcIndex = (rpcIndex + 1) % RPC_URLS.length;
+    const url = RPC_URLS[rpcIndex];
+    log.info(`Rotating RPC → ${url}`);
+    return makeProvider(rpcIndex);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function main() {
     log.info('========================================');
@@ -38,26 +78,9 @@ async function main() {
         await standbyLoop();
     }
 
-    // Connect to BSC — use multiple public RPCs for rate-limit resilience
-    const rpcUrls = (process.env.RPC_URL ? [process.env.RPC_URL] : []).concat([
-        'https://bsc-dataseed1.binance.org',
-        'https://bsc-dataseed2.binance.org',
-        'https://bsc-dataseed3.binance.org',
-        'https://bsc-dataseed1.defibit.io',
-        'https://bsc-dataseed1.ninicoin.io',
-    ]);
-
-    // Build a FallbackProvider that round-robins across public nodes
-    const subProviders = rpcUrls.map(url => ({
-        provider: new ethers.JsonRpcProvider(url),
-        priority: 1,
-        stallTimeout: 2000,
-    }));
-    const provider = new ethers.FallbackProvider(subProviders, 56, { quorum: 1 });
-    const hotWallet = new ethers.Wallet(hotWalletKey, provider);
-
-    log.info(`Hot Wallet: ${hotWallet.address}`);
-    log.info(`RPC: ${rpcUrls[0]} (+${rpcUrls.length - 1} fallbacks)`);
+    // Connect to BSC with batching disabled
+    let provider = makeProvider(rpcIndex);
+    log.info(`RPC: ${RPC_URLS[rpcIndex]} (batching disabled, ${RPC_URLS.length} endpoints available)`);
 
     // Verify BSC mainnet
     const network = await provider.getNetwork();
@@ -67,17 +90,20 @@ async function main() {
     }
     log.info('Connected to BSC Mainnet');
 
+    const hotWallet = new ethers.Wallet(hotWalletKey, provider);
+    log.info(`Hot Wallet: ${hotWallet.address}`);
+
     // Check hot wallet BNB balance
     const bnbBalance = ethers.formatEther(await provider.getBalance(hotWallet.address));
     log.info(`Hot wallet BNB balance: ${bnbBalance} BNB`);
 
     let sweepingEnabled = true;
     if (parseFloat(bnbBalance) < 0.01) {
-        log.warn('Hot wallet BNB too low for sweeping (< 0.01 BNB). Monitoring and crediting deposits will continue, but sweeping to hot wallet is disabled until funded with at least 0.05 BNB.');
+        log.warn(`Hot wallet BNB too low for sweeping (${bnbBalance} BNB < 0.01). Monitoring and crediting will continue. Fund ${hotWallet.address} with at least 0.05 BNB to enable sweeping.`);
         sweepingEnabled = false;
     }
 
-    // Validate HD seed by deriving first address
+    // Validate HD seed
     try {
         const hdNode = ethers.HDNodeWallet.fromPhrase(seedPhrase, '', "m/44'/60'/0'/0");
         log.info(`HD wallet root verified. First address: ${hdNode.deriveChild(0).address}`);
@@ -89,14 +115,14 @@ async function main() {
     // Initialize last scanned block
     let lastBlock = parseInt(await getConfig('deposit_monitor_last_block', '0'));
     if (lastBlock === 0) {
-        lastBlock = await provider.getBlockNumber() - 10; // Start from 10 blocks ago
+        lastBlock = (await provider.getBlockNumber()) - 10;
         await setConfig('deposit_monitor_last_block', lastBlock.toString());
         log.info(`Initialized last block to ${lastBlock}`);
     }
 
-    // Main loop
     log.info(`Starting deposit monitor loop (poll every ${POLL_INTERVAL / 1000}s)`);
     let cycleCount = 0;
+    let consecutiveErrors = 0;
 
     while (true) {
         try {
@@ -133,14 +159,29 @@ async function main() {
             const toBlock = Math.min(fromBlock + MAX_BLOCKS_PER_SCAN - 1, currentBlock);
 
             if (cycleCount % 20 === 0) {
-                log.info(`Scanning blocks ${fromBlock}-${toBlock} (${addressMap.size} addresses monitored)`);
+                log.info(`Scanning blocks ${fromBlock}-${toBlock} (${addressMap.size} addresses monitored, RPC: ${RPC_URLS[rpcIndex]})`);
             }
 
             // Scan for deposits
-            const found = await scanBlocks(provider, addressMap, fromBlock, toBlock);
+            const { found, rateLimited } = await scanBlocks(provider, addressMap, fromBlock, toBlock);
             if (found > 0) {
                 log.info(`Found ${found} new deposit(s) in blocks ${fromBlock}-${toBlock}`);
             }
+
+            // Rotate RPC if rate limited
+            if (rateLimited) {
+                provider = nextProvider();
+                consecutiveErrors++;
+                if (consecutiveErrors >= RPC_URLS.length) {
+                    log.warn('All RPCs rate-limited. Waiting 30s...');
+                    await sleep(30000);
+                    consecutiveErrors = 0;
+                }
+                await sleep(POLL_INTERVAL);
+                continue;
+            }
+
+            consecutiveErrors = 0;
 
             // Update last scanned block
             lastBlock = toBlock;
@@ -158,21 +199,23 @@ async function main() {
                 if (swept > 0) {
                     log.info(`Swept ${swept} deposit(s) to hot wallet`);
                 }
-            } else {
-                // Re-check BNB balance every 20 cycles and re-enable sweeping if funded
-                if (cycleCount % 20 === 0) {
-                    const currentBnb = parseFloat(ethers.formatEther(await provider.getBalance(hotWallet.address)));
-                    if (currentBnb >= 0.01) {
-                        log.info(`Hot wallet funded (${currentBnb} BNB). Re-enabling sweeping.`);
-                        sweepingEnabled = true;
-                    } else {
-                        log.warn(`Sweeping disabled — hot wallet BNB: ${currentBnb}. Fund ${hotWallet.address} with at least 0.05 BNB.`);
-                    }
+            } else if (cycleCount % 20 === 0) {
+                const currentBnb = parseFloat(ethers.formatEther(await provider.getBalance(hotWallet.address)));
+                if (currentBnb >= 0.01) {
+                    log.info(`Hot wallet funded (${currentBnb} BNB). Re-enabling sweeping.`);
+                    sweepingEnabled = true;
+                    hotWallet.connect(provider);
+                } else {
+                    log.warn(`Sweeping disabled — hot wallet: ${currentBnb} BNB. Fund ${hotWallet.address} with 0.05+ BNB.`);
                 }
             }
 
         } catch (e) {
-            log.error(`Cycle ${cycleCount} error: ${e.message}`, { stack: e.stack?.split('\n').slice(0, 3) });
+            log.error(`Cycle ${cycleCount} error: ${e.message}`);
+            // On network errors, rotate provider
+            if (e.code === 'BAD_DATA' || e.code === 'NETWORK_ERROR' || e.message.includes('rate limit')) {
+                provider = nextProvider();
+            }
         }
 
         await sleep(POLL_INTERVAL);
@@ -192,10 +235,6 @@ async function standbyLoop() {
             log.error('Standby config check failed', { error: e.message });
         }
     }
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 process.on('SIGINT', async () => {
