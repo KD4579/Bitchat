@@ -13,13 +13,15 @@ const POLL_INTERVAL = 15000; // 15 seconds
 const MAX_BLOCKS_PER_SCAN = 50;
 
 // Multiple public BSC RPC endpoints — rotated on rate-limit errors
+// publicnode.com and 1rpc.io have no batch limits; binance.org nodes are fallbacks
 const RPC_URLS = (process.env.RPC_URL ? [process.env.RPC_URL] : []).concat([
+    'https://bsc.publicnode.com',
+    'https://bsc-rpc.publicnode.com',
+    'https://1rpc.io/bnb',
     'https://bsc-dataseed1.binance.org',
     'https://bsc-dataseed2.binance.org',
     'https://bsc-dataseed3.binance.org',
-    'https://bsc-dataseed4.binance.org',
     'https://bsc-dataseed1.defibit.io',
-    'https://bsc-dataseed2.defibit.io',
     'https://bsc-dataseed1.ninicoin.io',
 ]);
 
@@ -168,11 +170,11 @@ async function main() {
                 consecutiveRateLimits++;
                 rotateRpc();
                 if (consecutiveRateLimits >= RPC_URLS.length) {
-                    log.warn('All RPCs rate-limited. Pausing 60s...');
-                    await sleep(60000);
+                    log.warn('All RPCs rate-limited. Pausing 120s...');
+                    await sleep(120000);
                     consecutiveRateLimits = 0;
                 } else {
-                    await sleep(5000);
+                    await sleep(10000);
                 }
                 continue;
             }
