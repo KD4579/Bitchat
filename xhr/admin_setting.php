@@ -10,7 +10,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         'reset_windows_app_keys', 'new_backup', 'ffmpeg_debug',
         'top_up_wallet', 'generate_fake_users', 'send_mail_to_all_users',
         'save_deposit_settings', 'update_html_emails',
-        'delete_user', 'delete_multi_users',
+        'delete_user', 'delete_multi_users', 'delete_user_posts', 'delete_user_articles', 'delete_user_messages',
         'approve_withdrawal', 'reject_withdrawal', 'approve_all_withdrawals',
         'save_withdrawal_settings'
     );
@@ -666,6 +666,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
     }
     if ($s == 'delete_user_posts') {
         $data['status'] = 400;
+        if (Wo_CheckMainSession($hash_id) !== true) { header("Content-type: application/json"); echo json_encode(['status' => 403, 'message' => 'Invalid session']); exit(); }
         if (!empty($_GET['user_id'])) {
             ob_end_clean();
             header("Content-Encoding: none");
@@ -696,6 +697,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
     }
     if ($s == 'delete_user_articles') {
         $data['status'] = 400;
+        if (Wo_CheckMainSession($hash_id) !== true) { header("Content-type: application/json"); echo json_encode(['status' => 403, 'message' => 'Invalid session']); exit(); }
         if (!empty($_GET['user_id'])) {
             ob_end_clean();
             header("Content-Encoding: none");
@@ -766,6 +768,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
     }
     if ($s == 'delete_user_messages') {
         $data['status'] = 400;
+        if (Wo_CheckMainSession($hash_id) !== true) { header("Content-type: application/json"); echo json_encode(['status' => 403, 'message' => 'Invalid session']); exit(); }
         if (!empty($_GET['user_id'])) {
             ob_end_clean();
             header("Content-Encoding: none");
@@ -887,6 +890,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         exit();
     }
     if ($s == 'delete_multi_users') {
+        if (Wo_CheckMainSession($hash_id) !== true) { header("Content-type: application/json"); echo json_encode(['status' => 403, 'message' => 'Invalid session']); exit(); }
         if (!empty($_POST['ids']) && !empty($_POST['type']) && in_array($_POST['type'], array(
             'activate',
             'deactivate',
@@ -2302,9 +2306,11 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         exit();
     }
     if ($s == 'top_up_wallet') {
-        if (!empty($_POST['amount'])) {
+        if (Wo_CheckMainSession($hash_id) !== true) { header("Content-type: application/json"); echo json_encode(['status' => 403, 'message' => 'Invalid session']); exit(); }
+        $top_up_amount = floatval($_POST['amount'] ?? 0);
+        if ($top_up_amount > 0) {
             $update = Wo_UpdateUserData($wo['user']['user_id'], array(
-                'wallet' => $_POST['amount']
+                'wallet' => $top_up_amount
             ));
             if ($update) {
                 $data = array(
@@ -3613,6 +3619,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         exit();
     }
     if ($s == 'generate_fake_users') {
+        if (Wo_CheckMainSession($hash_id) !== true) { header("Content-type: application/json"); echo json_encode(['status' => 403, 'message' => 'Invalid session']); exit(); }
         require "assets/libraries/fake-users/vendor/autoload.php";
         $faker = Faker\Factory::create();
         if (empty($_POST['password'])) {
@@ -4501,6 +4508,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         exit();
     }
     if ($s == 'send_mail_to_all_users') {
+        if (Wo_CheckMainSession($hash_id) !== true) { header("Content-type: application/json"); echo json_encode(['status' => 403, 'message' => 'Invalid session']); exit(); }
         $isset_test = 'off';
         if (empty($_POST['message']) || empty($_POST['subject'])) {
             $send_errors = $error_icon . $wo['lang']['please_check_details'];

@@ -14,15 +14,14 @@
 // Load configuration
 require_once('assets/init.php');
 
-// Security: Only allow from localhost or admin IPs (optional)
+// Security: require admin session or localhost
 $allowed_ips = ['127.0.0.1', '::1'];
 $remote_ip = $_SERVER['REMOTE_ADDR'] ?? '';
-
-// Optionally restrict access
-// if (!in_array($remote_ip, $allowed_ips)) {
-//     http_response_code(403);
-//     die(json_encode(['status' => 'forbidden', 'message' => 'Access denied']));
-// }
+$is_admin_session = !empty($wo['loggedin']) && !empty($wo['user']['is_admin_or_moderator']) && $wo['user']['is_admin_or_moderator'] == 1;
+if (!in_array($remote_ip, $allowed_ips) && !$is_admin_session) {
+    http_response_code(403);
+    die(json_encode(['status' => 'forbidden', 'message' => 'Access denied']));
+}
 
 header('Content-Type: application/json');
 

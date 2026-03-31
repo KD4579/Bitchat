@@ -140,6 +140,21 @@ if ($f == 'trdc_withdrawal') {
 
         mysqli_begin_transaction($sqlConnect);
         try {
+            // Lock the user row to prevent race condition on concurrent requests
+            $lockQ = mysqli_query($sqlConnect, "SELECT wallet FROM " . T_USERS . " WHERE user_id = {$userId} FOR UPDATE");
+            if (!$lockQ || mysqli_num_rows($lockQ) === 0) {
+                throw new Exception('User not found');
+            }
+
+            // Re-check pending count inside transaction (prevents race condition bypass)
+            $pendingRecheck = mysqli_query($sqlConnect, "SELECT COUNT(*) as cnt FROM " . T_TRDC_WITHDRAWALS . " WHERE user_id = {$userId} AND status IN ('pending','approved','processing')");
+            if ($pendingRecheck) {
+                $pendingRecheckRow = mysqli_fetch_assoc($pendingRecheck);
+                if ($pendingRecheckRow['cnt'] >= $maxPending) {
+                    throw new Exception('Pending claim already exists');
+                }
+            }
+
             // Atomic deduct
             $q1 = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET wallet = wallet - {$safeAmount} WHERE user_id = {$userId} AND wallet >= {$safeAmount}");
             if (!$q1 || mysqli_affected_rows($sqlConnect) == 0) {

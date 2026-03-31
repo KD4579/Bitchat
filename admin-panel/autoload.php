@@ -1735,7 +1735,7 @@ if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night') {
                     }
                 }
             };
-            jQuery.fn.highlight("<?php echo (!empty($_GET['highlight']) ? $_GET['highlight'] : '') ?>",'highlight_text');
+            jQuery.fn.highlight(<?php echo !empty($_GET['highlight']) ? json_encode(htmlspecialchars(strip_tags($_GET['highlight']), ENT_QUOTES, 'UTF-8')) : '""'; ?>,'highlight_text');
             $.get(Wo_Ajax_Requests_File(),{f:'admin_setting', s:'exchange'});
         });
         $(document).on('click', '#search_for_bar a', function(event) {

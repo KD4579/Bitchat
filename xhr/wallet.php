@@ -58,7 +58,11 @@ if ($f == 'wallet') {
                     } elseif (!empty($result->purchase_units[0]->amount->value)) {
                         $paypal_amount = floatval($result->purchase_units[0]->amount->value);
                     }
-                    if ($paypal_amount <= 0) { $paypal_amount = floatval($_GET['amount']); } // fallback
+                    if ($paypal_amount <= 0) {
+                        // SECURITY: Do NOT fall back to user-supplied amount. Reject zero-value PayPal orders.
+                        header("Location: $site_url/payment-error?reason=invalid-amount");
+                        exit();
+                    }
                     if (!empty($wo["config"]['currency_array']) && in_array($wo["config"]['paypal_currency'], $wo["config"]['currency_array']) && $wo["config"]['paypal_currency'] != $wo['config']['currency'] && !empty($wo['config']['exchange']) && !empty($wo['config']['exchange'][$wo["config"]['paypal_currency']])) {
                         $paypal_amount = ($paypal_amount / $wo['config']['exchange'][$wo["config"]['paypal_currency']]);
                     }
@@ -120,7 +124,9 @@ if ($f == 'wallet') {
         $amount   = (!empty($_POST['amount']) && is_numeric($_POST['amount'])) ? floatval($_POST['amount']) : 0;
         $userdata = Wo_UserData($user_id);
         $wallet   = floatval($wo['user']['wallet']);
-        if (empty($user_id) || $amount <= 0 || empty($userdata) || $wallet <= 0) {
+        if (intval($user_id) === intval($wo['user']['user_id'])) {
+            $data['message'] = $wo['lang']['please_check_details'];
+        } else if (empty($user_id) || $amount <= 0 || empty($userdata) || $wallet <= 0) {
             $data['message'] = $wo['lang']['please_check_details'];
         } else if ($wallet < $amount) {
             $data['message'] = $wo['lang']['amount_exceded'];
@@ -204,7 +210,7 @@ if ($f == 'wallet') {
                     $data['message'] = $error_icon . $wo['lang']['something_wrong'];
                 }
             } elseif ($_GET['type'] == 'fund') {
-                if (!empty($_GET['price']) && is_numeric($_GET['price']) && $_GET['price'] > 0) {
+                if (!empty($_GET['price']) && is_numeric($_GET['price']) && floatval($_GET['price']) >= 1.00) {
                     if (!empty($_GET['fund_id']) && is_numeric($_GET['fund_id']) && $_GET['fund_id'] > 0) {
                         $fund_id = Wo_Secure($_GET['fund_id']);
                         $price   = Wo_Secure($_GET['price']);

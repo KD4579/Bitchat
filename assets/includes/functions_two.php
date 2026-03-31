@@ -5544,7 +5544,6 @@ function Wo_CreateMainSession() {
     // New: bin2hex(random_bytes(10)) = 2^80 possible values (20 hex chars)
     $hash = bin2hex(random_bytes(10)); // 20 hex characters (same length as before)
     if (!empty($_SESSION["main_hash_id"])) {
-        $_SESSION["main_hash_id"] = $_SESSION["main_hash_id"];
         return $_SESSION["main_hash_id"];
     }
     $_SESSION["main_hash_id"] = $hash;

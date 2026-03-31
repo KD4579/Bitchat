@@ -10,6 +10,14 @@
 // +------------------------------------------------------------------------+
 require_once('config.php');
 require_once('assets/includes/tabels.php');
+
+// SECURITY: Require active admin session before running updater
+session_start();
+if (empty($_SESSION['user_id']) || empty($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+    http_response_code(403);
+    die(json_encode(['error' => 'Forbidden']));
+}
+
 $f = '';
 $data = array();
 $s = '';
@@ -52,7 +60,7 @@ function Wo_Secure($string, $censored_words = 1) {
     $string = str_replace('\\r', " <br>", $string);
     $string = str_replace('\\r\\n', " <br>", $string);
     $string = str_replace('\\n\\r', " <br>", $string);
-    $string = str_replace('&amp;#', '&#', $string);
+    // SECURITY FIX: removed entity-injection bypass (str_replace '&amp;#' → '&#')
     if ($censored_words == 1) {
         global $config;
         $censored_words = @explode(",", $config['censored_words']);
@@ -93,8 +101,8 @@ if (!empty($mysqli_fetch['value'])) {
 if ($f == 'run_updater') {
     $arrContextOptions = array(
         "ssl" => array(
-            "verify_peer" => false,
-            "verify_peer_name" => false
+            "verify_peer" => true,
+            "verify_peer_name" => true
         )
     );
     if (!empty($_GET['purchase_code'])) {
