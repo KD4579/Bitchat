@@ -59,9 +59,9 @@ if ($f == 'update_data') {
     $data['count_num'] = 0;
     if ($_GET['check_posts'] == 'true') {
         if (!empty($_GET['before_post_id']) && isset($_GET['user_id'])) {
-            $before_post_id = Wo_Secure($_GET['before_post_id']);
-            $logged_user_id = Wo_Secure($wo['user']['user_id']);
-            $user_id_param  = Wo_Secure($_GET['user_id']);
+            $before_post_id = intval($_GET['before_post_id']);
+            $logged_user_id = intval($wo['user']['user_id']);
+            $user_id_param  = intval($_GET['user_id']);
 
             if (!empty($user_id_param) && $user_id_param > 0) {
                 // Profile page: count new posts by that user

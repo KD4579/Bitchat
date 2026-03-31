@@ -30,7 +30,7 @@ if ($f == 'recover') {
             $code              = bin2hex(random_bytes(32));
             $user_recover_data['link'] = Wo_Link('index.php?link1=reset-password&code=' . $user_recover_data['user_id'] . '_' . $code);
             $time = time() + (60 * 60); // 1 hour expiry (not 12 hours)
-            $query                     = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `email_code` = '" . Wo_Secure($code) . "' , `time_code_sent` = '".$time."' WHERE `user_id` = {$user_recover_data['user_id']}");
+            $query                     = mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET `email_code` = '" . Wo_Secure($code) . "' , `time_code_sent` = " . intval($time) . " WHERE `user_id` = " . intval($user_recover_data['user_id']));
             cache($user_recover_data['user_id'], 'users', 'delete');
             $wo['recover']             = $user_recover_data;
             $body                      = Wo_LoadPage('emails/recover');

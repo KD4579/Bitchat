@@ -1249,7 +1249,7 @@ if ($f == 'posts') {
                             @unlink($fetched_data_s['image']);
                             $delete_from_s3 = Wo_DeleteFromToS3($media_2);
                             $delete_from_s3 = Wo_DeleteFromToS3($fetched_data_s['image']);
-                            mysqli_query($sqlConnect, "DELETE FROM " . T_ALBUMS_MEDIA . " WHERE `id` = '" . $fetched_data_s['id'] . "' ");
+                            mysqli_query($sqlConnect, "DELETE FROM " . T_ALBUMS_MEDIA . " WHERE `id` = " . intval($fetched_data_s['id']));
                             $db->where('id', $post_id)->update(T_POSTS, array(
                                 'multi_image' => '0',
                                 'postFile' => '',

@@ -270,12 +270,12 @@ if ($f == 'wallet') {
                             //$notes              = $wo['lang']['upgrade_to_pro'] . " " . $img . " : Wallet";
                             //$notes              = $img . " : Wallet";
                             //$notes              = str_replace('{text}', $img . " : Wallet", $wo['lang']['trans_upgrade_to_pro']);
-                            $notes = json_encode([
+                            $notes = mysqli_real_escape_string($sqlConnect, json_encode([
                                 'pro_type' => $pro_type,
                                 'method_type' => 'wallet'
-                            ]);
+                            ]));
 
-                            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'PRO', {$price}, '{$notes}')");
+                            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES (" . intval($wo['user']['user_id']) . ", 'PRO', " . floatval($price) . ", '{$notes}')");
                             $create_payment     = Wo_CreatePayment($pro_type);
                             if ($mysqli) {
                                 if ((!empty($_SESSION['ref']) || !empty($wo['user']['ref_user_id'])) && $wo['config']['affiliate_type'] == 1 && $wo['user']['referrer'] == 0) {

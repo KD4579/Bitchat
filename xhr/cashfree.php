@@ -213,8 +213,8 @@ if ($f == 'cashfree') {
 	                $img     = $wo['lang']['vip'];
 	                $amount1 = $wo['pro_packages']['vip']['price'];
 	            }
-	            $notes              = $wo['lang']['upgrade_to_pro'] . " " . $img . " : Cashfree";
-	            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES ({$wo['user']['user_id']}, 'PRO', {$amount1}, '{$notes}')");
+	            $notes              = mysqli_real_escape_string($sqlConnect, $wo['lang']['upgrade_to_pro'] . " " . $img . " : Cashfree");
+	            $create_payment_log = mysqli_query($sqlConnect, "INSERT INTO " . T_PAYMENT_TRANSACTIONS . " (`userid`, `kind`, `amount`, `notes`) VALUES (" . intval($wo['user']['user_id']) . ", 'PRO', " . floatval($amount1) . ", '{$notes}')");
 	            $create_payment     = Wo_CreatePayment($pro_type);
 	            if ($mysqli) {
 	                //record affiliate with fixed price

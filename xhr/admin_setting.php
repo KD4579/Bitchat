@@ -6016,12 +6016,16 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
             exit();
         }
 
+        $allowed_bal_cols = ['wallet', 'balance_usdt', 'balance_bnb'];
         $balCol = 'wallet';
         if ($dep['token'] === 'USDT') $balCol = 'balance_usdt';
         elseif ($dep['token'] === 'BNB') $balCol = 'balance_bnb';
+        if (!in_array($balCol, $allowed_bal_cols, true)) $balCol = 'wallet';
 
         $now = time();
-        mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET {$balCol} = {$balCol} + {$dep['amount']} WHERE user_id = {$dep['user_id']}");
+        $dep_amount = floatval($dep['amount']);
+        $dep_user_id = intval($dep['user_id']);
+        mysqli_query($sqlConnect, "UPDATE " . T_USERS . " SET {$balCol} = {$balCol} + {$dep_amount} WHERE user_id = {$dep_user_id}");
         mysqli_query($sqlConnect, "UPDATE " . T_DEPOSITS . " SET status = 'credited', credited_at = {$now}, updated_at = {$now} WHERE id = {$depositId}");
 
         $notes = json_encode(['deposit_id' => $depositId, 'manual' => true, 'admin' => $wo['user']['user_id']]);
