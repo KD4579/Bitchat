@@ -8029,3 +8029,462 @@ code[class*=language-], pre[class*=language-] {
     background-color: #202124;
   }
 }
+
+/* ================================================================
+   BITCHAT ADMIN — COMPREHENSIVE DARK MODE FIXES (Audit Round 2)
+   All fixes use body.dark prefix and !important where specificity
+   battles with hardcoded light-mode rules with !important.
+   ================================================================ */
+
+/* --- Calendar: FC event dots (hardcoded white!important in light) --- */
+body.dark .fc .fc-list-table .fc-list-item.bg-danger  .fc-event-dot,
+body.dark .fc .fc-list-table .fc-list-item.bg-success .fc-event-dot,
+body.dark .fc .fc-list-table .fc-list-item.bg-info    .fc-event-dot,
+body.dark .fc .fc-list-table .fc-list-item.bg-warning .fc-event-dot,
+body.dark .fc .fc-list-table .fc-list-item.bg-primary .fc-event-dot,
+body.dark .fc .fc-list-table .fc-list-item.bg-secondary .fc-event-dot,
+body.dark .fc .fc-list-table .fc-list-item.bg-dark    .fc-event-dot {
+  background: rgba(255,255,255,0.85) !important;
+}
+
+/* --- Mobile: header body dropdown stays dark --- */
+@media (max-width: 1200px) {
+  body.dark .header .header-body {
+    background-color: rgb(44, 45, 50) !important;
+  }
+  body.dark .header .header-body li a {
+    color: rgba(255,255,255,0.7) !important;
+  }
+  body.dark .header .header-search .input-group {
+    background-color: rgb(56, 58, 63) !important;
+  }
+  body.dark .header .header-search .input-group .btn {
+    color: rgba(255,255,255,0.7) !important;
+  }
+  body.dark .header .header-search .input-group input.form-control:focus {
+    color: white !important;
+  }
+}
+
+/* --- Mobile: chat content open panel stays dark --- */
+@media (max-width: 1200px) {
+  body.dark .chat-block .chat-content.chat-mobile-open {
+    background-color: rgb(44, 45, 50) !important;
+  }
+}
+
+/* --- Mobile: navigation sidebar open stays dark --- */
+@media (max-width: 1200px) {
+  body.dark .navigation {
+    background-color: #202124 !important;
+  }
+  body.dark .navigation .navigation-menu-body ul li a {
+    color: rgba(255,255,255,0.75) !important;
+  }
+  body.dark .navigation .navigation-menu-body ul li a:hover {
+    color: white !important;
+  }
+  body.dark .navigation .navigation-menu-body ul li a.active {
+    color: #919fec !important;
+    background-color: rgb(56, 58, 63) !important;
+  }
+  body.dark .navigation .navigation-menu-body ul li.open > a .nav-link-icon {
+    color: rgba(255,255,255,0.75) !important;
+  }
+}
+
+/* --- Mobile: app sidebar panel stays dark --- */
+@media (max-width: 992px) {
+  body.dark .app-block .app-sidebar {
+    background-color: rgb(44, 45, 50) !important;
+  }
+}
+
+/* --- Demo/dev code preview box (white bg) --- */
+body.dark .demo-code-preview {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+  color: #d4d4d4;
+}
+
+/* --- List group item borders (rgb(230,230,230) in light) --- */
+body.dark .list-group-item {
+  border-color: rgb(56, 58, 63) !important;
+  background-color: rgb(44, 45, 50);
+  color: #d4d4d4;
+}
+body.dark .list-group-item:hover {
+  background-color: rgb(56, 58, 63);
+}
+
+/* --- Analytics nav active link (color:black in light) --- */
+body.dark .nav-analiytics-style .nav-link.active {
+  color: #d4d4d4 !important;
+  border-color: rgb(102, 121, 229) !important;
+}
+
+/* --- Daterangepicker (always white in light) --- */
+body.dark .daterangepicker {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .daterangepicker .calendar-table {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .daterangepicker td.off,
+body.dark .daterangepicker td.off.in-range,
+body.dark .daterangepicker td.off.start-date,
+body.dark .daterangepicker td.off.end-date {
+  background-color: rgb(56, 58, 63) !important;
+  color: rgba(255,255,255,0.3) !important;
+}
+body.dark .daterangepicker td.available:hover,
+body.dark .daterangepicker th.available:hover {
+  background-color: rgb(68, 70, 76) !important;
+  color: white !important;
+}
+body.dark .daterangepicker td.in-range {
+  background-color: rgba(80,102,225,0.2) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .daterangepicker .drp-buttons {
+  border-top-color: rgb(56, 58, 63) !important;
+}
+body.dark .daterangepicker .drp-calendar.left {
+  border-right-color: rgb(56, 58, 63) !important;
+}
+body.dark .daterangepicker:before {
+  border-bottom-color: rgb(56, 58, 63) !important;
+}
+body.dark .daterangepicker:after {
+  border-bottom-color: rgb(44, 45, 50) !important;
+}
+
+/* --- Select2 dropdown results (white panel) --- */
+body.dark .select2-container--default .select2-results__option {
+  color: #d4d4d4;
+  background-color: rgb(44, 45, 50);
+}
+body.dark .select2-container--default .select2-results__option--highlighted {
+  background-color: rgb(68, 70, 76) !important;
+  color: white !important;
+}
+body.dark .select2-dropdown {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(80, 82, 90) !important;
+}
+body.dark .select2-search--dropdown .select2-search__field {
+  background-color: rgb(56, 58, 63) !important;
+  border-color: rgb(80, 82, 90) !important;
+  color: #d4d4d4 !important;
+}
+
+/* --- Bootstrap tagsinput tag background (e1e1e1 in light) --- */
+body.dark .bootstrap-tagsinput .tag {
+  background: rgb(70, 72, 80) !important;
+  color: #d4d4d4 !important;
+}
+
+/* --- Wizard steps (white bg) --- */
+body.dark .wizard > .content {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+}
+body.dark .wizard > .steps .number {
+  background-color: rgb(56, 58, 63);
+  color: #d4d4d4;
+}
+body.dark .wizard > .steps a,
+body.dark .wizard > .steps a:hover,
+body.dark .wizard > .steps a:active {
+  color: #d4d4d4;
+}
+body.dark .wizard > .steps .current a,
+body.dark .wizard > .steps .current a:hover,
+body.dark .wizard > .steps .current a:active {
+  background: #5066e1;
+  color: white;
+}
+
+/* --- DataTables controls (white/light elements) --- */
+body.dark .dataTables_wrapper .dataTables_filter input {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(80, 82, 90) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .dataTables_wrapper .dataTables_length select {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(80, 82, 90) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .dataTables_wrapper .dataTables_info {
+  color: #9f9f9f;
+}
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: #d4d4d4 !important;
+}
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: rgb(56, 58, 63) !important;
+  border-color: rgb(56, 58, 63) !important;
+  color: white !important;
+}
+body.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: rgb(68, 70, 76) !important;
+  border-color: rgb(68, 70, 76) !important;
+  color: white !important;
+}
+
+/* --- CodeMirror editor (white bg) --- */
+body.dark .CodeMirror {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(80, 82, 90) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .CodeMirror-gutters {
+  background-color: rgb(56, 58, 63) !important;
+  border-right-color: rgb(68, 70, 76) !important;
+}
+body.dark .CodeMirror-linenumber {
+  color: rgba(255,255,255,0.4) !important;
+}
+body.dark .CodeMirror-cursor {
+  border-left-color: #d4d4d4 !important;
+}
+
+/* --- TinyMCE / CKEditor iframe borders --- */
+body.dark .tox-tinymce,
+body.dark .tox .tox-toolbar-overlord,
+body.dark .tox .tox-toolbar__primary {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+}
+body.dark .tox .tox-toolbar__group {
+  border-right-color: rgb(56, 58, 63) !important;
+}
+
+/* --- CKEditor 5 dark --- */
+body.dark .ck.ck-editor__main > .ck-editor__editable {
+  background-color: rgb(44, 45, 50) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .ck.ck-toolbar {
+  background-color: rgb(56, 58, 63) !important;
+  border-color: rgb(68, 70, 76) !important;
+}
+body.dark .ck.ck-button {
+  color: #d4d4d4 !important;
+}
+body.dark .ck.ck-button:hover {
+  background-color: rgb(68, 70, 76) !important;
+}
+
+/* --- Flatpickr date picker (if used in admin) --- */
+body.dark .flatpickr-calendar {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+  box-shadow: 0 3px 13px rgba(0,0,0,0.5) !important;
+}
+body.dark .flatpickr-day {
+  color: #d4d4d4 !important;
+}
+body.dark .flatpickr-day:hover,
+body.dark .flatpickr-day:focus {
+  background-color: rgb(56, 58, 63) !important;
+  border-color: rgb(56, 58, 63) !important;
+}
+body.dark .flatpickr-day.selected {
+  background-color: #5066e1 !important;
+  border-color: #5066e1 !important;
+  color: white !important;
+}
+body.dark .flatpickr-months .flatpickr-month,
+body.dark .flatpickr-months .flatpickr-prev-month,
+body.dark .flatpickr-months .flatpickr-next-month {
+  color: #d4d4d4 !important;
+  fill: #d4d4d4 !important;
+}
+body.dark span.flatpickr-weekday {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* --- Colorpicker / color swatches --- */
+body.dark .colorpicker {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+}
+body.dark .colorpicker-alpha .colorpicker-alpha-color {
+  border-color: rgb(56, 58, 63) !important;
+}
+
+/* --- Toast notifications (top-right) --- */
+body.dark #toast-container .toast {
+  background-color: rgb(56, 58, 63) !important;
+}
+body.dark #toast-container .toast-info {
+  background-color: #1a4a6b !important;
+}
+body.dark #toast-container .toast-success {
+  background-color: #1a4a2e !important;
+}
+body.dark #toast-container .toast-error {
+  background-color: #6b1a1a !important;
+}
+body.dark #toast-container .toast-warning {
+  background-color: #6b4c1a !important;
+}
+
+/* --- Swal2 (if used) --- */
+body.dark .swal2-popup {
+  background-color: rgb(44, 45, 50) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .swal2-title,
+body.dark .swal2-html-container {
+  color: #d4d4d4 !important;
+}
+body.dark .swal2-cancel {
+  background-color: rgb(56, 58, 63) !important;
+  color: white !important;
+}
+
+/* --- Table: thead text (not just .text-muted override) --- */
+body.dark .table thead th {
+  color: #9f9f9f !important;
+  border-bottom-color: rgb(56, 58, 63) !important;
+  border-top-color: rgb(56, 58, 63) !important;
+}
+body.dark .table td,
+body.dark .table th {
+  border-top-color: rgb(56, 58, 63) !important;
+}
+body.dark .table-bordered,
+body.dark .table-bordered td,
+body.dark .table-bordered th {
+  border-color: rgb(56, 58, 63) !important;
+}
+
+/* --- Card text muted (not enough contrast) --- */
+body.dark .text-muted {
+  color: #9f9f9f !important;
+}
+
+/* --- Breadcrumb separators --- */
+body.dark .breadcrumb {
+  background-color: transparent;
+}
+body.dark .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255,255,255,0.4);
+}
+
+/* --- Progress bars track --- */
+body.dark .progress {
+  background-color: rgb(56, 58, 63) !important;
+}
+
+/* --- Input group addon (sm/lg variants) --- */
+body.dark .input-group-sm .input-group-text,
+body.dark .input-group-lg .input-group-text {
+  background: rgb(56, 58, 63) !important;
+  border-color: rgb(80, 82, 90) !important;
+  color: #d4d4d4 !important;
+}
+
+/* --- Pagination disabled state --- */
+body.dark .page-item.disabled .page-link {
+  background-color: rgb(44, 45, 50) !important;
+  color: rgba(255,255,255,0.3) !important;
+  border-color: rgb(56, 58, 63) !important;
+}
+
+/* --- Admin dark toggle button itself (mode toggle in sidebar) --- */
+body.dark .list-group-item.admin_mode {
+  background-color: rgb(44, 45, 50);
+  color: #d4d4d4;
+  border-color: rgb(56, 58, 63);
+}
+body.dark .list-group-item.admin_mode:hover {
+  background-color: rgb(56, 58, 63);
+  color: white;
+}
+
+/* --- Sidebar badges (white text check) --- */
+body.dark .navigation .navigation-menu-body ul li a .badge.badge-primary {
+  color: white !important;
+}
+
+/* --- Quill rich text editor toolbar --- */
+body.dark .ql-toolbar.ql-snow {
+  background-color: rgb(56, 58, 63) !important;
+  border-color: rgb(80, 82, 90) !important;
+}
+body.dark .ql-container.ql-snow {
+  border-color: rgb(80, 82, 90) !important;
+}
+body.dark .ql-snow .ql-picker-label,
+body.dark .ql-snow .ql-picker-options {
+  background-color: rgb(56, 58, 63) !important;
+  color: #d4d4d4 !important;
+  border-color: rgb(80, 82, 90) !important;
+}
+body.dark .ql-snow .ql-tooltip {
+  background-color: rgb(56, 58, 63) !important;
+  border-color: rgb(80, 82, 90) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .ql-snow .ql-tooltip input[type=text] {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(80, 82, 90) !important;
+  color: #d4d4d4 !important;
+}
+
+/* --- Nestable drag handle --- */
+body.dark .dd-handle {
+  background-color: rgb(44, 45, 50) !important;
+  border-color: rgb(56, 58, 63) !important;
+  color: #d4d4d4 !important;
+}
+body.dark .dd-handle:hover {
+  background-color: rgb(56, 58, 63) !important;
+  color: white !important;
+}
+
+/* --- Preloader background (must be dark) --- */
+body.dark .preloader {
+  background-color: rgb(8, 8, 9) !important;
+}
+
+/* --- Inline style overrides: common hardcoded whites/lights in admin pages --- */
+body.dark [style*="background-color: white"],
+body.dark [style*="background-color:white"],
+body.dark [style*="background: white"],
+body.dark [style*="background:white"] {
+  background-color: rgb(44, 45, 50) !important;
+}
+body.dark [style*="background-color: #fff"],
+body.dark [style*="background-color:#fff"] {
+  background-color: rgb(44, 45, 50) !important;
+}
+body.dark [style*="background-color: #ffffff"],
+body.dark [style*="background-color:#ffffff"] {
+  background-color: rgb(44, 45, 50) !important;
+}
+body.dark [style*="color: black"],
+body.dark [style*="color:black"],
+body.dark [style*="color: #000"],
+body.dark [style*="color:#000"],
+body.dark [style*="color: #000000"],
+body.dark [style*="color:#000000"],
+body.dark [style*="color: #333"],
+body.dark [style*="color:#333"],
+body.dark [style*="color: #444"],
+body.dark [style*="color:#444"] {
+  color: #d4d4d4 !important;
+}
+
+/* ================================================================
+   END OF BITCHAT ADMIN DARK MODE FIXES
+   ================================================================ */
