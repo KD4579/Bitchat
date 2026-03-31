@@ -2,6 +2,37 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-03-31 — Mobile Nav Wallet Button
+
+### UI
+
+- **Wallet button added to mobile bottom nav** — credit-card icon "Wallet" link appears between Search and + Create in `#bc-mobile-nav` (mobile/tablet/Android ≤768px only; desktop unchanged)
+- Active state highlights when on the `/wallet/` page
+- Labels shrink to 9px on very small screens (≤380px) to keep all 7 items readable
+
+---
+
+## 2026-03-31 — Full Security Audit & Hardening (23 vulnerabilities fixed)
+
+- `[CRITICAL]` **`updater.php` unauthenticated RCE** — blocked via `.htaccess` (`Require all denied`) + admin session guard added; SSL peer verification re-enabled (`verify_peer: true`); entity-injection bypass removed from local `Wo_Secure()` copy
+- `[CRITICAL]` **Admin panel JS injection via `$_GET['highlight']`** — `autoload.php` used raw `$_GET['highlight']` inside a JS string literal; replaced with `json_encode(htmlspecialchars(...))` — prevented admin account takeover via crafted link
+- `[CRITICAL]` **Reflected XSS via `$_GET['gift_img']`** — `Wo_GetMedia($_GET['gift_img'])` echoed unescaped into `<img src="">` in all 6 timeline/profile templates across wondertag, wowonder, and sunshine themes; wrapped with `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')`
+- `[HIGH]` **`health-check.php` public system info exposure** — IP restriction was commented out; now requires admin session or localhost; previously exposed PHP version, OS, Redis status, Node.js host/port, disk usage, filesystem paths
+- `[HIGH]` **PayPal zero-amount fallback** — `xhr/wallet.php` fell back to user-supplied `$_GET['amount']` when PayPal verified amount parsed to zero; fallback removed — zero-value orders now rejected with `payment-error` redirect
+- `[HIGH]` **Missing CSRF on admin destructive actions** — `Wo_CheckMainSession($hash_id)` guard added to `delete_user_posts`, `delete_user_articles`, `delete_user_messages`, `delete_multi_users`, `top_up_wallet`, `generate_fake_users`, `send_mail_to_all_users` in `xhr/admin_setting.php`
+- `[HIGH]` **`delete_user_*` not in `admin_only_actions`** — moderators could trigger bulk post/article/message deletion on any user; added to the restricted list
+- `[HIGH]` **`top_up_wallet` unvalidated amount** — sanitized to `floatval()`, requires `> 0`
+- `[HIGH]` **Wallet self-transfer fraud** — no check prevented sending to own account; unlimited false "RECEIVED" transaction log entries possible; added `sender == recipient` guard
+- `[HIGH]` **Fund donation floor bypass** — any value `> 0` (e.g. 0.00001) was accepted; minimum raised to `1.00`
+- `[MEDIUM]` **Cashfree broken redirect** — backslash-escaped PHP variables (`\$is_relative`, `\$same_host`, `\$_COOKIE`) in wallet callback caused redirect to always fall back to wallet page; fixed
+- `[MEDIUM]` **TRDC withdrawal race condition** — rate-limit and pending-count `SELECT` queries ran outside the transaction; concurrent requests could both pass checks simultaneously; added `SELECT ... FOR UPDATE` row lock + pending recheck inside `mysqli_begin_transaction` block
+- `[LOW]` **`$_GET['range']` XSS in 16 admin panel pages** — unwhitelisted `range` value echoed raw in else-branch; wrapped with `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')` across all affected pages
+- `[LOW]` **LIKE wildcard injection in admin user search** — `%` and `_` characters in search query matched all users / single-char usernames; added `addcslashes($keyword, '%_\\')` in `manage-users/content.phtml`
+- `[LOW]` **Path traversal in `crop-avatar.php`** — `$_POST['path']` passed directly to `Wo_CropAvatarImage()` without validation; added `realpath()` check to enforce `upload/` boundary
+- `[LOW]` **No-op self-assignment in `Wo_CreateMainSession()`** — `$_SESSION["main_hash_id"] = $_SESSION["main_hash_id"]` removed; dead code that could mask future logic bugs
+
+---
+
 ## 2026-03-21 — Trading Bot Improvements, Dashboard Fixes & Cleanup
 
 ### Trading Bot
