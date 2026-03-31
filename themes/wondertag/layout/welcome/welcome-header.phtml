@@ -1,6 +1,15 @@
 <div class="container">
 	<div class="valign navbar-default">
 		<a class="logo" href="<?php echo $wo['config']['site_url'];?>"><img src="<?php echo $wo['config']['theme_url'];?>/img/logo.<?php echo $wo['config']['logo_extension'];?>" alt="Logo"> </a>
-		<a class="btn btn-main btn-mat" href="<?php echo $wo['config']['site_url'];?>"><?php echo $wo['lang']['login']?></a>
+		<div class="valign" style="gap:8px;">
+			<a href="<?php echo '?mode=' . $wo['mode_link'] ?>" class="bc-theme-toggle" title="<?php echo $wo['mode_text']; ?>">
+				<?php if (!empty($_COOKIE['mode']) && $_COOKIE['mode'] == 'night'): ?>
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>
+				<?php else: ?>
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12,11.807C9.349,9.155,8.7,5.261,10.049,2c-1.875,0.37-3.666,1.281-5.12,2.735c-3.905,3.905-3.905,10.237,0,14.142c3.906,3.906,10.237,3.905,14.143,0c1.454-1.454,2.364-3.244,2.735-5.119C18.545,15.106,14.651,14.458,12,11.807z"/></svg>
+				<?php endif; ?>
+			</a>
+			<a class="btn btn-main btn-mat" href="<?php echo $wo['config']['site_url'];?>"><?php echo $wo['lang']['login']?></a>
+		</div>
 	</div>
 </div>

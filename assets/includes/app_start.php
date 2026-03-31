@@ -347,12 +347,12 @@ if (!empty($wo["config"]["last_update"])) {
     }
 }
 
-// night mode
+// night mode — default is dark
 if (empty($_COOKIE["mode"])) {
-    setcookie("mode", "day", time() + 10 * 365 * 24 * 60 * 60, "/");
-    $_COOKIE["mode"] = "day";
-    $wo["mode_link"] = "night";
-    $wo["mode_text"] = $wo["lang"]["night_mode"];
+    setcookie("mode", "night", time() + 10 * 365 * 24 * 60 * 60, "/");
+    $_COOKIE["mode"] = "night";
+    $wo["mode_link"] = "day";
+    $wo["mode_text"] = $wo["lang"]["day_mode"];
 } else {
     if ($_COOKIE["mode"] == "day") {
         $wo["mode_link"] = "night";

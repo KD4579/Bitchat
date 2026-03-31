@@ -69,7 +69,7 @@ body .tag_field > .dropdown.bootstrap-select .bs-actionsbox .btn-light, body .ta
 .fake_ad_post .fads_meta .fads_m_info .company, .tag_albums .album-name h4 a, .tag_main_blog .info .art-title a, .wow_read_blog_hdr_img_innr h2, .author-block .author .text h3 a, .blog-com-wrapper .blog-comlist-container .blog-comment-item .blog-comment-item-body h5 a, .post .post-footer .comments-list .comment .comment-heading .user, .wo_imagecombo_lbox .lightbox-post-footer .comment .comment-heading .user, .live_comments .comment-heading .user, .events-list-name a, .event_info_blocks div, .event_info_blocks div a, .wow_thread_replies .thread-replies .t-right_prt .user-title-thread a, .tag_forum_memb_main_content .llnk a, .tag_forum_memb_main_content .myfrmsbj a, .wow_frnd_usr .fndfrnd_user_wrapper .user_wrapper_link a, .fundings_desc h3 a, .wo_game_style .game-name, .pricing_p_price, .wow_my_groups_info h3 a, .nearby_user_wrapper .user_wrapper_link, .tag_hdr_right > .dropdown .dropdown-menu .tag_switch_noti > li > a.active, .tag_job_list h4 a, .tag_lbox_hdr h4 a, .wow_memories_friends .wow_mem_usr .title > div > a, .tag_msg_participant .name > div, .tag_msg_participant .name > div a, .movies-film-wrapper h3, .user-fetch .user-name a, .tag_prods_list .product_info h2 a, .tag_srch_input input, .tag_aff_usr_head > div h1, .wo_referres .name p a, .fund div.list .item .caption a, .wo_sidebar_pages .page_middle .title a, .post .post-heading .meta .title .name, .user-ad-container .post-advertisement .meta .title .name, .post-fetched-url .fetched-url-text h4, .tag_sidebar_users .truncate, .wow_dontd_posts_left h4, .tag_signup_plans li a b {color: #ffffff;}
 .fake_ad_post .fads_headline {color: #fff;}
 .fake_ad_post .fads_cover {border-top-color: #3f3f3f;}
-.estimated_ad_limit {color: #2b2b2b;}
+.estimated_ad_limit {color: #c8c8c8;}
 .wow_add_money_hid_form form {border-top-color: #434343;}
 .pay_using {border-color: #464646;}
 .pay_using .btn {color: #c5c5c5;border-bottom-color: #464646;}
@@ -552,4 +552,202 @@ body.tag_header_top_p .wow_movie_filters .tag_sidebar_head,  body.tag_header_top
 @media (max-width: 520px) {
 .tag_header > .search-container .dropdown-menu {background: var(--header-background);}
 .tag_msg_write {background: #212121;}
+}
+
+/* ============================================================
+   BITCHAT DARK MODE — COMPREHENSIVE FIXES
+   Covers all reported unreadable / broken sections
+   ============================================================ */
+
+/* --- Sidebar links hover (desktop) --- */
+.tag_sidebar_section > a:hover {color: #ffffff;}
+.tag_sidebar_head {color: #c5c5c5;}
+
+/* --- Chat user name (black on dark) --- */
+.chat-user-desc .head-text {color: #ffffff;}
+
+/* --- Blog / article titles --- */
+.tag_main_blog .info .art-title a {color: #ffffff;}
+.wow_read_blog_hdr_img_innr h2 {color: #ffffff;}
+.author-block .author .text h3 a {color: #ffffff;}
+.blog-com-wrapper .blog-comlist-container .blog-comment-item .blog-comment-item-body h5 a {color: #e8e8e8;}
+.wow_blog_cats a {color: #fff;}
+.search-blog .search_suggs li .article-title {color: rgb(255 255 255 / 85%);}
+
+/* --- Album names --- */
+.tag_albums .album-name h4 a {color: #ffffff;}
+.tag_albums .album-name p {color: rgb(255 255 255 / 65%);}
+.tag_albums .alb_count {background-color: #212121;color: #dcdcdc;box-shadow: -10px 0px 10px 0px #212121;}
+
+/* --- Post headings / user names --- */
+.post .post-heading .meta .title .name {color: #ffffff;}
+.post .post-heading .meta .title .name a {color: #ffffff;}
+.user-ad-container .post-advertisement .meta .title .name {color: #ffffff;}
+.post .post-footer .comments-list .comment .comment-heading .user {color: #ffffff;}
+.wo_imagecombo_lbox .lightbox-post-footer .comment .comment-heading .user {color: #ffffff;}
+.live_comments .comment-heading .user {color: #ffffff;}
+
+/* --- Events --- */
+.events-list-name a {color: #ffffff;}
+.event_info_blocks div {color: #dcdcdc;}
+.event_info_blocks div a {color: #dcdcdc;}
+.short_start_dt b {color: #e0e0e0;}
+
+/* --- Forum --- */
+.wow_thread_replies .thread-replies .t-right_prt .user-title-thread a {color: #ffffff;}
+.tag_forum_memb_main_content .llnk a {color: #e0e0e0;}
+.tag_forum_memb_main_content .myfrmsbj a {color: #e0e0e0;}
+
+/* --- Friends / people --- */
+.wow_frnd_usr .fndfrnd_user_wrapper .user_wrapper_link a {color: #ffffff;}
+.nearby_user_wrapper .user_wrapper_link {color: #ffffff;}
+
+/* --- Funding / donations --- */
+.fundings_desc h3 a {color: #ffffff;}
+.fund div.list .item .caption a {color: #e8e8e8;}
+.wow_dontd_posts_left h4 {color: #ffffff;}
+
+/* --- Games --- */
+.wo_game_style .game-name {color: #e8e8e8;}
+
+/* --- Go Pro / pricing --- */
+.pricing_p_price {color: #ffffff;}
+.tag_signup_plans li a b {color: #ffffff;}
+
+/* --- Groups --- */
+.wow_my_groups_info h3 a {color: #ffffff;}
+
+/* --- Jobs --- */
+.tag_job_list h4 a {color: #ffffff;}
+
+/* --- Lightbox --- */
+.tag_lbox_hdr h4 a {color: #ffffff;}
+
+/* --- Memories --- */
+.wow_memories_friends .wow_mem_usr .title > div > a {color: #ffffff;}
+
+/* --- Messages / participants --- */
+.tag_msg_participant .name > div {color: #e8e8e8;}
+.tag_msg_participant .name > div a {color: #e8e8e8;}
+
+/* --- Movies --- */
+.movies-film-wrapper h3 {color: #ffffff;}
+
+/* --- Market / products --- */
+.tag_prods_list .product_info h2 a {color: #ffffff;}
+
+/* --- Search input --- */
+.tag_srch_input input {color: #e8e8e8;}
+
+/* --- Affiliates / referrals --- */
+.tag_aff_usr_head > div h1 {color: #ffffff;}
+.wo_referres .name p a {color: #e0e0e0;}
+
+/* --- Sidebar pages --- */
+.wo_sidebar_pages .page_middle .title a {color: #e0e0e0;}
+
+/* --- URL fetch / link preview --- */
+.post-fetched-url .fetched-url-text h4 {color: #ffffff;}
+
+/* --- Sidebar user list --- */
+.tag_sidebar_users .truncate {color: #e8e8e8;}
+
+/* --- Fake ad elements (stay white in dark mode) --- */
+.tag_fake_ad {background-color: #212121;}
+.fake_ad_post .fads_headline {color: #ffffff;}
+.fake_ad_post .fads_meta .fads_m_info .company {color: #c5c5c5;}
+
+/* --- Article thumbnail overlay text --- */
+.tag_pop_artis li .article-thumbnail:after {color: #ffffff;-webkit-text-fill-color: #ffffff;-webkit-text-stroke: 0;}
+
+/* --- Skeleton loaders (must stay dark) --- */
+.tag_lboxside_skel_white {background-color: #212121;}
+
+/* --- Show friends bottom bar --- */
+.tag_show_fnd_bottom {background-color: #212121;color: #dcdcdc;}
+
+/* --- All colors picker --- */
+.all_colors {background-color: #212121;}
+.all_colors > svg {background-color: #212121;}
+
+/* --- Borders, dividers, separators --- */
+.tag_signup_plans li a {border-color: #3f3f3f;color: #e0e0e0;}
+
+/* --- User avatar ring in dark --- */
+.wo_user_profile .user-avatar img {background-color: #212121;}
+
+/* --- Family relation select --- */
+.tag_add_family .author .text p select {background-color: #373737;color: #e0e0e0;border-bottom-color: #4e4e4e;}
+
+/* --- Sticky comments panel --- */
+.tag_sticky_coms {background-color: #212121;}
+
+/* --- Sidebar page avatar --- */
+.wo_sidebar_pages .page_middle .avatar {background-color: #212121;}
+
+/* --- Profile page avatar area --- */
+.tag_page_name_hdr .user-avatar {background-color: #212121;}
+
+/* --- Market search bar --- */
+.tag_market_title .search-bar input {background-color: #373737;color: #ececec;border-color: #484848;}
+
+/* --- Product contact/edit buttons --- */
+.tag_prods_list .btn.contact {background-color: #2e2e2e;color: #e0e0e0;border-color: #444;}
+.tag_prods_list .btn.edit {background-color: #2e2e2e;color: #e0e0e0;border-color: #444;}
+
+/* --- Search filter country select --- */
+.tag_srch_fltr_country select {background-color: #373737;color: #e0e0e0;border-color: #484848;}
+
+/* --- Movie/message live sidebar --- */
+.tag_live_sidebar {background-color: #212121;}
+.msg_usr_info_top_list {background-color: #212121;}
+
+/* --- Movie filter sidebar --- */
+.wow_movie_filters {background-color: #212121;}
+
+/* --- Inputs inside forms (edge cases) --- */
+input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="number"], input[type="tel"], input[type="url"], textarea, select {color: #e0e0e0;}
+input::placeholder, textarea::placeholder {color: rgb(255 255 255 / 38%) !important;}
+
+/* --- Bootstrap badge / label in dark --- */
+.label-default {background-color: #3d3d3d;color: #e0e0e0;}
+.badge {background-color: #3d3d3d;color: #e0e0e0;}
+
+/* --- Popover user card --- */
+.user-details .loading-user {background-color: #2E2E2E;}
+
+/* --- Table cells --- */
+.table td, .table th {border-top-color: #3a3a3a;color: #dcdcdc;}
+.table thead th {border-bottom-color: #3a3a3a;color: #e8e8e8;}
+
+/* --- Bootstrap well / panels --- */
+.well {background-color: #2a2a2a;border-color: #3a3a3a;color: #dcdcdc;}
+.panel-default > .panel-heading {background-color: #2d2d2d;border-color: #3a3a3a;color: #e0e0e0;}
+.panel-default {border-color: #3a3a3a;}
+.panel-body {color: #dcdcdc;}
+
+/* --- Blockquote --- */
+blockquote {border-left-color: #444;color: #c5c5c5;}
+
+/* --- Code blocks in posts/blogs --- */
+code {background-color: #2d2d2d;color: #e0b97d;}
+
+/* --- Dark mode toggle button (floating icon in header) --- */
+.bc-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.1);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+    text-decoration: none;
+}
+.bc-theme-toggle:hover, .bc-theme-toggle:focus {
+    background: rgb(255 255 255 / 0.2);
+    color: #fff;
 }
