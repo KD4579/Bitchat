@@ -9841,3 +9841,15 @@ html.bc-native-app .cc-banner {
   touch-action: manipulation !important;
   cursor: pointer !important;
 }
+
+/* ── NAV-7: 7-item mobile bottom nav — small screen label tightening ── */
+@media (max-width: 380px) {
+  .bc-mob-nav-item span {
+    font-size: 9px;
+    max-width: 40px;
+  }
+  .bc-mob-nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+}
