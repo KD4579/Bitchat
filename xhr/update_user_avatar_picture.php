@@ -45,6 +45,10 @@ if ($f == 'update_user_avatar_picture' && Wo_CheckMainSession($hash_id) === true
         }
         $upload = Wo_UploadImage($_FILES["avatar"]["tmp_name"], $_FILES['avatar']['name'], 'avatar', $_FILES['avatar']['type'], $_POST['user_id'],'',$ai_post);
         if ($upload === true) {
+            // Mark startup avatar step complete so onboarding doesn't loop
+            if (!empty($_GET['s']) && $_GET['s'] == 'start') {
+                Wo_UpdateUserData($_POST['user_id'], array('startup_image' => 1));
+            }
             $img  = Wo_UserData($_POST['user_id']);
             $data = array(
                 'status' => 200,

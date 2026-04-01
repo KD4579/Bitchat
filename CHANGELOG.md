@@ -2,6 +2,17 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-04-01 — Registration Avatar Upload Fix
+
+### Bug Fix
+
+- **Profile picture upload now works during registration** — the avatar upload form was missing the `hash_id` CSRF token, causing `Wo_CheckMainSession` to silently reject every upload. The Continue button stayed permanently disabled.
+- **Redirect loop eliminated** — after a successful upload, `startup_image` is now set to `1` in the database. Previously the backend never marked the step complete, so clicking Continue would loop back to the avatar page indefinitely.
+- **Skip works correctly** — users can skip the avatar step and proceed; a default avatar is automatically shown on their profile.
+- All 3 themes fixed (wowonder, sunshine, wondertag).
+
+---
+
 ## 2026-04-01 — Social Login Password Change
 
 ### Feature

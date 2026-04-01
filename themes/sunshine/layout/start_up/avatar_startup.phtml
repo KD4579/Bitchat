@@ -62,6 +62,7 @@
 <form action="#" method="post" class="profile-avatar-changer" style="display:none">
     <input type="file" id="avatar" name="avatar" accept="image/x-png, image/jpeg" onchange="Wo_UpdateProfileAvatar();">
     <input type="hidden" name="user_id" id="user-id" value="<?php echo $wo['user']['user_id'];?>">
+    <input type="hidden" name="hash_id" value="<?php echo Wo_CreateMainSession();?>">
 </form>
 <script type="text/javascript">
 var user_id = $('#user-id').val();
