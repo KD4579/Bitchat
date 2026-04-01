@@ -7,14 +7,18 @@ if ($f == "update_user_password") {
         }
         $Userdata = Wo_UserData($_POST['user_id']);
         if (!empty($Userdata['user_id']) && empty($errors)) {
-            if (empty($_POST['current_password']) OR empty($_POST['new_password']) OR empty($_POST['repeat_new_password'])) {
+            $isSocialUser = !empty($Userdata['social_login']);
+            if ((!$isSocialUser && empty($_POST['current_password'])) OR empty($_POST['new_password']) OR empty($_POST['repeat_new_password'])) {
                 $errors[] = $error_icon . $wo['lang']['please_check_details'];
             } else {
-                // Verify current password against the TARGET user's password (not logged-in user)
-                $targetPassword = $Userdata['password'];
-                // SECURITY: strict === avoids type juggling (0 == false in PHP)
-                if (Wo_HashPassword($_POST['current_password'], $targetPassword) === false) {
-                    $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
+                // Social login users (Google, Facebook, etc.) have no known password — skip current password check
+                if (!$isSocialUser) {
+                    // Verify current password against the TARGET user's password (not logged-in user)
+                    $targetPassword = $Userdata['password'];
+                    // SECURITY: strict === avoids type juggling (0 == false in PHP)
+                    if (Wo_HashPassword($_POST['current_password'], $targetPassword) === false) {
+                        $errors[] = $error_icon . $wo['lang']['current_password_mismatch'];
+                    }
                 }
                 if ($_POST['new_password'] != $_POST['repeat_new_password']) {
                     $errors[] = $error_icon . $wo['lang']['password_mismatch'];

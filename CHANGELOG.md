@@ -2,6 +2,16 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-04-01 — Social Login Password Change
+
+### Feature
+
+- **Google/social login users can now set a password** — users who registered via Google, Facebook, or other OAuth providers previously had no way to set a password (the form required a "current password" they never knew). The change-password page now detects social login accounts, hides the current password field, and shows an explanatory message instead. The backend skips current-password verification for these users.
+- All 3 themes updated (wowonder, sunshine, wondertag)
+- Supports a `social_login_no_password` language key for translations (falls back to English)
+
+---
+
 ## 2026-03-31 — Mobile Nav Wallet Button
 
 ### UI
