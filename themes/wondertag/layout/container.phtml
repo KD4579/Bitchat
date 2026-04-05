@@ -350,24 +350,93 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
          
 				var websiteUrl = "<?php echo $wo['config']['site_url'];?>";
 				$(function() {
-					<?php if ($wo['loggedin'] == true && $wo['config']['find_friends'] == 1) {?>
-						if (navigator.geolocation) {
-							navigator.geolocation.getCurrentPosition(
-								function(pos) {
-									localStorage.setItem('bc_loc_granted', '1');
-									Wo_UpdateLocation(pos);
-								},
-								function(err) {
-									if (navigator.userAgent.indexOf('BitchatApp') === -1) {
-										if (localStorage.getItem('bc_loc_granted') === '1') return;
-										var dismissed = localStorage.getItem('bc_loc_dismissed');
-										if (!dismissed || (Date.now() - parseInt(dismissed)) > 86400000) {
-											$('#bc-location-modal').modal('show');
-										}
+					<?php if ($wo['loggedin'] == true && $wo['config']['find_friends'] == 1) {
+						// Server-side consent: true if user previously clicked Allow in Bitchat
+						$bc_loc_consented = (!empty($wo['user']['loc_permission']) && $wo['user']['loc_permission'] == 1) ? 'true' : 'false';
+					?>
+						var BC_LOC_CONSENTED = <?php echo $bc_loc_consented; ?>;
+						var BC_IS_APP = (navigator.userAgent.indexOf('BitchatApp') !== -1);
+						var BC_AJAX_URL = "<?php echo $wo['config']['site_url']; ?>/requests.php";
+
+						// IP geolocation fallback — no browser permission needed
+						function bc_use_ip_geo() {
+							fetch('https://ip-api.com/json/?fields=lat,lon,status')
+								.then(function(r) { return r.json(); })
+								.then(function(d) {
+									if (d.status === 'success') {
+										Wo_UpdateLocation({coords: {latitude: d.lat, longitude: d.lon}});
 									}
-								},
-								{enableHighAccuracy: true, timeout: 5000}
+								})
+								.catch(function() {});
+						}
+
+						// Save permanent consent to server
+						function bc_save_consent() {
+							$.post(BC_AJAX_URL + '?f=save_loc_permission', {action: 'grant'});
+						}
+
+						// Try GPS silently; on any failure use IP geo as fallback
+						function bc_silent_gps() {
+							if (!navigator.geolocation) { bc_use_ip_geo(); return; }
+							navigator.geolocation.getCurrentPosition(
+								function(pos) { Wo_UpdateLocation(pos); },
+								function() { bc_use_ip_geo(); },
+								{enableHighAccuracy: true, timeout: 8000, maximumAge: 300000}
 							);
+						}
+
+						// Show the Bitchat permission modal
+						function bc_show_modal() {
+							if (!window.bc_modal_shown_this_load) {
+								window.bc_modal_shown_this_load = true;
+								$('#bc-location-modal').modal('show');
+							}
+						}
+
+						if (BC_LOC_CONSENTED) {
+							// User previously allowed in Bitchat — never show modal again.
+							// Use GPS if browser still allows, otherwise fall back to IP geo.
+							if (navigator.permissions) {
+								navigator.permissions.query({name: 'geolocation'}).then(function(result) {
+									if (result.state === 'granted') {
+										bc_silent_gps();
+									} else {
+										// Browser cleared its permission (new browser/device) — IP geo, no popup
+										bc_use_ip_geo();
+									}
+								});
+							} else {
+								bc_silent_gps(); // Older browser — try GPS, fallback to IP geo on error
+							}
+						} else {
+							// User hasn't consented yet — ask them (or for the app, try directly)
+							if (BC_IS_APP) {
+								// Android WebView auto-approves the native prompt — call GPS directly
+								if (navigator.geolocation) {
+									navigator.geolocation.getCurrentPosition(
+										function(pos) { bc_save_consent(); Wo_UpdateLocation(pos); },
+										function() {},
+										{enableHighAccuracy: true, timeout: 10000}
+									);
+								}
+							} else if (navigator.geolocation) {
+								if (navigator.permissions) {
+									navigator.permissions.query({name: 'geolocation'}).then(function(result) {
+										if (result.state === 'granted') {
+											// Browser already granted (e.g. user did it via site settings)
+											bc_save_consent();
+											bc_silent_gps();
+										} else if (result.state === 'prompt') {
+											// Not decided yet — show our warm-up modal (no browser popup yet)
+											bc_show_modal();
+										}
+										// 'denied': browser hard-blocked — do nothing, avoid modal loop
+									});
+								} else {
+									// No Permissions API — show modal directly
+									bc_show_modal();
+								}
+							}
 						}
 					<?php } ?>
 					var box = $('#contnet');
@@ -1563,47 +1632,108 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 						<div class="bc-loc-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
 						</div>
-						<h4 class="bc-loc-title">Enable Location Access</h4>
+						<h4 class="bc-loc-title" id="bc-loc-title">Enable Location Access</h4>
 						<p class="bc-loc-subtitle">Required for the <strong>Nearby Users</strong> feature</p>
 					</div>
 					<div class="bc-loc-body">
-						<p class="bc-loc-desc">
-							Bitchat uses your location to show <strong>traders and users near you</strong> on the map. This helps you discover and connect with people in your area.
-						</p>
-						<p class="bc-loc-note">
-							Your location is never shared publicly. You can change this anytime in Privacy Settings.
-						</p>
+						<div id="bc-loc-body-default">
+							<p class="bc-loc-desc">
+								Bitchat uses your location to show <strong>traders and users near you</strong> on the map. This helps you discover and connect with people in your area.
+							</p>
+							<p class="bc-loc-note">
+								Your location is never shared publicly. You can change this anytime in Privacy Settings.
+							</p>
+						</div>
+						<div id="bc-loc-body-denied" style="display:none">
+							<p class="bc-loc-desc"><strong>Location is blocked in your browser.</strong> To enable it:</p>
+							<ol class="bc-loc-steps" style="text-align:left;padding-left:20px;margin:10px 0">
+								<li>Click the <strong>lock icon</strong> in the address bar</li>
+								<li>Select <strong>Site settings</strong> &rarr; <strong>Location</strong></li>
+								<li>Change it to <strong>Allow</strong></li>
+								<li>Reload this page</li>
+							</ol>
+							<p class="bc-loc-note">On iPhone/iPad: Settings app &rarr; Safari &rarr; Location &rarr; Allow</p>
+						</div>
 					</div>
 					<div class="bc-loc-actions">
-						<button type="button" class="btn bc-loc-btn-skip" data-dismiss="modal" onclick="localStorage.setItem('bc_loc_dismissed', Date.now())">Not Now</button>
+						<button type="button" class="btn bc-loc-btn-skip" id="bc-loc-skip-btn" data-dismiss="modal">Not Now</button>
 						<button type="button" class="bc-loc-btn-allow" id="bc-location-allow-btn">Allow Location</button>
 					</div>
 				</div>
 			</div>
 		</div>
 		<script>
-		document.getElementById('bc-location-allow-btn').addEventListener('click', function() {
-			$('#bc-location-modal').modal('hide');
-			localStorage.removeItem('bc_loc_dismissed');
-			navigator.geolocation.getCurrentPosition(
-				function(pos) {
-					localStorage.setItem('bc_loc_granted', '1');
-					Wo_UpdateLocation(pos);
-				},
-				function(err) {
-					console.warn('[Bitchat] Location denied:', err.message);
-					localStorage.removeItem('bc_loc_granted');
-					if (err.code === 1) {
-						if (navigator.userAgent.indexOf('BitchatApp') !== -1) {
-							/* Native app handles permissions — skip alert */
+		(function() {
+			var allowBtn = document.getElementById('bc-location-allow-btn');
+			var skipBtn  = document.getElementById('bc-loc-skip-btn');
+
+			// "Not Now" — save nothing; modal will reappear on every page load until user allows
+			skipBtn.addEventListener('click', function() {
+				$('#bc-location-modal').modal('hide');
+			});
+
+			function showDeniedState() {
+				document.getElementById('bc-loc-body-default').style.display = 'none';
+				document.getElementById('bc-loc-body-denied').style.display  = 'block';
+				document.getElementById('bc-loc-title').textContent = 'Location Blocked';
+				allowBtn.style.display = 'none';
+				skipBtn.textContent = 'Close';
+				skipBtn.removeAttribute('data-dismiss');
+				skipBtn.addEventListener('click', function() {
+					$('#bc-location-modal').modal('hide');
+				}, {once: true});
+			}
+
+			function onGpsSuccess(pos) {
+				// Consent is permanent — save to server and silently update location
+				$.post(BC_AJAX_URL + '?f=save_loc_permission', {action: 'grant'});
+				$('#bc-location-modal').modal('hide');
+				BC_LOC_CONSENTED = true;
+				Wo_UpdateLocation(pos);
+			}
+
+			function onGpsError(err) {
+				if (err.code === 1) {
+					// PERMISSION_DENIED — browser hard-blocked; show instructions, use IP geo
+					showDeniedState();
+					// Still save server consent so the modal won't show again (we'll use IP geo)
+					$.post(BC_AJAX_URL + '?f=save_loc_permission', {action: 'grant'});
+					BC_LOC_CONSENTED = true;
+					bc_use_ip_geo();
+				}
+				// Other errors (timeout/unavailable): modal stays open; user can retry
+			}
+
+			allowBtn.addEventListener('click', function() {
+				if (!navigator.geolocation) {
+					showDeniedState();
+					return;
+				}
+
+				// Disable button to prevent double-click
+				allowBtn.disabled = true;
+				allowBtn.textContent = 'Requesting...';
+
+				if (navigator.permissions) {
+					navigator.permissions.query({name: 'geolocation'}).then(function(result) {
+						if (result.state === 'denied') {
+							// Browser permanently blocked — show instructions, use IP geo anyway
+							allowBtn.disabled = false;
+							allowBtn.textContent = 'Allow Location';
+							showDeniedState();
+							$.post(BC_AJAX_URL + '?f=save_loc_permission', {action: 'grant'});
+							BC_LOC_CONSENTED = true;
+							bc_use_ip_geo();
 						} else {
-							alert('Location access is blocked by your browser.\n\nTo enable it:\n1. Click the lock icon (🔒) in the address bar\n2. Set Location to "Allow"\n3. Refresh the page');
+							// 'prompt' or 'granted' — fire the native browser prompt (only ever once per browser)
+							navigator.geolocation.getCurrentPosition(onGpsSuccess, onGpsError, {enableHighAccuracy: true, timeout: 15000});
 						}
-					}
-				},
-				{enableHighAccuracy: true, timeout: 10000}
-			);
-		});
+					});
+				} else {
+					navigator.geolocation.getCurrentPosition(onGpsSuccess, onGpsError, {enableHighAccuracy: true, timeout: 15000});
+				}
+			});
+		})();
 		</script>
 		<?php } ?>
 

@@ -2,6 +2,26 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-04-05 — QA Bug Fix Batch (TC_001–TC_028)
+
+### Bug Fixes
+
+- **TC_001 — Welcome setup avatar upload silently failing** — `content.phtml` FormData was missing the `hash_id` CSRF token; `Wo_CheckMainSession` always rejected the request. Added `fd.append('hash_id', $('.main_session').val())` so uploads now complete.
+- **TC_004/023/025/027/028 — Onboarding redirect loop** — `onboarding_completed` column may not exist if the DB migration was never run. Added INFORMATION_SCHEMA auto-migration in `xhr/onboarding.php`; the UPDATE now creates the column on the fly if absent, ending the perpetual redirect loop.
+- **TC_005 — Market strip hidden behind navbar on mobile** — `#bc-market-strip` converted to `position: sticky; top: 56px` and mobile `padding-top` overridden to 56px to match navbar height. No more 4px overlap.
+- **TC_006 — Sidebar dropdowns hidden behind navbar** — `.tag_sidebar .dropdown-menu` set to `z-index: 1046 !important` to stack above the 1045 navbar.
+- **TC_007 — Album publish button does nothing** — `create-album.phtml` form was missing `enctype="multipart/form-data"`; file inputs were not transmitted. Added the attribute.
+- **TC_009 — Birthday date picker broken** — `new Date('1897:2012')` is an invalid JS Date string (colon separator). Replaced with flatpickr's native string format `'1897-01-01'` / `'2012-12-31'` in both `general-setting.phtml` and `info_startup.phtml`.
+- **TC_010/018/020 — Float labels collapse when field has content** — added `:not(:placeholder-shown)` CSS rule to keep label elevated when an input or textarea is filled.
+- **TC_013 — My Information cards broken layout** — fixed `.tag_select_info_dload .empty_state` flex display, word-break, and font-size so card text doesn't overflow.
+- **TC_014 — Download info SVG overlaps text** — fixed `.ready_to_down_info` display and padding to separate icon from text.
+- **TC_017 — Two-factor auth code request fails** — `requestCode()` POST was missing `hash_id`; added `hash_id: $('input[name=hash_id]').val()` to the request.
+- **TC_021 — Add New Address does nothing** — `xhr/address.php` was calling `Wo_CheckSession($hash_id)` (form CSRF), but the client sends `$('.main_session').val()` (main session CSRF). Changed to `Wo_CheckMainSession($hash_id)`; add/edit/delete address now works.
+- **TC_022 — Profile page double-scroll stutter / settings success message missed** — `html { scroll-behavior: smooth }` in the custom CSS conflicted with jQuery's `.animate({scrollTop: 0})` on AJAX navigation, causing simultaneous competing scroll animations. Changed to `scroll-behavior: auto`. This also fixes the perception that **TC_008/011/012/015/016** (settings save "does nothing") were broken — the success alert was appearing at the top of the page but the stutter scroll was overshooting past it.
+- **TC_024 — Affiliate commission display shows wrong amount** — string interpolation bug: `${amount}%` was being parsed as a JS template literal placeholder `${amount}`, producing `%` instead of e.g. `10%`. Fixed to use string concatenation.
+
+---
+
 ## 2026-04-01 — Registration Avatar Upload Fix
 
 ### Bug Fix

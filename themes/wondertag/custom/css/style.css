@@ -820,9 +820,10 @@ body.night_mode {
    Global Utility Overrides
    ========================================================================== */
 
-/* Smoother scrolling */
+/* TC_022: removing scroll-behavior:smooth from html — conflicts with
+   jQuery animate({scrollTop:0}) causing double-scroll stutter on profile pages */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 /* All buttons — consistent transitions */
@@ -4837,8 +4838,7 @@ a[href*="link1=forum"] { display: none !important; }
   box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.06) !important;
 }
 
-/* ── EP-9: Smooth scroll ───────────────────────────────────────────────── */
-html { scroll-behavior: smooth; }
+/* ── EP-9: Smooth scroll (disabled on html root — see TC_022 fix above) ── */
 
 /* ── EP-10: First post visible rule — remove extra top spacing ─────────── */
 .tag_home_filters.home { margin-top: 0 !important; margin-bottom: 6px !important; }
@@ -9852,4 +9852,73 @@ html.bc-native-app .cc-banner {
     width: 20px;
     height: 20px;
   }
+}
+
+/* ============================================================
+   QA Bug Fixes
+   ============================================================ */
+
+/* TC_005: Market strip sticky below navbar — prevents overlap with fixed navbar */
+#bc-market-strip {
+  position: sticky !important;
+  top: 56px !important;
+  z-index: 1044 !important;
+}
+/* TC_005: ensure body padding-top >= navbar height on all viewport sizes */
+@media (max-width: 520px) {
+  body { padding-top: 56px !important; }
+}
+
+/* TC_006: sidebar dropdown menus must appear above the fixed navbar */
+.tag_sidebar .dropdown-menu,
+.tag_sidebar_section .dropdown-menu,
+.tag_sidebar_users .dropdown-menu {
+  z-index: 1046 !important;
+}
+
+/* TC_013: My Information cards — prevent icon/text overflow at col-6 width */
+.tag_select_info_dload .empty_state {
+  word-break: break-word;
+  hyphens: auto;
+  font-size: 13px;
+  line-height: 1.3;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 8px !important;
+}
+.tag_select_info_dload .empty_state svg {
+  flex-shrink: 0;
+  width: 48px !important;
+  height: 48px !important;
+  margin-bottom: 8px;
+}
+
+/* TC_014: Download My Information — prevent text overlapping the SVG */
+.ready_to_down_info {
+  display: none;
+  text-align: center;
+  padding: 20px;
+}
+.ready_to_down_info svg {
+  display: block;
+  margin: 0 auto 16px;
+  width: 100px !important;
+  height: 100px !important;
+}
+.ready_to_down_info a.btn {
+  display: inline-block;
+  margin-top: 12px;
+}
+
+/* TC_010 / TC_018 / TC_020: float label stays elevated when field has content.
+   The :not(:placeholder-shown) selector is false when the field has a value,
+   ensuring the label never sits on top of existing text. */
+.tag_field > input:not(:placeholder-shown) + span,
+.tag_field > textarea:not(:placeholder-shown) + span {
+  font-size: 13px !important;
+  padding: 6px 16px 0 !important;
 }

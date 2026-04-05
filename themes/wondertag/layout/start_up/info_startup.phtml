@@ -72,8 +72,8 @@
 $(function() {
 	$("#usr_birthday").flatpickr({
 		dateFormat: "d-m-Y",
-		minDate: new Date('<?php echo date('Y')-129; ?>:<?php echo date('Y')-14; ?>'),
-		maxDate: new Date('<?php echo date('Y')-14; ?>-12-31'),
+		minDate: '<?php echo (date('Y') - 129); ?>-01-01',
+		maxDate: '<?php echo (date('Y') - 14); ?>-12-31',
 	});
 });
 function Wo_SubmitInfoForm() {

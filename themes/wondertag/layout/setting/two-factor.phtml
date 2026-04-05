@@ -311,7 +311,7 @@ function downloadBackup() {
         }
         
         $('#request_code').text("<?php echo $wo['lang']['please_wait']; ?>");
-        $.post(Wo_Ajax_Requests_File() + '?f=update_two_factor&s=enable', {user_id: "<?php echo $wo['setting']['user_id'];?>", factor_method: $('#two_factor_method').val(), phone_number: $('#phone_number').val()}, function(data, textStatus, xhr) {
+        $.post(Wo_Ajax_Requests_File() + '?f=update_two_factor&s=enable', {user_id: "<?php echo $wo['setting']['user_id'];?>", hash_id: $('input[name=hash_id]').val(), factor_method: $('#two_factor_method').val(), phone_number: $('#phone_number').val()}, function(data, textStatus, xhr) {
             $('#request_code').text("<?php echo $wo['lang']['save']; ?>");
             if (data.status == 200) {
                 $('.setting-password-alert').html('<div class="alert alert-success">' + data.message + '</div>');

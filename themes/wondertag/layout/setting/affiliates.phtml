@@ -6,10 +6,17 @@
 			<h4>
 			<?php 
 				if( $wo['config']['amount_percent_ref'] > 0 ){
-					$earn_users = str_replace('{amount}', $wo['config']['amount_percent_ref'], $wo['lang']['earn_users']);
-					$earn_users = str_replace('$', '%', $earn_users);
-					$earn_users_pro = str_replace('{amount}', $wo['config']['amount_percent_ref'], $wo['lang']['earn_users_pro']);
-					$earn_users_pro = str_replace('$', '%', $earn_users_pro);
+					$earn_users = str_replace('${amount}', $wo['config']['amount_percent_ref'] . '%', $wo['lang']['earn_users']);
+					if ($earn_users === $wo['lang']['earn_users']) {
+						// Language string uses {amount}$ pattern — fallback
+						$earn_users = str_replace('{amount}', $wo['config']['amount_percent_ref'] . '%', $wo['lang']['earn_users']);
+						$earn_users = str_replace('$', '', $earn_users);
+					}
+					$earn_users_pro = str_replace('${amount}', $wo['config']['amount_percent_ref'] . '%', $wo['lang']['earn_users_pro']);
+					if ($earn_users_pro === $wo['lang']['earn_users_pro']) {
+						$earn_users_pro = str_replace('{amount}', $wo['config']['amount_percent_ref'] . '%', $wo['lang']['earn_users_pro']);
+						$earn_users_pro = str_replace('$', '', $earn_users_pro);
+					}
 				}else if( $wo['config']['amount_ref'] > 0 ){
 					$earn_users = str_replace('{amount}', $wo['config']['amount_ref'], $wo['lang']['earn_users']);
 					$earn_users = str_replace('$', Wo_GetCurrency($wo['config']['ads_currency']), $earn_users);

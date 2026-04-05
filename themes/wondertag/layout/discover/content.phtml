@@ -126,3 +126,12 @@
 		<?php } ?>
 	</div>
 </div>
+<script>
+function Wo_FollowUser(user_id) {
+	$.get(Wo_Ajax_Requests_File(), {
+		f: 'follow_user',
+		following_id: user_id,
+		hash_id: $('.main_session').val()
+	});
+}
+</script>

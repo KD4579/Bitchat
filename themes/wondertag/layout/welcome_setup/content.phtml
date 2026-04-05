@@ -96,6 +96,7 @@ document.getElementById('bc-avatar-input').addEventListener('change', function(e
 	var fd = new FormData();
 	fd.append('avatar', file);
 	fd.append('user_id', '<?php echo $wo['user']['user_id']; ?>');
+	fd.append('hash_id', $('.main_session').val());
 	$.ajax({
 		url: '<?php echo $wo['config']['site_url']; ?>/requests.php?f=update_user_avatar_picture',
 		type: 'POST',
@@ -106,6 +107,8 @@ document.getElementById('bc-avatar-input').addEventListener('change', function(e
 		success: function(data) {
 			if (data.status == 200) {
 				document.getElementById('bc-step1-next').textContent = 'Next';
+			} else {
+				document.getElementById('bc-avatar-img').src = '<?php echo htmlspecialchars($wo['user']['avatar'], ENT_QUOTES); ?>';
 			}
 		}
 	});

@@ -15,7 +15,8 @@ if ($f == 'save_user_location' && isset($_POST['lat']) && isset($_POST['lng'])) 
     $update_array = array(
         'lat' => $safe_lat,
         'lng' => $safe_lng,
-        'last_location_update' => $next_update
+        'last_location_update' => $next_update,
+        'loc_permission' => 1
     );
     $data = array('status' => 304);
     if (Wo_UpdateUserData($wo['user']['user_id'], $update_array)) {
