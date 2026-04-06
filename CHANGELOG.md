@@ -2,6 +2,17 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-04-06 — Tradex24 Settings Audit Fixes
+
+### Bug Fixes
+
+- **Duplicate CSRF token removed** — admin settings page was calling `Wo_CreateSession()` twice (once per column card), generating two separate session tokens and wasting a DB write. Removed the duplicate; single token in column 2 is used by both save handlers.
+- **Save error feedback fixed** — on a failed save (non-200 response), the JS was incorrectly adding the `success` CSS class and showing nothing to the admin. Now shows a red border + alert so failed saves are visible.
+- **tradex24 OAuth keys now saveable from any admin page** — `xhr/admin_setting.php` `$tradex24_keys` allowlist was missing `tradex24_oauth_enabled`, `tradex24_client_id`, `tradex24_client_secret`, `tradex24_base_url`. New config keys not yet in the DB would silently not save. All four added to the allowlist.
+- **IP allowlist inconsistency fixed (security)** — `api/v2/tradex24/referral_converted.php` checked `REMOTE_ADDR` first and only fell back to `HTTP_CF_CONNECTING_IP`, while `vip_status.php` did the opposite. Behind Cloudflare the IP check could behave differently between the two endpoints. Standardised both to prefer `HTTP_CF_CONNECTING_IP` (Cloudflare real IP) then fall back to `REMOTE_ADDR`.
+
+---
+
 ## 2026-04-06 — Trading Bot Dashboard UX
 
 ### Improvement
