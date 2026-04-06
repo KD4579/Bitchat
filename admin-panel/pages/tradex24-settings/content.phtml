@@ -80,11 +80,6 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="hash_id" value="<?php echo Wo_CreateSession(); ?>">
-                </div>
-            </div>
-        </div>
-
         <!-- ── Column 2: Referral & VIP Reward Config ──────────────────── -->
         <div class="col-lg-6 col-md-6">
             <div class="card">
@@ -190,7 +185,8 @@ $(function() {
                 thisElement.addClass('success');
                 $('.tradex24-settings-alert').html('');
             } else {
-                thisElement.addClass('success');
+                thisElement.addClass('error');
+                $('.tradex24-settings-alert').html('<div class="alert alert-danger">Save failed. Please try again.</div>');
             }
             setTimeOutColor = setTimeout(function () {
                 thisElement.removeClass('success').removeClass('warning').removeClass('error');

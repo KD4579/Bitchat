@@ -52,10 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // ── IP allowlist ──────────────────────────────────────────────────────────
 $allowed_ips = array_filter(array_map('trim', explode(',', $wo['config']['tradex24_allowed_ips'] ?? '')));
 if (!empty($allowed_ips)) {
-    $remote_ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-        $remote_ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
-    }
+    $remote_ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
     if (!in_array($remote_ip, $allowed_ips)) {
         tx24_respond(false, 'Forbidden', 403);
     }

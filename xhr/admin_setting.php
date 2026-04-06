@@ -3325,7 +3325,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
                     $value = '';
                 }
             }
-            $tradex24_keys = ['tradex24_referral_enabled','tradex24_referral_secret','tradex24_allowed_ips','tradex24_api_base','tradex24_referral_reward_trdc','tradex24_referral_min_usd'];
+            $tradex24_keys = ['tradex24_referral_enabled','tradex24_referral_secret','tradex24_allowed_ips','tradex24_api_base','tradex24_referral_reward_trdc','tradex24_referral_min_usd','tradex24_oauth_enabled','tradex24_client_id','tradex24_client_secret','tradex24_base_url'];
             if (isset($wo['config'][$key]) || $key == 'googleAnalytics_en' || in_array($key, $tradex24_keys)) {
                 if ($key == 'yandex_translate') {
                     if ($value == 1) {
