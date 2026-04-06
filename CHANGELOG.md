@@ -2,6 +2,25 @@
 
 All notable changes to the Bitchat platform are documented here. Entries are grouped by date and listed in reverse chronological order.
 
+## 2026-04-06 — Trading Bot Dashboard UX
+
+### Improvement
+
+- **Compact smart pagination** — replaced full page-number list (grew unboundedly with trade history) with a sliding window: `‹ 1 … p-2 p-1 [p] p+1 p+2 … last ›`. Max 9 buttons at all times regardless of total pages. Prev/Next disabled at boundaries; active page non-clickable.
+- **Fast-scrolling Trade History table** — fixed 380px height container so the page no longer jumps; `<thead>` is `position: sticky` so column headers stay visible while scrolling hundreds of rows. Added `will-change: transform` (GPU compositing) and `-webkit-overflow-scrolling: touch` for smooth momentum scroll.
+- **Tighter row density** — cell padding reduced to 3px vertical; column labels shortened (Strat, Gas, Day P&L) to cut horizontal overflow.
+
+---
+
+## 2026-04-06 — Nav & Settings Audit Fixes
+
+### UI Fixes
+
+- **Duplicate Wallet link removed** — mobile profile panel (opened from "Me" in the bottom nav) had a Wallet link duplicating the dedicated Wallet item already in the bottom nav bar. Removed the panel entry.
+- **Transaction Log added to Settings sidebar** — the Transaction Log page existed and was whitelisted but had no sidebar link; added it under the Earnings section so users can navigate there directly.
+
+---
+
 ## 2026-04-05 — QA Bug Fix Batch (TC_001–TC_028)
 
 ### Bug Fixes
