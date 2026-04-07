@@ -987,10 +987,10 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php endif; ?>
 		<input type="hidden" id="get_no_posts_name" value="<?php echo($wo['lang']['no_more_posts']); ?>">
 		<?php $loadPage = Wo_LoadPage('thirdparty/theme-changer'); echo (!empty($loadPage)) ? $loadPage : '';?>
-		
+
 		<input type="hidden" class="seen_stories_users_ids" value="">
 		<input type="hidden" class="main_session" value="<?php echo Wo_CreateMainSession();?>">
-		
+
 		<?php if($wo['page'] != 'welcome' && $wo['page'] != 'get_news_feed' && $wo['page'] != 'maintenance' && $wo['page'] != 'video-api' && $wo['page'] != 'sharer' && $wo['page'] != 'start_up' && $wo['page'] != 'status' && $wo['page'] != 'messages'): ?>
 			<div class="barloading"></div>
 			<header>

@@ -9924,31 +9924,13 @@ html.bc-native-app .cc-banner {
 }
 
 /* ==========================================================================
-   Market strip overlap fix — body must reserve space for navbar + strip
-   Navbar = 60px (≤1350px) / 56px (≤520px). Strip = 39px sticky below it.
-   Without this the sticky strip covers the first rows of page content.
+   Market strip overlap fix — removed.
+   The core style.header.css already sets body.tag_header_top_p padding-top
+   to 56px for the fixed navbar. The market strip is position:relative
+   (normal flow) and takes its own 39px space — no extra body padding needed.
    ========================================================================== */
 
-/* Logged-in: push content below fixed navbar (60px) + sticky strip (39px) */
-body:not(.bc-welcome) {
-  padding-top: calc(60px + 39px) !important;
-}
-
-/* At ≤520px navbar shrinks to 56px and strip to 36px */
-@media (max-width: 520px) {
-  body:not(.bc-welcome) {
-    padding-top: calc(56px + 36px) !important;
-  }
-}
-
-/* At ≤375px strip shrinks to 34px */
-@media (max-width: 375px) {
-  body:not(.bc-welcome) {
-    padding-top: calc(56px + 34px) !important;
-  }
-}
-
-/* Welcome / logged-out pages have no strip — restore normal padding */
+/* Welcome / logged-out pages have no navbar strip — no extra padding */
 body.bc-welcome {
   padding-top: 0 !important;
 }
