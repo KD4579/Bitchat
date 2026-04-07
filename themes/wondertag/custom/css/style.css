@@ -5244,19 +5244,32 @@ html.bc-dark-mode .tag_pub_box_bg_text {
   }
 }
 
-/* --- 2) Header elements: match 280px sidebar width (core uses 350px) --- */
+/* --- 2) Header elements: sidebar layout (≥1351px) --- */
+/* Core layout: logo fixed at top:15px left:15px (~100px wide), icons
+   (.tag_hdr_right) fixed at top:15px left:0 width:350px with flex-end.
+   Previously shrunk to 280px which caused icons to overlap the logo.
+   Fix: keep full 280px width but move icons below the logo row by
+   repositioning .tag_hdr_right to top:55px (below logo) and making it
+   a row of compact icons. Search sits below at top:85px (adjusted). */
 @media (min-width: 1351px) {
   .tag_hdr_right {
     width: 280px !important;
+    top: 55px !important;
+    justify-content: flex-start !important;
+    padding: 0 10px !important;
+    gap: 2px !important;
   }
   .tag_header > .search-container {
     width: 280px !important;
+    top: 95px !important;
   }
   .tag_header > .search-container .dropdown-menu {
     max-width: 280px !important;
+    top: 135px !important;
   }
   .tag_hdr_right > .dropdown .dropdown-menu {
     max-width: 280px !important;
+    top: 95px !important;
   }
 }
 
