@@ -9002,7 +9002,7 @@ body.night_mode .bc-announce-banner .bc-announce-close { color: #aaa !important;
 
 /* --- Remove ALL gaps between ticker → announcement → hero banner --- */
 #bc-market-strip { margin-bottom: 0 !important; border-bottom: none !important; }
-.bc-announce-banner { margin: 0 !important; padding-top: 6px !important; padding-bottom: 6px !important; }
+.bc-announce-banner { margin-top: 0 !important; margin-bottom: 0 !important; margin-right: 0 !important; padding-top: 6px !important; padding-bottom: 6px !important; }
 header { margin-bottom: 0 !important; }
 
 /* --- Sidebar layout (≥1351px): collapse empty header --- */
