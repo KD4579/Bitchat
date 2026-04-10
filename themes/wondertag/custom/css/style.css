@@ -9008,12 +9008,19 @@ body.night_mode .bc-announce-banner .bc-announce-close { color: #aaa !important;
 .bc-announce-banner { margin-top: 0 !important; margin-bottom: 0 !important; padding-top: 6px !important; padding-bottom: 6px !important; }
 header { margin-bottom: 0 !important; }
 
-/* --- Sidebar layout: completely hide header from flow --- */
-/* All header children (logo, search, icons) are position:fixed so they
-   render regardless. display:none removes the header from flow entirely. */
+/* --- Sidebar layout: collapse header, keep fixed children --- */
 body:not(.tag_header_top_p):not(.bc-welcome) header {
-  display: none !important;
+  display: block !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
 }
+/* DEBUG: red outline on body, green on market strip, blue on announce */
+body:not(.bc-welcome) { outline: 3px solid red !important; }
+#bc-market-strip { outline: 3px solid lime !important; }
+.bc-announce-banner { outline: 3px solid blue !important; }
 
 /* --- Sidebar announcement: remove shadow --- */
 .home-announcement.wow_content,
