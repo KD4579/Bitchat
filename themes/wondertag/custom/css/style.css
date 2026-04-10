@@ -9008,19 +9008,11 @@ body.night_mode .bc-announce-banner .bc-announce-close { color: #aaa !important;
 .bc-announce-banner { margin-top: 0 !important; margin-bottom: 0 !important; padding-top: 6px !important; padding-bottom: 6px !important; }
 header { margin-bottom: 0 !important; }
 
-/* --- Sidebar layout: collapse empty header at all desktop sizes --- */
-/* All header children (logo, search, icons) are position:fixed, so the
-   <header> and its <nav> are empty flow containers creating a dead gap.
-   overflow:hidden prevents margin-collapsing through the zero-height
-   header; fixed-position children stay visible (viewport-relative). */
+/* --- Sidebar layout: completely hide header from flow --- */
+/* All header children (logo, search, icons) are position:fixed so they
+   render regardless. display:none removes the header from flow entirely. */
 body:not(.tag_header_top_p):not(.bc-welcome) header {
-  height: 0 !important;
-  overflow: hidden !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  line-height: 0 !important;
-  font-size: 0 !important;
+  display: none !important;
 }
 
 /* --- Sidebar announcement: remove shadow --- */
