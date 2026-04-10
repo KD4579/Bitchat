@@ -9011,27 +9011,16 @@ header { margin-bottom: 0 !important; }
 /* --- Sidebar layout: collapse empty header at all desktop sizes --- */
 /* All header children (logo, search, icons) are position:fixed, so the
    <header> and its <nav> are empty flow containers creating a dead gap.
-   Collapse them so #bc-market-strip sits flush at the top. */
+   overflow:hidden prevents margin-collapsing through the zero-height
+   header; fixed-position children stay visible (viewport-relative). */
 body:not(.tag_header_top_p):not(.bc-welcome) header {
   height: 0 !important;
-  overflow: visible !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-body:not(.tag_header_top_p):not(.bc-welcome) header nav.navbar {
-  height: 0 !important;
-  min-height: 0 !important;
+  overflow: hidden !important;
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
-}
-body:not(.tag_header_top_p):not(.bc-welcome) header .tag_header_shadow {
-  display: none !important;
-}
-body:not(.tag_header_top_p):not(.bc-welcome) header .container {
-  height: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  line-height: 0 !important;
+  font-size: 0 !important;
 }
 
 /* --- Sidebar announcement: remove shadow --- */
