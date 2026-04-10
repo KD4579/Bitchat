@@ -960,6 +960,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	</head>
    
 	<body class="<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { echo 'tag_header_top_p '; } if ($wo['page'] == 'welcome') { echo 'bc-welcome'; } ?>"<?php if ($wo['config']['chatSystem'] == 0) { ?> chat-off="true" <?php } ?>>
+		<!-- deploy:<?php echo time(); ?> -->
 		<?php if ($wo['loggedin'] == true && $wo['page'] != 'welcome' && $wo['page'] != 'maintenance'): ?>
 		<!-- Part 2: Market Strip Ticker -->
 		<div id="bc-market-strip">
