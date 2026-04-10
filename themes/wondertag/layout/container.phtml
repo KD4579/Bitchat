@@ -960,24 +960,6 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	</head>
    
 	<body class="<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { echo 'tag_header_top_p '; } if ($wo['page'] == 'welcome') { echo 'bc-welcome'; } ?>"<?php if ($wo['config']['chatSystem'] == 0) { ?> chat-off="true" <?php } ?>>
-		<script>
-		window.addEventListener('load', function() {
-			var strip = document.getElementById('bc-market-strip');
-			var body = document.body;
-			if (strip) {
-				var sr = strip.getBoundingClientRect();
-				var bs = window.getComputedStyle(body);
-				var info = 'STRIP top:' + sr.top + ' | body paddingTop:' + bs.paddingTop + ' marginTop:' + bs.marginTop;
-				// Check all children before strip
-				var prev = strip.previousElementSibling;
-				while(prev) { info += ' | prev:' + prev.tagName + '.' + prev.className + ' h:' + prev.offsetHeight; prev = prev.previousElementSibling; }
-				var d = document.createElement('div');
-				d.style.cssText = 'position:fixed;top:0;left:300px;background:red;color:white;padding:8px;z-index:99999;font:14px monospace;max-width:900px;word-break:break-all';
-				d.textContent = info;
-				document.body.appendChild(d);
-			}
-		});
-		</script>
 		<?php if ($wo['loggedin'] == true && $wo['page'] != 'welcome' && $wo['page'] != 'maintenance'): ?>
 		<!-- Part 2: Market Strip Ticker -->
 		<div id="bc-market-strip">
