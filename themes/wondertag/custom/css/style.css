@@ -5222,13 +5222,16 @@ html.bc-dark-mode .tag_pub_box_bg_text {
    4) Dark mode: sidebar background, text, hover colors
    ========================================================================== */
 
-/* --- 1) Ticker: stop before sidebars on desktop --- */
+/* --- 1) Ticker + banner: stop before sidebars on desktop --- */
 /* margin-right: 90px = chat sidebar width; padding-right = right content sidebar */
 @media (min-width: 1151px) {
   #bc-market-strip {
     margin-left: 280px !important;
     margin-right: 90px !important;
     padding-right: 230px !important;
+  }
+  .bc-announce-banner {
+    margin-left: 280px !important;
   }
 }
 @media (max-width: 1250px) and (min-width: 992px) {
