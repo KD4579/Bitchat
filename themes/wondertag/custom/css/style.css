@@ -9008,27 +9008,30 @@ body.night_mode .bc-announce-banner .bc-announce-close { color: #aaa !important;
 .bc-announce-banner { margin-top: 0 !important; margin-bottom: 0 !important; padding-top: 6px !important; padding-bottom: 6px !important; }
 header { margin-bottom: 0 !important; }
 
-/* --- Sidebar layout (≥1351px): collapse empty header --- */
+/* --- Sidebar layout: collapse empty header at all desktop sizes --- */
 /* All header children (logo, search, icons) are position:fixed, so the
    <header> and its <nav> are empty flow containers creating a dead gap.
    Collapse them so #bc-market-strip sits flush at the top. */
-@media (min-width: 1351px) {
-  header {
-    height: 0 !important;
-    overflow: visible !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  header nav.navbar {
-    height: 0 !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-  }
-  header .tag_header_shadow {
-    display: none !important;
-  }
+body:not(.tag_header_top_p):not(.bc-welcome) header {
+  height: 0 !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body:not(.tag_header_top_p):not(.bc-welcome) header nav.navbar {
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+body:not(.tag_header_top_p):not(.bc-welcome) header .tag_header_shadow {
+  display: none !important;
+}
+body:not(.tag_header_top_p):not(.bc-welcome) header .container {
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* --- Sidebar announcement: remove shadow --- */
@@ -9971,6 +9974,12 @@ html.bc-native-app .cc-banner {
    to 56px for the fixed navbar. The market strip is position:relative
    (normal flow) and takes its own 39px space — no extra body padding needed.
    ========================================================================== */
+
+/* Sidebar layout (no .tag_header_top_p class): zero body padding on desktop
+   so the market strip sits flush at the top of the viewport. */
+body:not(.tag_header_top_p):not(.bc-welcome) {
+  padding-top: 0 !important;
+}
 
 /* Welcome / logged-out pages have no navbar strip — no extra padding */
 body.bc-welcome {
