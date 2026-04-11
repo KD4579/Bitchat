@@ -9959,13 +9959,19 @@ html.bc-native-app .cc-banner {
    (normal flow) and takes its own 39px space — no extra body padding needed.
    ========================================================================== */
 
-/* Sidebar layout (no .tag_header_top_p class): zero body padding on desktop
-   so the market strip sits flush at the top of the viewport.
-   display:flow-root creates a new BFC, preventing child margin-collapsing
-   from pushing #bc-market-strip away from the top edge. */
-body:not(.tag_header_top_p):not(.bc-welcome) {
-  padding-top: 0 !important;
-  display: flow-root !important;
+/* --- FIX: force market strip and announce banner flush to viewport top --- */
+/* Diagnostic showed strip.top=56 despite body padding=0. Root cause unclear.
+   Fix: make both position:sticky at top:0 so they always stick to the top
+   of the viewport, regardless of what's pushing them down in flow. */
+#bc-market-strip {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+.bc-announce-banner {
+  position: sticky !important;
+  top: 39px !important;
+  z-index: 99 !important;
 }
 
 /* Welcome / logged-out pages have no navbar strip — no extra padding */
