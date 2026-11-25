@@ -1700,8 +1700,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 					$.post(BC_AJAX_URL + '?f=save_loc_permission', {action: 'grant'});
 					BC_LOC_CONSENTED = true;
 					bc_use_ip_geo();
+					return;
 				}
-				// Other errors (timeout/unavailable): modal stays open; user can retry
+				// Timeout / position unavailable (e.g. OS location services off):
+				// re-enable the button so the user can retry, and use IP geo meanwhile.
+				allowBtn.disabled = false;
+				allowBtn.textContent = 'Try again';
+				bc_use_ip_geo();
 			}
 
 			allowBtn.addEventListener('click', function() {
