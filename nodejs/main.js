@@ -13,6 +13,9 @@ const { Sequelize, Op, DataTypes } = require("sequelize");
 // Allowed origins for CORS - UPDATE THIS with your actual domain
 const ALLOWED_ORIGINS = [
   configFile.site_url,
+  "https://bitchat.social",
+  "https://www.bitchat.social",
+  "https://trade.bitchat.social",
   "http://localhost",
   "http://127.0.0.1"
 ];

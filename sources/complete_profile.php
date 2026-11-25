@@ -10,7 +10,7 @@ $src = $wo['user']['src'] ?? '';
 
 // Determine what's missing
 $wo['complete_profile_need'] = '';
-if ($src === 'phone_signup' && (empty($wo['user']['email']) || strpos($wo['user']['email'], '@placeholder.bitchat.live') !== false)) {
+if ($src === 'phone_signup' && (empty($wo['user']['email']) || strpos($wo['user']['email'], '@placeholder.bitchat.live') !== false || strpos($wo['user']['email'], '@placeholder.bitchat.social') !== false)) {
     $wo['complete_profile_need'] = 'email';
 } elseif ($src === 'email_signup' && empty($wo['user']['phone_number'])) {
     $wo['complete_profile_need'] = 'phone';

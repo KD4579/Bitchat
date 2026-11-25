@@ -106,6 +106,7 @@ No test suite, linter, or build pipeline exists. There is no `composer install` 
 ## Deployment Notes
 
 - **Live server**: 85.31.237.40 (HestiaCP managed, Nginx → Apache reverse proxy)
+- **Domains**: primary is `https://bitchat.social` — a Hestia web domain whose docroot points at the bitchat.live public_html below (code still lives under the bitchat.live path). `www.bitchat.social` 301s to apex. `trade.bitchat.social` is a separate Hestia web domain using the `nodeproxy` template (Tradex24: `/api` → :4002, `/` → :3002, pm2 apps in `/home/KamalDave/apps/tradex24`). The old `bitchat.live` domain no longer resolves (NXDOMAIN).
 - **CRITICAL: Correct document root is `/home/KamalDave/web/bitchat.live/public_html/`** — NOT `/var/www/html/bitchat/`
   - Nginx serves static files (.js, .css, images) from this directory
   - Apache serves PHP from this directory (DocumentRoot in vhost config)

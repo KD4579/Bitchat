@@ -93,7 +93,7 @@ if ($f == 'register') {
         }
         if (empty($_POST['email'])) {
             // Generate a unique placeholder email so DB constraints are satisfied
-            $_POST['email'] = 'phone_' . time() . rand(1000,9999) . '@placeholder.bitchat.live';
+            $_POST['email'] = 'phone_' . time() . rand(1000,9999) . '@placeholder.bitchat.social';
         }
     } else {
         // Email signup: require email

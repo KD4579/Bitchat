@@ -107,9 +107,9 @@ if ($f == 'wallet_login') {
                             $user_uniq_id = 'user_' . bin2hex(random_bytes(4));
                         }
 
-                        $gen_email = 'wallet_' . $short . '@bitchat.live';
+                        $gen_email = 'wallet_' . $short . '@bitchat.social';
                         if (Wo_EmailExists($gen_email) === true) {
-                            $gen_email = 'wallet_' . bin2hex(random_bytes(4)) . '@bitchat.live';
+                            $gen_email = 'wallet_' . bin2hex(random_bytes(4)) . '@bitchat.social';
                         }
 
                         $re_data = array(

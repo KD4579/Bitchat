@@ -278,7 +278,7 @@ function bc_fetch_crypto_rss_feed($url) {
         CURLOPT_TIMEOUT => 15,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_MAXREDIRS => 3,
-        CURLOPT_USERAGENT => 'Bitchat CryptoBlogBot/1.0 (+https://bitchat.live)',
+        CURLOPT_USERAGENT => 'Bitchat CryptoBlogBot/1.0 (+https://bitchat.social)',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_HTTPHEADER => ['Accept: application/rss+xml, application/xml, text/xml']
     ]);

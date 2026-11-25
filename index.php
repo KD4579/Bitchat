@@ -62,7 +62,7 @@ if ($wo['loggedin'] == true) {
     $skipCompleteProfile = array('complete-profile', 'logout', 'activate', 'user-activation', 'confirm-sms', 'terms');
     if (!in_array($currentLink, $skipCompleteProfile) && empty($_POST) && !isset($_GET['f'])) {
         $needsEmail = (!empty($wo['user']['src']) && $wo['user']['src'] === 'phone_signup'
-            && (empty($wo['user']['email']) || strpos($wo['user']['email'], '@placeholder.bitchat.live') !== false));
+            && (empty($wo['user']['email']) || strpos($wo['user']['email'], '@placeholder.bitchat.live') !== false || strpos($wo['user']['email'], '@placeholder.bitchat.social') !== false));
         $needsPhone = (!empty($wo['user']['src']) && $wo['user']['src'] === 'email_signup'
             && empty($wo['user']['phone_number']));
         if ($needsEmail || $needsPhone) {
