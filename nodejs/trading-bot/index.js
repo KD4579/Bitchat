@@ -9,12 +9,17 @@ const { runGridTrading, runArbitrage, dailyPnl, nextDirection, resetDailyPnlIfNe
 const { checkPoolHealth } = require('./monitor');
 const { getPoolPrice, getBnbPriceUsd } = require('./prices');
 
+let heartbeatTimer = null;
+let shuttingDown = false;
+
 // ── Startup ──────────────────────────────────────────────
 
 async function main() {
     log.info('========================================');
     log.info('TRDC Trading Bot starting...');
     log.info('========================================');
+
+    await saveBotStat('bot_runtime_heartbeat', '0');
 
     // Validate private key
     const privateKey = process.env.BOT_PRIVATE_KEY;
@@ -31,6 +36,10 @@ async function main() {
         log.warn('Bot is DISABLED in admin panel. Enable it at /admin-cp/trading-bot');
         log.warn('Entering standby mode — will check config every 60s...');
         await standbyLoop();
+        // Exit cleanly so systemd (Restart=always) starts a fresh, fully initialised run.
+        // Returning here used to leave the process alive but idle forever.
+        log.info('Restarting to start trading with the current settings...');
+        await shutdown('enabled after standby', 0);
         return;
     }
 
@@ -51,13 +60,43 @@ async function main() {
     }
     log.info('Connected to BSC Mainnet');
 
-    // Check wallet BNB balance for gas
-    const bnbBalance = ethers.formatEther(await provider.getBalance(wallet.address));
-    log.info(`BNB balance (gas): ${bnbBalance} BNB`);
-    if (parseFloat(bnbBalance) < 0.005) {
-        log.error('BNB balance too low for gas. Fund the wallet with at least 0.01 BNB. Exiting.');
-        process.exit(1);
+    const configuredWallet = (cfg.bot_wallet_address || '').trim();
+    if (configuredWallet && configuredWallet.toLowerCase() !== wallet.address.toLowerCase()) {
+        throw new Error('Configured bot wallet address does not match the wallet derived from BOT_PRIVATE_KEY.');
     }
+    if (!configuredWallet) {
+        await saveBotStat('bot_wallet_address', wallet.address);
+        cfg.bot_wallet_address = wallet.address;
+    }
+    await startRuntimeHeartbeat(wallet.address);
+
+    // Check wallet BNB balance for gas. When it is too low, stay online (heartbeat
+    // keeps running, dashboard shows "waiting for gas") and re-check every 5 minutes
+    // instead of exiting and crash-looping under systemd.
+    const MIN_GAS_BNB = 0.005;
+    const GAS_RECHECK_MS = 5 * 60 * 1000;
+    let bnbBalance = ethers.formatEther(await provider.getBalance(wallet.address));
+    log.info(`BNB balance (gas): ${bnbBalance} BNB`);
+    await saveBotStat('bot_gas_balance', bnbBalance);
+    while (parseFloat(bnbBalance) < MIN_GAS_BNB) {
+        await saveBotStat('bot_runtime_status', 'waiting_for_gas');
+        log.warn(`BNB balance too low for gas (${bnbBalance} < ${MIN_GAS_BNB}). Fund ${wallet.address} with at least 0.01 BNB. Re-checking in 5 minutes...`);
+        await sleep(GAS_RECHECK_MS);
+        const latestCfg = await loadBotConfig();
+        if (latestCfg.bot_enabled !== '1') {
+            log.warn('Bot was disabled while waiting for gas.');
+            await shutdown('disabled while waiting for gas', 0);
+            return;
+        }
+        try {
+            bnbBalance = ethers.formatEther(await provider.getBalance(wallet.address));
+            await saveBotStat('bot_gas_balance', bnbBalance);
+        } catch (e) {
+            log.error('Gas balance re-check failed', { error: e.message });
+        }
+    }
+    await saveBotStat('bot_runtime_status', 'running');
+    log.info(`Gas OK (${bnbBalance} BNB). Starting strategies.`);
 
     // ── Launch arbitrage price monitor (runs independently) ──
     const mode = cfg.bot_mode;
@@ -354,6 +393,32 @@ async function standbyLoop() {
     }
 }
 
+async function startRuntimeHeartbeat(walletAddress) {
+    await saveBotStat('bot_runtime_wallet_address', walletAddress);
+    await saveBotStat('bot_runtime_heartbeat', Math.floor(Date.now() / 1000));
+    heartbeatTimer = setInterval(async () => {
+        try {
+            await saveBotStat('bot_runtime_heartbeat', Math.floor(Date.now() / 1000));
+        } catch (e) {
+            log.error('Could not update bot runtime heartbeat', { error: e.message });
+        }
+    }, 30000);
+    heartbeatTimer.unref();
+}
+
+async function markRuntimeOffline() {
+    if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+    }
+    try {
+        await saveBotStat('bot_runtime_heartbeat', '0');
+        await saveBotStat('bot_runtime_status', 'offline');
+    } catch (e) {
+        log.error('Could not clear bot runtime heartbeat', { error: e.message });
+    }
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -370,25 +435,31 @@ function randomizeCooldown(baseSec) {
 
 // ── Graceful shutdown ──────────────────────────────────
 
-process.on('SIGINT', async () => {
-    log.info('Received SIGINT. Shutting down...');
-    await closeDb();
-    process.exit(0);
-});
+async function shutdown(signal, exitCode) {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    log.info(`Received ${signal}. Shutting down...`);
+    await markRuntimeOffline();
+    try {
+        await closeDb();
+    } catch (e) {
+        log.error('Could not close bot database connection', { error: e.message });
+        if (exitCode === 0) exitCode = 1;
+    }
+    process.exit(exitCode);
+}
 
-process.on('SIGTERM', async () => {
-    log.info('Received SIGTERM. Shutting down...');
-    await closeDb();
-    process.exit(0);
-});
+process.on('SIGINT', () => shutdown('SIGINT', 0));
+process.on('SIGTERM', () => shutdown('SIGTERM', 0));
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', async (reason) => {
     log.error('Unhandled rejection', { error: String(reason) });
+    await shutdown('unhandled rejection', 1);
 });
 
 // ── Run ──────────────────────────────────────────────
 
 main().catch(e => {
     log.error('Fatal error', { error: e.message, stack: e.stack });
-    process.exit(1);
+    shutdown('fatal error', 1);
 });

@@ -16,6 +16,7 @@ const CONTRACTS = {
 // Default bot config (recommended settings for ~$551 TVL pool)
 const DEFAULTS = {
     bot_enabled:           '0',
+    bot_wallet_address:    '',
     bot_mode:              'both',
     bot_rpc_url:           'https://bsc-dataseed1.binance.org',
     bot_spread_percent:    '3',

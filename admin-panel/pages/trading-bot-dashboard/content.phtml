@@ -69,15 +69,22 @@
         </div>
         <div class="panel-body">
 
+            <div id="bot-readiness" class="alert alert-warning" role="status" style="margin-bottom:15px;">
+                Checking bot runtime and prerequisites...
+            </div>
+
             <!-- Wallet Info -->
-            <?php $botWallet = isset($wo['config']['bot_wallet_address']) ? $wo['config']['bot_wallet_address'] : ''; ?>
-            <?php if (!empty($botWallet)) { ?>
+            <?php $botWallet = isset($wo['config']['bot_wallet_address']) ? trim($wo['config']['bot_wallet_address']) : ''; ?>
             <div class="panel panel-default" style="border-left:4px solid #2196F3; margin-bottom:15px;">
                 <div class="panel-body" style="padding:12px 16px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                         <div>
                             <small class="text-muted">Bot Wallet</small><br>
-                            <code style="font-size:13px;"><a href="https://bscscan.com/address/<?php echo $botWallet; ?>" target="_blank" style="color:#2196F3;"><?php echo $botWallet; ?></a></code>
+                            <?php if (preg_match('/^0x[a-fA-F0-9]{40}$/', $botWallet)) { ?>
+                                <code style="font-size:13px;"><a href="https://bscscan.com/address/<?php echo htmlspecialchars($botWallet, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" style="color:#2196F3;"><?php echo htmlspecialchars($botWallet, ENT_QUOTES, 'UTF-8'); ?></a></code>
+                            <?php } else { ?>
+                                <strong class="text-warning">Wallet address not configured</strong>
+                            <?php } ?>
                         </div>
                         <div id="wallet-balances" style="display:flex; gap:20px; flex-wrap:wrap;">
                             <div class="text-center">
@@ -98,9 +105,9 @@
                             </div>
                         </div>
                     </div>
+                    <small id="wallet-balance-message" class="text-muted"></small>
                 </div>
             </div>
-            <?php } ?>
 
             <!-- Status Cards -->
             <div class="row" id="bot-status-cards">
@@ -259,9 +266,39 @@ $(document).ready(function() {
 
             // Status
             var enabled = d.bot_enabled === '1';
-            $('#ds-status').html(enabled ?
-                '<span style="color:#22c55e;">RUNNING</span>' :
-                '<span style="color:#ef4444;">STOPPED</span>');
+            var online = d.bot_runtime_online === true;
+            var waitingForGas = online && d.bot_runtime_status === 'waiting_for_gas';
+            var statusText = !enabled ? 'STOPPED' : (!online ? 'OFFLINE' : (waitingForGas ? 'WAITING FOR GAS' : 'RUNNING'));
+            var statusColor = !enabled ? '#888' : (!online ? '#ef4444' : (waitingForGas ? '#f59e0b' : '#22c55e'));
+            $('#ds-status').html('<span style="color:' + statusColor + ';">' + statusText + '</span>');
+            var readiness = [];
+            if (!enabled) {
+                readiness.push('Trading is disabled in bot settings.');
+            } else if (!online) {
+                readiness.push('Settings say enabled, but there is no recent runtime heartbeat; the bot process is offline or failed startup.');
+            }
+            if (waitingForGas) {
+                readiness.push('The bot is online but paused: the wallet has ' + (d.bot_gas_balance || '0') + ' BNB, below the 0.005 BNB minimum. Send at least 0.01 BNB (BSC) to the bot wallet; it re-checks every 5 minutes and starts automatically.');
+            }
+            if (!d.bot_wallet_configured) {
+                readiness.push('A valid public wallet address is not configured, so balances cannot be checked.');
+            }
+            if (!online && !d.bot_private_key_configured) {
+                readiness.push('The bot has not yet confirmed a valid BOT_PRIVATE_KEY (set it in nodejs/trading-bot/.env on the server); keep the key private and never enter it in this panel.');
+            }
+            if (!online && !d.bot_dependencies_installed) {
+                readiness.push('Trading-bot Node.js dependencies are not installed.');
+            }
+            if (!d.bot_trades_table_available) {
+                readiness.push('The Wo_Bot_Trades database table is missing; apply sql/011_trading_bot.sql.');
+            }
+            if (online && d.bot_wallet_configured && !d.bot_runtime_wallet_matches_config) {
+                readiness.push('The configured wallet address does not match the wallet used by the running bot.');
+            }
+            $('#bot-readiness')
+                .toggleClass('alert-success', readiness.length === 0)
+                .toggleClass('alert-warning', readiness.length > 0)
+                .text(readiness.length ? readiness.join(' ') : 'Bot process is online and the configured prerequisites are present.');
             $('#ds-mode').text((d.bot_mode || '--').replace('_', ' ').toUpperCase());
 
             // Daily P&L (from DB trades, includes gas for new trades)
@@ -307,6 +344,7 @@ $(document).ready(function() {
             $('#ds-all-pnl').html('<span style="color:' + allPnlColor + ';">$' + allPnl.toFixed(4) + '</span>');
         }, function(msg) {
             $('#ds-status').html('<span style="color:#ef4444;">ERROR</span>');
+            $('#bot-readiness').removeClass('alert-success').addClass('alert-danger').text(msg);
         });
     }
 
@@ -442,6 +480,13 @@ $(document).ready(function() {
             $('#wb-trdc').text(parseFloat(b.TRDC || 0).toLocaleString());
             $('#wb-usdt').text('$' + parseFloat(b.USDT || 0).toLocaleString());
             $('#wb-wbnb').text(b.WBNB || '0');
+            var balanceMessage = 'Balances read from BSC at ' + new Date().toLocaleTimeString() + '.';
+            if (parseFloat(b.BNB || 0) < 0.005) {
+                balanceMessage += ' BNB is below the bot startup minimum of 0.005 BNB; its startup check recommends at least 0.01 BNB.';
+            }
+            $('#wallet-balance-message').text(balanceMessage);
+        }, function(msg) {
+            $('#wallet-balance-message').text(msg);
         });
     }
 

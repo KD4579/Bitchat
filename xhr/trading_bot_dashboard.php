@@ -10,8 +10,17 @@ if ($f == 'trading_bot_dashboard') {
     $action = isset($_GET['action']) ? $_GET['action'] : 'trades';
 
     // Check if Wo_Bot_Trades table exists
-    $tableCheck = mysqli_query($sqlConnect, "SHOW TABLES LIKE 'Wo_Bot_Trades'");
-    $tableExists = ($tableCheck && mysqli_num_rows($tableCheck) > 0);
+    $tableCheck = mysqli_query(
+        $sqlConnect,
+        "SELECT COUNT(*) AS table_count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'Wo_Bot_Trades'"
+    );
+    if (!$tableCheck) {
+        error_log('Trading bot dashboard could not inspect the Wo_Bot_Trades table: ' . mysqli_error($sqlConnect));
+        http_response_code(500);
+        echo json_encode(array('status' => 500, 'message' => 'Could not check the trading bot database schema.'));
+        exit();
+    }
+    $tableExists = (intval(mysqli_fetch_assoc($tableCheck)['table_count']) > 0);
 
     if ($action === 'status') {
         // Get bot status stats from Wo_Config
@@ -23,6 +32,47 @@ if ($f == 'trading_bot_dashboard') {
         foreach ($keys as $k) {
             $stats[$k] = isset($wo['config'][$k]) ? $wo['config'][$k] : '';
         }
+
+        $runtimeConfig = array();
+        $runtimeQuery = mysqli_query(
+            $sqlConnect,
+            "SELECT `name`, `value` FROM `Wo_Config` WHERE `name` IN ('bot_runtime_heartbeat', 'bot_runtime_wallet_address', 'bot_runtime_status', 'bot_gas_balance')"
+        );
+        if (!$runtimeQuery) {
+            error_log('Trading bot dashboard could not read runtime state: ' . mysqli_error($sqlConnect));
+            http_response_code(500);
+            echo json_encode(array('status' => 500, 'message' => 'Could not read the trading bot runtime state.'));
+            exit();
+        }
+        while ($runtimeRow = mysqli_fetch_assoc($runtimeQuery)) {
+            $runtimeConfig[$runtimeRow['name']] = $runtimeRow['value'];
+        }
+
+        $heartbeat = isset($runtimeConfig['bot_runtime_heartbeat']) ? intval($runtimeConfig['bot_runtime_heartbeat']) : 0;
+        $heartbeatAge = time() - $heartbeat;
+        $wallet = isset($wo['config']['bot_wallet_address']) ? trim($wo['config']['bot_wallet_address']) : '';
+        $walletConfigured = preg_match('/^0x[a-fA-F0-9]{40}$/', $wallet) === 1;
+        $runtimeWallet = isset($runtimeConfig['bot_runtime_wallet_address']) ? trim($runtimeConfig['bot_runtime_wallet_address']) : '';
+        $stats['bot_runtime_online'] = ($heartbeat > 0 && $heartbeatAge >= 0 && $heartbeatAge <= 90);
+        $stats['bot_wallet_configured'] = $walletConfigured;
+        $stats['bot_runtime_wallet_matches_config'] = (
+            $walletConfigured
+            && preg_match('/^0x[a-fA-F0-9]{40}$/', $runtimeWallet) === 1
+            && strcasecmp($wallet, $runtimeWallet) === 0
+        );
+        // The private key lives in a root-only .env (mode 600) and must never be readable by
+        // the web user. The bot records its runtime wallet only after deriving it from a valid
+        // BOT_PRIVATE_KEY, so a recorded runtime wallet proves the key is configured.
+        $stats['bot_private_key_configured'] = preg_match('/^0x[a-fA-F0-9]{40}$/', $runtimeWallet) === 1;
+        $stats['bot_runtime_status'] = isset($runtimeConfig['bot_runtime_status']) ? $runtimeConfig['bot_runtime_status'] : '';
+        $stats['bot_gas_balance'] = isset($runtimeConfig['bot_gas_balance']) ? $runtimeConfig['bot_gas_balance'] : '';
+        $botDirectory = dirname(__DIR__) . '/nodejs/trading-bot';
+        $stats['bot_dependencies_installed'] = (
+            is_file($botDirectory . '/node_modules/ethers/package.json')
+            && is_file($botDirectory . '/node_modules/dotenv/package.json')
+            && is_file($botDirectory . '/node_modules/mysql2/package.json')
+        );
+        $stats['bot_trades_table_available'] = $tableExists;
 
         if ($tableExists) {
             // Get today's trade count, gas, and P&L (including gas cost in USD)
@@ -77,11 +127,11 @@ if ($f == 'trading_bot_dashboard') {
     }
 
     if ($action === 'balances') {
-        $wallet = isset($wo['config']['bot_wallet_address']) ? $wo['config']['bot_wallet_address'] : '';
+        $wallet = isset($wo['config']['bot_wallet_address']) ? trim($wo['config']['bot_wallet_address']) : '';
         $rpcUrl = isset($wo['config']['bot_rpc_url']) ? $wo['config']['bot_rpc_url'] : 'https://bsc-dataseed1.binance.org';
 
-        if (empty($wallet)) {
-            echo json_encode(array('status' => 400, 'message' => 'No wallet address configured'));
+        if (preg_match('/^0x[a-fA-F0-9]{40}$/', $wallet) !== 1) {
+            echo json_encode(array('status' => 400, 'message' => 'A valid bot wallet address is not configured in Wo_Config.'));
             exit();
         }
 
@@ -92,41 +142,17 @@ if ($f == 'trading_bot_dashboard') {
         );
 
         $balances = array();
-
-        // Get BNB balance (native) via eth_getBalance
-        $bnbPayload = json_encode(array(
-            'jsonrpc' => '2.0', 'id' => 1, 'method' => 'eth_getBalance',
-            'params' => array($wallet, 'latest')
-        ));
-        $ch = curl_init($rpcUrl);
-        curl_setopt_array($ch, array(
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $bnbPayload,
-            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 10,
-        ));
-        $resp = curl_exec($ch);
-        curl_close($ch);
-        if ($resp) {
-            $json = json_decode($resp, true);
-            if (!empty($json['result'])) {
-                $wei = hexdec($json['result']);
-                $balances['BNB'] = number_format($wei / 1e18, 6);
-            }
-        }
-
-        // Get ERC20 token balances via balanceOf(address)
-        // balanceOf selector: 0x70a08231 + address padded to 32 bytes
-        $paddedWallet = str_pad(strtolower(substr($wallet, 2)), 64, '0', STR_PAD_LEFT);
-        $callData = '0x70a08231' . $paddedWallet;
-
-        foreach ($tokens as $name => $tokenAddr) {
+        $rpcCall = function ($method, $params) use ($rpcUrl) {
             $payload = json_encode(array(
-                'jsonrpc' => '2.0', 'id' => 1, 'method' => 'eth_call',
-                'params' => array(array('to' => $tokenAddr, 'data' => $callData), 'latest')
+                'jsonrpc' => '2.0',
+                'id' => 1,
+                'method' => $method,
+                'params' => $params
             ));
             $ch = curl_init($rpcUrl);
+            if ($ch === false) {
+                throw new RuntimeException('Could not initialize the BSC RPC request.');
+            }
             curl_setopt_array($ch, array(
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => $payload,
@@ -134,30 +160,52 @@ if ($f == 'trading_bot_dashboard') {
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 10,
             ));
-            $resp = curl_exec($ch);
+            $response = curl_exec($ch);
+            $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-            if ($resp) {
-                $json = json_decode($resp, true);
-                if (!empty($json['result']) && $json['result'] !== '0x') {
-                    // Convert hex to decimal, then divide by 10^18
-                    $hex = $json['result'];
-                    // Use bcmath for large numbers
-                    if (function_exists('bcdiv')) {
-                        $dec = '0';
-                        $hex = ltrim(substr($hex, 2), '0') ?: '0';
-                        // Convert hex to decimal string
-                        for ($i = 0; $i < strlen($hex); $i++) {
-                            $dec = bcmul($dec, '16');
-                            $dec = bcadd($dec, strval(hexdec($hex[$i])));
-                        }
-                        $balances[$name] = rtrim(rtrim(bcdiv($dec, bcpow('10', '18'), 4), '0'), '.');
-                    } else {
-                        $balances[$name] = number_format(hexdec($hex) / 1e18, 4);
+            if ($response === false || $httpStatus < 200 || $httpStatus >= 300) {
+                throw new RuntimeException('BSC RPC request failed (HTTP ' . intval($httpStatus) . ').');
+            }
+            $json = json_decode($response, true);
+            if (!is_array($json) || isset($json['error']) || !array_key_exists('result', $json)) {
+                throw new RuntimeException('BSC RPC provider returned an invalid response.');
+            }
+            return $json['result'];
+        };
+
+        try {
+            $bnbHex = $rpcCall('eth_getBalance', array($wallet, 'latest'));
+            if (!is_string($bnbHex) || !preg_match('/^0x[0-9a-fA-F]{1,64}$/', $bnbHex)) {
+                throw new RuntimeException('BSC RPC provider returned an invalid BNB balance.');
+            }
+            $balances['BNB'] = number_format(hexdec(substr($bnbHex, 2)) / 1e18, 6);
+
+            // balanceOf(address): 0x70a08231 followed by the padded wallet address.
+            $paddedWallet = str_pad(strtolower(substr($wallet, 2)), 64, '0', STR_PAD_LEFT);
+            $callData = '0x70a08231' . $paddedWallet;
+            foreach ($tokens as $name => $tokenAddr) {
+                $hex = $rpcCall('eth_call', array(array('to' => $tokenAddr, 'data' => $callData), 'latest'));
+                if (!is_string($hex) || !preg_match('/^0x[0-9a-fA-F]{64}$/', $hex)) {
+                    throw new RuntimeException('BSC RPC provider returned an invalid ' . $name . ' balance.');
+                }
+                $hex = strtolower(substr($hex, 2));
+                if (function_exists('bcdiv')) {
+                    $decimal = '0';
+                    $hex = ltrim($hex, '0') ?: '0';
+                    for ($i = 0; $i < strlen($hex); $i++) {
+                        $decimal = bcmul($decimal, '16');
+                        $decimal = bcadd($decimal, strval(hexdec($hex[$i])));
                     }
+                    $balances[$name] = rtrim(rtrim(bcdiv($decimal, bcpow('10', '18'), 4), '0'), '.');
                 } else {
-                    $balances[$name] = '0';
+                    $balances[$name] = number_format(hexdec($hex) / 1e18, 4);
                 }
             }
+        } catch (RuntimeException $error) {
+            error_log('Trading bot wallet balance lookup failed: ' . $error->getMessage());
+            http_response_code(502);
+            echo json_encode(array('status' => 502, 'message' => $error->getMessage()));
+            exit();
         }
 
         echo json_encode(array('status' => 200, 'wallet' => $wallet, 'balances' => $balances));

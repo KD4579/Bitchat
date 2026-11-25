@@ -3,6 +3,7 @@
 // Recommended default values (only used as fallback if key missing from DB)
 $botDefaults = array(
     'bot_enabled'           => '0',
+    'bot_wallet_address'    => '',
     'bot_rpc_url'           => 'https://bsc-dataseed1.binance.org',
     'bot_mode'              => 'both',
     'bot_spread_percent'    => '3',
@@ -47,17 +48,32 @@ foreach ($botDefaults as $key => $default) {
 
                 <!-- Bot Service Controls -->
                 <?php
-                    $gridRunning = in_array($botConfig['bot_mode'], ['both', 'market_making']) && $botConfig['bot_enabled'] == '1';
-                    $arbRunning = in_array($botConfig['bot_mode'], ['both', 'arbitrage']) && $botConfig['bot_enabled'] == '1';
+                    $botHeartbeat = 0;
+                    $botHeartbeatQuery = mysqli_query($sqlConnect, "SELECT `value` FROM `Wo_Config` WHERE `name` = 'bot_runtime_heartbeat' LIMIT 1");
+                    if ($botHeartbeatQuery) {
+                        $botHeartbeatRow = mysqli_fetch_assoc($botHeartbeatQuery);
+                        $botHeartbeat = $botHeartbeatRow ? intval($botHeartbeatRow['value']) : 0;
+                    } else {
+                        error_log('Trading bot settings could not read runtime heartbeat: ' . mysqli_error($sqlConnect));
+                    }
+                    $botRuntimeOnline = $botHeartbeat > 0 && $botHeartbeat <= time() && (time() - $botHeartbeat) <= 90;
+                    $gridEnabled = in_array($botConfig['bot_mode'], ['both', 'market_making']) && $botConfig['bot_enabled'] == '1';
+                    $arbEnabled = in_array($botConfig['bot_mode'], ['both', 'arbitrage']) && $botConfig['bot_enabled'] == '1';
+                    $gridRunning = $gridEnabled && $botRuntimeOnline;
+                    $arbRunning = $arbEnabled && $botRuntimeOnline;
+                    $gridStatus = $gridRunning ? 'RUNNING' : ($gridEnabled ? 'OFFLINE' : 'STOPPED');
+                    $arbStatus = $arbRunning ? 'RUNNING' : ($arbEnabled ? 'OFFLINE' : 'STOPPED');
+                    $gridColor = $gridRunning ? '#4CAF50' : ($gridEnabled ? '#ff9800' : '#f44336');
+                    $arbColor = $arbRunning ? '#4CAF50' : ($arbEnabled ? '#ff9800' : '#f44336');
                 ?>
                 <div class="row" style="margin-bottom:20px;">
                     <div class="col-md-6">
-                        <div class="panel panel-default" style="margin-bottom:0;border-left:4px solid <?php echo $gridRunning ? '#4CAF50' : '#f44336'; ?>;">
+                        <div class="panel panel-default" style="margin-bottom:0;border-left:4px solid <?php echo $gridColor; ?>;">
                             <div class="panel-body" style="display:flex;align-items:center;justify-content:space-between;">
                                 <div>
                                     <h4 style="margin:0 0 4px 0;"><i class="material-icons" style="font-size:18px;vertical-align:middle;">grid_on</i> Grid Trading Bot</h4>
-                                    <span class="label label-<?php echo $gridRunning ? 'success' : 'danger'; ?>" id="grid-status-badge">
-                                        <?php echo $gridRunning ? 'RUNNING' : 'STOPPED'; ?>
+                                    <span class="label label-<?php echo $gridRunning ? 'success' : ($gridEnabled ? 'warning' : 'danger'); ?>" id="grid-status-badge">
+                                        <?php echo $gridStatus; ?>
                                     </span>
                                 </div>
                                 <div>
@@ -72,12 +88,12 @@ foreach ($botDefaults as $key => $default) {
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="panel panel-default" style="margin-bottom:0;border-left:4px solid <?php echo $arbRunning ? '#4CAF50' : '#f44336'; ?>;">
+                        <div class="panel panel-default" style="margin-bottom:0;border-left:4px solid <?php echo $arbColor; ?>;">
                             <div class="panel-body" style="display:flex;align-items:center;justify-content:space-between;">
                                 <div>
                                     <h4 style="margin:0 0 4px 0;"><i class="material-icons" style="font-size:18px;vertical-align:middle;">swap_horiz</i> Arbitrage Bot</h4>
-                                    <span class="label label-<?php echo $arbRunning ? 'success' : 'danger'; ?>" id="arb-status-badge">
-                                        <?php echo $arbRunning ? 'RUNNING' : 'STOPPED'; ?>
+                                    <span class="label label-<?php echo $arbRunning ? 'success' : ($arbEnabled ? 'warning' : 'danger'); ?>" id="arb-status-badge">
+                                        <?php echo $arbStatus; ?>
                                     </span>
                                 </div>
                                 <div>
@@ -121,6 +137,16 @@ foreach ($botDefaults as $key => $default) {
                             <label>BSC RPC URL</label>
                             <input type="text" name="bot_rpc_url" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_rpc_url']); ?>">
                             <small class="text-muted">Binance Smart Chain RPC endpoint.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Public Wallet Address</label>
+                            <input type="text" name="bot_wallet_address" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_wallet_address'], ENT_QUOTES, 'UTF-8'); ?>" placeholder="0x...">
+                            <small class="text-muted">Used only for read-only balance checks. Must match the wallet derived from BOT_PRIVATE_KEY when the bot runs. Never enter a private key here.</small>
                         </div>
                     </div>
                 </div>
@@ -404,20 +430,28 @@ function controlBot(bot, action) {
         bot_action: action
     }, function(data) {
         if (data.status === 200) {
-            var isGridOn = data.grid_running;
-            var isArbOn = data.arb_running;
+            var serviceRunning = data.service_running === true;
+            var runtimeOnline = data.runtime_online === true;
+            var gridEnabled = data.grid_running;
+            var arbEnabled = data.arb_running;
+            var isGridOn = gridEnabled && runtimeOnline;
+            var isArbOn = arbEnabled && runtimeOnline;
+            var gridStatus = isGridOn ? 'RUNNING' : (gridEnabled ? (serviceRunning ? 'STARTING' : 'OFFLINE') : 'STOPPED');
+            var arbStatus = isArbOn ? 'RUNNING' : (arbEnabled ? (serviceRunning ? 'STARTING' : 'OFFLINE') : 'STOPPED');
+            var gridLabelClass = isGridOn ? 'label-success' : (gridEnabled ? 'label-warning' : 'label-danger');
+            var arbLabelClass = isArbOn ? 'label-success' : (arbEnabled ? 'label-warning' : 'label-danger');
 
             // Update status badges
-            $('#grid-status-badge').text(isGridOn ? 'RUNNING' : 'STOPPED')
-                .removeClass('label-success label-danger').addClass(isGridOn ? 'label-success' : 'label-danger');
-            $('#arb-status-badge').text(isArbOn ? 'RUNNING' : 'STOPPED')
-                .removeClass('label-success label-danger').addClass(isArbOn ? 'label-success' : 'label-danger');
+            $('#grid-status-badge').text(gridStatus)
+                .removeClass('label-success label-warning label-danger').addClass(gridLabelClass);
+            $('#arb-status-badge').text(arbStatus)
+                .removeClass('label-success label-warning label-danger').addClass(arbLabelClass);
 
             // Update start/stop buttons
-            $('#btn-grid-start').prop('disabled', isGridOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
-            $('#btn-grid-stop').prop('disabled', !isGridOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
-            $('#btn-arb-start').prop('disabled', isArbOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
-            $('#btn-arb-stop').prop('disabled', !isArbOn).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
+            $('#btn-grid-start').prop('disabled', serviceRunning && gridEnabled).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
+            $('#btn-grid-stop').prop('disabled', !serviceRunning || !gridEnabled).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
+            $('#btn-arb-start').prop('disabled', serviceRunning && arbEnabled).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start');
+            $('#btn-arb-stop').prop('disabled', !serviceRunning || !arbEnabled).html('<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
 
             // Auto-update Bot Status and Trading Mode dropdowns
             if (data.bot_mode) {
@@ -426,16 +460,18 @@ function controlBot(bot, action) {
             $('[name="bot_enabled"]').val(data.bot_enabled);
 
             // Update border colors
-            $('#btn-grid-start').closest('.panel').css('border-left-color', isGridOn ? '#4CAF50' : '#f44336');
-            $('#btn-arb-start').closest('.panel').css('border-left-color', isArbOn ? '#4CAF50' : '#f44336');
+            $('#btn-grid-start').closest('.panel').css('border-left-color', isGridOn ? '#4CAF50' : (gridEnabled ? '#ff9800' : '#f44336'));
+            $('#btn-arb-start').closest('.panel').css('border-left-color', isArbOn ? '#4CAF50' : (arbEnabled ? '#ff9800' : '#f44336'));
+            alert(data.message);
         } else {
             alert(data.message || 'Failed');
             $(btn).prop('disabled', false).html(action === 'start' ?
                 '<i class="material-icons" style="font-size:14px;vertical-align:middle;">play_arrow</i> Start' :
                 '<i class="material-icons" style="font-size:14px;vertical-align:middle;">stop</i> Stop');
         }
-    }, 'json').fail(function() {
-        alert('Request failed');
+    }, 'json').fail(function(xhr) {
+        var response = xhr.responseJSON;
+        alert(response && response.message ? response.message : 'Request failed (HTTP ' + xhr.status + ')');
         $(btn).prop('disabled', false);
     });
 }
@@ -470,6 +506,7 @@ $(document).ready(function() {
 
         var defaults = {
             bot_enabled: '0',
+            bot_wallet_address: '',
             bot_mode: 'both',
             bot_rpc_url: 'https://bsc-dataseed1.binance.org',
             bot_spread_percent: '3',

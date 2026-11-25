@@ -58,23 +58,61 @@ if ($f == 'trading_bot') {
         Wo_SaveConfig('bot_mode', $newMode);
         Wo_SaveConfig('bot_enabled', $newEnabled);
 
-        // Restart or stop the systemd service
-        if ($newEnabled === '1') {
-            @shell_exec('sudo systemctl restart trading-bot 2>&1');
-            $msg = ucfirst($bot) . ' bot started. Mode: ' . $newMode;
+        // Persisting enabled state does not prove that the service started or stopped.
+        $serviceAction = ($newEnabled === '1') ? 'restart' : 'stop';
+        $systemctl = function_exists('shell_exec') ? trim((string) shell_exec('command -v systemctl 2>/dev/null')) : '';
+        $serviceRunning = false;
+        if ($systemctl === '') {
+            $msg = 'Bot settings saved, but systemctl is unavailable; the service was not ' . ($newEnabled === '1' ? 'started.' : 'stopped.');
+            $responseStatus = 503;
+        } elseif (!function_exists('exec') || !function_exists('shell_exec')) {
+            $msg = 'Bot settings saved, but PHP cannot execute service commands; the service state was not verified.';
+            $responseStatus = 503;
         } else {
-            @shell_exec('sudo systemctl stop trading-bot 2>&1');
-            $msg = 'Both bots stopped. Service disabled.';
+            $command = 'sudo -n ' . escapeshellarg($systemctl) . ' ' . $serviceAction . ' trading-bot 2>&1';
+            $commandOutput = array();
+            $exitCode = 1;
+            exec($command, $commandOutput, $exitCode);
+            $serviceState = trim((string) shell_exec('sudo -n ' . escapeshellarg($systemctl) . ' is-active trading-bot 2>/dev/null'));
+            $serviceRunning = ($serviceState === 'active');
+            $serviceStopped = in_array($serviceState, array('inactive', 'failed'), true);
+
+            if ($exitCode !== 0 || ($newEnabled === '1' && !$serviceRunning) || ($newEnabled === '0' && !$serviceStopped)) {
+                $detail = trim(implode("\n", $commandOutput));
+                $msg = 'Bot settings saved, but the service did not reach the requested state (' . ($serviceState !== '' ? $serviceState : 'unknown') . ').';
+                if ($detail !== '') {
+                    $msg .= ' ' . $detail;
+                }
+                $responseStatus = 503;
+            } else {
+                $msg = ($newEnabled === '1')
+                    ? ucfirst($bot) . ' service is active. Runtime health is shown on the dashboard.'
+                    : 'Both bots stopped. Service is inactive.';
+                $responseStatus = 200;
+            }
+        }
+
+        $runtimeOnline = false;
+        $heartbeatQuery = mysqli_query($sqlConnect, "SELECT `value` FROM `Wo_Config` WHERE `name` = 'bot_runtime_heartbeat' LIMIT 1");
+        if ($heartbeatQuery) {
+            $heartbeatRow = mysqli_fetch_assoc($heartbeatQuery);
+            $heartbeat = $heartbeatRow ? intval($heartbeatRow['value']) : 0;
+            $runtimeAge = time() - $heartbeat;
+            $runtimeOnline = $heartbeat > 0 && $runtimeAge >= 0 && $runtimeAge <= 90;
+        } else {
+            error_log('Trading bot control could not read runtime heartbeat: ' . mysqli_error($sqlConnect));
         }
 
         header("Content-type: application/json");
         echo json_encode(array(
-            'status' => 200,
+            'status' => $responseStatus,
             'message' => $msg,
             'grid_running' => $gridActive,
             'arb_running' => $arbActive,
             'bot_mode' => $newMode,
-            'bot_enabled' => $newEnabled
+            'bot_enabled' => $newEnabled,
+            'service_running' => $serviceRunning,
+            'runtime_online' => $runtimeOnline
         ));
         exit();
     }
@@ -84,6 +122,7 @@ if ($f == 'trading_bot') {
     // Allowed bot config keys and their validation rules
     $allowedKeys = array(
         'bot_enabled'           => 'bool',
+        'bot_wallet_address'    => 'address',
         'bot_mode'              => 'mode',
         'bot_rpc_url'           => 'url',
         'bot_spread_percent'    => 'float',
@@ -138,6 +177,9 @@ if ($f == 'trading_bot') {
                 break;
             case 'address':
                 // Validate BSC address format (0x + 40 hex chars)
+                if ($key === 'bot_wallet_address' && $value === '') {
+                    break;
+                }
                 if (!preg_match('/^0x[0-9a-fA-F]{40}$/', $value)) continue 2;
                 $value = strtolower($value);
                 break;
