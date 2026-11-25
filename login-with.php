@@ -15,7 +15,7 @@ if (isset($_GET['provider']) && $_GET['provider'] === 'tradex24') {
     $tradex24_enabled = !empty($wo['config']['tradex24_oauth_enabled']);
     $tradex24_client_id = $wo['config']['tradex24_client_id'] ?? '';
     $tradex24_secret    = $wo['config']['tradex24_client_secret'] ?? '';
-    $tradex24_base      = rtrim($wo['config']['tradex24_base_url'] ?? 'https://trade.bitchat.live', '/');
+    $tradex24_base      = rtrim($wo['config']['tradex24_base_url'] ?? 'https://trade.bitchat.social', '/');
     $redirect_uri       = $wo['config']['site_url'] . '/login-with.php?provider=tradex24';
 
     if (!$tradex24_enabled || empty($tradex24_client_id)) {
