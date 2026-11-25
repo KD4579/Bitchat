@@ -35,6 +35,7 @@ register_shutdown_function(function() {
     }
 });
 
+chdir(__DIR__); // cron runs from another cwd; init.php uses relative includes
 require_once('assets/init.php');
 
 mysqli_query($sqlConnect, "UPDATE " . T_CONFIG . " SET `value` = '" . time() . "' WHERE `name` = 'cronjob_last_run'");
