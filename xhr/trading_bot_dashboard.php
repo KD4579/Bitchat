@@ -36,7 +36,7 @@ if ($f == 'trading_bot_dashboard') {
         $runtimeConfig = array();
         $runtimeQuery = mysqli_query(
             $sqlConnect,
-            "SELECT `name`, `value` FROM `Wo_Config` WHERE `name` IN ('bot_runtime_heartbeat', 'bot_runtime_wallet_address', 'bot_runtime_status', 'bot_gas_balance')"
+            "SELECT `name`, `value` FROM `Wo_Config` WHERE `name` IN ('bot_runtime_heartbeat', 'bot_runtime_wallet_address', 'bot_runtime_status', 'bot_gas_balance', 'bot_arb_status', 'bot_arb_detail', 'bot_arb_count', 'bot_arb_fail_count', 'bot_last_arb')"
         );
         if (!$runtimeQuery) {
             error_log('Trading bot dashboard could not read runtime state: ' . mysqli_error($sqlConnect));
@@ -66,6 +66,15 @@ if ($f == 'trading_bot_dashboard') {
         $stats['bot_private_key_configured'] = preg_match('/^0x[a-fA-F0-9]{40}$/', $runtimeWallet) === 1;
         $stats['bot_runtime_status'] = isset($runtimeConfig['bot_runtime_status']) ? $runtimeConfig['bot_runtime_status'] : '';
         $stats['bot_gas_balance'] = isset($runtimeConfig['bot_gas_balance']) ? $runtimeConfig['bot_gas_balance'] : '';
+        // Arbitrage runtime state written by the bot every poll (read fresh, not from cached config)
+        $stats['bot_arb_status'] = isset($runtimeConfig['bot_arb_status']) ? $runtimeConfig['bot_arb_status'] : '';
+        $arbDetail = isset($runtimeConfig['bot_arb_detail']) ? json_decode($runtimeConfig['bot_arb_detail'], true) : null;
+        $stats['bot_arb_detail'] = is_array($arbDetail) ? $arbDetail : new stdClass();
+        foreach (array('bot_arb_count', 'bot_arb_fail_count', 'bot_last_arb') as $arbKey) {
+            if (isset($runtimeConfig[$arbKey])) {
+                $stats[$arbKey] = $runtimeConfig[$arbKey];
+            }
+        }
         $botDirectory = dirname(__DIR__) . '/nodejs/trading-bot';
         $stats['bot_dependencies_installed'] = (
             is_file($botDirectory . '/node_modules/ethers/package.json')

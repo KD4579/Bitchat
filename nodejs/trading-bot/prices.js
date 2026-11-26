@@ -57,17 +57,19 @@ async function getBalances(provider, wallet, tokens) {
     return balances;
 }
 
+const USDT_ADDR = '0x55d398326f99059ff775485246999027b3197955';
+const WBNB_ADDR = '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c';
+
 /**
- * Estimate TVL of a pool in USD.
- * Uses token balances in the pool * their USD prices.
+ * Estimate TVL of a pool in USD: value of both token balances held by the pool.
+ * USDT = $1, WBNB = bnbPriceUsd, anything else (TRDC) = trdcPriceUsd.
+ * Returns 0 if a needed price is missing, so callers treat the pool as too thin.
  */
-async function estimatePoolTVL(provider, poolAddress, trdcPriceUsd) {
+async function estimatePoolTVL(provider, poolAddress, trdcPriceUsd, bnbPriceUsd) {
     const erc20Abi = require('./abis/erc20.json');
     const poolContract = new ethers.Contract(poolAddress, poolAbi, provider);
 
-    const token0Addr = await poolContract.token0();
-    const token1Addr = await poolContract.token1();
-
+    const [token0Addr, token1Addr] = await Promise.all([poolContract.token0(), poolContract.token1()]);
     const token0 = new ethers.Contract(token0Addr, erc20Abi, provider);
     const token1 = new ethers.Contract(token1Addr, erc20Abi, provider);
 
@@ -78,21 +80,16 @@ async function estimatePoolTVL(provider, poolAddress, trdcPriceUsd) {
         token1.balanceOf(poolAddress),
     ]);
 
-    const amount0 = parseFloat(ethers.formatUnits(bal0, dec0));
-    const amount1 = parseFloat(ethers.formatUnits(bal1, dec1));
+    const priceOf = (addr) => {
+        const a = addr.toLowerCase();
+        if (a === USDT_ADDR) return 1;
+        if (a === WBNB_ADDR) return bnbPriceUsd > 0 ? bnbPriceUsd : NaN;
+        return trdcPriceUsd > 0 ? trdcPriceUsd : NaN;
+    };
 
-    // Rough TVL: assume token0 or token1 is USDT (price=1) or TRDC (use trdcPriceUsd)
-    // This is simplified — works for TRDC/USDT pool directly
-    const USDT = '0x55d398326f99059ff775485246999027b3197955';
-
-    if (token0Addr.toLowerCase() === USDT.toLowerCase()) {
-        return amount0 * 2; // USDT side * 2
-    } else if (token1Addr.toLowerCase() === USDT.toLowerCase()) {
-        return amount1 * 2;
-    } else {
-        // TRDC/WBNB pool — use TRDC price
-        return (amount0 * trdcPriceUsd + amount1 * trdcPriceUsd) || 0;
-    }
+    const value = parseFloat(ethers.formatUnits(bal0, dec0)) * priceOf(token0Addr)
+                + parseFloat(ethers.formatUnits(bal1, dec1)) * priceOf(token1Addr);
+    return isFinite(value) ? value : 0;
 }
 
 /**
@@ -102,7 +99,7 @@ const WBNB_USDT_POOL = '0x172fcd41e0913e95784454622d1c3724f546f849';
 
 /**
  * Get BNB price in USD from the WBNB/USDT pool on PancakeSwap.
- * Falls back to CoinGecko API if on-chain price fails.
+ * Falls back to CoinGecko API if on-chain price fails; returns 0 if both fail.
  */
 async function getBnbPriceUsd(provider) {
     // Primary: read from WBNB/USDT pool (both 18 decimals)
@@ -122,9 +119,11 @@ async function getBnbPriceUsd(provider) {
         const data = await resp.json();
         if (data?.binancecoin?.usd > 0) return data.binancecoin.usd;
     } catch (e) {
-        log.warn('CoinGecko BNB price failed, using last known');
+        log.warn('CoinGecko BNB price failed', { error: e.message });
     }
-    return 600; // absolute last resort
+    // No reliable price: return 0 so callers skip trading. A guessed price could
+    // create a fake spread between the USDT and WBNB pools and trigger bad trades.
+    return 0;
 }
 
 module.exports = { getPoolPrice, getPoolLiquidity, getBalances, estimatePoolTVL, getBnbPriceUsd };

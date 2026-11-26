@@ -181,6 +181,35 @@
                 </div>
             </div>
 
+            <!-- Arbitrage -->
+            <div class="panel panel-default" style="margin-bottom:10px;">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <small class="text-muted">Arbitrage</small><br>
+                            <strong id="arb-status" style="font-size:16px;">--</strong>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <small class="text-muted">TRDC/USDT pool</small><br>
+                            <strong id="arb-usdt-pool" style="font-size:16px;">--</strong>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <small class="text-muted">TRDC/WBNB pool</small><br>
+                            <strong id="arb-wbnb-pool" style="font-size:16px;">--</strong>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <small class="text-muted">Spread</small><br>
+                            <strong id="arb-spread" style="font-size:16px;">--</strong>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <small class="text-muted">Arbs done / failed</small><br>
+                            <strong id="arb-counts" style="font-size:16px;">--</strong>
+                        </div>
+                    </div>
+                    <div id="arb-message" class="text-muted" style="margin-top:8px; font-size:12px;"></div>
+                </div>
+            </div>
+
             <hr>
 
             <!-- Trade Filter -->
@@ -258,6 +287,42 @@ $(document).ready(function() {
                 if (onError) onError(msg);
             }
         });
+    }
+
+    var ARB_STATUS = {
+        executed:       ['TRADED', '#22c55e'],
+        no_spread:      ['WATCHING', '#22c55e'],
+        not_profitable: ['NOT PROFITABLE', '#888'],
+        pool_too_thin:  ['POOL TOO THIN', '#f59e0b'],
+        no_balance:     ['NO WALLET BALANCE', '#f59e0b'],
+        too_small:      ['TRADE TOO SMALL', '#888'],
+        gas_too_high:   ['GAS TOO HIGH', '#f59e0b'],
+        loss_limit:     ['LOSS LIMIT HIT', '#ef4444'],
+        no_price:       ['NO PRICE', '#ef4444'],
+        leg1_failed:    ['SWAP FAILED', '#ef4444'],
+        leg2_failed:    ['HALF-DONE (HOLDING TRDC)', '#ef4444'],
+        stopped:        ['OFF', '#888']
+    };
+
+    function renderArb(d) {
+        var det = d.bot_arb_detail || {};
+        var st = ARB_STATUS[d.bot_arb_status] || [d.bot_arb_status ? d.bot_arb_status.toUpperCase() : 'NO DATA', '#888'];
+        var stale = det.checked_at && (Date.now() - new Date(det.checked_at).getTime()) > 5 * 60 * 1000;
+        $('#arb-status').empty().append($('<span>').css('color', stale ? '#888' : st[1]).text(stale ? st[0] + ' (stale)' : st[0]));
+        var minPool = parseFloat(det.min_pool_usd) || 0;
+        function pool(el, v) {
+            if (v === undefined || v === null) { $(el).text('--'); return; }
+            v = parseFloat(v);
+            $(el).empty().append($('<span>').css('color', v < minPool ? '#f59e0b' : '').text('$' + v.toFixed(2)));
+        }
+        pool('#arb-usdt-pool', det.usdt_pool_usd);
+        pool('#arb-wbnb-pool', det.wbnb_pool_usd);
+        $('#arb-spread').text(det.spread_pct !== undefined ? parseFloat(det.spread_pct).toFixed(3) + '%' : '--');
+        $('#arb-counts').text((d.bot_arb_count || '0') + ' / ' + (d.bot_arb_fail_count || '0'));
+        var msg = det.message || '';
+        if (det.checked_at) msg += (msg ? ' — ' : '') + 'checked ' + new Date(det.checked_at).toLocaleTimeString();
+        if (minPool) msg += ' · min pool $' + minPool;
+        $('#arb-message').text(msg);
     }
 
     function loadStatus() {
@@ -342,6 +407,8 @@ $(document).ready(function() {
             var allPnl = parseFloat(d.all_pnl_usd) || 0;
             var allPnlColor = allPnl >= 0 ? '#22c55e' : '#ef4444';
             $('#ds-all-pnl').html('<span style="color:' + allPnlColor + ';">$' + allPnl.toFixed(4) + '</span>');
+
+            renderArb(d);
         }, function(msg) {
             $('#ds-status').html('<span style="color:#ef4444;">ERROR</span>');
             $('#bot-readiness').removeClass('alert-success').addClass('alert-danger').text(msg);

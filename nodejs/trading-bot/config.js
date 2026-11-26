@@ -25,12 +25,12 @@ const DEFAULTS = {
     bot_order_size_trdc:   '2000',
     bot_min_arb_profit:    '0.3',
     bot_arb_max_size:      '5000',
-    bot_max_slippage:      '3',
+    bot_max_slippage:      '1',
     bot_daily_loss_limit:  '5',
     bot_cooldown_seconds:  '3600',
     bot_max_trade_percent: '3',
     bot_min_tvl:           '100',
-    bot_max_gas_gwei:      '10',
+    bot_max_gas_gwei:      '0.5',
     bot_lp_exit_alert:     '30',
     bot_tvl_drop_alert:    '15',
     bot_pool_trdc_usdt:    '0x7b57fa13cca5093f5d724823d58503dfd02ff07c',
@@ -39,6 +39,8 @@ const DEFAULTS = {
     bot_pool_wbnb_fee:     '500',
     bot_arb_poll_seconds:  '15',     // How often to check pool prices for arb (seconds)
     bot_arb_cooldown:      '60',     // Min seconds between arb trades
+    bot_arb_min_pool_usd:  '300',    // Skip arb if either pool holds less than this (USD)
+    bot_arb_min_profit_usd: '0.005', // Trade only if quoted round trip nets at least this after gas
 };
 
 let pool = null;

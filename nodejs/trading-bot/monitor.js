@@ -1,7 +1,7 @@
 'use strict';
 
 const log = require('./logger');
-const { getPoolLiquidity, estimatePoolTVL } = require('./prices');
+const { getPoolLiquidity, estimatePoolTVL, getBnbPriceUsd } = require('./prices');
 
 // Track previous values for alert comparison
 let prevLiquidity = {};
@@ -19,6 +19,7 @@ async function checkPoolHealth(provider, cfg, trdcPriceUsd) {
 
     const lpExitThreshold = parseFloat(cfg.bot_lp_exit_alert) / 100;
     const tvlDropThreshold = parseFloat(cfg.bot_tvl_drop_alert) / 100;
+    const bnbPriceUsd = await getBnbPriceUsd(provider);
 
     for (const pool of pools) {
         try {
@@ -38,7 +39,7 @@ async function checkPoolHealth(provider, cfg, trdcPriceUsd) {
             prevLiquidity[pool.name] = liqNum;
 
             // Check TVL
-            const tvl = await estimatePoolTVL(provider, pool.address, trdcPriceUsd);
+            const tvl = await estimatePoolTVL(provider, pool.address, trdcPriceUsd, bnbPriceUsd);
 
             if (prevTvl[pool.name]) {
                 const drop = (prevTvl[pool.name] - tvl) / prevTvl[pool.name];

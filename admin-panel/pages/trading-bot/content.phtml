@@ -13,14 +13,14 @@ $botDefaults = array(
     'bot_order_size_min'    => '1500',
     'bot_order_size_max'    => '2500',
     'bot_max_consecutive'   => '3',
-    'bot_max_slippage'      => '3',
+    'bot_max_slippage'      => '1',
     'bot_daily_loss_limit'  => '5',
     'bot_cooldown_seconds'  => '3600',
     'bot_max_trade_percent' => '3',
     'bot_min_tvl'           => '100',
     'bot_min_arb_profit'    => '0.3',
     'bot_arb_max_size'      => '5000',
-    'bot_max_gas_gwei'      => '10',
+    'bot_max_gas_gwei'      => '0.5',
     'bot_lp_exit_alert'     => '30',
     'bot_tvl_drop_alert'    => '15',
     'bot_pool_trdc_usdt'    => '0x7b57fa13cca5093f5d724823d58503dfd02ff07c',
@@ -29,6 +29,8 @@ $botDefaults = array(
     'bot_pool_wbnb_fee'     => '500',
     'bot_arb_poll_seconds'  => '15',
     'bot_arb_cooldown'      => '60',
+    'bot_arb_min_pool_usd'  => '300',
+    'bot_arb_min_profit_usd'=> '0.005',
 );
 // Load current values from DB, fall back to recommended defaults
 $botConfig = array();
@@ -221,12 +223,12 @@ foreach ($botDefaults as $key => $default) {
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Min Arb Profit %</label>
+                            <label>Spread Trigger %</label>
                             <div class="input-group">
                                 <input type="number" step="0.1" min="0.1" max="20" name="bot_min_arb_profit" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_min_arb_profit']); ?>">
                                 <span class="input-group-addon">%</span>
                             </div>
-                            <small class="text-muted">Minimum price gap to trigger arb.</small>
+                            <small class="text-muted">Price gap between the two pools before the bot quotes a trade.</small>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -236,7 +238,30 @@ foreach ($botDefaults as $key => $default) {
                                 <input type="number" step="100" min="100" name="bot_arb_max_size" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_arb_max_size']); ?>">
                                 <span class="input-group-addon">TRDC</span>
                             </div>
-                            <small class="text-muted">Max base TRDC per arb trade (randomized ±25%).</small>
+                            <small class="text-muted">Hard cap on TRDC per arb. Actual size is set from pool depth.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Min Pool Liquidity</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">$</span>
+                                <input type="number" step="10" min="0" name="bot_arb_min_pool_usd" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_arb_min_pool_usd']); ?>">
+                            </div>
+                            <small class="text-muted">Skip arbitrage if either pool (TRDC/USDT or TRDC/WBNB) holds less than this in total value. Recommended: $300+.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Min Net Profit per Arb</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">$</span>
+                                <input type="number" step="0.001" min="0" name="bot_arb_min_profit_usd" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_arb_min_profit_usd']); ?>">
+                            </div>
+                            <small class="text-muted">Trade only if the quoted round trip earns at least this after swap fees and gas.</small>
                         </div>
                     </div>
                 </div>
@@ -326,10 +351,10 @@ foreach ($botDefaults as $key => $default) {
                         <div class="form-group">
                             <label>Max Gas Price</label>
                             <div class="input-group">
-                                <input type="number" step="1" min="1" max="100" name="bot_max_gas_gwei" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_max_gas_gwei']); ?>">
+                                <input type="number" step="0.05" min="0.05" max="100" name="bot_max_gas_gwei" class="form-control" value="<?php echo htmlspecialchars($botConfig['bot_max_gas_gwei']); ?>">
                                 <span class="input-group-addon">Gwei</span>
                             </div>
-                            <small class="text-muted">Skip trades when gas exceeds this.</small>
+                            <small class="text-muted">Skip trades when gas exceeds this. BSC is usually ~0.05 gwei; 0.5 is a safe cap.</small>
                         </div>
                     </div>
                 </div>
@@ -516,22 +541,24 @@ $(document).ready(function() {
             bot_order_size_min: '1500',
             bot_order_size_max: '2500',
             bot_max_consecutive: '3',
-            bot_max_slippage: '3',
+            bot_max_slippage: '1',
             bot_daily_loss_limit: '5',
             bot_cooldown_seconds: '3600',
             bot_max_trade_percent: '3',
             bot_min_tvl: '100',
             bot_min_arb_profit: '0.3',
             bot_arb_max_size: '5000',
-            bot_max_gas_gwei: '10',
+            bot_max_gas_gwei: '0.5',
             bot_lp_exit_alert: '30',
             bot_tvl_drop_alert: '15',
             bot_pool_trdc_usdt: '0x7b57fa13cca5093f5d724823d58503dfd02ff07c',
             bot_pool_trdc_wbnb: '0x0b5e165fcb524fbb2d313f3d573d79372913788b',
             bot_pool_usdt_fee: '100',
-            bot_pool_wbnb_fee: '2500',
+            bot_pool_wbnb_fee: '500',
             bot_arb_poll_seconds: '15',
-            bot_arb_cooldown: '60'
+            bot_arb_cooldown: '60',
+            bot_arb_min_pool_usd: '300',
+            bot_arb_min_profit_usd: '0.005'
         };
 
         // Fill form fields

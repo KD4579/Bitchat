@@ -139,7 +139,7 @@ if ($f == 'trading_bot') {
         'bot_min_tvl'           => 'float',
         'bot_min_arb_profit'    => 'float',
         'bot_arb_max_size'      => 'int',
-        'bot_max_gas_gwei'      => 'int',
+        'bot_max_gas_gwei'      => 'float',
         'bot_lp_exit_alert'     => 'float',
         'bot_tvl_drop_alert'    => 'float',
         'bot_pool_trdc_usdt'    => 'address',
@@ -148,6 +148,8 @@ if ($f == 'trading_bot') {
         'bot_pool_wbnb_fee'     => 'fee',
         'bot_arb_poll_seconds'  => 'int',
         'bot_arb_cooldown'      => 'int',
+        'bot_arb_min_pool_usd'  => 'float',
+        'bot_arb_min_profit_usd'=> 'float',
     );
 
     $validModes = array('both', 'market_making', 'arbitrage');

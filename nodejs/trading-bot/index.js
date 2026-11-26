@@ -5,9 +5,9 @@ require('dotenv').config({ path: __dirname + '/.env' });
 const { ethers } = require('ethers');
 const log = require('./logger');
 const { loadBotConfig, saveBotStat, closeDb, CONTRACTS } = require('./config');
-const { runGridTrading, runArbitrage, dailyPnl, nextDirection, resetDailyPnlIfNeeded } = require('./trader');
+const { runGridTrading, runArbitrage, restoreDailyPnl, dailyPnl, dailyPnlDate, nextDirection, resetDailyPnlIfNeeded } = require('./trader');
 const { checkPoolHealth } = require('./monitor');
-const { getPoolPrice, getBnbPriceUsd } = require('./prices');
+const { getPoolPrice } = require('./prices');
 
 let heartbeatTimer = null;
 let shuttingDown = false;
@@ -31,6 +31,7 @@ async function main() {
     // Load config from database
     let cfg = await loadBotConfig();
     log.info('Config loaded from database');
+    restoreDailyPnl(cfg.bot_daily_pnl, cfg.bot_daily_pnl_date);
 
     if (cfg.bot_enabled !== '1') {
         log.warn('Bot is DISABLED in admin panel. Enable it at /admin-cp/trading-bot');
@@ -178,7 +179,7 @@ async function main() {
             // Save stats to database
             cooldown = randomizeCooldown(parseInt(cfg.bot_cooldown_seconds));
             const nextCycleAt = new Date(Date.now() + cooldown * 1000).toISOString();
-            await saveBotStat('bot_daily_pnl', dailyPnl().toFixed(4));
+            await persistDailyPnl();
             await saveBotStat('bot_last_cycle', new Date().toISOString());
             await saveBotStat('bot_next_cycle', nextCycleAt);
             await saveBotStat('bot_cycle_count', cycleCount);
@@ -197,16 +198,17 @@ async function main() {
 
 // ── Arbitrage Price Monitor ─────────────────────────────
 // Runs as a separate async loop, polling pool prices every N seconds.
-// When a profitable spread is detected, it executes arbitrage immediately.
+// runArbitrage quotes the round trip and trades only when it beats gas by the
+// configured minimum. Every outcome is saved to bot_arb_status / bot_arb_detail.
 
 const arbShared = {
     cfg: null,
     running: false,
     paused: false,
-    executing: false,  // Lock to prevent overlapping arb executions
     lastArbTime: 0,    // Timestamp of last arb trade
     pollCount: 0,      // Total price checks
     arbCount: 0,       // Successful arb executions
+    failCount: 0,      // Arb attempts where a swap failed
 };
 
 async function startArbMonitor(wallet, provider, cfg) {
@@ -218,152 +220,90 @@ async function startArbMonitor(wallet, provider, cfg) {
     arbShared.cfg = cfg;
     arbShared.running = true;
     arbShared.paused = false;
-
-    const DEC = 18;
-    const pollInterval = parseInt(cfg.bot_arb_poll_seconds || 15) * 1000; // Default 15s
-    const minCooldown = parseInt(cfg.bot_arb_cooldown || 60) * 1000;     // Min 60s between arb trades
+    arbShared.arbCount = parseInt(cfg.bot_arb_count || 0) || 0;
+    arbShared.failCount = parseInt(cfg.bot_arb_fail_count || 0) || 0;
 
     log.info('========================================');
-    log.info(`Arb monitor STARTED — polling every ${pollInterval/1000}s`);
-    log.info(`Min arb profit: ${cfg.bot_min_arb_profit}%, cooldown between arbs: ${minCooldown/1000}s`);
+    log.info(`Arb monitor STARTED — polling every ${parseInt(cfg.bot_arb_poll_seconds || 15)}s`);
+    log.info(`Spread trigger ${cfg.bot_min_arb_profit}%, min pool $${cfg.bot_arb_min_pool_usd}, min net profit $${cfg.bot_arb_min_profit_usd}`);
     log.info('========================================');
+
+    let lastStatus = null;
+
+    let lastCfgLoad = Date.now();
 
     while (arbShared.running) {
+        // Pick up admin-panel changes within a minute (the grid loop only reloads every few hours)
+        if (Date.now() - lastCfgLoad >= 60000) {
+            try {
+                arbShared.cfg = await loadBotConfig();
+            } catch (e) {
+                log.error(`[ArbMon] Config reload failed: ${e.message}`);
+            }
+            lastCfgLoad = Date.now();
+        }
+        const c = arbShared.cfg;
+        const pollInterval = Math.max(5, parseInt(c.bot_arb_poll_seconds || 15)) * 1000;
+        const minCooldown = parseInt(c.bot_arb_cooldown || 60) * 1000;
+
         try {
-            // Respect pause state (bot disabled)
-            if (arbShared.paused) {
+            if (arbShared.paused || c.bot_enabled !== '1') {
                 await sleep(5000);
                 continue;
             }
-
-            // Use latest config
-            const c = arbShared.cfg;
-            const currentMode = c.bot_mode;
-
-            // Stop if mode no longer includes arbitrage
-            if (currentMode !== 'arbitrage' && currentMode !== 'both') {
+            if (c.bot_mode !== 'arbitrage' && c.bot_mode !== 'both') {
                 log.info('Arb monitor stopping — mode changed to market_making only.');
-                arbShared.running = false;
+                await saveArbStatus('stopped', { message: 'Arbitrage is off (mode is market making only).' });
                 break;
             }
 
-            if (c.bot_enabled !== '1') {
-                await sleep(5000);
-                continue;
-            }
-
             arbShared.pollCount++;
+            let result;
 
-            // Log every poll for first 10, then every 20th
-            if (arbShared.pollCount <= 10 || arbShared.pollCount % 20 === 0) {
-                log.info(`[ArbMon] Poll #${arbShared.pollCount} — checking prices...`);
-            }
-
-            // Check daily loss limit
-            const lossLimit = parseFloat(c.bot_daily_loss_limit);
-            if (dailyPnl() < -lossLimit) {
-                if (arbShared.pollCount % 20 === 0) {
-                    log.warn(`[ArbMon] Daily loss limit hit ($${Math.abs(dailyPnl()).toFixed(2)}/$${lossLimit}). Monitoring paused.`);
-                }
-                await sleep(pollInterval * 4); // Slow down when loss limit hit
-                continue;
-            }
-
-            // Fetch prices from both pools
-            const usdtPool = c.bot_pool_trdc_usdt;
-            const wbnbPool = c.bot_pool_trdc_wbnb;
-
-            const [priceUsdt, priceWbnb] = await Promise.all([
-                getPoolPrice(provider, usdtPool, DEC, DEC),
-                getPoolPrice(provider, wbnbPool, DEC, DEC),
-            ]);
-
-            if (priceUsdt <= 0 || priceWbnb <= 0) {
+            if (dailyPnl() < -parseFloat(c.bot_daily_loss_limit)) {
+                result = { status: 'loss_limit', detail: { message: `Daily loss $${Math.abs(dailyPnl()).toFixed(2)} is over the $${c.bot_daily_loss_limit} limit; paused until 00:00 UTC.` } };
+            } else if (Date.now() - arbShared.lastArbTime < minCooldown) {
                 await sleep(pollInterval);
                 continue;
-            }
-
-            // Get independent BNB/USD price from WBNB/USDT pool
-            const bnbPriceUsd = await getBnbPriceUsd(provider);
-            if (!isFinite(bnbPriceUsd) || bnbPriceUsd <= 0) {
-                await sleep(pollInterval);
-                continue;
-            }
-
-            // Log BNB price for first 5 polls to verify correctness
-            if (arbShared.pollCount <= 5) {
-                log.info(`[ArbMon] BNB/USD: $${bnbPriceUsd.toFixed(2)}, TRDC/WBNB raw: ${priceWbnb.toFixed(14)}`);
-            }
-
-            // Convert WBNB-pool TRDC price to USD using independent BNB price
-            const trdcPriceViaWbnb = priceWbnb * bnbPriceUsd;
-            const priceDiff = Math.abs(priceUsdt - trdcPriceViaWbnb);
-            const minPrice = Math.min(priceUsdt, trdcPriceViaWbnb);
-            const priceDiffPct = minPrice > 0 ? priceDiff / minPrice : 0;
-            const minProfit = parseFloat(c.bot_min_arb_profit) / 100;
-
-            // Log price check: every poll for first 10, then every 20th
-            if (arbShared.pollCount <= 10 || arbShared.pollCount % 20 === 0) {
-                log.info(`[ArbMon] Poll #${arbShared.pollCount}: USDT=$${priceUsdt.toFixed(10)}, viaWBNB=$${trdcPriceViaWbnb.toFixed(10)}, spread=${(priceDiffPct*100).toFixed(3)}% (threshold: ${(minProfit*100).toFixed(1)}%)`);
-            }
-
-            // Check if spread exceeds threshold
-            if (priceDiffPct >= minProfit) {
-                // Check cooldown between arb trades
-                const now = Date.now();
-                const timeSinceLastArb = now - arbShared.lastArbTime;
-                if (timeSinceLastArb < minCooldown) {
-                    log.info(`[ArbMon] Spread ${(priceDiffPct*100).toFixed(3)}% detected but cooling down (${((minCooldown - timeSinceLastArb)/1000).toFixed(0)}s left).`);
-                    await sleep(pollInterval);
-                    continue;
-                }
-
-                // Prevent overlapping executions
-                if (arbShared.executing) {
-                    log.info(`[ArbMon] Spread detected but arb already executing. Waiting...`);
-                    await sleep(pollInterval);
-                    continue;
-                }
-
-                // Check gas before executing
-                try {
-                    const feeData = await provider.getFeeData();
-                    const gasGwei = parseFloat(ethers.formatUnits(feeData.gasPrice || 0n, 'gwei'));
-                    const maxGas = parseFloat(c.bot_max_gas_gwei);
-                    if (gasGwei > maxGas) {
-                        log.warn(`[ArbMon] Spread ${(priceDiffPct*100).toFixed(3)}% but gas too high (${gasGwei.toFixed(1)} > ${maxGas} gwei). Skipping.`);
-                        await sleep(pollInterval);
-                        continue;
-                    }
-                } catch (e) {
-                    log.warn(`[ArbMon] Gas check failed: ${e.message}`);
-                    await sleep(pollInterval);
-                    continue;
-                }
-
-                // EXECUTE ARBITRAGE
-                log.info(`[ArbMon] ⚡ SPREAD DETECTED: ${(priceDiffPct*100).toFixed(3)}% >= ${(minProfit*100).toFixed(1)}% — executing arb NOW`);
-                arbShared.executing = true;
-
-                try {
+            } else {
+                const feeData = await provider.getFeeData();
+                const gasPrice = feeData.gasPrice || 0n;
+                const gasGwei = parseFloat(ethers.formatUnits(gasPrice, 'gwei'));
+                const maxGas = parseFloat(c.bot_max_gas_gwei);
+                if (gasGwei > maxGas) {
+                    result = { status: 'gas_too_high', detail: { message: `Gas ${gasGwei.toFixed(2)} gwei is above the ${maxGas} gwei limit.` } };
+                } else {
                     resetDailyPnlIfNeeded();
-                    await runArbitrage(wallet, provider, c);
-                    arbShared.arbCount++;
-                    arbShared.lastArbTime = Date.now();
-
-                    // Save stats after arb
-                    await saveBotStat('bot_daily_pnl', dailyPnl().toFixed(4));
-                    await saveBotStat('bot_last_arb', new Date().toISOString());
-                    await saveBotStat('bot_arb_count', arbShared.arbCount);
-
-                    log.info(`[ArbMon] Arb #${arbShared.arbCount} complete. Daily P&L: $${dailyPnl().toFixed(4)}`);
-                } catch (e) {
-                    log.error(`[ArbMon] Arb execution failed: ${e.message}`);
-                } finally {
-                    arbShared.executing = false;
+                    result = await runArbitrage(wallet, provider, c, gasPrice);
                 }
             }
 
+            const { status, detail } = result;
+            await saveArbStatus(status, detail);
+
+            if (status === 'executed') {
+                arbShared.arbCount++;
+                arbShared.lastArbTime = Date.now();
+                await saveBotStat('bot_last_arb', new Date().toISOString());
+                await saveBotStat('bot_arb_count', arbShared.arbCount);
+                await persistDailyPnl();
+                log.info(`[ArbMon] Arb #${arbShared.arbCount} executed. ${detail.message}`);
+            } else if (status === 'leg1_failed' || status === 'leg2_failed') {
+                arbShared.failCount++;
+                arbShared.lastArbTime = Date.now(); // back off before retrying
+                await saveBotStat('bot_arb_fail_count', arbShared.failCount);
+                await persistDailyPnl();
+                log.error(`[ArbMon] Arb FAILED (${status}): ${detail.message}`);
+            } else if (status !== lastStatus || arbShared.pollCount % 40 === 0) {
+                // Quiet states: log only when they change, plus a periodic reminder
+                log.info(`[ArbMon] ${status}: ${detail.message || ''}`);
+            }
+            lastStatus = status;
+
+            if (status === 'loss_limit') {
+                await sleep(pollInterval * 4);
+                continue;
+            }
         } catch (e) {
             log.error(`[ArbMon] Monitor error: ${e.message}`);
         }
@@ -373,6 +313,20 @@ async function startArbMonitor(wallet, provider, cfg) {
 
     log.info('Arb monitor stopped.');
     arbShared.running = false;
+}
+
+async function saveArbStatus(status, detail) {
+    try {
+        await saveBotStat('bot_arb_status', status);
+        await saveBotStat('bot_arb_detail', JSON.stringify({ ...detail, checked_at: new Date().toISOString() }));
+    } catch (e) {
+        log.error('Could not save arb status', { error: e.message });
+    }
+}
+
+async function persistDailyPnl() {
+    await saveBotStat('bot_daily_pnl', dailyPnl().toFixed(4));
+    await saveBotStat('bot_daily_pnl_date', dailyPnlDate());
 }
 
 /**
