@@ -52,26 +52,117 @@ function isRateLimitError(e) {
 }
 
 /**
- * Scan a range of blocks for deposits.
- * Returns { found: number, rateLimited: boolean }
+ * Classify an RPC failure:
+ *   'rate_limit' — rotate RPC and retry later
+ *   'history'    — the node no longer has data that old (pruned / archive-only)
+ *   'other'      — anything else; the range must be retried, never skipped
  */
-async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
+function classifyRpcError(e) {
+    if (isRateLimitError(e)) return 'rate_limit';
+    const msg = String(e && e.message || '');
+    if (/archive|pruned|missing trie node|header not found|history has been pruned/i.test(msg)) return 'history';
+    if (/limit exceeded|too many requests|429/i.test(msg)) return 'rate_limit';
+    return 'other';
+}
+
+function addressTopic(addr) {
+    return '0x' + addr.toLowerCase().replace(/^0x/, '').padStart(64, '0');
+}
+
+/**
+ * True when every deposit address has never sent a transaction and holds no
+ * BNB, TRDC or USDT right now. Then no deposit can ever have reached them:
+ * a deposit would still be there, because moving funds out needs a transaction
+ * signed by the address (nonce > 0). Used to skip slow scans safely.
+ */
+async function addressesProvenEmpty(addressMap) {
+    const balanceOf = (token, addr) => rpc('eth_call', [{
+        to: token, data: '0x70a08231' + addressTopic(addr).slice(2),
+    }, 'latest']);
+    for (const addr of addressMap.keys()) {
+        const [nonce, bnb, trdc, usdt] = await Promise.all([
+            rpc('eth_getTransactionCount', [addr, 'latest']),
+            rpc('eth_getBalance', [addr, 'latest']),
+            balanceOf(TRDC_CONTRACT, addr),
+            balanceOf(USDT_CONTRACT, addr),
+        ]);
+        if (BigInt(nonce) !== 0n || BigInt(bnb) !== 0n || BigInt(trdc) !== 0n || BigInt(usdt) !== 0n) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Cheap check for native BNB deposits in a block range: if no address's BNB
+ * balance or nonce changed between fromBlock-1 and toBlock, no BNB arrived.
+ * Returns 'unchanged', 'changed' or 'unknown' (node lacks that state, or too
+ * many addresses for this to be cheaper than reading the blocks).
+ */
+async function nativeBalancesUnchanged(addressMap, fromBlock, toBlock) {
+    if (addressMap.size > 25) return 'unknown';
+    const before = '0x' + (fromBlock - 1).toString(16);
+    const after = '0x' + toBlock.toString(16);
+    try {
+        for (const addr of addressMap.keys()) {
+            const [b0, b1, n0, n1] = await Promise.all([
+                rpc('eth_getBalance', [addr, before]),
+                rpc('eth_getBalance', [addr, after]),
+                rpc('eth_getTransactionCount', [addr, before]),
+                rpc('eth_getTransactionCount', [addr, after]),
+            ]);
+            if (BigInt(b0) !== BigInt(b1) || BigInt(n0) !== BigInt(n1)) return 'changed';
+        }
+        return 'unchanged';
+    } catch (e) {
+        if (classifyRpcError(e) === 'rate_limit') throw e;
+        return 'unknown';
+    }
+}
+
+/**
+ * Scan a range of blocks for deposits.
+ * opts.nativeMode: 'auto' (default) | 'skip' (caller proved no BNB can have arrived)
+ * Returns { found, rateLimited, historyUnavailable, failed }.
+ * The caller must only advance past toBlock when all three flags are false.
+ */
+async function scanBlocks(provider, addressMap, fromBlock, toBlock, opts = {}) {
     const db = getDbPool();
     const now = Math.floor(Date.now() / 1000);
     let depositsFound = 0;
+    const fail = (kind, what, e) => {
+        if (kind === 'rate_limit') {
+            log.warn(`Rate limited scanning ${what} — will rotate RPC`);
+            return { found: depositsFound, rateLimited: true, historyUnavailable: false, failed: false };
+        }
+        if (kind === 'history') {
+            return { found: depositsFound, rateLimited: false, historyUnavailable: true, failed: false, error: e.message };
+        }
+        log.error(`Error scanning ${what} (blocks ${fromBlock}-${toBlock}): ${e.message}`);
+        return { found: depositsFound, rateLimited: false, historyUnavailable: false, failed: true, error: e.message };
+    };
 
     const fromHex = '0x' + fromBlock.toString(16);
     const toHex   = '0x' + toBlock.toString(16);
+    // Ask the node only for transfers TO our deposit addresses (topic 2), in chunks
+    const recipients = [...addressMap.keys()].map(addressTopic);
+    const recipientChunks = [];
+    for (let i = 0; i < recipients.length; i += 100) recipientChunks.push(recipients.slice(i, i + 100));
 
-    // 1. Scan BEP-20 Transfer events for TRDC and USDT
+    // 1. BEP-20 Transfer events for TRDC and USDT
     for (const [contractAddr, tokenName] of Object.entries(TOKEN_MAP)) {
-        try {
-            const logs = await rpc('eth_getLogs', [{
-                fromBlock: fromHex,
-                toBlock:   toHex,
-                address:   contractAddr,
-                topics:    [TRANSFER_TOPIC, null],
-            }]);
+        for (const chunk of recipientChunks) {
+            let logs;
+            try {
+                logs = await rpc('eth_getLogs', [{
+                    fromBlock: fromHex,
+                    toBlock:   toHex,
+                    address:   contractAddr,
+                    topics:    [TRANSFER_TOPIC, null, chunk],
+                }]);
+            } catch (e) {
+                return fail(classifyRpcError(e), `${tokenName} logs`, e);
+            }
 
             for (const logEntry of logs) {
                 if (!logEntry.topics[2]) continue;
@@ -79,10 +170,7 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
                 if (!addressMap.has(toAddr)) continue;
 
                 const userId = addressMap.get(toAddr);
-
-                // Decode amount using token-specific decimals
-                const decimals = tokenName === 'USDT' ? 18 : 18; // both 18 on BSC
-                const amount = ethers.formatUnits(BigInt(logEntry.data), decimals);
+                const amount = ethers.formatUnits(BigInt(logEntry.data), 18); // TRDC and USDT are 18 decimals on BSC
 
                 const minKey = `deposit_min_${tokenName.toLowerCase()}`;
                 const minAmount = parseFloat(await getConfig(minKey, '0'));
@@ -103,18 +191,24 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
                     depositsFound++;
                 }
             }
-        } catch (e) {
-            if (isRateLimitError(e)) {
-                log.warn(`Rate limited scanning ${tokenName} logs — will rotate RPC`);
-                return { found: depositsFound, rateLimited: true };
-            }
-            log.error(`Error scanning ${tokenName} logs: ${e.message}`);
+            await sleep(300); // gap between requests on same endpoint
         }
-
-        await sleep(600); // gap between requests on same endpoint
     }
 
-    // 2. Scan native BNB transfers block by block
+    // 2. Native BNB transfers
+    if (opts.nativeMode === 'skip') {
+        return { found: depositsFound, rateLimited: false, historyUnavailable: false, failed: false };
+    }
+    try {
+        const state = await nativeBalancesUnchanged(addressMap, fromBlock, toBlock);
+        if (state === 'unchanged') {
+            return { found: depositsFound, rateLimited: false, historyUnavailable: false, failed: false };
+        }
+    } catch (e) {
+        return fail(classifyRpcError(e), 'BNB balances', e);
+    }
+
+    // Balances changed (or unknown): read the blocks to find the transactions
     try {
         for (let blockNum = fromBlock; blockNum <= toBlock; blockNum++) {
             const hexNum = '0x' + blockNum.toString(16);
@@ -151,14 +245,10 @@ async function scanBlocks(provider, addressMap, fromBlock, toBlock) {
             await sleep(200); // avoid flooding with block requests
         }
     } catch (e) {
-        if (isRateLimitError(e)) {
-            log.warn('Rate limited scanning BNB blocks — will rotate RPC');
-            return { found: depositsFound, rateLimited: true };
-        }
-        log.error(`Error scanning BNB transfers: ${e.message}`);
+        return fail(classifyRpcError(e), 'BNB transfers', e);
     }
 
-    return { found: depositsFound, rateLimited: false };
+    return { found: depositsFound, rateLimited: false, historyUnavailable: false, failed: false };
 }
 
 /**
@@ -255,4 +345,4 @@ async function creditUser(db, deposit, now) {
     return false;
 }
 
-module.exports = { scanBlocks, processConfirmations, setRpcUrl };
+module.exports = { scanBlocks, processConfirmations, setRpcUrl, addressesProvenEmpty, classifyRpcError };
