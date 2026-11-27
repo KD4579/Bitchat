@@ -798,7 +798,7 @@ function Wo_UserStatus($user_id, $lastseen, $type = '') {
     $user_id  = Wo_Secure($user_id);
     $lastseen = Wo_Secure($lastseen);
     if ($wo['config']['node_socket_flow'] == "1") {
-        $time = time() - 03;
+        $time = time() - 30; // presence ping runs every 15s (was 2s with a 3s window)
     } else {
         $time = time() - 60;
     }
