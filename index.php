@@ -1313,7 +1313,21 @@ if (empty($wo['content'])) {
         include('sources/404.php');
     }
 }
-echo Wo_Loadpage('container');
+// Lazy-load images outside <script> blocks (images in view still load immediately).
+$bc_html  = Wo_Loadpage('container');
+$bc_parts = preg_split('#(<script\b[^>]*>.*?</script>)#is', $bc_html, -1, PREG_SPLIT_DELIM_CAPTURE);
+if (is_array($bc_parts)) {
+    foreach ($bc_parts as $bc_i => $bc_part) {
+        if ($bc_i % 2 === 0) {
+            $bc_new = preg_replace('#<img(?![^>]*\sloading=)(?=[\s/>])#i', '<img loading="lazy" decoding="async"', $bc_part);
+            if ($bc_new !== null) {
+                $bc_parts[$bc_i] = $bc_new;
+            }
+        }
+    }
+    $bc_html = implode('', $bc_parts);
+}
+echo $bc_html;
 mysqli_close($sqlConnect);
 unset($wo);
 ?>

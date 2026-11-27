@@ -69,6 +69,9 @@ $(function () {
   });
   
 	intervalUpdates = setTimeout(Wo_intervalUpdates, 6000);
+	document.addEventListener('visibilitychange', function () {
+	  if (!document.hidden) { clearTimeout(intervalUpdates); Wo_intervalUpdates(0); }
+	});
 	if (node_socket_flow == "0") {
       setTimeout(Wo_UpdateLastSeen, 5000);
       setTimeout(Wo_IsLogged, 30000);
@@ -375,6 +378,12 @@ function Wo_CheckForAudioCallAnswerTabs(id) {
 
 // Notifications & follow requests updates
 function Wo_intervalUpdates(force_update = 0, loop = 0) {
+	// Background tab: check once a minute instead of every 5-15s (saves battery and data on phones)
+	if (document.hidden && !force_update) {
+	  clearTimeout(intervalUpdates);
+	  intervalUpdates = setTimeout(function () { Wo_intervalUpdates(0); }, 60000);
+	  return false;
+	}
 	{  // Always poll for notifications, messages, and follow requests
 	var check_posts = true;
 	var hash_posts = true;

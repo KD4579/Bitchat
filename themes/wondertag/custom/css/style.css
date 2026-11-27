@@ -10114,3 +10114,10 @@ html.bc-dark-mode .bc-announce-banner .bc-announce-link {
   }
   .user-bottom-nav ul::-webkit-scrollbar { display: none; }
 }
+/* iOS zooms the page when a focused field is under 16px */
+@media (max-width: 768px) {
+  input[type="text"], input[type="email"], input[type="password"], input[type="search"],
+  input[type="tel"], input[type="number"], input[type="url"], textarea, select {
+    font-size: 16px !important;
+  }
+}

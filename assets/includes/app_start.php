@@ -108,11 +108,12 @@ if (!empty($config["bucket_name_2"])) {
 }
 $config["s3_site_url_2"]   = $s3_site_url_2;
 $wo["config"]              = $config;
-$ccode                     = Wo_CustomCode("g");
-$ccode                     = is_array($ccode) ? $ccode : array();
-$wo["config"]["header_cc"] = !empty($ccode[0]) ? $ccode[0] : "";
-$wo["config"]["footer_cc"] = !empty($ccode[1]) ? $ccode[1] : "";
-$wo["config"]["styles_cc"] = !empty($ccode[2]) ? $ccode[2] : "";
+// Only the custom <head> code is printed by the theme (footer.js and custom style.css are linked
+// as files), so don't read the 300KB+ of the other two on every request.
+$bc_head_cc                = "themes/" . $config["theme"] . "/custom/js/head.js";
+$wo["config"]["header_cc"] = is_readable($bc_head_cc) ? (string) file_get_contents($bc_head_cc) : "";
+$wo["config"]["footer_cc"] = "";
+$wo["config"]["styles_cc"] = "";
 
 $wo["script_version"]      = $wo["config"]["version"];
 $http_header               = "http://";

@@ -41,6 +41,20 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<meta name="theme-color" content="#212121" id="night-mode-meta">
 		<?php } ?>
 		<script>
+		// Load a script once, on demand (used for heavy SDKs such as Agora)
+		window.bcLoadScript = function (src) {
+			window._bcScripts = window._bcScripts || {};
+			if (!window._bcScripts[src]) {
+				window._bcScripts[src] = new Promise(function (ok, fail) {
+					var el = document.createElement('script');
+					el.src = src; el.onload = ok; el.onerror = fail;
+					document.head.appendChild(el);
+				});
+			}
+			return window._bcScripts[src];
+		};
+		</script>
+		<script>
 		// Apply dark mode IMMEDIATELY before any CSS/content loads to prevent flash
 		(function(){
 			var c = document.cookie.match(/(?:^|;\s*)mode=([^;]*)/);
@@ -227,9 +241,9 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<?php if ($wo['page'] == 'welcome') { ?>
-			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Readex+Pro:wght@300;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 		<?php } else { ?>
-			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Readex+Pro:wght@300;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 		<?php } ?>
 
 		<link rel="shortcut icon" type="image/png" href="<?php echo $wo['config']['theme_url'];?>/img/icon.png"/>
@@ -245,7 +259,6 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome-startup.css<?php echo bc_v('stylesheet/welcome-startup.css'); ?>">
 			<?php } ?>
 		<?php } else { ?>
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/twilio-video.min.js"></script>
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style.css<?php echo bc_v('stylesheet/style.css'); ?>">
 			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { ?>
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/style.header.css<?php echo bc_v('stylesheet/style.header.css'); ?>">
@@ -267,14 +280,14 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/welcome_rtl.css<?php echo bc_v('stylesheet/welcome_rtl.css'); ?>">
 		<?php } ?>
 
-		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery-3.1.1.min.js"></script>
+		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery-3.1.1.min.js<?php echo bc_v('javascript/jquery-3.1.1.min.js'); ?>"></script>
 		<?php if ($wo['page'] != 'welcome') { ?>
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery.ui.touch-punch.min.js"></script>
+			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery.ui.touch-punch.min.js<?php echo bc_v('javascript/jquery.ui.touch-punch.min.js'); ?>"></script>
 		<?php } ?>
 
 		<?php if ($wo['page'] != 'welcome') { ?>
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/bootstrap-select.min.css">
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/bootstrap-select.min.js"></script>
+			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/bootstrap-select.min.css<?php echo bc_v('stylesheet/bootstrap-select.min.css'); ?>">
+			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/bootstrap-select.min.js<?php echo bc_v('javascript/bootstrap-select.min.js'); ?>"></script>
 
 			<?php if ($wo['page'] == 'forum') { ?>
 				<script src="<?php echo $wo['config']['theme_url'];?>/javascript/forum/script.master.js"></script>
@@ -335,10 +348,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		
 		<?php /* styles_cc removed: style.css already loaded via <link> tag — was duplicating 239KB inline */ ?>
 		
-		<?php if ($wo['config']['classified'] == 1 && $wo['page'] != 'welcome') { ?>
-		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/html2pdf.bundle.js"></script>
-		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/qrcode.js"></script>
-		<?php } ?>
+		<?php /* html2pdf, qrcode, Twilio and Agora are loaded by the templates that use them */ ?>
 
 		<script type="text/javascript">
 			<?php echo $wo['config']['header_cc']; ?>
@@ -579,6 +589,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			async function RunLiveAgora(channelName,DIV_ID,token) {
 				var agoraAppId = '<?php echo($wo['config']['agora_app_id']) ?>';
 				try {
+					if (typeof AgoraRTC === 'undefined') { await bcLoadScript('<?php echo $wo['config']['theme_url'];?>/javascript/agora.js?v=4.22.0'); }
 					var client = AgoraRTC.createClient({mode: 'live', codec: 'vp8'});
 					client.setClientRole('audience');
 					let rand = Math.floor(Math.random() * 1000000);
@@ -641,23 +652,20 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php endif; ?>
 		
 		<?php if ($wo['page'] != 'welcome') { ?>
-			<?php if ($wo['config']['agora_live_video'] == 1 || $wo['config']['agora_chat_video'] == 1) { ?>
-				<script src="<?php echo $wo['config']['theme_url'];?>/javascript/agora.js?v=4.22.0"></script>
-			<?php } ?>
 
 			<?php if ($wo['config']['agora_live_video'] == 1 && !empty($wo['config']['agora_app_id']) && !empty($wo['config']['agora_customer_id']) && !empty($wo['config']['agora_customer_certificate'])) { ?>
 				<script src="<?php echo $wo['config']['theme_url'];?>/javascript/hls.js"></script>
 			<?php } ?>
 
-			<script crossorigin="anonymous" src="<?php echo $wo['config']['theme_url'];?>/javascript/sdk.js"></script>
+			<script crossorigin="anonymous" src="<?php echo $wo['config']['theme_url'];?>/javascript/sdk.js<?php echo bc_v('javascript/sdk.js'); ?>"></script>
 
 			<?php if ($wo['config']['braintree_payment'] == '1') { ?>
 				<script src="https://js.braintreegateway.com/web/dropin/1.36.0/js/dropin.js"></script>
 			<?php } ?>
 
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/socket.io.js"></script>
+			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/socket.io.js<?php echo bc_v('javascript/socket.io.js'); ?>"></script>
 
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery.adaptive-backgrounds.js"></script>
+			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/jquery.adaptive-backgrounds.js<?php echo bc_v('javascript/jquery.adaptive-backgrounds.js'); ?>"></script>
 		<?php } ?>
 		
 		<?php if ($wo['page'] != 'welcome') { ?>
@@ -690,15 +698,26 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
             }
           });
 		  socket.emit('join', {username: "<?php echo ($wo['loggedin'] ? $wo['user']['username'] : '');?>", user_id: _getCookie('user_id'), recipient_ids, recipient_group_ids }, ()=>{
-              // Visibility-aware presence heartbeat (SM-7: Chat offline fix)
-              setInterval(() => {
-                if (document.visibilityState === 'visible') {
-                  socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")})
-                }
-              }, 2000);
+              // Presence heartbeat: one timer (cleared on reconnect), every 15s while visible.
+              bcStartPresence();
           });
          }, 2500);
 
+        function bcStartPresence() {
+          clearInterval(window._bcPresenceTimer);
+          var ping = function () {
+            if (document.visibilityState === 'visible') {
+              socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")});
+            }
+          };
+          ping();
+          window._bcPresenceTimer = setInterval(ping, 15000);
+        }
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible' && window._bcPresenceTimer) {
+            socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")});
+          }
+        });
         socket.on("reconnect", ()=>{
           let recipient_ids = []
           let recipient_group_ids = []
@@ -716,12 +735,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
               }
             });
 			socket.emit('join', {username: "<?php echo ($wo['loggedin'] ? $wo['user']['username'] : '');?>", user_id: _getCookie('user_id'), recipient_ids, recipient_group_ids }, ()=>{
-                // Visibility-aware presence heartbeat (SM-7: Chat offline fix)
-                setInterval(() => {
-                  if (document.visibilityState === 'visible') {
-                    socket.emit("ping_for_lastseen", {user_id: _getCookie("user_id")})
-                  }
-                }, 2000);
+                // Presence heartbeat: one timer (cleared on reconnect), every 15s while visible.
+                bcStartPresence();
             });
           }, 3000);
         })
@@ -946,7 +961,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	  <?php } /* end welcome gate for socket.io */ ?>
 	  <?php if ($wo['page'] != 'welcome') { ?>
 	  <?php if ($wo['config']['job_system'] == 1 || $wo['config']['blogs'] == 1 || $wo['config']['website_mode'] == 'linkedin') { ?>
-			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/bootstrap-tagsinput-latest/src/bootstrap-tagsinput.js"></script>
+			<script src="<?php echo $wo['config']['theme_url'];?>/javascript/bootstrap-tagsinput-latest/src/bootstrap-tagsinput.js<?php echo bc_v('javascript/bootstrap-tagsinput-latest/src/bootstrap-tagsinput.js'); ?>"></script>
       <?php } ?>
 
 		<?php if ($wo['config']['website_mode'] == 'askfm') { ?>
@@ -968,11 +983,11 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<?php if ($wo['config']['yandex_map'] == 1) { ?>
 			<script src="https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=<?php echo $wo['config']['yandex_map_api'];?>" type="text/javascript"></script>
 		<?php } ?>
-		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/javascript/green-audio-player/green-audio-player.css" />
-		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/green-audio-player/green-audio-player.js" defer></script>
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/javascript/green-audio-player/green-audio-player.css<?php echo bc_v('javascript/green-audio-player/green-audio-player.css'); ?>" />
+		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/green-audio-player/green-audio-player.js<?php echo bc_v('javascript/green-audio-player/green-audio-player.js'); ?>" defer></script>
 
-		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/flatpickr.min.css">
-		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/flatpickr.js" defer></script>
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/flatpickr.min.css<?php echo bc_v('stylesheet/flatpickr.min.css'); ?>">
+		<script src="<?php echo $wo['config']['theme_url'];?>/javascript/flatpickr.js<?php echo bc_v('javascript/flatpickr.js'); ?>" defer></script>
 	  <?php } /* end welcome gate for bottom scripts */ ?>
 
 		<!-- Global BC Config (replaces hidden inputs) -->

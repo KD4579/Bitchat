@@ -17,6 +17,7 @@
 </div>
 
 <?php if ($wo['config']['agora_chat_video'] == 1) { ?>
+<script src="<?php echo $wo['config']['theme_url'];?>/javascript/agora.js?v=4.22.0"></script>
   <script type="text/javascript">
     (function() {
     var agoraAppId = "<?php echo $wo['config']['agora_chat_app_id'];?>";
@@ -128,6 +129,7 @@
     })();
   </script>
 <?php }else{ ?>
+<script src="<?php echo $wo['config']['theme_url'];?>/javascript/twilio-video.min.js"></script>
 <script>
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 if (!navigator.getUserMedia) {
