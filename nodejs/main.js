@@ -137,7 +137,7 @@ async function main() {
   await init()
 
   app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.json({ status: 'ok', service: 'bitchat-realtime' });
   });
 
   // Socket.io v4 initialization with secure CORS
@@ -185,7 +185,10 @@ async function main() {
     await listeners.registerListeners(socket, io, ctx)
   })
 
-  server.listen(serverPort, function() {
+  server.listen({
+    port: serverPort,
+    ...(process.env.BITCHAT_BIND_HOST ? { host: process.env.BITCHAT_BIND_HOST } : {})
+  }, function() {
     console.log('Bitchat server running on port %s', serverPort);
   });
 }

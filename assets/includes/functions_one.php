@@ -885,9 +885,10 @@ function Wo_RegisterUser($registration_data, $invited = false) {
             @Wo_DeleteAdminInvitation('code', $invited);
             Wo_AddInvitedUser($user_id, $invited);
         }
-        // Auto-follow all enabled news bots
-        $botQuery = mysqli_query($sqlConnect, "SELECT user_id FROM Wo_Bot_Accounts WHERE enabled = 1");
-        if ($botQuery) {
+        // Auto-follow news bots when the optional bot table is installed.
+        $botTable = mysqli_query($sqlConnect, "SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'Wo_Bot_Accounts' LIMIT 1");
+        if (mysqli_fetch_row($botTable)) {
+            $botQuery = mysqli_query($sqlConnect, "SELECT user_id FROM Wo_Bot_Accounts WHERE enabled = 1");
             while ($botRow = mysqli_fetch_assoc($botQuery)) {
                 @mysqli_query($sqlConnect, "INSERT IGNORE INTO " . T_FOLLOWERS . " (follower_id, following_id, active) VALUES ({$user_id}, {$botRow['user_id']}, '1')");
             }

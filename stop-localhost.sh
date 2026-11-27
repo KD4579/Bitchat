@@ -1,34 +1,55 @@
 #!/bin/bash
 
-# Bitchat Localhost Stop Script
-# This script stops both the PHP server and Node.js real-time server
+set -euo pipefail
 
-echo "⛔ Stopping Bitchat Localhost Environment..."
-echo ""
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Kill processes by PID if files exist
-if [ -f .php-server.pid ]; then
-    PHP_PID=$(cat .php-server.pid)
-    if kill -0 $PHP_PID 2>/dev/null; then
-        kill $PHP_PID
-        echo "✅ Stopped PHP server (PID: $PHP_PID)"
+stop_service() {
+    local name="$1"
+    local pid_file="$2"
+    local expected="$3"
+    local port="$4"
+
+    if [ ! -f "$pid_file" ]; then
+        echo "$name: no managed PID file."
+        return
     fi
-    rm .php-server.pid
-fi
 
-if [ -f .nodejs-server.pid ]; then
-    NODE_PID=$(cat .nodejs-server.pid)
-    if kill -0 $NODE_PID 2>/dev/null; then
-        kill $NODE_PID
-        echo "✅ Stopped Node.js server (PID: $NODE_PID)"
+    local pid
+    pid="$(cat "$pid_file")"
+    if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+        echo "$name: invalid PID file; left untouched." >&2
+        return
     fi
-    rm .nodejs-server.pid
-fi
 
-# Also kill any processes on these ports
-lsof -ti:8000 | xargs kill -9 2>/dev/null && echo "✅ Killed any remaining processes on port 8000"
-lsof -ti:3000 | xargs kill -9 2>/dev/null && echo "✅ Killed any remaining processes on port 3000"
-lsof -ti:3003 | xargs kill -9 2>/dev/null && echo "✅ Killed any remaining processes on port 3003"
+    if ! kill -0 "$pid" 2>/dev/null; then
+        rm "$pid_file"
+        echo "$name: removed stale PID file."
+        return
+    fi
 
-echo ""
-echo "🛑 All servers stopped"
+    local command
+    command="$(ps -p "$pid" -o command= || true)"
+    local port_pid
+    port_pid="$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true)"
+    if [[ "$command" != *"$expected"* || ! " $port_pid " == *" $pid "* ]]; then
+        echo "$name: PID or port does not match this project; left untouched." >&2
+        return
+    fi
+
+    kill "$pid"
+    for _ in $(seq 1 10); do
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 1
+    done
+    if kill -0 "$pid" 2>/dev/null; then
+        echo "$name: did not stop; check the process manually (PID $pid)." >&2
+        return
+    fi
+
+    rm "$pid_file"
+    echo "$name: stopped."
+}
+
+stop_service "PHP app" "$ROOT_DIR/.php-server.pid" "-S 127.0.0.1:8000" 8000
+stop_service "Realtime service" "$ROOT_DIR/.nodejs-server.pid" "node main.js" 3000

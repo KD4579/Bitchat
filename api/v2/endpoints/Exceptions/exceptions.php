@@ -371,7 +371,7 @@ function marketRefundValidation()
         throw new Exception("hash_order , message can not be empty");
     }
 
-    $wo['hash_id'] = Wo_Secure($_POST['order_hash']);
+    $wo['hash_id'] = Wo_Secure($_POST['hash_order']);
     $wo['message'] = Wo_Secure($_POST['message']);
 
     $wo['order'] = $db->where('hash_id',$wo['hash_id'])->where('product_owner_id',$wo['user']['user_id'])->getOne(T_USER_ORDERS);
@@ -388,7 +388,7 @@ function marketChangeStatusValidation()
         throw new Exception("hash_order , status can not be empty");
     }
     
-    $wo['hash_id'] = Wo_Secure($_POST['order_hash']);
+    $wo['hash_id'] = Wo_Secure($_POST['hash_order']);
 
     $wo['order'] = $db->where('hash_id',$wo['hash_id'])->getOne(T_USER_ORDERS);
     if (empty($wo['order'])) {
