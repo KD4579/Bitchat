@@ -438,6 +438,15 @@ if (!empty($wo['config']['weekly_digest_enabled']) && $wo['config']['weekly_dige
 } catch (Exception $e) { $_cron_errors[] = 'weekly_digest: ' . $e->getMessage(); }
 // ********** Weekly Digest Email **********
 
+// ********** Mail Campaigns (throttled, warm-up aware) **********
+_cron_log_section('mail_campaigns');
+try {
+if (function_exists('Wo_McCronTick')) {
+    Wo_McCronTick();
+}
+} catch (Throwable $e) { $_cron_errors[] = 'mail_campaigns: ' . $e->getMessage(); }
+// ********** Mail Campaigns **********
+
 _cron_log_write();
 
 // Log any section errors

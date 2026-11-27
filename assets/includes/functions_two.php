@@ -5077,6 +5077,43 @@ function Wo_GetFemusUsers() {
     }
     return $data;
 }
+/**
+ * Deliverability hardening shared by every PHPMailer instance:
+ * Message-ID/EHLO use the site domain (not the VPS hostname under cron) and
+ * the "X-Mailer: PHPMailer" fingerprint header is dropped.
+ */
+function Wo_MailerHarden($mail) {
+    global $wo;
+    $host = parse_url($wo["config"]["site_url"], PHP_URL_HOST);
+    if (!empty($host)) {
+        $mail->Hostname = preg_replace('/^www\./', '', $host);
+    }
+    $mail->XMailer = ' ';
+    $mail->Encoding = 'quoted-printable';
+    return $mail;
+}
+/**
+ * Plain-text alternative for an HTML email (spam filters penalise HTML-only mail).
+ */
+function Wo_HtmlToPlainText($html) {
+    $text = preg_replace('/<(style|script|head)[^>]*>.*?<\/\1>/is', '', (string) $html);
+    // Keep link targets: "Label (https://...)"
+    $text = preg_replace_callback('/<a\s[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', function ($m) {
+        $label = trim(strip_tags($m[2]));
+        $href  = html_entity_decode($m[1], ENT_QUOTES, 'UTF-8');
+        if ($label === '' || $label === $href || stripos($href, 'mailto:') === 0) {
+            return $label !== '' ? $label : $href;
+        }
+        return $label . ' (' . $href . ')';
+    }, $text);
+    $text = preg_replace('/<br\s*\/?>/i', "\n", $text);
+    $text = preg_replace('/<\/(p|div|h[1-6]|tr|li|table)>/i', "\n", $text);
+    $text = html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8');
+    $text = preg_replace("/[ \t\x{00A0}]+/u", ' ', $text);
+    $text = preg_replace("/ *\n */", "\n", $text);
+    $text = preg_replace("/\n{3,}/", "\n\n", $text);
+    return trim($text);
+}
 function Wo_CanSenEmails() {
     global $wo;
     if ($wo["loggedin"] == false) {
@@ -5103,9 +5140,13 @@ function Wo_SendMessageFromDB() {
         return false;
     }
     $user_id   = Wo_Secure($wo["user"]["user_id"]);
-    $query_one = " SELECT * FROM " . T_EMAILS . " WHERE `user_id` = {$user_id} ORDER BY `id` DESC";
+    // Only fresh notifications (max 5): a returning user must not get a flood of stale emails
+    $fresh_after = time() - (3 * 86400);
+    $query_one = " SELECT * FROM " . T_EMAILS . " WHERE `user_id` = {$user_id} AND `time` >= {$fresh_after} ORDER BY `id` DESC LIMIT 5";
     $sql       = mysqli_query($sqlConnect, $query_one);
-    if (mysqli_num_rows($sql) < 1) {
+    if (!$sql || mysqli_num_rows($sql) < 1) {
+        // Drop anything stale so it never goes out later
+        mysqli_query($sqlConnect, "DELETE FROM " . T_EMAILS . " WHERE `user_id` = {$user_id}");
         return false;
     }
     if ($wo["config"]["smtp_or_mail"] == "mail") {
@@ -5129,15 +5170,18 @@ function Wo_SendMessageFromDB() {
     } else {
         return false;
     }
+    Wo_MailerHarden($mail);
     $mail->setFrom($wo["config"]["siteEmail"], $wo["config"]["siteName"]);
+    $mail->Sender  = $wo["config"]["siteEmail"];
     $send          = false;
     $mail->CharSet = "utf-8";
     if (mysqli_num_rows($sql)) {
         while ($fetched_data = mysqli_fetch_assoc($sql)) {
             $mail->addAddress($fetched_data["email_to"]);
             $mail->Subject = $fetched_data["subject"];
-            $mail->MsgHTML($fetched_data["message"]);
             $mail->IsHTML(true);
+            $mail->Body    = $fetched_data["message"];
+            $mail->AltBody = Wo_HtmlToPlainText($fetched_data["message"]);
             $send = $mail->send();
             $mail->ClearAddresses();
         }
@@ -5182,7 +5226,7 @@ function Wo_SendMessage($data = array()) {
     if (isset($data["insert_database"])) {
         if ($data["insert_database"] == 1) {
             $user_id   = Wo_Secure($wo["user"]["user_id"]);
-            $query_one = mysqli_query($sqlConnect, "INSERT INTO " . T_EMAILS . " (`email_to`, `user_id`, `subject`, `message`) VALUES ('{$to_email}', '{$user_id}', '{$subject}', '{$message_body}')");
+            $query_one = mysqli_query($sqlConnect, "INSERT INTO " . T_EMAILS . " (`email_to`, `user_id`, `subject`, `message`, `time`) VALUES ('{$to_email}', '{$user_id}', '" . mysqli_real_escape_string($sqlConnect, $subject) . "', '{$message_body}', " . time() . ")");
             if ($query_one) {
                 return true;
             }
@@ -5215,14 +5259,25 @@ function Wo_SendMessage($data = array()) {
         } else {
             return false;
         }
+        if (!empty($data["smtp_username"]) && !empty($data["smtp_password"]) && $wo["config"]["smtp_or_mail"] == "smtp") {
+            // Dedicated mailbox (e.g. campaign sender hello@) instead of the transactional noreply@
+            $mail->Username = $data["smtp_username"];
+            $mail->Password = $data["smtp_password"];
+        }
+        Wo_MailerHarden($mail);
         $mail->IsHTML(true);
         $mail->setFrom($data["from_email"], $data["from_name"]);
+        $mail->Sender = $data["from_email"]; // envelope sender aligned with From (SPF/DMARC)
         $mail->addAddress($data["to_email"], $data["to_name"]); // Add a recipient
         $mail->Subject = $data["subject"];
-        $mail->CharSet = "text/html; charset=UTF-8;";
-        $mail->CharSet = $data["charSet"];
-        //$mail->MsgHTML($data["message_body"]);
-        $mail->Body = $data["message_body"];
+        $mail->CharSet = !empty($data["charSet"]) ? $data["charSet"] : "utf-8";
+        $mail->Body    = $data["message_body"];
+        $mail->AltBody = !empty($data["alt_body"]) ? $data["alt_body"] : Wo_HtmlToPlainText($data["message_body"]);
+        if (!empty($data["headers"]) && is_array($data["headers"])) {
+            foreach ($data["headers"] as $h_name => $h_value) {
+                $mail->addCustomHeader($h_name, $h_value);
+            }
+        }
         if (!empty($data["reply-to"])) {
             $mail->ClearReplyTos();
             $mail->AddReplyTo($data["reply-to"], $data["from_name"]);

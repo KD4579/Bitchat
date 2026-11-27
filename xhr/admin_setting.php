@@ -4597,105 +4597,152 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         exit();
     }
     if ($s == 'send_mail_to_mock_users') {
-        $isset_test = 'off';
-        $types      = array(
-            'week',
-            'month',
-            '3month',
-            '6month',
-            '9month',
-            'year',
-            'all',
-            'active',
-            'inactive',
-        );
-        if (empty($_POST['message']) || empty($_POST['subject']) || empty($_POST['send_to']) || !in_array($_POST['send_to'], $types)) {
-            $send_errors = $error_icon . $wo['lang']['please_check_details'];
-        } else {
-            if (!empty($_POST['test_message'])) {
-                if ($_POST['test_message'] == 'on') {
-                    $isset_test = 'on';
-                }
-            }
-            if ($isset_test == 'on') {
-                $send_message_data = array(
-                    'from_email' => $wo['config']['siteEmail'],
-                    'from_name' => $wo['config']['siteName'],
-                    'to_email' => $wo['user']['email'],
-                    'to_name' => $wo['user']['name'],
-                    'subject' => $_POST['subject'],
-                    'charSet' => 'utf-8',
-                    'message_body' => $_POST['message'],
-                    'is_html' => true
-                );
-                $send              = Wo_SendMessage($send_message_data);
-            } else {
-                $users = array();
-                if (isset($_POST['selected_emails']) && strlen($_POST['selected_emails']) > 0) {
-                    $user_ids = explode(',', $_POST['selected_emails']);
-                    if (is_array($user_ids) && count($user_ids) > 0) {
-                        foreach ($user_ids as $user_id) {
-                            $users[] = Wo_UserData($user_id);
-                        }
-                    }
-                }
-                 else if ($_POST['send_to'] == 'active') {
-                    $users = Wo_GetAllUsersByType('active');
-                } else if ($_POST['send_to'] == 'inactive') {
-                    $users = Wo_GetAllUsersByType('inactive');
-                } else if ($_POST['send_to'] == 'all') {
-                    $users = Wo_GetAllUsersByType('all');
-                } else {
-                    $users = Wo_GetUsersByTime($_POST['send_to']);
-                }
-                ob_end_clean();
-                header("Content-Encoding: none");
-                header("Connection: close");
-                ignore_user_abort();
-                ob_start();
-                header('Content-Type: application/json');
-                echo json_encode(array(
-                    'status' => 300
-                ));
-                $size = ob_get_length();
-                header("Content-Length: $size");
-                ob_end_flush();
-                flush();
-                session_write_close();
-                if (is_callable('fastcgi_finish_request')) {
-                    fastcgi_finish_request();
-                }
-                if (is_callable('litespeed_finish_request')) {
-                    litespeed_finish_request();
-                }
-                foreach ($users as $user) {
-                    $send_message_data = array(
-                        'from_email' => $wo['config']['siteEmail'],
-                        'from_name' => $wo['config']['siteName'],
-                        'to_email' => $user['email'],
-                        'to_name' => $user['name'],
-                        'subject' => $_POST['subject'],
-                        'charSet' => 'utf-8',
-                        'message_body' => $_POST['message'],
-                        'is_html' => true
-                    );
-                    $send              = Wo_SendMessage($send_message_data);
-                }
-            }
-        }
+        // Replaced by throttled campaigns (campaign_* actions below): a one-shot loop
+        // cannot respect the mail server's hourly limit or the domain warm-up.
         header("Content-type: application/json");
-        if (!empty($send_errors)) {
-            $send_errors_data = array(
-                'status' => 400,
-                'message' => $send_errors
-            );
-            echo json_encode($send_errors_data);
-        } else {
-            $data = array(
-                'status' => 200
-            );
-            echo json_encode($data);
+        echo json_encode(array('status' => 400, 'message' => 'This sender was replaced. Please reload the Send E-mail page.'));
+        exit();
+    }
+    if (strpos($s, 'campaign_') === 0) {
+        header("Content-type: application/json");
+        if (!Wo_IsAdmin()) {
+            echo json_encode(array('status' => 403, 'message' => 'Admin access required'));
+            exit();
         }
+        if (!Wo_McTablesReady()) {
+            echo json_encode(array('status' => 500, 'message' => 'Campaign tables are missing. Run tools/email-templates/migrate_campaigns.php on the server.'));
+            exit();
+        }
+        $read_only = in_array($s, array('campaign_status', 'campaign_count'));
+        if (!$read_only && !Wo_CheckSession($hash_id)) {
+            echo json_encode(array('status' => 400, 'message' => 'Session expired, please reload the page.'));
+            exit();
+        }
+        $mc_ids = array();
+        if (!empty($_POST['selected_ids'])) {
+            $mc_ids = array_slice(array_filter(array_map('intval', explode(',', $_POST['selected_ids']))), 0, 5000);
+        }
+        $mc_draft = function () use ($wo) {
+            $until = !empty($_POST['bonus_until']) ? strtotime($_POST['bonus_until'] . ' 23:59:59 UTC') : 0;
+            return array(
+                'id'          => 0,
+                'subject'     => trim((string) ($_POST['subject'] ?? '')),
+                'preheader'   => trim((string) ($_POST['preheader'] ?? '')),
+                'html'        => (string) ($_POST['html'] ?? ''),
+                'template'    => (string) ($_POST['template'] ?? ''),
+                'audience'    => (string) ($_POST['audience'] ?? 'clean'),
+                'bonus_trdc'  => max(0, floatval($_POST['bonus_trdc'] ?? 0)),
+                'bonus_until' => $until ? $until : 0,
+            );
+        };
+        $mc_me = array(
+            'user_id'    => $wo['user']['user_id'],
+            'username'   => $wo['user']['username'],
+            'first_name' => $wo['user']['first_name'],
+            'last_name'  => $wo['user']['last_name'],
+            'email'      => $wo['user']['email'],
+        );
+        if ($s == 'campaign_count') {
+            $st = Wo_McAudienceStats($_POST['audience'] ?? ($_GET['audience'] ?? 'clean'), $mc_ids);
+            echo json_encode(array('status' => 200) + $st);
+            exit();
+        }
+        if ($s == 'campaign_preview') {
+            list($subj, $html) = Wo_McRender($mc_draft(), $mc_me);
+            echo json_encode(array('status' => 200, 'subject' => $subj, 'html' => $html, 'size' => strlen($html)));
+            exit();
+        }
+        if ($s == 'campaign_test') {
+            $c = $mc_draft();
+            if ($c['subject'] === '' || trim($c['html']) === '') {
+                echo json_encode(array('status' => 400, 'message' => 'Subject and message are required.'));
+                exit();
+            }
+            $to = array($wo['user']['email']);
+            foreach (preg_split('/[\s,;]+/', (string) ($_POST['test_emails'] ?? '')) as $e) {
+                if (filter_var($e, FILTER_VALIDATE_EMAIL)) {
+                    $to[] = strtolower($e);
+                }
+            }
+            $to = array_slice(array_unique($to), 0, 4);
+            $res = array();
+            foreach ($to as $e) {
+                $u = $mc_me;
+                $u['email'] = $e;
+                $r = Wo_SendMessage(Wo_McMessage($c, $u, '[TEST] '));
+                $res[$e] = ($r === true) ? 'sent' : (is_string($r) ? $r : 'failed');
+            }
+            echo json_encode(array('status' => 200, 'results' => $res));
+            exit();
+        }
+        if ($s == 'campaign_create') {
+            $c = $mc_draft();
+            $errors = array();
+            if ($c['subject'] === '') $errors[] = 'Subject is required.';
+            if (trim($c['html']) === '') $errors[] = 'Message is required.';
+            if (!array_key_exists($c['audience'], Wo_McAudiences())) $errors[] = 'Choose an audience.';
+            if ($c['audience'] == 'selected' && empty($mc_ids)) $errors[] = 'Select at least one user.';
+            if ($c['bonus_trdc'] > 0 && $c['bonus_until'] <= time()) $errors[] = 'Bonus deadline must be in the future.';
+            if ($c['bonus_trdc'] > 10000) $errors[] = 'Bonus looks too large (max 10,000 TRDC per user).';
+            $busy = mysqli_query($sqlConnect, "SELECT id FROM " . T_MAIL_CAMPAIGNS . " WHERE status = 'sending' LIMIT 1");
+            if ($busy && mysqli_num_rows($busy)) $errors[] = 'Another campaign is still sending. Pause or cancel it first.';
+            if ($errors) {
+                echo json_encode(array('status' => 400, 'message' => implode(' ', $errors)));
+                exit();
+            }
+            $c['selected_ids'] = $mc_ids;
+            $res = Wo_McCreateCampaign($c);
+            if (!empty($res['error'])) {
+                echo json_encode(array('status' => 500, 'message' => $res['error']));
+                exit();
+            }
+            if (function_exists('Wo_LogAdminAction')) {
+                @Wo_LogAdminAction('campaign_create', 'campaign #' . $res['id'] . ' to ' . $res['total'] . ' recipients');
+            }
+            echo json_encode(array('status' => 200, 'id' => $res['id'], 'total' => $res['total']));
+            exit();
+        }
+        if (in_array($s, array('campaign_pause', 'campaign_resume', 'campaign_cancel'))) {
+            $map = array('campaign_pause' => 'paused', 'campaign_resume' => 'sending', 'campaign_cancel' => 'cancelled');
+            $id = intval($_POST['id'] ?? 0);
+            if ($s == 'campaign_resume') {
+                $busy = mysqli_query($sqlConnect, "SELECT id FROM " . T_MAIL_CAMPAIGNS . " WHERE status = 'sending' AND id <> {$id} LIMIT 1");
+                if ($busy && mysqli_num_rows($busy)) {
+                    echo json_encode(array('status' => 400, 'message' => 'Another campaign is sending. Pause it first.'));
+                    exit();
+                }
+            }
+            Wo_McSetStatus($id, $map[$s], $s == 'campaign_pause' ? 'Paused by admin' : ($s == 'campaign_cancel' ? 'Cancelled by admin' : ''));
+            if ($s == 'campaign_cancel') {
+                mysqli_query($sqlConnect, "UPDATE " . T_MAIL_QUEUE . " SET status = 'skipped', error = 'campaign cancelled' WHERE campaign_id = {$id} AND status = 'pending'");
+            }
+            echo json_encode(array('status' => 200));
+            exit();
+        }
+        if ($s == 'campaign_status') {
+            $list = array();
+            $q = mysqli_query($sqlConnect, "SELECT id, subject, audience, status, status_reason, total, bonus_trdc, bonus_until, created FROM " . T_MAIL_CAMPAIGNS . " ORDER BY id DESC LIMIT 10");
+            while ($q && ($row = mysqli_fetch_assoc($q))) {
+                $row['stats'] = Wo_McCampaignStats($row['id']);
+                $list[] = $row;
+            }
+            $start = intval(Wo_McConfig('campaign_warmup_start'));
+            echo json_encode(array(
+                'status'     => 200,
+                'campaigns'  => $list,
+                'warmup'     => array(
+                    'day'        => $start ? intval(floor((strtotime('today') - $start) / 86400)) + 1 : 0,
+                    'daily_cap'  => Wo_McDailyCap(),
+                    'sent_today' => Wo_McSentSince(strtotime('today')),
+                    'hour_cap'   => intval(Wo_McConfig('campaign_hour_cap')),
+                    'sent_hour'  => Wo_McSentSince(time() - 3600),
+                    'window'     => sprintf('%02d:00–%02d:00 UTC', Wo_McConfig('campaign_window_start'), Wo_McConfig('campaign_window_end')),
+                    'from'       => Wo_McConfig('campaign_from_name') . ' <' . Wo_McConfig('campaign_from_email') . '>',
+                ),
+            ));
+            exit();
+        }
+        echo json_encode(array('status' => 404));
         exit();
     }
     if ($s == 'get_users_emails' && isset($_GET['name'])) {

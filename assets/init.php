@@ -53,4 +53,8 @@ require_once('includes/functions_trdc_rewards.php');
 require_once('includes/functions_reward_guards.php');
 require_once('includes/functions_reward_engine.php');
 require_once('includes/ecosystem_helpers.php');
-require_once('includes/functions_admin_log.php');
+require_once('includes/functions_admin_log.php');require_once('includes/functions_mail_campaigns.php');
+// Welcome-back campaigns: mark returning recipients + pay their TRDC bonus (once per session)
+if (!empty($wo['loggedin']) && function_exists('Wo_MaybeAwardWelcomeBack')) {
+    try { Wo_MaybeAwardWelcomeBack(); } catch (Throwable $e) { error_log('welcome_back: ' . $e->getMessage()); }
+}

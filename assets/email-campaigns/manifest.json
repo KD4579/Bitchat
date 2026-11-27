@@ -1,0 +1,50 @@
+[
+ {
+  "key": "welcome_back",
+  "name": "We're back!",
+  "icon": "🎉",
+  "description": "Relaunch on bitchat.social with the new address, an optional TRDC bonus and what's new.",
+  "subject": "{{FIRST_NAME}}, Bitchat is back at bitchat.social",
+  "preheader": "Same account, same friends, new home. Log in and see what's new."
+ },
+ {
+  "key": "welcome_back_reminder",
+  "name": "Reminder",
+  "icon": "⏳",
+  "description": "Gentle nudge for people who haven't come back yet (bonus deadline if set).",
+  "subject": "{{FIRST_NAME}}, your Bitchat account is waiting for you",
+  "preheader": "Your profile and conversations are ready whenever you are."
+ },
+ {
+  "key": "announcement",
+  "name": "Big announcement",
+  "icon": "📣",
+  "description": "Headline, three highlight cards and one button. Edit the text in the HTML box.",
+  "subject": "{{FIRST_NAME}}, something new on Bitchat",
+  "preheader": "A quick look at what just changed."
+ },
+ {
+  "key": "newsletter",
+  "name": "What's new / newsletter",
+  "icon": "✨",
+  "description": "Update list with icons plus a trending block. Good for a monthly roundup.",
+  "subject": "What's new on Bitchat this month",
+  "preheader": "New features, community highlights and what's trending."
+ },
+ {
+  "key": "event_promo",
+  "name": "Event / promo",
+  "icon": "📅",
+  "description": "Date block, short pitch and one button. Change the date and details in the HTML.",
+  "subject": "{{FIRST_NAME}}, you're invited",
+  "preheader": "Join us on Bitchat. Here are the details."
+ },
+ {
+  "key": "simple_letter",
+  "name": "Simple letter",
+  "icon": "✉️",
+  "description": "Logo, a thin brand stripe and plain paragraphs. Feels personal; best inbox placement.",
+  "subject": "A note from the Bitchat team",
+  "preheader": ""
+ }
+]
