@@ -347,12 +347,10 @@ if (!empty($wo["config"]["last_update"])) {
     }
 }
 
-// night mode — default is dark
+// night mode: until the visitor picks one, follow the phone setting (handled in container.phtml)
 if (empty($_COOKIE["mode"])) {
-    setcookie("mode", "night", time() + 10 * 365 * 24 * 60 * 60, "/");
-    $_COOKIE["mode"] = "night";
-    $wo["mode_link"] = "day";
-    $wo["mode_text"] = $wo["lang"]["day_mode"];
+    $wo["mode_link"] = "night";
+    $wo["mode_text"] = $wo["lang"]["night_mode"];
 } else {
     if ($_COOKIE["mode"] == "day") {
         $wo["mode_link"] = "night";

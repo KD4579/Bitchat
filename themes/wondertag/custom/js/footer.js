@@ -141,14 +141,12 @@
 
     // --- Part 3: Dark mode class sync (fallback for browsers without :has()) ---
     function syncDarkMode() {
-        var nightCss = document.getElementById('night-mode-css');
-        if (nightCss) {
-            document.documentElement.classList.add('bc-dark-mode');
-            document.body.classList.add('night_mode');
-        } else {
-            document.documentElement.classList.remove('bc-dark-mode');
-            document.body.classList.remove('night_mode');
-        }
+        var on = !!document.getElementById('night-mode-css');
+        var h = document.documentElement.classList, b = document.body.classList;
+        h.toggle('bc-dark-mode', on);
+        h.toggle('night-mode', on);
+        b.toggle('night_mode', on);
+        b.toggle('night-mode', on);
     }
 
     syncDarkMode();

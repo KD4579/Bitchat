@@ -288,6 +288,12 @@ body.night_mode {
   font-size: 15px;
   color: var(--bc-text-secondary);
 }
+/* welcome.css colours the link with var(--main), the same as the button background */
+.tag_wel_register a.btn-main,
+.tag_wel_register a.btn-main:hover,
+.tag_wel_register a.btn-main:focus {
+  color: #fff !important;
+}
 
 /* Auth animation overlay */
 .tag_auth_animation {
@@ -9987,4 +9993,61 @@ html.bc-native-app .cc-banner {
 /* Welcome / logged-out pages have no navbar strip — no extra padding */
 body.bc-welcome {
   padding-top: 0 !important;
+}
+
+/* ==========================================================================
+   UI audit 2026-11 — overlap fixes (keep at end of file: these win)
+   ========================================================================== */
+/* Announcement banner: part of the page, not pinned over the feed while scrolling */
+.bc-announce-banner {
+  position: relative !important;
+  top: auto !important;
+}
+@media (max-width: 768px) {
+  .bc-announce-banner span,
+  .bc-announce-banner .bc-announce-link {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+  .bc-announce-banner {
+    padding: 6px 40px 6px 12px !important;
+  }
+}
+/* Cookie notice: one compact row instead of a block covering ~15% of the screen */
+@media (max-width: 768px) {
+  .cc-window.cc-floating,
+  .cc-window.cc-banner {
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+    transform: none !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 10px;
+    padding: 8px 10px !important;
+    font-size: 12.5px !important;
+    line-height: 1.35 !important;
+    border-radius: 12px !important;
+  }
+  .cc-window .cc-message {
+    margin: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  .cc-window .cc-compliance {
+    flex: 0 0 auto !important;
+  }
+  .cc-window .cc-btn {
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+}
+/* Logged-out pages have no bottom nav, so the notice can sit at the bottom edge */
+@media (max-width: 768px) {
+  body:not(:has(#bc-mobile-nav)) .cc-window {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }

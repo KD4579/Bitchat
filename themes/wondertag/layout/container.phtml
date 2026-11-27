@@ -19,7 +19,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 ?>
 
 <!DOCTYPE html>
-<html lang="<?php echo($wo['lang_attr']); ?>">
+<?php $bcDarkCookie = (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night'); ?>
+<html lang="<?php echo($wo['lang_attr']); ?>"<?php if ($bcDarkCookie) { echo ' class="night-mode bc-dark-mode"'; } ?>>
 	<head>
 		<title><?php echo $wo['title'];?></title>
 		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
@@ -44,8 +45,9 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		(function(){
 			var c = document.cookie.match(/(?:^|;\s*)mode=([^;]*)/);
 			var mode = c ? c[1] : null;
-			if (mode === 'night' || (mode === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-				document.documentElement.classList.add('night-mode');
+			var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+			if (mode === 'night' || ((mode === 'auto' || !mode) && sysDark)) {
+				document.documentElement.classList.add('night-mode', 'bc-dark-mode');
 			}
 		})();
 		</script>
@@ -598,13 +600,35 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 
 		<?php if ($isDarkMode) { ?>
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">
-		<?php } elseif (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'auto') { ?>
-			<!-- Auto mode: preload dark CSS, JS above will activate via class -->
-			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css" media="(prefers-color-scheme: dark)">
+		<?php } elseif (empty($_COOKIE['mode']) || $_COOKIE['mode'] == 'auto') { ?>
+			<!-- No choice yet: follow the phone. Written in place so dark.css keeps its usual position. -->
+			<script>if (document.documentElement.classList.contains('night-mode')) { document.write('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css"><meta name="theme-color" content="#212121" id="night-mode-meta">'); }</script>
 		<?php } ?>
+		<script>
+		/* One place that switches light/dark: exactly one dark.css, every class variant the CSS uses. */
+		window.bcSetDark = function (on) {
+			var i, old = document.querySelectorAll('link[id="night-mode-css"], meta[id="night-mode-meta"]');
+			for (i = 0; i < old.length; i++) { old[i].parentNode.removeChild(old[i]); }
+			if (on) {
+				var l = document.createElement('link');
+				l.rel = 'stylesheet';
+				l.id = 'night-mode-css';
+				l.href = '<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>';
+				var anchor = document.getElementById('bc-design-css');
+				if (anchor) { anchor.parentNode.insertBefore(l, anchor); } else { document.head.appendChild(l); }
+				var m = document.createElement('meta');
+				m.name = 'theme-color'; m.content = '#212121'; m.id = 'night-mode-meta';
+				document.head.appendChild(m);
+			}
+			var h = document.documentElement.classList, b = document.body ? document.body.classList : null;
+			h.toggle('night-mode', !!on); h.toggle('bc-dark-mode', !!on);
+			if (b) { b.toggle('night-mode', !!on); b.toggle('night_mode', !!on); }
+		};
+		window.bcIsDark = function () { return !!document.querySelector('link[id="night-mode-css"]'); };
+		</script>
 
 		<!-- VI-1: Bitchat Design System (loads before custom overrides) -->
-		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css<?php echo bc_v('custom/css/bitchat-design.css'); ?>">
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css<?php echo bc_v('custom/css/bitchat-design.css'); ?>" id="bc-design-css">
 		<!-- Custom UI Overrides (highest priority) -->
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/style.css<?php echo bc_v('custom/css/style.css'); ?>">
 
@@ -959,7 +983,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		</script>
 	</head>
    
-	<body class="<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { echo 'tag_header_top_p '; } if ($wo['page'] == 'welcome') { echo 'bc-welcome'; } ?>"<?php if ($wo['config']['chatSystem'] == 0) { ?> chat-off="true" <?php } ?>>
+	<body class="<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { echo 'tag_header_top_p '; } if ($wo['page'] == 'welcome') { echo 'bc-welcome '; } if ($bcDarkCookie) { echo 'night-mode night_mode'; } ?>"<?php if ($wo['config']['chatSystem'] == 0) { ?> chat-off="true" <?php } ?>>
 		<?php if ($wo['loggedin'] == true && $wo['page'] != 'welcome' && $wo['page'] != 'maintenance'): ?>
 		<!-- Part 2: Market Strip Ticker -->
 		<div id="bc-market-strip">
@@ -1021,9 +1045,9 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				<?php else: ?>
 					<span><?php echo $_bc_banner_text; ?></span>
 				<?php endif; ?>
-				<button class="bc-announce-close" onclick="document.getElementById('bc-announce-banner').style.display='none';sessionStorage.setItem('bc_banner_closed','1');">&times;</button>
+				<button class="bc-announce-close" aria-label="Close" onclick="document.getElementById('bc-announce-banner').style.display='none';try{localStorage.setItem('bc_banner_closed','<?php echo md5($_bc_banner_text); ?>');}catch(e){}">&times;</button>
 			</div>
-			<script>if(sessionStorage.getItem('bc_banner_closed')==='1'){document.getElementById('bc-announce-banner').style.display='none';}</script>
+			<script>try{if(localStorage.getItem('bc_banner_closed')==='<?php echo md5($_bc_banner_text); ?>'){document.getElementById('bc-announce-banner').style.display='none';}}catch(e){}</script>
 			<?php endif; ?>
 
 			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_header_layout'] == 1) { ?>
@@ -1337,22 +1361,19 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	  
 			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_auto_dark'] == 1) { ?>
 			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				$('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">');
-				$('head').append('<meta name="theme-color" content="#212121" id="night-mode-meta">');
+				bcSetDark(true);
 				$('#night_mode_toggle').addClass('d-none');
 				$('#night_mode_auto').removeClass('d-none');
 			};
 
 			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
 				if (e.matches) {
-					$('head').append('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">');
-					$('head').append('<meta name="theme-color" content="#212121" id="night-mode-meta">');
+					bcSetDark(true);
 					$('#night_mode_toggle').addClass('d-none');
 					$('#night_mode_auto').removeClass('d-none');
 				} else {
 					$('#night_mode_toggle').removeClass('d-none');
-					$('#night-mode-css').remove();
-					$('#night-mode-meta').remove();
+					bcSetDark(false);
 					$('#night_mode_auto').addClass('d-none');
 				}
 			});
