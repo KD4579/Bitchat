@@ -122,3 +122,8 @@ admin-panel/videos/test*.mp4
 
 # Composer binary (install globally instead)
 composer.phar
+
+# Generated daily by tools/sitemap/generate_sitemap.php
+/sitemap.xml
+/sitemap-index.xml
+/sitemaps/

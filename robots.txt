@@ -13,3 +13,4 @@ Disallow: /api.php
 Disallow: /xml
 Disallow: /system_status.php
 Disallow: /nodejs
+Sitemap: https://bitchat.social/sitemap.xml
