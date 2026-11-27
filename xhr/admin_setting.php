@@ -5921,7 +5921,7 @@ if ($f == 'admin_setting' AND (Wo_IsAdmin() || Wo_IsModerator())) {
         if ($bot_id > 0) {
             $check_type = mysqli_query($sqlConnect, "SELECT content_type FROM Wo_Bot_Accounts WHERE id = $bot_id LIMIT 1");
             if ($check_type && $row = mysqli_fetch_assoc($check_type)) {
-                $is_template_bot = ($row['content_type'] === 'template');
+                $is_template_bot = in_array($row['content_type'], array('template', 'promo'), true);
             }
         }
 

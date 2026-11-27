@@ -1,0 +1,208 @@
+{
+  "_help": "Content for the Bitchat Updates promo bot (assets/includes/functions_promo_bot.php). It posts 3 times a day: 'morning' (banner + we're-back caption), 'reward' (one TRDC reward activity per day, amounts read live from Wo_Rewards_Config), 'evening' (alternates 'e2e' and 'exchange'). Tokens: {SITE} = https://bitchat.social, {AMOUNT} = reward amount, {MAX} = max per day. Keep each caption under 600 characters. Edit freely; items rotate one per day.",
+
+  "morning_banners": [
+    ["We're back!", "Same account. Same friends. New home."],
+    ["Bitchat is back", "Faster, safer and ready for you"],
+    ["New home. Same family.", "Find us at bitchat.social"],
+    ["Good morning from Bitchat", "We're back. Come say hi!"],
+    ["Welcome back!", "Your friends and posts are waiting"],
+    ["The wait is over", "Bitchat is live again"],
+    ["Back and better", "Chat, share and earn TRDC"],
+    ["Rise and shine, Bitchat!", "A new day in our new home"],
+    ["We missed you", "Log in and catch up today"],
+    ["Engage. Earn. Repeat.", "Bitchat is back with TRDC rewards"],
+    ["Your feed is waiting", "Catch up with friends today"],
+    ["Home sweet new home", "Bitchat now lives at bitchat.social"],
+    ["A fresh start", "Same Bitchat, new address"],
+    ["Say hello again", "Your community is back online"]
+  ],
+
+  "morning_captions": [
+    "Good morning, Bitchat family! ☀️\n\nWe're back at bitchat.social 🎉 Same account, same friends, brand-new home.\n\nLog in, say hi and start earning TRDC again 👉 {SITE}\n\n#Bitchat #WereBack #EngageToEarn",
+    "🎉 Bitchat is officially back!\n\nOur new address is bitchat.social. Your profile, your friends and your posts all moved with us.\n\nBookmark it today 👉 {SITE}\n\n#Bitchat #NewHome",
+    "Rise and shine! 🌅\n\nIn case you missed it: we're back at bitchat.social 🎉\n\nTell one friend who used Bitchat before. Their account is still here waiting for them.\n\n#Bitchat #WereBack",
+    "New day, new home 🏡\n\nBitchat now lives at bitchat.social. Faster pages, better security and TRDC rewards for every real interaction.\n\nJump in 👉 {SITE}\n\n#Bitchat #EngageToEarn",
+    "☕ Morning check-in!\n\nWe're back at bitchat.social 🎉 and the feed is filling up again.\n\nWhat's the first thing you posted after coming back? Share it in the comments 👇\n\n#Bitchat #GoodMorning",
+    "📍 Update your bookmarks!\n\nOld address: bitchat.live\nNew address: bitchat.social ✅\n\nSame login. If you signed up with Google, just tap \"Continue with Google\".\n\n#Bitchat #WereBack",
+    "We missed you! 💜\n\nBitchat is back at bitchat.social 🎉 Your friends are logging in again. Come and see who's here.\n\n👉 {SITE}\n\n#Bitchat #Community",
+    "Good morning! ☀️\n\nBitchat is back 🎉 and so is Engage-to-Earn: post, comment, share and earn TRDC for being part of the community.\n\nStart today 👉 {SITE}\n\n#Bitchat #TRDC #EngageToEarn",
+    "Big news for old friends 📣\n\nWe're back at bitchat.social 🎉\n\nForgot your password? Use \"Forgot password\" on the login page and you'll be back in under a minute.\n\n#Bitchat #WereBack",
+    "Another beautiful morning on Bitchat 🌤️\n\nWe're back at bitchat.social 🎉 Share a photo of your view right now and say good morning to the community!\n\n#Bitchat #GoodMorning",
+    "Our new home is open 🏠✨\n\nbitchat.social is where Bitchat lives now. Same people, same vibes, more rewards.\n\nCome in 👉 {SITE}\n\n#Bitchat #NewHome #TRDC",
+    "Hello again, world 👋\n\nBitchat is back at bitchat.social 🎉 Whether you're returning or brand new, welcome. Drop a 👋 in the comments!\n\n#Bitchat #WereBack",
+    "Morning reminder ⏰\n\nBitchat is back at bitchat.social 🎉 Your daily login earns TRDC, so make it part of your morning routine.\n\n👉 {SITE}\n\n#Bitchat #DailyLogin #TRDC",
+    "The comeback is real 🔥\n\nWe're back at bitchat.social 🎉 Invite your friends and grow your circle again. Referrals earn TRDC too.\n\n#Bitchat #WereBack #EngageToEarn",
+    "Good morning, creators! 🎨\n\nBitchat is back at bitchat.social 🎉 Post your best work today. Every post and every reaction can earn you TRDC.\n\n#Bitchat #Creators #TRDC",
+    "Fresh start, same family 🤝\n\nWe're back at bitchat.social 🎉 Thank you for waiting for us. Let's make this the best chapter yet.\n\n👉 {SITE}\n\n#Bitchat #Community",
+    "☀️ Start your day with Bitchat\n\nWe're back at bitchat.social 🎉 Chat, video call, share moments and earn TRDC, all in one place.\n\n#Bitchat #WereBack",
+    "Knock knock 🚪 Who's back? Bitchat! 🎉\n\nFind us at bitchat.social. Your account is exactly where you left it.\n\n#Bitchat #WereBack",
+    "Morning, Bitchat! 🌞\n\nWe're back at bitchat.social 🎉 Tag a friend you haven't talked to in a while and say hi today.\n\n#Bitchat #Friends",
+    "Back online and better than before 🚀\n\nBitchat is live at bitchat.social 🎉 Explore the feed, join groups and find your people again.\n\n👉 {SITE}\n\n#Bitchat #WereBack",
+    "Good morning! 💬\n\nBitchat is back at bitchat.social 🎉 What should we build next? Tell us in the comments. We read every one.\n\n#Bitchat #Feedback"
+  ],
+
+  "rewards": {
+    "post_create": {
+      "card": "for every post you create",
+      "captions": [
+        "✍️ Post & earn!\n\nOn Bitchat, every quality post earns you {AMOUNT} TRDC (up to {MAX} posts a day).\n\nOther platforms keep your content's value. Bitchat shares it with you.\n\nPost something now 👉 {SITE}\n\n#EngageToEarn #TRDC #Bitchat",
+        "💡 Got something to say? Get paid for it.\n\nCreate a post on Bitchat → earn {AMOUNT} TRDC. Up to {MAX} times a day.\n\nShare a thought, a photo or a tip. Quality posts only, no spam.\n\n#Bitchat #TRDC #EngageToEarn"
+      ]
+    },
+    "comment_create": {
+      "card": "for every meaningful comment",
+      "captions": [
+        "💬 Comments count, literally!\n\nLeave a meaningful comment on Bitchat and earn {AMOUNT} TRDC (up to {MAX} a day).\n\nGood conversations deserve rewards.\n\n#EngageToEarn #TRDC #Bitchat",
+        "🗣️ Join the conversation & earn\n\nEvery thoughtful comment = {AMOUNT} TRDC, up to {MAX} a day.\n\nGo cheer someone's post today 👉 {SITE}\n\n#Bitchat #TRDC"
+      ]
+    },
+    "daily_login": {
+      "card": "just for logging in each day",
+      "captions": [
+        "📅 Show up, get rewarded\n\nLog in to Bitchat once a day and earn {AMOUNT} TRDC. That's it.\n\nMake it a habit 👉 {SITE}\n\n#Bitchat #DailyLogin #TRDC",
+        "⏰ Your daily TRDC is waiting\n\nEvery day you log in to Bitchat you earn {AMOUNT} TRDC. Don't break the streak!\n\n#EngageToEarn #TRDC #Bitchat"
+      ]
+    },
+    "like_received": {
+      "card": "for every reaction on your post",
+      "captions": [
+        "❤️ Every reaction pays\n\nWhen someone reacts to your post, you earn {AMOUNT} TRDC (up to {MAX} a day).\n\nPost content people love and watch your wallet grow.\n\n#Bitchat #TRDC #EngageToEarn",
+        "👍 Likes are worth more on Bitchat\n\nElsewhere a like is just a number. Here it's {AMOUNT} TRDC in your wallet, up to {MAX} a day.\n\n#Bitchat #TRDC"
+      ]
+    },
+    "post_share": {
+      "card": "for sharing a post",
+      "captions": [
+        "🔁 Share the good stuff\n\nShare a post on Bitchat and earn {AMOUNT} TRDC (up to {MAX} shares a day).\n\nSpread great content and get rewarded for it.\n\n#Bitchat #TRDC #EngageToEarn",
+        "📢 Found something worth sharing?\n\nShare it on Bitchat → {AMOUNT} TRDC for you, up to {MAX} times a day.\n\n#Bitchat #TRDC"
+      ]
+    },
+    "first_post": {
+      "card": "bonus for your very first post",
+      "captions": [
+        "🎁 New here? Your first post earns a bonus!\n\nPublish your very first post on Bitchat and get {AMOUNT} TRDC as a one-time welcome bonus.\n\nSay hello to the community 👉 {SITE}\n\n#Bitchat #WelcomeBonus #TRDC",
+        "👋 Haven't posted yet?\n\nYour first post on Bitchat comes with a {AMOUNT} TRDC bonus. Introduce yourself today!\n\n#Bitchat #TRDC"
+      ]
+    },
+    "referral_signup": {
+      "card": "for every friend who joins",
+      "captions": [
+        "🤝 Invite friends, earn big\n\nEvery friend who signs up with your referral link earns you {AMOUNT} TRDC (up to {MAX} a day).\n\nFind your link in your profile settings and share it!\n\n#Bitchat #Referral #TRDC",
+        "📨 Bring your friends to Bitchat\n\n{AMOUNT} TRDC for each friend who joins with your link. Up to {MAX} a day!\n\nBetter together 💜\n\n#Bitchat #TRDC #EngageToEarn"
+      ]
+    },
+    "milestone_100": {
+      "card": "when a post hits 100 reactions",
+      "captions": [
+        "🏅 Milestone unlocked: 100 reactions\n\nWhen one of your posts reaches 100 reactions you earn a {AMOUNT} TRDC bonus.\n\nCreate something people love!\n\n#Bitchat #TRDC #Creators",
+        "💯 100 reactions = {AMOUNT} TRDC bonus\n\nGreat posts get rewarded on Bitchat. Who's going to hit it first this week?\n\n#Bitchat #TRDC"
+      ]
+    },
+    "milestone_500": {
+      "card": "when a post hits 500 reactions",
+      "captions": [
+        "🚀 Going viral pays on Bitchat\n\nHit 500 reactions on a post and earn a {AMOUNT} TRDC milestone bonus.\n\n#Bitchat #TRDC #Creators",
+        "🔥 500 reactions? That's {AMOUNT} TRDC!\n\nBitchat rewards creators whose content the community loves.\n\n#Bitchat #EngageToEarn"
+      ]
+    },
+    "milestone_1000": {
+      "card": "when a post hits 1,000 reactions",
+      "captions": [
+        "👑 The big one: 1,000 reactions\n\nReach 1,000 reactions on a single post and earn {AMOUNT} TRDC.\n\nOn Bitchat, viral content means real rewards.\n\n#Bitchat #TRDC #Creators",
+        "🏆 1,000 reactions = {AMOUNT} TRDC\n\nThis is what creator rewards should look like. Start creating 👉 {SITE}\n\n#Bitchat #EngageToEarn"
+      ]
+    },
+    "first_video": {
+      "card": "bonus for your first video post",
+      "captions": [
+        "🎬 Lights, camera, TRDC!\n\nUpload your first video on Bitchat and get a {AMOUNT} TRDC bonus.\n\nShow us your world 👉 {SITE}\n\n#Bitchat #Video #TRDC",
+        "📹 Your first video earns {AMOUNT} TRDC\n\nShort, funny, useful, anything goes. Post your first video on Bitchat today!\n\n#Bitchat #TRDC"
+      ]
+    },
+    "verify_email": {
+      "card": "for verifying your email",
+      "captions": [
+        "✅ Quick win: verify your email\n\nVerify your email address on Bitchat and earn {AMOUNT} TRDC. Takes 30 seconds and keeps your account secure.\n\n#Bitchat #TRDC",
+        "📧 Secure your account & earn\n\nVerified email = {AMOUNT} TRDC + better account protection. Win-win!\n\n#Bitchat #TRDC"
+      ]
+    },
+    "complete_profile": {
+      "card": "for completing your profile",
+      "captions": [
+        "🙋 Complete your profile, earn TRDC\n\nAdd a photo, cover and short bio and earn {AMOUNT} TRDC. A full profile also helps friends find you.\n\n#Bitchat #TRDC",
+        "🖼️ Make your profile shine\n\nFinish your Bitchat profile and get {AMOUNT} TRDC as a thank-you.\n\n👉 {SITE}\n\n#Bitchat #TRDC"
+      ]
+    },
+    "first_album": {
+      "card": "bonus for your first album",
+      "captions": [
+        "📸 Create your first album\n\nGroup your favourite photos into an album on Bitchat and earn a {AMOUNT} TRDC bonus.\n\n#Bitchat #Photos #TRDC",
+        "🗂️ Albums earn TRDC too!\n\nYour first photo album on Bitchat = {AMOUNT} TRDC. Share your trip, your pets, your food!\n\n#Bitchat #TRDC"
+      ]
+    },
+    "first_article": {
+      "card": "bonus for your first article",
+      "captions": [
+        "📝 Writers, this one's for you\n\nPublish your first article on Bitchat and earn {AMOUNT} TRDC.\n\nShare your knowledge, your story or your guide.\n\n#Bitchat #Blog #TRDC",
+        "📚 Your first article earns {AMOUNT} TRDC\n\nLong-form writing is rewarded on Bitchat. What will you write about?\n\n#Bitchat #TRDC"
+      ]
+    },
+    "first_event": {
+      "card": "bonus for your first event",
+      "captions": [
+        "📅 Host something!\n\nCreate your first event on Bitchat and earn {AMOUNT} TRDC. Meetups, live streams, parties, anything.\n\n#Bitchat #Events #TRDC",
+        "🎉 Events bring people together\n\nYour first Bitchat event = {AMOUNT} TRDC bonus. Start planning!\n\n#Bitchat #TRDC"
+      ]
+    },
+    "first_funding": {
+      "card": "bonus for your first funding request",
+      "captions": [
+        "💡 Have a cause or a dream?\n\nCreate your first funding request on Bitchat and earn {AMOUNT} TRDC. Let the community support you.\n\n#Bitchat #Funding #TRDC",
+        "🤲 Raise support on Bitchat\n\nYour first funding request comes with a {AMOUNT} TRDC bonus.\n\n#Bitchat #TRDC"
+      ]
+    },
+    "first_group": {
+      "card": "bonus for your first group",
+      "captions": [
+        "👥 Build your community\n\nCreate your first group on Bitchat and earn {AMOUNT} TRDC. Bring together people who love what you love.\n\n#Bitchat #Groups #TRDC",
+        "🏘️ Start a group, earn {AMOUNT} TRDC\n\nCrypto, cricket, cooking, coding: every community starts with one person. Why not you?\n\n#Bitchat #TRDC"
+      ]
+    },
+    "first_page": {
+      "card": "bonus for your first page",
+      "captions": [
+        "📣 Got a brand or business?\n\nCreate your first page on Bitchat and earn {AMOUNT} TRDC. Reach the community where engagement is rewarded.\n\n#Bitchat #Business #TRDC",
+        "🏪 Your first Bitchat page = {AMOUNT} TRDC\n\nPerfect for creators, shops and projects. Set it up in minutes 👉 {SITE}\n\n#Bitchat #TRDC"
+      ]
+    }
+  },
+
+  "e2e": [
+    "🌍 What makes Bitchat different?\n\nOn most social media, YOU are the product. Your posts make them money.\n\nOn Bitchat, it's Engage-to-Earn (E2E): you post, comment, share and get reactions, and you earn TRDC for it.\n\nYour time. Your content. Your rewards.\n\n#Bitchat #EngageToEarn #TRDC",
+    "🤔 Other platforms vs Bitchat\n\n❌ They: scroll for free, ads everywhere, your data sold\n✅ Bitchat: earn TRDC for real engagement, a community that values you\n\nWhich one deserves your time?\n\n#Bitchat #EngageToEarn",
+    "💸 You've been creating value for free for years.\n\nEvery like, every post, every share on other apps made someone else rich.\n\nBitchat flips that. Engage-to-Earn means the value you create comes back to you as TRDC.\n\n👉 {SITE}\n\n#Bitchat #E2E #TRDC",
+    "🚀 Engage-to-Earn (E2E), explained in 10 seconds:\n\n1️⃣ Join Bitchat\n2️⃣ Post, comment, share, react\n3️⃣ Earn TRDC for it\n\nThat's it. Social media that pays you back.\n\n#Bitchat #EngageToEarn #TRDC",
+    "🔒 Privacy + rewards, finally together\n\nBitchat gives you chat, video calls, groups and pages like other social networks, plus TRDC rewards for every real interaction.\n\n#Bitchat #EngageToEarn",
+    "👀 Why are people switching to Bitchat?\n\n💬 Chat & video calls\n📸 Posts, stories & albums\n👥 Groups & pages\n🪙 TRDC rewards for engaging\n\nEverything you love about social media, plus you earn.\n\n👉 {SITE}\n\n#Bitchat #TRDC",
+    "🧠 Think about it:\n\nHow many hours have you spent on social media this year? How much did it pay you?\n\nOn Bitchat, engagement earns TRDC. Same habits, real rewards.\n\n#Bitchat #EngageToEarn #TRDC",
+    "🏆 Creators deserve more than likes\n\nOn Bitchat, reactions, shares and milestones turn into TRDC. Hit 100, 500 or 1,000 reactions and unlock bonus rewards.\n\nCreate where creators are valued 👉 {SITE}\n\n#Bitchat #Creators #E2E",
+    "🌱 Bitchat is built for the community, not for advertisers.\n\nEngage-to-Earn means the people who make the platform great, YOU, share in the rewards.\n\nWelcome to social media, done right.\n\n#Bitchat #EngageToEarn",
+    "📊 Social media that gives back:\n\n✍️ Post → earn TRDC\n💬 Comment → earn TRDC\n🔁 Share → earn TRDC\n📅 Log in daily → earn TRDC\n🤝 Invite friends → earn TRDC\n\nWhy settle for less?\n\n#Bitchat #TRDC #EngageToEarn",
+    "💜 Bitchat isn't just another app.\n\nIt's a community where engagement has value. Chat with friends, follow creators and earn TRDC along the way, all at bitchat.social.\n\n#Bitchat #E2E",
+    "⚡ Same scroll. Better deal.\n\nYou're going to be on social media today anyway. Spend that time on Bitchat and earn TRDC for it.\n\n👉 {SITE}\n\n#Bitchat #EngageToEarn #TRDC"
+  ],
+
+  "exchange": [
+    "📈 TRDC is getting ready for its next chapter!\n\nTRDC is launching soon on a new exchange. You'll be able to:\n\n🪙 Earn it on Bitchat\n🔄 Trade it on the exchange\n💎 Or simply hold it\n\nStart earning today so you're ready 👉 {SITE}\n\n⚠️ Crypto involves risk. Not financial advice.\n\n#TRDC #Bitchat",
+    "🔔 Coming soon: TRDC on a new exchange\n\nEvery TRDC you earn on Bitchat by posting, commenting and sharing will be tradable once the listing goes live.\n\nStay tuned for the date! 👀\n\n⚠️ Not financial advice. Crypto carries risk.\n\n#TRDC #Bitchat #EngageToEarn",
+    "🪙 Earn. Trade. Hold. Your choice.\n\nTRDC rewards you earn on Bitchat are about to get a new home on an exchange, launching soon.\n\nKeep engaging and keep stacking TRDC in your wallet.\n\n⚠️ Not financial advice.\n\n#TRDC #Bitchat",
+    "🚀 Exchange launch: coming soon\n\nTRDC, the reward token of Bitchat, is preparing to launch on a new exchange. We'll share the date and details right here first.\n\nFollow this account so you don't miss it! 🔔\n\n#TRDC #Bitchat",
+    "💼 What can you do with TRDC?\n\n✅ Tip your favourite creators\n✅ Boost your posts\n✅ Unlock token-gated content\n🔜 Trade it on a new exchange, launching soon\n\nEarn yours on Bitchat 👉 {SITE}\n\n⚠️ Not financial advice.\n\n#TRDC #Bitchat",
+    "⏳ The countdown has started\n\nTRDC is launching on a new exchange soon. The best time to start earning is now: post, comment, share and log in daily on Bitchat.\n\n⚠️ Crypto involves risk. Not financial advice.\n\n#TRDC #EngageToEarn",
+    "🔄 Earn on Bitchat → trade on the exchange\n\nThat's the plan for TRDC, launching soon on a new exchange. Your engagement today becomes TRDC you can trade or hold tomorrow.\n\n⚠️ Not financial advice.\n\n#TRDC #Bitchat",
+    "📣 TRDC holders, get ready!\n\nA new exchange listing for TRDC is on the way. Check your Bitchat wallet to see how much you've earned so far 👛\n\nMore news soon. Turn on notifications for this account 🔔\n\n#TRDC #Bitchat",
+    "💎 Holders and earners, this one's for you\n\nTRDC launches soon on a new exchange. Until then, keep earning it for free just by being active on Bitchat.\n\n⚠️ Crypto prices can go up or down. Not financial advice.\n\n#TRDC #Bitchat",
+    "🌐 TRDC is going places\n\nLaunching soon on a new exchange: earn it here on Bitchat, then trade or hold it, it's up to you.\n\nStart earning today 👉 {SITE}\n\n⚠️ Not financial advice.\n\n#TRDC #EngageToEarn"
+  ]
+}

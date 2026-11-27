@@ -48,6 +48,10 @@ function bc_run_single_bot($bot_id, $sqlConnect, $wo) {
     if ($contentType === 'template') {
         return bc_run_template_bot($bot, $db, $sqlConnect, $wo, $postsToday, $remaining);
     }
+    if ($contentType === 'promo') {
+        require_once dirname(__FILE__) . '/functions_promo_bot.php';
+        return bc_run_promo_bot($bot, $db, $sqlConnect, $wo, $postsToday);
+    }
     if ($contentType === 'blog_scraper') {
         return 0; // Handled by functions_crypto_blog_bot.php
     }
