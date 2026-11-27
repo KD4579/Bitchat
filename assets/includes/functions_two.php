@@ -5214,7 +5214,8 @@ function Wo_AddPostVideoView($post_id = false) {
 function Wo_SendMessage($data = array()) {
     global $wo, $sqlConnect;
     include_once "assets/libraries/PHPMailer-Master/vendor/autoload.php";
-    $mail = new PHPMailer\PHPMailer\PHPMailer();
+    require_once __DIR__ . "/class_wo_mailer.php";
+    $mail = new Wo_Mailer();
     if (strpos($data["to_email"], "@google.com") || strpos($data["to_email"], "@facebook.com") || strpos($data["to_email"], "@twitter.com") || strpos($data["to_email"], "@linkedIn.com") || strpos($data["to_email"], "@vk.com") || strpos($data["to_email"], "@instagram.com")) {
         return false;
     }
