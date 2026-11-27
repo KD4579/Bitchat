@@ -10033,12 +10033,18 @@ body.bc-welcome {
   }
   .cc-window .cc-message {
     margin: 0 !important;
-    flex: 1 1 auto !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
   }
   .cc-window .cc-compliance {
     flex: 0 0 auto !important;
+    width: auto !important;
+    padding: 0 !important;
   }
-  .cc-window .cc-btn {
+  .cc-window .cc-btn,
+  .cc-window .cc-btn.cc-dismiss {
+    width: auto !important;
+    line-height: 24px !important;
     padding: 6px 14px !important;
     font-size: 13px !important;
     min-height: 36px;
