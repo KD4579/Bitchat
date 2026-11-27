@@ -2019,10 +2019,6 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 			<span>Search</span>
 		</button>
-		<a href="<?php echo Wo_SeoLink('index.php?link1=wallet'); ?>" class="bc-mob-nav-item<?php echo (isset($wo['ap']) && $wo['ap'] == 'wallet') ? ' active' : ''; ?>" title="Wallet">
-			<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-			<span>Wallet</span>
-		</a>
 		<button type="button" class="bc-mob-nav-item bc-mob-create-btn" title="Create Post"
 			onclick="if($('#tagPostBox').length){$('#tagPostBox').modal('show');}" aria-label="Create post">
 			<div class="bc-mob-create-icon">
@@ -2049,7 +2045,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 	<div id="bc-mobile-profile-panel" class="bc-mobile-profile-panel">
 		<div class="bc-mob-profile-header">
 			<h3><?php echo $wo['user']['name'];?></h3>
-			<button type="button" class="bc-mob-profile-close" onclick="document.getElementById('bc-mobile-profile-panel').classList.remove('open');">&times;</button>
+			<button type="button" class="bc-mob-profile-close" aria-label="Close" onclick="document.getElementById('bc-mobile-profile-panel').classList.remove('open');">&times;</button>
 		</div>
 		<div class="bc-mob-profile-body">
 			<a href="<?php echo $wo['user']['url']; ?>" data-ajax="?link1=timeline&u=<?php echo $wo['user']['username'];?>" class="bc-mob-profile-item">
@@ -2057,6 +2053,13 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 				<div>
 					<strong><?php echo $wo['user']['name'];?></strong>
 					<small><?php echo $wo['lang']['my_profile']; ?></small>
+				</div>
+			</a>
+			<a href="<?php echo Wo_SeoLink('index.php?link1=wallet'); ?>" class="bc-mob-profile-item">
+				<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+				<div>
+					<strong>Wallet</strong>
+					<small>TRDC balance, send &amp; rewards</small>
 				</div>
 			</a>
 

@@ -10121,3 +10121,152 @@ html.bc-dark-mode .bc-announce-banner .bc-announce-link {
     font-size: 16px !important;
   }
 }
+/* Feed filters on phones: All / Photos / Videos only; keep the row inside the screen */
+@media (max-width: 768px) {
+  #filterby-post li:has(a[onclick*="'text'"]),
+  #filterby-post li:has(a[onclick*="'music'"]),
+  #filterby-post li:has(a[onclick*="'files'"]),
+  #filterby-post li:has(a[onclick*="'maps'"]) {
+    display: none !important;
+  }
+  .tag_home_filters.home {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
+/* Composer on phones: # and @ can be typed on the keyboard; drop the duplicate buttons */
+@media (max-width: 768px) {
+  .tag_pub_btn_hasat { display: none !important; }
+}
+/* Google sign-up button on the register page + "or" divider */
+.bc-google-signup {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none !important;
+  margin-bottom: 4px;
+}
+.bc-or-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--bc-text-secondary, #64748b);
+}
+.bc-or-divider::before,
+.bc-or-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: .25;
+}
+/* Light buttons that stayed white in dark mode */
+html.bc-dark-mode .bc-google-fallback-btn,
+html.bc-dark-mode .bc-wallet-list-btn {
+  background: #2a2a2a !important;
+  color: #e5e7eb !important;
+  border-color: rgba(255,255,255,.14) !important;
+}
+html.bc-dark-mode .bc-wallet-list-btn:hover {
+  background: #333 !important;
+}
+/* Long-press on Like must not trigger the iOS text/selection callout */
+.wo-reaction-post { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+/* Phones: readable nav labels and menu headings */
+@media (max-width: 768px) {
+  .bc-mob-nav-item span { font-size: 11px !important; }
+  .tag_sidebar_head { font-size: 12px !important; opacity: .8 !important; }
+}
+/* Phones: standard dialogs open as a bottom sheet (full width, thumb-reachable, scrolls inside) */
+@media (max-width: 540px) {
+  .modal:not(#tagPostBox) .modal-dialog.wow_mat_mdl {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    transform: none !important;
+  }
+  .modal:not(#tagPostBox) .modal-dialog.wow_mat_mdl .modal-content {
+    border-radius: 18px 18px 0 0 !important;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+/* Dark mode for pages whose boxes use inline light colours (wallet, staking, points,
+   affiliates, nearby, bug bounty). The wallet QR code stays white so it scans. */
+html.bc-dark-mode .bc-fixdark [style*="background:#fff"]:not(#deposit-qr-code),
+html.bc-dark-mode .bc-fixdark [style*="background: #fff"]:not(#deposit-qr-code),
+html.bc-dark-mode .bc-fixdark [style*="background:white"],
+html.bc-dark-mode .bc-fixdark [style*="background: white"],
+html.bc-dark-mode .bc-fixdark [style*="background:#f8fafc"],
+html.bc-dark-mode .bc-fixdark [style*="background: #f8fafc"],
+html.bc-dark-mode .bc-fixdark [style*="background:#f1f5f9"],
+html.bc-dark-mode .bc-fixdark [style*="background: #f1f5f9"],
+html.bc-dark-mode .bc-fixdark [style*="background:#f9fafb"],
+html.bc-dark-mode .bc-fixdark [style*="background:#f8f9fa"],
+html.bc-dark-mode .bc-fixdark [style*="background: #f8f9fa"],
+html.bc-dark-mode .bc-fixdark [style*="background:#f5f5f5"],
+html.bc-dark-mode .bc-fixdark [style*="background:#fafafa"],
+html.bc-dark-mode .bc-fixdark [style*="background:#f0f9ff"],
+html.bc-dark-mode .bc-fixdark [style*="background:#eff6ff"],
+html.bc-dark-mode .bc-fixdark [style*="background:#f0fdf4"],
+html.bc-dark-mode .bc-fixdark [style*="background:#fefce8"],
+html.bc-dark-mode .bc-fixdark [style*="background:#fff7ed"] {
+  background: #262626 !important;
+}
+html.bc-dark-mode .bc-fixdark [style*="color:#1e293b"],
+html.bc-dark-mode .bc-fixdark [style*="color: #1e293b"],
+html.bc-dark-mode .bc-fixdark [style*="color:#0f172a"],
+html.bc-dark-mode .bc-fixdark [style*="color:#334155"],
+html.bc-dark-mode .bc-fixdark [style*="color: #334155"],
+html.bc-dark-mode .bc-fixdark [style*="color:#333"],
+html.bc-dark-mode .bc-fixdark [style*="color: #333"],
+html.bc-dark-mode .bc-fixdark [style*="color:#111"],
+html.bc-dark-mode .bc-fixdark [style*="color:#222"],
+html.bc-dark-mode .bc-fixdark [style*="color:#000"] {
+  color: #e5e7eb !important;
+}
+html.bc-dark-mode .bc-fixdark [style*="color:#475569"],
+html.bc-dark-mode .bc-fixdark [style*="color:#64748b"],
+html.bc-dark-mode .bc-fixdark [style*="color: #64748b"],
+html.bc-dark-mode .bc-fixdark [style*="color:#666"] {
+  color: #a3a3a3 !important;
+}
+html.bc-dark-mode .bc-fixdark [style*="#e2e8f0"],
+html.bc-dark-mode .bc-fixdark [style*="#e5e7eb"],
+html.bc-dark-mode .bc-fixdark [style*="#bae6fd"],
+html.bc-dark-mode .bc-fixdark [style*="#eee"] {
+  border-color: rgba(255,255,255,.12) !important;
+}
+/* JS-built wallet table rows */
+html.bc-dark-mode .bc-fixdark tr[style*="#f1f5f9"],
+html.bc-dark-mode .bc-fixdark th[style*="#f1f5f9"],
+html.bc-dark-mode .bc-fixdark th[style*="#f8fafc"] {
+  background: #2e2e2e !important;
+}
+/* Support page widgets and the feed "connection error" box */
+html.bc-dark-mode #posts button[onclick="location.reload()"] {
+  background: #2a2a2a !important;
+  color: #e5e7eb !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+/* Contrast (light mode): nav labels and helper text were ~3:1 */
+html:not(.bc-dark-mode) .bc-mob-nav-item { color: #5b6677 !important; }
+html:not(.bc-dark-mode) .bc-mob-nav-item.active { color: var(--bc-primary, #6C5CFF) !important; }
+html:not(.bc-dark-mode) .remember-label { color: #475569 !important; }

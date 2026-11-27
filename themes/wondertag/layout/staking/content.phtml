@@ -6,7 +6,7 @@ $_maxAmt = $_sc['max_amount'];
 $_lastPlan = end($_plans); // highest APY plan for "Best Value" badge
 reset($_plans);
 ?>
-<div class="container">
+<div class="container bc-fixdark">
 	<h2 class="tag_page_title">TRDC Staking</h2>
 	<div class="page-margin">
 		<div class="page-margin wow_content">
@@ -73,7 +73,7 @@ reset($_plans);
 
 				<?php if ($_sc['onchain_enabled']) { ?>
 				<!-- Onchain Staking Card -->
-				<div id="card-onchain" style="flex:1;min-width:280px;border:2px solid #e2e8f0;border-radius:14px;padding:28px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('onchain')">
+				<div id="card-onchain" style="flex:1 1 260px;min-width:0;border:2px solid #e2e8f0;border-radius:14px;padding:20px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('onchain')">
 					<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
 						<div style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;">
 							<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
@@ -97,7 +97,7 @@ reset($_plans);
 
 				<?php if ($_sc['offchain_enabled']) { ?>
 				<!-- Offchain Staking Card -->
-				<div id="card-offchain" style="flex:1;min-width:280px;border:2px solid #e2e8f0;border-radius:14px;padding:28px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('offchain')">
+				<div id="card-offchain" style="flex:1 1 260px;min-width:0;border:2px solid #e2e8f0;border-radius:14px;padding:20px;background:#fff;cursor:pointer;transition:all 0.3s;" onclick="selectStakingMethod('offchain')">
 					<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
 						<div style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;">
 							<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>

@@ -7,7 +7,7 @@
     <script src="https://securionpay.com/checkout.js"></script>
 <?php } ?>
 <?php $loadPage = Wo_LoadPage('thirdparty/paypal-demo'); echo (!empty($loadPage)) ? $loadPage : '';?>
-<div class="container">
+<div class="container bc-fixdark">
 	<h2 class="tag_page_title"><?php echo $wo['lang']['wallet']; ?></h2>
 	<div class="page-margin">
 		<div class="page-margin wow_content">
@@ -74,7 +74,7 @@
 
 			<div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
 				<!-- TRDC Balance Card -->
-				<div style="flex:1; min-width:220px; background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius:12px; padding:24px; color:#fff;">
+				<div style="flex:1 1 220px; min-width:0; background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius:12px; padding:24px; color:#fff;">
 					<p style="font-size:12px; color:#94a3b8; margin:0 0 6px;">Your TRDC Balance</p>
 					<h3 style="font-size:28px; font-weight:700; margin:0; color:#fcd535;"><?php echo number_format($wo['setting']['balance'], 4); ?></h3>
 					<p style="font-size:12px;color:#94a3b8;margin:4px 0 0;">≈ <span id="trdc-wallet-usd" style="color:#e2e8f0;">—</span> USD &nbsp;<span id="trdc-wallet-price" style="color:#fcd535;font-size:11px;"></span> <span id="trdc-wallet-change" style="font-size:11px;"></span></p>
@@ -112,7 +112,7 @@
 				</div>
 
 				<!-- Points Card -->
-				<div style="flex:1; min-width:220px; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius:12px; padding:24px; color:#fff;">
+				<div style="flex:1 1 220px; min-width:0; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius:12px; padding:24px; color:#fff;">
 					<p style="font-size:12px; color:#94a3b8; margin:0 0 6px;"><?php echo $wo['lang']['points']; ?></p>
 					<h3 style="font-size:28px; font-weight:700; margin:0; color:#60a5fa;"><?php echo $wo['setting']['points']; ?></h3>
 					<?php if ($wo['config']['point_allow_withdrawal'] == 1) { ?>
@@ -393,7 +393,7 @@
 							completed: 'Completed', failed: 'Failed', cancelled: 'Cancelled'
 						};
 
-						var html = '<table style="width:100%; border-collapse:collapse;">';
+						var html = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table style="width:100%; border-collapse:collapse;">';
 						html += '<thead><tr style="border-bottom:2px solid #e2e8f0;">';
 						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">Amount</th>';
 						html += '<th style="text-align:left;padding:8px 6px;color:#64748b;font-size:12px;">Fee</th>';
@@ -425,7 +425,7 @@
 							}
 						});
 
-						html += '</tbody></table>';
+						html += '</tbody></table></div>';
 						container.innerHTML = html;
 					}, 'json');
 				}
@@ -605,7 +605,7 @@
 							$('#deposit-history-table').html('<p style="color:#94a3b8;font-size:13px;text-align:center;">No deposits yet</p>');
 							return;
 						}
-						var html = '<table style="width:100%;font-size:12px;border-collapse:collapse;">';
+						var html = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table style="width:100%;font-size:13px;border-collapse:collapse;">';
 						html += '<tr style="background:#f1f5f9;"><th style="padding:8px;text-align:left;">Token</th><th style="padding:8px;text-align:right;">Amount</th><th style="padding:8px;text-align:center;">Status</th><th style="padding:8px;text-align:center;">Confirmations</th><th style="padding:8px;text-align:center;">TX</th><th style="padding:8px;text-align:right;">Date</th></tr>';
 						resp.deposits.forEach(function(d) {
 							var statusColors = {
@@ -636,7 +636,7 @@
 							html += '<td style="padding:8px;text-align:right;color:#64748b;">' + date + '</td>';
 							html += '</tr>';
 						});
-						html += '</table>';
+						html += '</table></div>';
 
 						if (resp.pages > 1) {
 							html += '<div style="text-align:center;margin-top:10px;">';

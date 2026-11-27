@@ -961,6 +961,29 @@ $(window).on('load', function() {
     }, 500);
   });
 
+  // Phones have no hover: long-press the Like button (~0.45s) to open reactions; a quick tap still likes
+  var bcPressTimer = null, bcPressOpened = false;
+  $('body').on('touchstart', '.wo-reaction-post', function () {
+    var id = $(this).attr('data-id');
+    bcPressOpened = false;
+    clearTimeout(bcPressTimer);
+    bcPressTimer = setTimeout(function () {
+      bcPressOpened = true;
+      $('.reactions-box-container-' + id).stop(true).css({display: 'flex', opacity: 1});
+      if (navigator.vibrate) { navigator.vibrate(12); }
+    }, 450);
+  });
+  $('body').on('touchmove touchcancel', '.wo-reaction-post', function () { clearTimeout(bcPressTimer); });
+  $('body').on('touchend', '.wo-reaction-post', function (e) {
+    clearTimeout(bcPressTimer);
+    if (bcPressOpened) { e.preventDefault(); bcPressOpened = false; }
+  });
+  $(document).on('touchstart', function (e) {
+    if (!$(e.target).closest('.reactions-box, .wo-reaction-post').length) {
+      $('[class*="reactions-box-container-"]:visible').fadeOut(50);
+    }
+  });
+
   $('body').delegate('.like-btn-post','click', function() {
     if ($( this ).attr( 'data_react' ) == 0) {
       return false;

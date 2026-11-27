@@ -44,8 +44,15 @@ if ($f == 'register') {
         setcookie('user_id', '', -1, '/');
     }
     if ($wo['config']['auto_username'] == 1) {
-        $_POST['username'] = time() . rand(111111, 999999);
-        if (empty($_POST['first_name']) || empty($_POST['last_name'])) {
+        // Readable username from the name (made unique with the user id after signup)
+        $bc_base = strtolower(preg_replace('/[^A-Za-z0-9]/', '', ($_POST['first_name'] ?? '') . ($_POST['last_name'] ?? '')));
+        $bc_base = substr($bc_base, 0, 15);
+        if (strlen($bc_base) < 3) {
+            $bc_base = 'user';
+        }
+        $_POST['bc_username_base'] = $bc_base;
+        $_POST['username'] = $bc_base . rand(100000, 999999);
+        if (empty($_POST['first_name'])) {
             $errors = $error_icon . $wo['lang']['first_name_last_name_empty'];
             header("Content-type: application/json");
             echo json_encode(array(
@@ -102,6 +109,10 @@ if ($f == 'register') {
         }
     }
 
+    // The form has a show-password toggle instead of a second password box
+    if (empty($_POST['confirm_password']) && !empty($_POST['password'])) {
+        $_POST['confirm_password'] = $_POST['password'];
+    }
     if (empty($_POST['username']) || empty($_POST['password']) || empty($_POST['confirm_password']) || empty($_POST['gender'])) {
         $errors = $error_icon . $wo['lang']['please_check_details'];
     } else {
@@ -386,7 +397,7 @@ if ($f == 'register') {
             // Post-registration setup (auto-follow, auto-like, etc.)
             $wo['user'] = Wo_UserData($r_id);
             if ($wo['config']['auto_username'] == 1) {
-                $_POST['username'] = $_POST['username'] . "_" . $r_id;
+                $_POST['username'] = (!empty($_POST['bc_username_base']) ? $_POST['bc_username_base'] : $_POST['username']) . "_" . $r_id;
                 $db->where('user_id', $r_id)->update(T_USERS, array('username' => $_POST['username']));
                 cache($r_id, 'users', 'delete');
             }
