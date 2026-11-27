@@ -430,16 +430,22 @@ function Wo_McHealthCheck($cid) {
         FROM (SELECT status, deferrals FROM " . T_MAIL_QUEUE . " WHERE campaign_id = {$cid} AND status IN ('sent','bounced','failed')
               ORDER BY sent_at DESC LIMIT 100) t"));
     $n = intval($r['n']);
-    if ($n < 20) {
+    $bad = intval($r['b']) + intval($r['f']);
+    if ($n < 50) {
+        // Small sample: one stray bounce is noise; only stop on a clear problem.
+        if ($bad >= 3) {
+            Wo_McSetStatus($cid, 'paused', sprintf('Auto-paused: %d bounces/failures in the first %d emails', $bad, $n));
+            return false;
+        }
         return true;
     }
-    $bounce = (intval($r['b']) + intval($r['f'])) / $n;
+    $bounce = $bad / $n;
     $defer  = intval($r['d']) / $n;
-    if ($bounce > 0.02) {
+    if ($bounce > 0.02 && $bad >= 3) {
         Wo_McSetStatus($cid, 'paused', sprintf('Auto-paused: %.1f%% bounces/failures in the last %d emails', $bounce * 100, $n));
         return false;
     }
-    if ($defer > 0.05) {
+    if ($defer > 0.05 && intval($r['d']) >= 3) {
         Wo_McSetStatus($cid, 'paused', sprintf('Auto-paused: %.1f%% delayed by the receiving server (rate-limited) in the last %d emails', $defer * 100, $n));
         return false;
     }

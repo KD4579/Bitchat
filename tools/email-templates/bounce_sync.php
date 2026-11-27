@@ -84,7 +84,11 @@ foreach ($files as $f) {
                 $db->query("UPDATE Wo_Mail_Campaign_Queue SET status = 'bounced', error = '{$d}'
                             WHERE email = '{$e}' AND status = 'sent' ORDER BY sent_at DESC LIMIT 1");
             }
-        } elseif ($flag === '==' && isset($campaign_ids[$msgid])) {
+        } elseif ($flag === '==' && isset($campaign_ids[$msgid])
+                  // Only real rate/reputation throttling counts; skip mailbox-full (4.2.2)
+                  // and exim's local "retry time not reached" re-queue lines.
+                  && strpos($rest, 'retry time not reached') === false
+                  && preg_match('/\b421\b|\b4\.7\.\d+|rate limit|unusual rate|too many/i', $rest)) {
             $db->query("UPDATE Wo_Mail_Campaign_Queue SET deferrals = deferrals + 1, error = '{$d}'
                         WHERE email = '{$e}' AND status = 'sent' ORDER BY sent_at DESC LIMIT 1");
             $soft++;
