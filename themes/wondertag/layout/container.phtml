@@ -362,6 +362,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 
 						// IP geolocation fallback — no browser permission needed
 						function bc_use_ip_geo() {
+							if (!BC_LOC_PAGE) { return; }
 							fetch('https://ip-api.com/json/?fields=lat,lon,status')
 								.then(function(r) { return r.json(); })
 								.then(function(d) {
@@ -387,8 +388,11 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 							);
 						}
 
-						// Show the Bitchat permission modal
+						// Show the Bitchat permission modal — only on pages that actually use location,
+						// so it never covers the feed, chat or wallet.
+						var BC_LOC_PAGE = <?php echo in_array($wo['page'], array('friends_nearby', 'nearby_shops', 'nearby_business')) ? 'true' : 'false'; ?>;
 						function bc_show_modal() {
+							if (!BC_LOC_PAGE) { return; }
 							if (!window.bc_modal_shown_this_load) {
 								window.bc_modal_shown_this_load = true;
 								$('#bc-location-modal').modal('show');

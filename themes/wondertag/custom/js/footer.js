@@ -342,7 +342,7 @@ if (marketStrip) {
 /* ---- Part 3: Install App Popup ---- */
 /* Shows for 5s, hides, repeats every 5min, max 5 times.
    If user clicks Install or X → never shows again until logout.
-   Uses sessionStorage (clears on logout/tab close).
+   Uses localStorage (clears on logout/tab close).
    Random bg + font color from 15 presets each appearance.
    Also captures beforeinstallprompt for native PWA install.
    SKIPPED entirely when running inside the Bitchat Android app. */
@@ -389,14 +389,15 @@ document.addEventListener('DOMContentLoaded', function() {
         return colorPairs[idx];
     }
 
-    /* sessionStorage key — clears on logout (session end) */
+    /* localStorage key — clears on logout (session end) */
     var KEY = 'bc_install_v2';
-    var COUNT_KEY = 'bc_install_v2_count';
+    /* At most one appearance per day; dismiss/install hides it for good (localStorage). */
+    var COUNT_KEY = 'bc_install_v2_count_' + new Date().toISOString().slice(0, 10);
 
-    if (sessionStorage.getItem(KEY)) return;
+    if (localStorage.getItem(KEY)) return;
 
-    var showCount = parseInt(sessionStorage.getItem(COUNT_KEY) || '0', 10);
-    var MAX_SHOWS = 5;
+    var showCount = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10);
+    var MAX_SHOWS = 1;
     var SHOW_DURATION = 5000;   /* 5 seconds visible */
     var INTERVAL = 300000;      /* 5 minutes between shows */
     var hideTimer = null;
@@ -412,11 +413,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showPopup() {
-        if (sessionStorage.getItem(KEY)) return;
+        if (localStorage.getItem(KEY)) return;
         if (showCount >= MAX_SHOWS) return;
 
         showCount++;
-        sessionStorage.setItem(COUNT_KEY, String(showCount));
+        localStorage.setItem(COUNT_KEY, String(showCount));
 
         applyColors();
         popup.style.display = 'flex';
@@ -431,14 +432,14 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() { popup.style.display = 'none'; }, 300);
 
             /* Schedule next show if under max */
-            if (showCount < MAX_SHOWS && !sessionStorage.getItem(KEY)) {
+            if (showCount < MAX_SHOWS && !localStorage.getItem(KEY)) {
                 setTimeout(showPopup, INTERVAL);
             }
         }, 300 + SHOW_DURATION);
     }
 
     function dismiss() {
-        sessionStorage.setItem(KEY, '1');
+        localStorage.setItem(KEY, '1');
         if (hideTimer) clearTimeout(hideTimer);
         popup.classList.remove('bc-install-visible');
         setTimeout(function() { popup.style.display = 'none'; }, 300);
