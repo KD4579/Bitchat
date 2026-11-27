@@ -1415,6 +1415,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			<script>
 				window.addEventListener("load", function(){
 					if (navigator.userAgent.indexOf('BitchatApp') !== -1) return;
+					if (!window.cookieconsent) return; // library ships in script.js, which welcome/register pages don't load
 					window.cookieconsent.initialise({
 						"theme": "classic",
 						"content": {
