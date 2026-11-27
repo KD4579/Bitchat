@@ -524,6 +524,12 @@ function loadposts() {
 }
   <?php if ($wo['user']['social_login'] == 1) { ?>
   $(window).on("load", function (e) {
+       // Ask at most once a week instead of on every feed load
+       try {
+         var last = parseInt(localStorage.getItem('bc_create_pw_asked') || '0', 10);
+         if (Date.now() - last < 7 * 86400000) { return; }
+         localStorage.setItem('bc_create_pw_asked', String(Date.now()));
+       } catch (err) {}
        $('#create-password').modal('show');
     });
   $(function() {

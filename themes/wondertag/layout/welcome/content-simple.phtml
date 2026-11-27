@@ -111,23 +111,25 @@
 							<p class="title"><?php echo $wo['lang']['welcome_']?></p>
 							<div class="errors"></div>
 							<label class="tag_field">
-								<input name="username" type="text" autocomplete="off" placeholder=" " autofocus required>
+								<input name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder=" " required>
 								<span>Email or Phone Number</span>
 							</label>
 							<label class="tag_field">
-								<input name="password" type="password" autocomplete="off" placeholder=" " required>
+								<input name="password" type="password" autocomplete="current-password" placeholder=" " required>
 								<span><?php echo $wo['lang']['password']?></span>
 								<button type="button" class="bc-pw-toggle" onclick="bcTogglePw(this)" tabindex="-1" aria-label="Toggle password visibility"><svg class="bc-eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="bc-eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
 							</label>
 
-							<?php if ($wo['config']['remember_device'] == 1) { ?>
-							
 							<div class="remember-forgot-wrap">
+							<?php if ($wo['config']['remember_device'] == 1) { ?>
                                 <label class="remember-label">
                                     <input type="checkbox" name="remember_device" id="remember_device"
                                            <?php echo ($wo['config']['remember_device'] == 1 ? 'checked' : ''); ?>>
                                     <?php echo $wo['lang']['remember_device']; ?>
                                 </label>
+							<?php } else { ?>
+                                <span></span>
+							<?php } ?>
                             
                                 <a href="<?php echo Wo_SeoLink('index.php?link1=forgot-password'); ?>"
                                    title="<?php echo $wo['lang']['forget_password']; ?>"
@@ -136,9 +138,6 @@
                                    <?php echo $wo['lang']['forget_password']; ?>
                                 </a>
                             </div>
-
-
-							<?php } ?>
 							
 							<button type="submit" class="btn btn-main btn-mat disable_btn tag_wel_btn"><?php echo $wo['lang']['login']?></button>
 							<?php if(!empty( $_GET['last_url'])){?>
@@ -274,10 +273,12 @@ window.onload = function () {
       client_id: "<?php echo $wo['config']['googleAppId']?>",
       callback: handleCredentialResponse
     });
-    google.accounts.id.renderButton(
-      document.getElementById("buttonDiv"),
-      { theme: "outline", size: "large" }
-    );
+    var gBox = document.getElementById("buttonDiv");
+    var gW = Math.max(200, Math.min(400, Math.round((gBox.parentElement || gBox).getBoundingClientRect().width) || 320));
+    google.accounts.id.renderButton(gBox, {
+      theme: (window.bcIsDark && bcIsDark()) ? "filled_black" : "outline",
+      size: "large", text: "continue_with", shape: "rectangular", width: gW
+    });
     google.accounts.id.prompt();
   }
 };
