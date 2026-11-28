@@ -1126,3 +1126,31 @@ html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc { color: var(--bcx-text-3) !impo
     border: 0 !important;
   }
 }
+/* Sidebar footer: tidy wrapped links (the text bullets were colliding on narrow columns) */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_links {
+  font-size: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  line-height: 1.5 !important;
+  padding: 6px 0 14px !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_links > a,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_links > span {
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
+  color: var(--bcx-text-3) !important;
+  text-decoration: none !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_links > a:hover { color: var(--bcx-accent) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_cright { color: var(--bcx-text-3) !important; font-size: 12.5px !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc { border: 0 !important; background: transparent !important; }
+/* Section headings: no grey box (base hover pseudo-element / legacy tint) */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_section_prnt,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_head { background: transparent !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_head:before { opacity: 0 !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_section_prnt { border-color: var(--bcx-line) !important; }
+/* Widget header links (e.g. "Want To Be Here ?") */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_widget a,
+html.bcx:not(#_bcx1):not(#_bcx2) .wo_page_hdng a { color: var(--bcx-accent) !important; text-decoration: none !important; font-weight: 600 !important; }
