@@ -1154,3 +1154,27 @@ html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_section_prnt { border-color: var(-
 /* Widget header links (e.g. "Want To Be Here ?") */
 html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_widget a,
 html.bcx:not(#_bcx1):not(#_bcx2) .wo_page_hdng a { color: var(--bcx-accent) !important; text-decoration: none !important; font-weight: 600 !important; }
+/* Empty notification popup was a 2px card = a stray line across the page */
+html.bcx:not(#_bcx1):not(#_bcx2) #notification-popup:not(:has(*)),
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_pop_noti:not(:has(*)) { display: none !important; }
+/* Narrow right column (992-1199px): keep the Pro widget readable */
+@media (max-width: 1199px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_go_pro_user img { display: none !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_go_pro_user p { padding-right: 0 !important; max-width: 100% !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .featured-users-hdr,
+  html.bcx:not(#_bcx1):not(#_bcx2) .rightcol .wo_page_hdng { font-size: 14px !important; }
+}
+/* Page titles keep a gutter on phones (Groups, Pages, etc.) */
+@media (max-width: 768px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_page_title,
+  html.bcx:not(#_bcx1):not(#_bcx2) .page-margin > h2,
+  html.bcx:not(#_bcx1):not(#_bcx2) .container > h2 { padding-left: 16px !important; padding-right: 16px !important; }
+}
+/* Messages page matches the rest of the app */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_messages,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_messages .wow_content,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_message_innr { background: var(--bcx-page) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_messages .tag_msg_user_list,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_messages .tag_msg_user_chat { background: var(--bcx-card) !important; }
+/* Welcome footer lines never collide */
+html.bcx:not(#_bcx1):not(#_bcx2) .welcome-footer { line-height: 1.9 !important; }
