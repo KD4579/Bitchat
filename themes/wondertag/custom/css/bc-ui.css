@@ -1,0 +1,536 @@
+/* ==========================================================================
+   Bitchat UI (bc-ui.css) — unified design layer
+   Every rule is scoped to html.bcx so the site is unchanged unless the new
+   design is switched on (?newui=1 cookie, or Wo_Config bc_new_ui = 1).
+   Loaded last, after custom/css/style.css.
+   Brand: logo gradient #ff7a2f → #e8336e → #8b3fd9, accent pink #e8336e.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Tokens
+   -------------------------------------------------------------------------- */
+html.bcx {
+  --bcx-grad: linear-gradient(135deg, #ff7a2f 0%, #e8336e 52%, #8b3fd9 100%);
+  --bcx-grad-soft: linear-gradient(135deg, rgba(255,122,47,.12), rgba(232,51,110,.12) 52%, rgba(139,63,217,.12));
+  --bcx-accent: #e8336e;
+  --bcx-accent-strong: #d81b60;
+  --bcx-accent-2: #8b3fd9;
+  --bcx-accent-soft: rgba(232, 51, 110, .10);
+  --bcx-ring: 0 0 0 4px rgba(232, 51, 110, .16);
+  --bcx-success: #16a34a;
+  --bcx-warning: #f59e0b;
+  --bcx-danger: #ef4444;
+  --bcx-verified: #1d9bf0;
+
+  --bcx-page: #f6f7fb;
+  --bcx-card: #ffffff;
+  --bcx-raised: #ffffff;
+  --bcx-sunken: #f1f3f8;
+  --bcx-line: rgba(15, 23, 42, .08);
+  --bcx-line-strong: rgba(15, 23, 42, .14);
+  --bcx-text: #0f172a;
+  --bcx-text-2: #475569;
+  --bcx-text-3: #8a94a6;
+  --bcx-glass: rgba(255, 255, 255, .82);
+
+  --bcx-r-sm: 10px;
+  --bcx-r-md: 14px;
+  --bcx-r-lg: 18px;
+  --bcx-r-xl: 24px;
+  --bcx-r-pill: 999px;
+  --bcx-sh-sm: 0 1px 2px rgba(15, 23, 42, .05), 0 1px 1px rgba(15, 23, 42, .03);
+  --bcx-sh-md: 0 6px 18px rgba(15, 23, 42, .07), 0 2px 4px rgba(15, 23, 42, .04);
+  --bcx-sh-lg: 0 18px 48px rgba(15, 23, 42, .14), 0 4px 10px rgba(15, 23, 42, .06);
+  --bcx-sh-brand: 0 10px 24px rgba(232, 51, 110, .28);
+  --bcx-ease: cubic-bezier(.2, .8, .2, 1);
+
+  /* Legacy variables follow the new tokens so older CSS recolours itself */
+  --main: #e8336e;
+  --main-hover: #d81b60;
+  --main-color: #ffffff;
+  --main-hover-color: #ffffff;
+  --body-bg: var(--bcx-page);
+  --bc-primary: #e8336e;
+  --bc-primary-hover: #d81b60;
+  --bc-primary-light: #f25c8c;
+  --bc-accent: #8b3fd9;
+  --bc-bg: var(--bcx-page);
+  --bc-card: var(--bcx-card);
+  --bc-surface-primary: var(--bcx-card);
+  --bc-surface-secondary: var(--bcx-sunken);
+  --bc-surface-hover: var(--bcx-sunken);
+  --bc-text-primary: var(--bcx-text);
+  --bc-text-secondary: var(--bcx-text-2);
+  --bc-text-tertiary: var(--bcx-text-3);
+  --bc-border-color: var(--bcx-line);
+  --header-background: var(--bcx-glass);
+  --header-color: var(--bcx-text);
+  --header-hover-color: var(--bcx-accent);
+  --header-search-color: var(--bcx-sunken);
+  --plyr-color-main: #e8336e;
+}
+html.bcx.bc-dark-mode {
+  --bcx-page: #0f1115;
+  --bcx-card: #171a21;
+  --bcx-raised: #1e222b;
+  --bcx-sunken: #1b1f27;
+  --bcx-line: rgba(255, 255, 255, .08);
+  --bcx-line-strong: rgba(255, 255, 255, .14);
+  --bcx-text: #e8eaf0;
+  --bcx-text-2: #a3a9b7;
+  --bcx-text-3: #6f7686;
+  --bcx-glass: rgba(18, 20, 26, .78);
+  --bcx-accent-soft: rgba(232, 51, 110, .16);
+  --bcx-sh-sm: 0 1px 2px rgba(0, 0, 0, .4);
+  --bcx-sh-md: 0 8px 22px rgba(0, 0, 0, .35);
+  --bcx-sh-lg: 0 20px 50px rgba(0, 0, 0, .55);
+}
+
+/* --------------------------------------------------------------------------
+   2. Foundations
+   -------------------------------------------------------------------------- */
+html.bcx,
+html.bcx body {
+  background: var(--bcx-page) !important;
+  color: var(--bcx-text);
+}
+html.bcx body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+html.bcx a { color: inherit; }
+html.bcx a:hover { color: var(--bcx-accent); }
+html.bcx ::selection { background: rgba(232, 51, 110, .22); }
+html.bcx :focus-visible { outline: 2px solid var(--bcx-accent) !important; outline-offset: 2px; }
+
+/* Primary buttons: gradient pill */
+html.bcx .btn-main,
+html.bcx .btn.btn-main,
+html.bcx .bc-btn-primary,
+html.bcx .bc-hero-cta {
+  background: var(--bcx-grad) !important;
+  background-size: 140% 140% !important;
+  background-position: 0% 50% !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-radius: var(--bcx-r-pill) !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em;
+  box-shadow: var(--bcx-sh-brand) !important;
+  transition: background-position .35s var(--bcx-ease), transform .15s var(--bcx-ease), box-shadow .2s var(--bcx-ease) !important;
+}
+html.bcx .btn-main:hover,
+html.bcx .bc-btn-primary:hover {
+  background-position: 100% 50% !important;
+  color: #fff !important;
+}
+html.bcx .btn-main:active,
+html.bcx .bc-btn-primary:active { transform: scale(.97); }
+html.bcx .btn-main[disabled],
+html.bcx .btn-main.disabled {
+  opacity: .55 !important;
+  box-shadow: none !important;
+}
+/* Secondary buttons: quiet tonal pill */
+html.bcx .btn-default,
+html.bcx .btn.btn-default {
+  background: var(--bcx-sunken) !important;
+  color: var(--bcx-text) !important;
+  border: 1px solid var(--bcx-line) !important;
+  border-radius: var(--bcx-r-pill) !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+html.bcx .btn-default:hover { background: var(--bcx-accent-soft) !important; color: var(--bcx-accent) !important; }
+
+/* Inputs */
+html.bcx .form-control,
+html.bcx input[type="text"],
+html.bcx input[type="email"],
+html.bcx input[type="password"],
+html.bcx input[type="search"],
+html.bcx input[type="tel"],
+html.bcx input[type="number"],
+html.bcx input[type="url"],
+html.bcx select,
+html.bcx textarea:not(.postText) {
+  background-color: var(--bcx-sunken) !important;
+  color: var(--bcx-text) !important;
+  border: 1.5px solid transparent !important;
+  border-radius: var(--bcx-r-md) !important;
+  box-shadow: none !important;
+  transition: border-color .15s, box-shadow .15s, background-color .15s !important;
+}
+html.bcx .form-control:focus,
+html.bcx input:focus,
+html.bcx select:focus,
+html.bcx textarea:focus {
+  border-color: var(--bcx-accent) !important;
+  background-color: var(--bcx-card) !important;
+  box-shadow: var(--bcx-ring) !important;
+  outline: none !important;
+}
+html.bcx ::placeholder { color: var(--bcx-text-3) !important; opacity: 1; }
+
+/* Cards: one surface, no double outlines */
+html.bcx .wow_content,
+html.bcx .post .panel,
+html.bcx .post-container .panel,
+html.bcx .tag_sidebar_widget,
+html.bcx .wow_sett_content {
+  background: var(--bcx-card) !important;
+  border: 1px solid var(--bcx-line) !important;
+  border-radius: var(--bcx-r-lg) !important;
+  box-shadow: var(--bcx-sh-sm) !important;
+}
+html.bcx.bc-dark-mode .wow_content,
+html.bcx.bc-dark-mode .post .panel,
+html.bcx.bc-dark-mode .post-container .panel,
+html.bcx.bc-dark-mode .tag_sidebar_widget,
+html.bcx.bc-dark-mode .wow_sett_content {
+  border-color: transparent !important;
+}
+html.bcx .wow_content .wow_content { box-shadow: none !important; border-color: var(--bcx-line) !important; }
+html.bcx .post .panel:hover { transform: none !important; box-shadow: var(--bcx-sh-md) !important; }
+
+/* Dropdowns & modals */
+html.bcx .dropdown-menu {
+  background: var(--bcx-raised) !important;
+  border: 1px solid var(--bcx-line) !important;
+  border-radius: var(--bcx-r-lg) !important;
+  box-shadow: var(--bcx-sh-lg) !important;
+  padding: 6px !important;
+}
+html.bcx .dropdown-menu > li > a,
+html.bcx .dropdown-menu .dropdown-item {
+  border-radius: var(--bcx-r-sm) !important;
+  color: var(--bcx-text) !important;
+}
+html.bcx .dropdown-menu > li > a:hover,
+html.bcx .dropdown-menu .dropdown-item:hover {
+  background: var(--bcx-accent-soft) !important;
+  color: var(--bcx-accent) !important;
+}
+html.bcx .modal-content {
+  background: var(--bcx-raised) !important;
+  color: var(--bcx-text);
+  border: 0 !important;
+  border-radius: var(--bcx-r-xl) !important;
+  box-shadow: var(--bcx-sh-lg) !important;
+}
+html.bcx .modal-backdrop.in,
+html.bcx .modal-backdrop.show { opacity: .55 !important; background: #0b0d12 !important; }
+@media (max-width: 540px) {
+  /* style.css forces min-height:100vh on these at <=480px, which defeated the bottom sheet */
+  html.bcx .modal:not(#tagPostBox) .modal-dialog.wow_mat_mdl .modal-content {
+    min-height: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+  }
+  html.bcx .modal:not(#tagPostBox) .modal-dialog.wow_mat_mdl .modal-content::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--bcx-line-strong);
+    margin: 8px auto 0;
+  }
+}
+
+/* Verified badge stays blue everywhere */
+html.bcx .verified-color { color: var(--bcx-verified) !important; }
+html.bcx .verified-color svg path:first-child { fill: var(--bcx-verified) !important; }
+
+/* Skeleton loaders */
+html.bcx .bc-skel-card { background: var(--bcx-card) !important; border-radius: var(--bcx-r-lg) !important; }
+html.bcx .bc-skel-line,
+html.bcx .bc-skel-avatar,
+html.bcx .bc-skel-image,
+html.bcx .bc-skel-action { background: var(--bcx-sunken) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.bcx *, html.bcx *::before, html.bcx *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Logged-out pages (login, register, forgot/reset, SMS confirm)
+   Brand gradient band behind the header + hero; the auth card floats over it.
+   -------------------------------------------------------------------------- */
+html.bcx body.bc-welcome { background: var(--bcx-page) !important; }
+html.bcx .tag_welcome {
+  position: relative;
+  min-height: 100vh !important;
+  height: auto !important;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(139, 63, 217, .55) 0%, rgba(139, 63, 217, 0) 60%),
+    radial-gradient(90% 70% at 0% 0%, rgba(255, 122, 47, .55) 0%, rgba(255, 122, 47, 0) 55%),
+    linear-gradient(160deg, #ff6a3d 0%, #e8336e 45%, #8b3fd9 100%) top / 100% 380px no-repeat,
+    var(--bcx-page) !important;
+  overflow: hidden;
+}
+html.bcx.bc-dark-mode .tag_welcome {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(139, 63, 217, .45) 0%, rgba(139, 63, 217, 0) 60%),
+    linear-gradient(160deg, #b8452a 0%, #a82457 45%, #5c2a96 100%) top / 100% 380px no-repeat,
+    var(--bcx-page) !important;
+}
+/* Old decorative blobs and the compact hero line are replaced by .bcx-hero */
+html.bcx .tag_auth_effect,
+html.bcx .tag_auth_effect_bottom,
+html.bcx .tag_welcome .tag_wel_row > div:first-child { display: none !important; }
+
+/* Header on the gradient: white logo pill + glass buttons */
+html.bcx .tag_wel_upper { position: relative; z-index: 3; }
+html.bcx .tag_wel_upper .navbar-default,
+html.bcx .tag_welcome .navbar-default {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html.bcx .tag_welcome .navbar-default .logo img,
+html.bcx .tag_wel_upper .logo img {
+  background: #fff;
+  border-radius: 14px;
+  padding: 6px 10px;
+  height: 46px !important;
+  width: auto !important;
+  max-height: 46px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
+}
+html.bcx .tag_wel_upper .btn,
+html.bcx .tag_wel_upper .btn-main {
+  background: rgba(255, 255, 255, .18) !important;
+  border: 1px solid rgba(255, 255, 255, .45) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+html.bcx .tag_wel_upper .bc-theme-toggle {
+  color: #fff !important;
+  background: rgba(255, 255, 255, .18) !important;
+  border-radius: 50%;
+}
+
+/* Hero */
+html.bcx .bcx-hero {
+  position: relative;
+  color: #fff;
+  padding: 6px 4px 22px;
+  z-index: 2;
+}
+html.bcx .bcx-hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: .45;
+  pointer-events: none;
+}
+html.bcx .bcx-hero-glow-1 { width: 220px; height: 220px; background: #ffd166; top: -60px; right: -40px; }
+html.bcx .bcx-hero-glow-2 { width: 180px; height: 180px; background: #7c3aed; bottom: -40px; left: -60px; }
+html.bcx .bcx-hero-inner { position: relative; }
+html.bcx .bcx-hero-kicker {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: var(--bcx-r-pill);
+  background: rgba(255, 255, 255, .18);
+  border: 1px solid rgba(255, 255, 255, .35);
+}
+html.bcx .bcx-hero-title {
+  font-size: 34px !important;
+  line-height: 1.08 !important;
+  font-weight: 800 !important;
+  letter-spacing: -.03em !important;
+  margin: 14px 0 8px !important;
+  color: #fff !important;
+}
+html.bcx .bcx-hero-title span {
+  background: linear-gradient(90deg, #fff3c4, #ffffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+html.bcx .bcx-hero-sub {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  color: rgba(255, 255, 255, .92) !important;
+  margin: 0 0 14px !important;
+  max-width: 460px;
+}
+html.bcx .bcx-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+html.bcx .bcx-hero-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: var(--bcx-r-pill);
+  background: rgba(255, 255, 255, .16);
+  border: 1px solid rgba(255, 255, 255, .3);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Layout of the middle area */
+html.bcx .tag_welcome .tag_wel_middle { position: relative; z-index: 2; padding-bottom: 28px; }
+html.bcx .tag_welcome .tag_wel_middle > .container {
+  max-width: 480px !important;
+  width: 100% !important;
+  padding: 0 16px !important;
+}
+html.bcx .tag_welcome .tag_wel_row {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+html.bcx .tag_welcome .tag_wel_row > div:last-child {
+  max-width: 100% !important;
+  width: 100% !important;
+  flex: none !important;
+  padding: 0 !important;
+}
+
+/* Auth card */
+html.bcx .tag_welcome .tag_auth_box {
+  position: relative;
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 26px 22px 22px !important;
+  background: var(--bcx-card) !important;
+  border: 1px solid var(--bcx-line) !important;
+  border-radius: var(--bcx-r-xl) !important;
+  box-shadow: var(--bcx-sh-lg) !important;
+}
+html.bcx.bc-dark-mode .tag_welcome .tag_auth_box { border-color: rgba(255, 255, 255, .06) !important; }
+html.bcx .tag_welcome .tag_auth_box .title {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.02em;
+  color: var(--bcx-text) !important;
+  margin: 0 0 16px !important;
+}
+html.bcx .tag_welcome .tag_field { margin-bottom: 14px !important; }
+html.bcx .tag_welcome .tag_field input,
+html.bcx .tag_welcome .tag_field select {
+  height: 54px !important;
+  padding: 22px 14px 6px !important;
+}
+html.bcx .tag_welcome .tag_field span { color: var(--bcx-text-3) !important; }
+html.bcx .tag_welcome .tag_wel_btn,
+html.bcx .tag_welcome form .btn-main {
+  width: 100% !important;
+  height: 52px !important;
+  font-size: 16px !important;
+  margin-top: 4px;
+}
+html.bcx .tag_welcome .remember-forgot-wrap { margin: 2px 0 16px !important; }
+html.bcx .tag_welcome .forgot-link {
+  color: var(--bcx-accent) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+html.bcx .tag_welcome .remember-label { color: var(--bcx-text-2) !important; }
+
+/* Divider + social */
+html.bcx .tag_welcome .bc-or-divider,
+html.bcx .tag_welcome .tag_auth_box .or { color: var(--bcx-text-3) !important; }
+html.bcx .tag_welcome .social_btns { gap: 10px !important; justify-content: center; }
+html.bcx .tag_welcome .social_btns .btn {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: var(--bcx-r-md) !important;
+  background: var(--bcx-sunken) !important;
+  border: 1px solid var(--bcx-line) !important;
+  box-shadow: none !important;
+}
+html.bcx .tag_welcome .bc-google-fallback-btn,
+html.bcx .tag_welcome .bc-google-signup {
+  min-height: 50px !important;
+  border-radius: var(--bcx-r-pill) !important;
+  background: var(--bcx-card) !important;
+  color: var(--bcx-text) !important;
+  border: 1.5px solid var(--bcx-line-strong) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+html.bcx .tag_welcome #bc-wallet-btn {
+  min-height: 48px;
+  border-radius: var(--bcx-r-pill) !important;
+  background: var(--bcx-sunken) !important;
+  color: var(--bcx-text) !important;
+  border: 1px solid var(--bcx-line) !important;
+}
+html.bcx .tag_welcome .bc-wallet-hint { color: var(--bcx-text-3) !important; }
+/* Sign-up method tabs (inline <style> in register.phtml) */
+html.bcx .tag_welcome .bc-signup-tabs {
+  border: 0 !important;
+  background: var(--bcx-sunken) !important;
+  border-radius: var(--bcx-r-pill) !important;
+  padding: 4px !important;
+}
+html.bcx .tag_welcome .bc-signup-tab { border-radius: var(--bcx-r-pill) !important; }
+html.bcx .tag_welcome .bc-signup-tab.active { background: var(--bcx-card) !important; color: var(--bcx-text) !important; box-shadow: var(--bcx-sh-sm); }
+html.bcx .tag_welcome .bc-signup-tab:not(.active) { color: var(--bcx-text-2) !important; }
+html.bcx .tag_welcome #country_code { background: var(--bcx-sunken) !important; color: var(--bcx-text) !important; border: 0 !important; }
+html.bcx .tag_welcome .tag_wel_register {
+  color: var(--bcx-text-2) !important;
+  text-align: center !important;
+  margin: 18px auto 0 !important;
+}
+html.bcx .tag_welcome .tag_wel_register a.btn-main {
+  height: auto !important;
+  width: auto !important;
+  padding: 9px 22px !important;
+  font-size: 15px !important;
+}
+/* Footer */
+html.bcx .tag_welcome .tag_wel_bottom { position: relative; z-index: 2; }
+html.bcx .tag_welcome .welcome-footer,
+html.bcx .tag_welcome .welcome-footer a { color: var(--bcx-text-3) !important; font-size: 13px !important; }
+html.bcx .tag_welcome .welcome-footer a:hover { color: var(--bcx-accent) !important; }
+
+/* Desktop: hero left, card right on a full gradient background */
+@media (min-width: 992px) {
+  html.bcx .tag_welcome {
+    background:
+      radial-gradient(60% 70% at 85% 10%, rgba(139, 63, 217, .6) 0%, rgba(139, 63, 217, 0) 60%),
+      radial-gradient(50% 60% at 10% 90%, rgba(255, 122, 47, .5) 0%, rgba(255, 122, 47, 0) 60%),
+      linear-gradient(135deg, #ff6a3d 0%, #e8336e 48%, #8b3fd9 100%) !important;
+  }
+  html.bcx.bc-dark-mode .tag_welcome {
+    background:
+      radial-gradient(60% 70% at 85% 10%, rgba(92, 42, 150, .7) 0%, rgba(92, 42, 150, 0) 60%),
+      linear-gradient(135deg, #7d2f1f 0%, #7a1c41 48%, #3f1f6b 100%) !important;
+  }
+  html.bcx .tag_welcome .tag_wel_middle > .container {
+    max-width: 1120px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    gap: 64px;
+    align-items: center;
+    min-height: calc(100vh - 170px);
+  }
+  html.bcx .bcx-hero { padding: 0; }
+  html.bcx .bcx-hero-title { font-size: 58px !important; }
+  html.bcx .bcx-hero-sub { font-size: 18px !important; max-width: 520px; }
+  html.bcx .bcx-hero-chips li { font-size: 14px; padding: 9px 14px; }
+  html.bcx .tag_welcome .welcome-footer,
+  html.bcx .tag_welcome .welcome-footer a { color: rgba(255, 255, 255, .82) !important; }
+}

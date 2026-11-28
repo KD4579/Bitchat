@@ -375,6 +375,17 @@ if (!empty($_GET["mode"])) {
         $wo["mode_text"] = $wo["lang"]["day_mode"];
     }
 }
+// New design (bc-ui.css) — preview with ?newui=1 (cookie), ?newui=0 to leave; Wo_Config bc_new_ui=1 turns it on for everyone
+if (isset($_GET["newui"])) {
+    if ($_GET["newui"] == "1") {
+        setcookie("bc_newui", "1", time() + 30 * 24 * 60 * 60, "/");
+        $_COOKIE["bc_newui"] = "1";
+    } else {
+        setcookie("bc_newui", "", time() - 3600, "/");
+        unset($_COOKIE["bc_newui"]);
+    }
+}
+$wo["bc_newui"] = ((!empty($_COOKIE["bc_newui"]) && $_COOKIE["bc_newui"] == "1") || (!empty($wo["config"]["bc_new_ui"]) && $wo["config"]["bc_new_ui"] == "1"));
 include_once "assets/includes/onesignal_config.php";
 
 // manage packages

@@ -20,7 +20,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 
 <!DOCTYPE html>
 <?php $bcDarkCookie = (isset($_COOKIE['mode']) && $_COOKIE['mode'] == 'night'); ?>
-<html lang="<?php echo($wo['lang_attr']); ?>"<?php if ($bcDarkCookie) { echo ' class="night-mode bc-dark-mode"'; } ?>>
+<?php $bcHtmlClass = trim(($bcDarkCookie ? 'night-mode bc-dark-mode ' : '') . (!empty($wo['bc_newui']) ? 'bcx' : '')); ?>
+<html lang="<?php echo($wo['lang_attr']); ?>"<?php if ($bcHtmlClass !== '') { echo ' class="' . $bcHtmlClass . '"'; } ?>>
 	<head>
 		<title><?php echo $wo['title'];?></title>
 		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
@@ -646,6 +647,10 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bitchat-design.css<?php echo bc_v('custom/css/bitchat-design.css'); ?>" id="bc-design-css">
 		<!-- Custom UI Overrides (highest priority) -->
 		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/style.css<?php echo bc_v('custom/css/style.css'); ?>">
+		<?php if (!empty($wo['bc_newui'])) { ?>
+		<!-- New Bitchat design layer (scoped to html.bcx) -->
+		<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/custom/css/bc-ui.css<?php echo bc_v('custom/css/bc-ui.css'); ?>" id="bc-ui-css">
+		<?php } ?>
 
 		<?php if($wo['config']['googleLogin'] != 0): ?>
 			<script src="https://accounts.google.com/gsi/client" async defer></script>
