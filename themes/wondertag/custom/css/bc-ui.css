@@ -1056,9 +1056,11 @@ html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
-/* Header bar edge to edge; readable wordmark on phones */
-html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar > .container { padding-left: 0 !important; padding-right: 0 !important; max-width: 100% !important; width: 100% !important; }
-html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header { padding-left: 14px !important; padding-right: 14px !important; width: 100% !important; margin: 0 !important; }
+/* Header bar edge to edge (top-bar layouts only; >=1351px uses the left column) */
+@media (max-width: 1350px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar > .container { padding-left: 0 !important; padding-right: 0 !important; max-width: 100% !important; width: 100% !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header { padding-left: 14px !important; padding-right: 14px !important; width: 100% !important; margin: 0 !important; }
+}
 html.bcx:not(#_bcx1):not(#_bcx2) header .tag_logo_mobi {
   content: url("../../img/email-logo.png");
   height: 28px !important;
@@ -1074,3 +1076,41 @@ html.bcx:not(#_bcx1):not(#_bcx2) header .tag_logo_pc {
   object-fit: contain;
 }
 html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_head { background: transparent !important; border: 0 !important; }
+
+/* --------------------------------------------------------------------------
+   11. Larger screens (tablet landscape, laptop, desktop)
+   -------------------------------------------------------------------------- */
+/* 992-1350px top bar: search stops before the icon group; icons centred in the bar */
+@media (min-width: 992px) and (max-width: 1350px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_header > .search-container { max-width: calc(100vw - 560px) !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_hdr_right { top: 0 !important; height: 56px !important; align-items: center !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header { min-height: 56px !important; align-items: center !important; }
+}
+/* >=1351px left column: logo, icons and search stacked without overlap */
+@media (min-width: 1351px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_hdr_right { top: 62px !important; height: 46px !important; align-items: center !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_header > .search-container { top: 118px !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_header > .search-container .dropdown-menu { top: 166px !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_hdr_right > .dropdown .dropdown-menu { top: 118px !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar { padding-top: 176px !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar .sidebar_innr { border-top: 1px solid var(--bcx-line); }
+}
+/* Avatar button stays round */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_hdr_user_droptoggle,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_hdr_user_droptoggle img { border-radius: 50% !important; aspect-ratio: 1 / 1; object-fit: cover; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_hdr_droptoggle { width: 40px !important; height: 40px !important; min-width: 40px; padding: 0 !important; display: inline-flex !important; align-items: center; justify-content: center; }
+/* Feed hero: buttons keep a comfortable width on wide screens */
+@media (min-width: 600px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) #bc-hero-banner .bc-hero-ctas { flex-direction: row !important; flex-wrap: wrap; gap: 10px !important; }
+  html.bcx:not(#_bcx1):not(#_bcx2) #bc-hero-banner .bc-btn-primary,
+  html.bcx:not(#_bcx1):not(#_bcx2) #bc-hero-banner .bc-btn-ghost { width: auto !important; flex: 0 0 auto !important; padding-left: 22px !important; padding-right: 22px !important; }
+}
+/* Ticker and announcement must not slide under the right icon rail */
+@media (min-width: 992px) and (max-width: 1150px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) #bc-market-strip,
+  html.bcx:not(#_bcx1):not(#_bcx2) .bc-announce-banner { margin-right: 70px !important; }
+}
+/* Sidebar footer links: no overlapping lines */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc a { line-height: 1.9 !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc { color: var(--bcx-text-3) !important; font-size: 12.5px !important; }
