@@ -1050,3 +1050,9 @@ html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header { position: relative; z-inde
     padding-right: 10px !important;
   }
 }
+/* The fixed nav is 0px tall in the side layout; only the inner bar paints */
+html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
