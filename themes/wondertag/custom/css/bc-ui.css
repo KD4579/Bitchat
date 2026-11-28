@@ -272,6 +272,18 @@ html.bcx .tag_welcome {
     var(--bcx-page) !important;
   overflow: hidden;
 }
+/* Soft fade at the bottom of the gradient band (phones) */
+html.bcx .tag_welcome::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 300px;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(246, 247, 251, 0), var(--bcx-page));
+  pointer-events: none;
+  z-index: 1;
+}
+@media (min-width: 992px) { html.bcx .tag_welcome::before { display: none; } }
 html.bcx.bc-dark-mode .tag_welcome {
   background:
     radial-gradient(120% 80% at 100% 0%, rgba(139, 63, 217, .45) 0%, rgba(139, 63, 217, 0) 60%),
@@ -293,6 +305,8 @@ html.bcx .tag_welcome .navbar-default {
 }
 html.bcx .tag_welcome .navbar-default .logo img,
 html.bcx .tag_wel_upper .logo img {
+  content: url("../../img/email-logo.png");
+  object-fit: contain;
   background: #fff;
   border-radius: 14px;
   padding: 6px 10px;
@@ -534,3 +548,19 @@ html.bcx .tag_welcome .welcome-footer a:hover { color: var(--bcx-accent) !import
   html.bcx .tag_welcome .welcome-footer,
   html.bcx .tag_welcome .welcome-footer a { color: rgba(255, 255, 255, .82) !important; }
 }
+
+/* Google's button is an iframe: give it a pill frame so no white corners show */
+html.bcx .tag_welcome #buttonDiv {
+  display: flex !important;
+  justify-content: center;
+  border-radius: var(--bcx-r-pill);
+  overflow: hidden;
+  margin: 4px 0 10px;
+}
+html.bcx .tag_welcome .tag_wel_middle > .container { overflow: visible !important; }
+html.bcx .tag_welcome .bcx-hero { overflow: visible; }
+@media (min-width: 992px) {
+  html.bcx .tag_welcome .tag_wel_register { color: rgba(255, 255, 255, .9) !important; }
+  html.bcx .tag_welcome .tag_wel_register a.btn-main { background: #fff !important; color: var(--bcx-accent) !important; box-shadow: 0 8px 22px rgba(0,0,0,.16) !important; }
+}
+html.bcx.bc-dark-mode .tag_welcome::before { background: linear-gradient(to bottom, rgba(15, 17, 21, 0), var(--bcx-page)); }

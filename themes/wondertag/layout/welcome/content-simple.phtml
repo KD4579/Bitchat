@@ -278,7 +278,7 @@ window.onload = function () {
     var gW = Math.max(200, Math.min(400, Math.round((gBox.parentElement || gBox).getBoundingClientRect().width) || 320));
     google.accounts.id.renderButton(gBox, {
       theme: (window.bcIsDark && bcIsDark()) ? "filled_black" : "outline",
-      size: "large", text: "continue_with", shape: "rectangular", width: gW
+      size: "large", text: "continue_with", shape: (document.documentElement.classList.contains("bcx") ? "pill" : "rectangular"), width: gW
     });
     google.accounts.id.prompt();
   }
