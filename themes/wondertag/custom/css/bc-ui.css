@@ -34,7 +34,7 @@ html.bcx:not(#_bcx1):not(#_bcx2) {
   --bcx-text: #0f172a;
   --bcx-text-2: #475569;
   --bcx-text-3: #8a94a6;
-  --bcx-glass: rgba(255, 255, 255, .82);
+  --bcx-glass: rgba(255, 255, 255, .94);
 
   --bcx-r-sm: 10px;
   --bcx-r-md: 14px;
@@ -82,7 +82,7 @@ html.bcx:not(#_bcx1):not(#_bcx2).bc-dark-mode {
   --bcx-text: #e8eaf0;
   --bcx-text-2: #a3a9b7;
   --bcx-text-3: #6f7686;
-  --bcx-glass: rgba(18, 20, 26, .78);
+  --bcx-glass: rgba(18, 20, 26, .94);
   --bcx-accent-soft: rgba(232, 51, 110, .16);
   --bcx-sh-sm: 0 1px 2px rgba(0, 0, 0, .4);
   --bcx-sh-md: 0 8px 22px rgba(0, 0, 0, .35);
@@ -667,7 +667,7 @@ html.bcx:not(#_bcx1):not(#_bcx2) #bc-mobile-nav .bc-mob-nav-item.active svg { co
 html.bcx:not(#_bcx1):not(#_bcx2) #bc-mobile-nav .bc-mob-nav-item.active::after {
   content: "";
   position: absolute;
-  bottom: 4px;
+  top: 0;
   left: 50%;
   width: 18px;
   height: 3px;
@@ -895,3 +895,145 @@ html.bcx:not(#_bcx1):not(#_bcx2) .reactions-box {
 /* "Starter" rank chip */
 html.bcx:not(#_bcx1):not(#_bcx2) .bc-rank-badge,
 html.bcx:not(#_bcx1):not(#_bcx2) .bc-creator-badge { border-radius: var(--bcx-r-pill) !important; }
+
+/* Story prompt: the inner element carried the old brown gradient image */
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-story-prompt-inner { background: transparent !important; background-image: none !important; border: 0 !important; }
+/* Header logo a little larger on phones */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_header .tag_logo_mobi,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_header .header-brand img { height: 30px !important; max-height: 30px !important; width: auto !important; }
+
+/* --------------------------------------------------------------------------
+   7. Profile
+   -------------------------------------------------------------------------- */
+html.bcx:not(#_bcx1):not(#_bcx2) .user-cover,
+html.bcx:not(#_bcx1):not(#_bcx2) .cardheader.user-cover {
+  border-radius: 0 0 var(--bcx-r-xl) var(--bcx-r-xl) !important;
+  border: 0 !important;
+  overflow: hidden;
+}
+@media (max-width: 768px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) .user-cover { min-height: 150px !important; }
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .user-avatar img,
+html.bcx:not(#_bcx1):not(#_bcx2) .user-avatar .avatar {
+  box-shadow: 0 0 0 4px var(--bcx-card), 0 0 0 6px #e8336e !important;
+  border: 0 !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .profile-container .user-name,
+html.bcx:not(#_bcx1):not(#_bcx2) .profile-container h1,
+html.bcx:not(#_bcx1):not(#_bcx2) .profile-container h2 { color: var(--bcx-text) !important; letter-spacing: -.02em; }
+html.bcx:not(#_bcx1):not(#_bcx2) .user-bottom-nav {
+  background: var(--bcx-card) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--bcx-line) !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .user-bottom-nav ul li a {
+  color: var(--bcx-text-2) !important;
+  font-weight: 600 !important;
+  border: 0 !important;
+  position: relative;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .user-bottom-nav ul li.active a,
+html.bcx:not(#_bcx1):not(#_bcx2) .user-bottom-nav ul li a.active { color: var(--bcx-accent) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .user-bottom-nav ul li.active a::after,
+html.bcx:not(#_bcx1):not(#_bcx2) .user-bottom-nav ul li a.active::after {
+  content: "";
+  position: absolute;
+  left: 14px; right: 14px; bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--bcx-grad);
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .user-bottom-nav ul li a span { background: var(--bcx-sunken) !important; color: var(--bcx-text-2) !important; border-radius: var(--bcx-r-pill) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .profile-completion-bar .hdr h3 { color: var(--bcx-text) !important; }
+
+/* --------------------------------------------------------------------------
+   8. Messages
+   -------------------------------------------------------------------------- */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_messages .wow_content { border-radius: 0 !important; border: 0 !important; box-shadow: none !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_msg_user_list .messages-recipients-list,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_msg_user_list li { border-radius: var(--bcx-r-md) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_msg_user_list li:hover,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_msg_user_list li.active { background: var(--bcx-accent-soft) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .messages-container .incoming .message-text,
+html.bcx:not(#_bcx1):not(#_bcx2) .messages-container .incoming .message {
+  background: var(--bcx-sunken) !important;
+  color: var(--bcx-text) !important;
+  border-radius: 18px 18px 18px 6px !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .messages-container .outgoing .message-text:not([style*="background"]) {
+  background: var(--bcx-grad) !important;
+  color: #fff !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .messages-container .outgoing .message-text { border-radius: 18px 18px 6px 18px !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_msg_write_tarea,
+html.bcx:not(#_bcx1):not(#_bcx2) .text-sender-container textarea {
+  background: var(--bcx-sunken) !important;
+  border-radius: 22px !important;
+  border: 1px solid transparent !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .send-button:not([style*="background"]) { background: var(--bcx-grad) !important; border: 0 !important; color: #fff !important; }
+
+/* --------------------------------------------------------------------------
+   9. Notifications dropdown
+   -------------------------------------------------------------------------- */
+html.bcx:not(#_bcx1):not(#_bcx2) .notification-container .dropdown-menu .notification-list,
+html.bcx:not(#_bcx1):not(#_bcx2) .notification-container .dropdown-menu li a { border-radius: var(--bcx-r-md) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .notification-container .unread,
+html.bcx:not(#_bcx1):not(#_bcx2) .notification-container li.unread a { background: var(--bcx-accent-soft) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_switch_noti a,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_switch_noti button {
+  border-radius: var(--bcx-r-pill) !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_switch_noti .active { background: var(--bcx-grad) !important; color: #fff !important; }
+
+/* --------------------------------------------------------------------------
+   10. Wallet, staking, points, settings, search
+   -------------------------------------------------------------------------- */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_page_title,
+html.bcx:not(#_bcx1):not(#_bcx2) .container > h2.tag_page_title {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.03em !important;
+  color: var(--bcx-text) !important;
+}
+/* Balance cards: the existing navy gradients become the brand gradient */
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark [style*="linear-gradient(135deg, #1a1a2e"],
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark [style*="linear-gradient(135deg, #0f172a"],
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark [style*="background:#1e293b"],
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark [style*="background: #1e293b"] {
+  background:
+    radial-gradient(80% 90% at 100% 0%, rgba(139, 63, 217, .6) 0%, rgba(139, 63, 217, 0) 60%),
+    linear-gradient(135deg, #ff6a3d 0%, #e8336e 55%, #8b3fd9 100%) !important;
+  border: 0 !important;
+  box-shadow: var(--bcx-sh-brand) !important;
+  color: #fff !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark [style*="linear-gradient(135deg, #1a1a2e"] *,
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark [style*="linear-gradient(135deg, #0f172a"] * { color: #fff !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .wow_mini_wallets_btns a,
+html.bcx:not(#_bcx1):not(#_bcx2) .wow_mini_wallets_btns .btn {
+  background: var(--bcx-sunken) !important;
+  border: 1px solid var(--bcx-line) !important;
+  border-radius: var(--bcx-r-lg) !important;
+  color: var(--bcx-text) !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark table th { color: var(--bcx-text-3) !important; text-transform: uppercase; font-size: 11.5px !important; letter-spacing: .06em; }
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-fixdark table td { border-color: var(--bcx-line) !important; color: var(--bcx-text) !important; }
+/* Settings */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sett_sidebar li a { border-radius: var(--bcx-r-md) !important; color: var(--bcx-text) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sett_sidebar li.active a,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sett_sidebar li a:hover { background: var(--bcx-accent-soft) !important; color: var(--bcx-accent) !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sett_sidebar p.bold { color: var(--bcx-text-3) !important; text-transform: uppercase; letter-spacing: .08em; font-size: 11.5px !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sett_sidebar hr { border-color: var(--bcx-line) !important; }
+/* Generic page navs / tabs */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_page_nav li a {
+  border-radius: var(--bcx-r-pill) !important;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_page_nav li.active a { background: var(--bcx-grad) !important; color: #fff !important; }
+/* Right sidebar headings (desktop) */
+html.bcx:not(#_bcx1):not(#_bcx2) .wo_page_hdng,
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_widget .wo_page_hdng { color: var(--bcx-text) !important; font-weight: 700 !important; }
+/* People you may know cards */
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_pymk_list .tag_pymk_item,
+html.bcx:not(#_bcx1):not(#_bcx2) .bc-pymk-card { border-radius: var(--bcx-r-lg) !important; }
