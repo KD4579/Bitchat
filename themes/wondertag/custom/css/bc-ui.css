@@ -1040,7 +1040,7 @@ html.bcx:not(#_bcx1):not(#_bcx2) .bc-pymk-card { border-radius: var(--bcx-r-lg) 
 /* Fixed header must paint above the scrolling content */
 html.bcx:not(#_bcx1):not(#_bcx2) header,
 html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar { z-index: 1030 !important; }
-html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header { position: relative; z-index: 2; }
+@media (max-width: 1350px) { html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header { position: relative; z-index: 2; } }
 /* Filter rows elsewhere (profile, groups) stay inside the screen too */
 @media (max-width: 768px) {
   html.bcx:not(#_bcx1):not(#_bcx2) .tag_home_filters {
