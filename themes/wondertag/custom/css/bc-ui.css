@@ -1066,3 +1066,11 @@ html.bcx:not(#_bcx1):not(#_bcx2) header .tag_logo_mobi {
   width: auto !important;
   object-fit: contain;
 }
+html.bcx:not(#_bcx1):not(#_bcx2) header .tag_logo_pc {
+  content: url("../../img/email-logo.png");
+  height: 34px !important;
+  max-height: 34px !important;
+  width: auto !important;
+  object-fit: contain;
+}
+html.bcx:not(#_bcx1):not(#_bcx2) .tag_sidebar_head { background: transparent !important; border: 0 !important; }
