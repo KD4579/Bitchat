@@ -61,7 +61,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			var c = document.cookie.match(/(?:^|;\s*)mode=([^;]*)/);
 			var mode = c ? c[1] : null;
 			var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-			if (mode === 'night' || ((mode === 'auto' || !mode) && sysDark)) {
+			if (mode === 'night' || !mode || (mode === 'auto' && sysDark)) {
 				document.documentElement.classList.add('night-mode', 'bc-dark-mode');
 			}
 		})();
@@ -616,8 +616,8 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 
 		<?php if ($isDarkMode) { ?>
 			<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css">
-		<?php } elseif (empty($_COOKIE['mode']) || $_COOKIE['mode'] == 'auto') { ?>
-			<!-- No choice yet: follow the phone. Written in place so dark.css keeps its usual position. -->
+		<?php } elseif ($_COOKIE['mode'] == 'auto') { ?>
+			<!-- Auto: follow the device. Written in place so dark.css keeps its usual position. -->
 			<script>if (document.documentElement.classList.contains('night-mode')) { document.write('<link rel="stylesheet" href="<?php echo $wo['config']['theme_url'];?>/stylesheet/dark.css<?php echo bc_v('stylesheet/dark.css'); ?>" id="night-mode-css"><meta name="theme-color" content="#212121" id="night-mode-meta">'); }</script>
 		<?php } ?>
 		<script>
@@ -641,6 +641,47 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			if (b) { b.toggle('night-mode', !!on); b.toggle('night_mode', !!on); }
 		};
 		window.bcIsDark = function () { return !!document.querySelector('link[id="night-mode-css"]'); };
+		/* Theme mode: 'night' (default), 'day' or 'auto' (follows the device, live) */
+		window.bcThemeMode = function () {
+			var c = document.cookie.match(/(?:^|;\s*)mode=([^;]*)/);
+			return (c && /^(day|night|auto)$/.test(c[1])) ? c[1] : 'night';
+		};
+		window.bcSysDark = function () { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); };
+		window.bcApplyThemeMode = function (m) {
+			document.cookie = 'mode=' + m + ';path=/;max-age=315360000;SameSite=Lax';
+			bcSetDark(m === 'night' || (m === 'auto' && bcSysDark()));
+			var t = document.getElementById('bc-hdr-theme-toggle');
+			if (t && window._bcSunIcon && window._bcMoonIcon) { t.innerHTML = bcIsDark() ? window._bcSunIcon : window._bcMoonIcon; }
+			var g = document.getElementById('bc-theme-chooser');
+			if (g) { var b = g.querySelectorAll('[data-theme]'); for (var i = 0; i < b.length; i++) { b[i].classList.toggle('active', b[i].getAttribute('data-theme') === m); } }
+		};
+		if (window.matchMedia) {
+			var bcMq = window.matchMedia('(prefers-color-scheme: dark)');
+			var bcOnSys = function () { if (bcThemeMode() === 'auto') { bcSetDark(bcSysDark()); } };
+			if (bcMq.addEventListener) { bcMq.addEventListener('change', bcOnSys); } else if (bcMq.addListener) { bcMq.addListener(bcOnSys); }
+		}
+		/* Small chooser: Light / Dark / Auto (device) */
+		window.bcOpenThemeChooser = function () {
+			var g = document.getElementById('bc-theme-chooser');
+			if (!g) {
+				g = document.createElement('div');
+				g.id = 'bc-theme-chooser';
+				g.setAttribute('role', 'dialog');
+				g.setAttribute('aria-label', 'Appearance');
+				g.innerHTML = '<div class="bc-tc-backdrop" data-close="1"></div><div class="bc-tc-sheet"><div class="bc-tc-title">Appearance</div>'
+					+ '<button type="button" data-theme="day"><span class="bc-tc-ico">\u2600\ufe0f</span><span><b>Light</b><small>Bright and clean</small></span></button>'
+					+ '<button type="button" data-theme="night"><span class="bc-tc-ico">\ud83c\udf19</span><span><b>Dark</b><small>Easy on the eyes (default)</small></span></button>'
+					+ '<button type="button" data-theme="auto"><span class="bc-tc-ico">\ud83d\udcf1</span><span><b>Auto</b><small>Match my device setting</small></span></button></div>';
+				document.body.appendChild(g);
+				g.addEventListener('click', function (e) {
+					var b = e.target.closest('[data-theme]');
+					if (b) { bcApplyThemeMode(b.getAttribute('data-theme')); setTimeout(function () { g.classList.remove('open'); }, 160); return; }
+					if (e.target.closest('[data-close]')) { g.classList.remove('open'); }
+				});
+			}
+			bcApplyThemeMode(bcThemeMode());
+			g.classList.add('open');
+		};
 		</script>
 
 		<!-- VI-1: Bitchat Design System (loads before custom overrides) -->
@@ -1383,25 +1424,7 @@ if (mysqli_query($wo['sqlConnect'], "DESCRIBE `wondertage_settings`" )) {
 			}
 			<?php } ?>
 	  
-			<?php if (!empty($wondertage_settings) && $wondertage_settings['tag_auto_dark'] == 1) { ?>
-			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				bcSetDark(true);
-				$('#night_mode_toggle').addClass('d-none');
-				$('#night_mode_auto').removeClass('d-none');
-			};
-
-			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-				if (e.matches) {
-					bcSetDark(true);
-					$('#night_mode_toggle').addClass('d-none');
-					$('#night_mode_auto').removeClass('d-none');
-				} else {
-					$('#night_mode_toggle').removeClass('d-none');
-					bcSetDark(false);
-					$('#night_mode_auto').addClass('d-none');
-				}
-			});
-			<?php } ?>
+			<?php /* Device-following dark mode is now the visitor's own "Auto" choice (bcApplyThemeMode) */ ?>
 			$(document).ready(function(){
 				$('body').on('contextmenu', 'video', function() { return false; });
 			});

@@ -10270,3 +10270,32 @@ html.bc-dark-mode #posts button[onclick="location.reload()"] {
 html:not(.bc-dark-mode) .bc-mob-nav-item { color: #5b6677 !important; }
 html:not(.bc-dark-mode) .bc-mob-nav-item.active { color: var(--bc-primary, #6C5CFF) !important; }
 html:not(.bc-dark-mode) .remember-label { color: #475569 !important; }
+
+/* Appearance chooser (Light / Dark / Auto) — bottom sheet on phones, small card on desktop */
+#bc-theme-chooser { position: fixed; inset: 0; z-index: 100000; display: none; }
+#bc-theme-chooser.open { display: block; }
+#bc-theme-chooser .bc-tc-backdrop { position: absolute; inset: 0; background: rgba(8, 10, 14, .5); animation: bcTcFade .18s ease; }
+#bc-theme-chooser .bc-tc-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: #fff; color: #0f172a;
+  border-radius: 22px 22px 0 0;
+  padding: 10px 14px calc(16px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, .25);
+  animation: bcTcUp .22s cubic-bezier(.2, .8, .2, 1);
+}
+#bc-theme-chooser .bc-tc-title { font-weight: 800; font-size: 17px; padding: 10px 6px 8px; }
+#bc-theme-chooser button {
+  display: flex; align-items: center; gap: 14px; width: 100%;
+  background: transparent; border: 1.5px solid transparent; border-radius: 14px;
+  padding: 12px; margin: 4px 0; text-align: left; color: inherit; cursor: pointer;
+}
+#bc-theme-chooser button b { display: block; font-size: 15.5px; }
+#bc-theme-chooser button small { display: block; font-size: 13px; opacity: .65; }
+#bc-theme-chooser button.active { border-color: #e8336e; background: rgba(232, 51, 110, .08); }
+#bc-theme-chooser .bc-tc-ico { font-size: 22px; width: 32px; text-align: center; }
+html.bc-dark-mode #bc-theme-chooser .bc-tc-sheet { background: #1e222b; color: #e8eaf0; }
+@media (min-width: 700px) {
+  #bc-theme-chooser .bc-tc-sheet { left: 50%; right: auto; bottom: auto; top: 50%; width: 360px; transform: translate(-50%, -50%); border-radius: 20px; padding-bottom: 14px; animation: bcTcFade .18s ease; }
+}
+@keyframes bcTcUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes bcTcFade { from { opacity: 0; } to { opacity: 1; } }
