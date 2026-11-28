@@ -1114,3 +1114,15 @@ html.bcx:not(#_bcx1):not(#_bcx2) .tag_hdr_droptoggle { width: 40px !important; h
 html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc,
 html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc a { line-height: 1.9 !important; }
 html.bcx:not(#_bcx1):not(#_bcx2) .tag_footer_pc { color: var(--bcx-text-3) !important; font-size: 12.5px !important; }
+/* >=1351px: the header bar is invisible and its pieces are fixed in the left column.
+   A backdrop-filter would turn it into the containing block for those fixed pieces,
+   dragging the logo and search into the feed, so drop it there. */
+@media (min-width: 1351px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header,
+  html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+}
