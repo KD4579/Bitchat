@@ -1178,3 +1178,19 @@ html.bcx:not(#_bcx1):not(#_bcx2) .tag_messages .tag_msg_user_list,
 html.bcx:not(#_bcx1):not(#_bcx2) .tag_messages .tag_msg_user_chat { background: var(--bcx-card) !important; }
 /* Welcome footer lines never collide */
 html.bcx:not(#_bcx1):not(#_bcx2) .welcome-footer { line-height: 1.9 !important; }
+/* Tab rows (Groups, Pages, ...) scroll sideways on phones instead of being cut off */
+@media (max-width: 768px) {
+  html.bcx:not(#_bcx1):not(#_bcx2) ul.tag_page_nav:not(#filterby-post) {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 16px 6px !important;
+    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+  html.bcx:not(#_bcx1):not(#_bcx2) ul.tag_page_nav:not(#filterby-post)::-webkit-scrollbar { display: none; }
+  html.bcx:not(#_bcx1):not(#_bcx2) ul.tag_page_nav:not(#filterby-post) > li { flex: 0 0 auto !important; }
+}
