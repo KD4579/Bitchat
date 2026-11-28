@@ -1056,3 +1056,13 @@ html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+/* Header bar edge to edge; readable wordmark on phones */
+html.bcx:not(#_bcx1):not(#_bcx2) header nav.navbar > .container { padding-left: 0 !important; padding-right: 0 !important; max-width: 100% !important; width: 100% !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) header .tag_header { padding-left: 14px !important; padding-right: 14px !important; width: 100% !important; margin: 0 !important; }
+html.bcx:not(#_bcx1):not(#_bcx2) header .tag_logo_mobi {
+  content: url("../../img/email-logo.png");
+  height: 28px !important;
+  max-height: 28px !important;
+  width: auto !important;
+  object-fit: contain;
+}
