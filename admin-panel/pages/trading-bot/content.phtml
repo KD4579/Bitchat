@@ -407,6 +407,7 @@ foreach ($botDefaults as $key => $default) {
                                 <option value="2500" <?php echo ($botConfig['bot_pool_usdt_fee'] == '2500') ? 'selected' : ''; ?>>0.25% (2500)</option>
                                 <option value="10000" <?php echo ($botConfig['bot_pool_usdt_fee'] == '10000') ? 'selected' : ''; ?>>1% (10000)</option>
                             </select>
+                            <small class="text-muted">The bot reads the real fee from the pool on-chain; this is only a fallback.</small>
                         </div>
                     </div>
                 </div>
@@ -427,6 +428,7 @@ foreach ($botDefaults as $key => $default) {
                                 <option value="2500" <?php echo ($botConfig['bot_pool_wbnb_fee'] == '2500') ? 'selected' : ''; ?>>0.25% (2500)</option>
                                 <option value="10000" <?php echo ($botConfig['bot_pool_wbnb_fee'] == '10000') ? 'selected' : ''; ?>>1% (10000)</option>
                             </select>
+                            <small class="text-muted">The bot reads the real fee from the pool on-chain; this is only a fallback.</small>
                         </div>
                     </div>
                 </div>

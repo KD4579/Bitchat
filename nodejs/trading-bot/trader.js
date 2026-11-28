@@ -53,6 +53,32 @@ function withTxLock(fn) {
 }
 
 /**
+ * The fee tier must match the pool the bot reads prices from, or every quote and
+ * swap is routed to a different (usually empty) pool. Read it from the pool contract
+ * itself; the admin setting is only a fallback if the RPC call fails.
+ * Cached per pool address (a V3 pool's fee never changes).
+ */
+const poolFeeCache = new Map();
+async function resolvePoolFee(provider, poolAddress, configuredFee, label) {
+    const key = String(poolAddress || '').toLowerCase();
+    if (poolFeeCache.has(key)) return poolFeeCache.get(key);
+    const fallback = parseInt(configuredFee);
+    try {
+        const pool = new ethers.Contract(poolAddress, ['function fee() view returns (uint24)'], provider);
+        const fee = Number(await pool.fee());
+        if (!(fee > 0)) throw new Error(`pool returned fee ${fee}`);
+        if (fee !== fallback) {
+            log.warn(`${label} pool fee tier is ${fee} on-chain but the admin setting says ${configuredFee}; using ${fee}. Update the admin setting to match.`);
+        }
+        poolFeeCache.set(key, fee);
+        return fee;
+    } catch (e) {
+        log.warn(`Could not read ${label} pool fee on-chain (${e.shortMessage || e.message}); using admin setting ${configuredFee}.`);
+        return fallback;
+    }
+}
+
+/**
  * Quote an exact-input single-pool swap. Returns amountOut (bigint) or null if the
  * pool cannot fill it (the quoter reverts when liquidity runs out).
  */
@@ -173,8 +199,8 @@ function runGridTrading(wallet, provider, cfg) {
 
 async function gridTradeOnce(wallet, provider, cfg) {
     const poolAddress  = cfg.bot_pool_trdc_usdt;
-    const fee          = parseInt(cfg.bot_pool_usdt_fee);
-    const spreadPct    = parseFloat(cfg.bot_spread_percent) / 100;
+    const fee          = await resolvePoolFee(provider, poolAddress, cfg.bot_pool_usdt_fee, 'TRDC/USDT');
+    const spreadPct   = parseFloat(cfg.bot_spread_percent) / 100;
     const orderSizeMin = parseFloat(cfg.bot_order_size_min || cfg.bot_order_size_trdc || 1500);
     const orderSizeMax = parseFloat(cfg.bot_order_size_max || cfg.bot_order_size_trdc || 2500);
     const maxSlippage  = parseFloat(cfg.bot_max_slippage);
@@ -364,8 +390,10 @@ async function gridTradeOnce(wallet, provider, cfg) {
 async function runArbitrage(wallet, provider, cfg, gasPriceWei) {
     const usdtPool     = cfg.bot_pool_trdc_usdt;
     const wbnbPool     = cfg.bot_pool_trdc_wbnb;
-    const usdtFee      = parseInt(cfg.bot_pool_usdt_fee);
-    const wbnbFee      = parseInt(cfg.bot_pool_wbnb_fee);
+    const [usdtFee, wbnbFee] = await Promise.all([
+        resolvePoolFee(provider, usdtPool, cfg.bot_pool_usdt_fee, 'TRDC/USDT'),
+        resolvePoolFee(provider, wbnbPool, cfg.bot_pool_wbnb_fee, 'TRDC/WBNB'),
+    ]);
     const minSpread    = parseFloat(cfg.bot_min_arb_profit) / 100;
     const minPoolUsd   = parseFloat(cfg.bot_arb_min_pool_usd);
     const minProfitUsd = parseFloat(cfg.bot_arb_min_profit_usd);
